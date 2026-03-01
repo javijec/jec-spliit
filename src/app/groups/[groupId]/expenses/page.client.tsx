@@ -95,7 +95,7 @@ export default function GroupExpensesPageClient({
           <CardHeader className="p-4 sm:p-6 border-b">
             <CardTitle className="text-xl leading-none">Deudas</CardTitle>
             <CardDescription className="mt-2">
-              Vista rápida de deudas entre participantes, agrupadas por moneda.
+              Quién le debe a quién, separado por moneda.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
@@ -109,30 +109,38 @@ export default function GroupExpensesPageClient({
                 No hay deudas simplificadas pendientes.
               </p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {groupedDebtSummary.map((pair) => (
                   <div
                     key={`${pair.from}-${pair.to}`}
-                    className="rounded-lg border bg-card/60 p-3 text-sm"
+                    className="rounded-lg border bg-card/60 p-3 sm:p-3.5 text-sm"
                   >
-                    <span className="font-semibold">
-                      {getParticipantName(pair.from)}
-                    </span>{' '}
-                    le debe a{' '}
-                    <span className="font-semibold">
-                      {getParticipantName(pair.to)}
-                    </span>
-                    :{' '}
-                    {pair.items
-                      .map(
-                        (item) =>
-                          `${formatCurrency(
+                    <div className="leading-snug">
+                      <span className="font-semibold break-words">
+                        {getParticipantName(pair.from)}
+                      </span>{' '}
+                      <span className="text-muted-foreground">debe a</span>{' '}
+                      <span className="font-semibold break-words">
+                        {getParticipantName(pair.to)}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {pair.items.map((item) => (
+                        <span
+                          key={`${pair.from}-${pair.to}-${item.currencyCode}`}
+                          className="inline-flex items-center rounded-full border bg-muted/60 px-2 py-0.5 text-xs tabular-nums"
+                        >
+                          {formatCurrency(
                             resolveCurrency(item.currencyCode),
                             item.amount,
                             locale,
-                          )} ${item.currencyCode}`,
-                      )
-                      .join(' + ')}
+                          )}
+                          <span className="ml-1 text-muted-foreground uppercase">
+                            {item.currencyCode}
+                          </span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -148,15 +156,25 @@ export default function GroupExpensesPageClient({
               <CardTitle className="text-xl leading-none">{t('title')}</CardTitle>
               <CardDescription className="mt-2">{t('description')}</CardDescription>
             </div>
-            <div className="flex items-center gap-2 self-end sm:self-auto">
-              <ExportButton groupId={groupId} />
+            <div className="flex items-center gap-2 w-full sm:w-auto self-stretch sm:self-auto">
+              <ExportButton
+                groupId={groupId}
+                showLabel
+                size="default"
+                variant="outline"
+              />
               {enableReceiptExtract && <CreateFromReceiptButton />}
-              <Button asChild size="icon">
+              <Button
+                asChild
+                size="default"
+                className="ml-auto sm:ml-0 sm:px-3"
+              >
                 <Link
                   href={`/groups/${groupId}/expenses/create`}
                   title={t('create')}
                 >
                   <Plus className="w-4 h-4" />
+                  <span className="ml-2">{t('create')}</span>
                 </Link>
               </Button>
             </div>

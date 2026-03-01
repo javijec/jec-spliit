@@ -32,16 +32,24 @@ export const GroupHeader = () => {
           <GroupTabs groupId={groupId} />
         </div>
         {group && (
-          <div className="flex items-center gap-2">
-            <ShareButton group={group} />
+          <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+            <ShareButton
+              group={group}
+              showLabel
+              variant="outline"
+              size="default"
+              className="w-full sm:w-auto"
+            />
             <Button
               asChild
-              size="icon"
+              size="default"
               variant="outline"
+              className="w-full sm:w-auto"
               title={t('Settings.title')}
             >
               <Link href={`/groups/${groupId}/edit`}>
                 <Settings className="w-4 h-4" />
+                <span className="ml-2">{t('Settings.title')}</span>
               </Link>
             </Button>
           </div>

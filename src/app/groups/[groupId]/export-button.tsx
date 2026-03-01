@@ -10,14 +10,26 @@ import {
 import { Download, FileDown, FileJson } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { ComponentProps } from 'react'
 
-export default function ExportButton({ groupId }: { groupId: string }) {
+export default function ExportButton({
+  groupId,
+  showLabel = false,
+  variant = 'secondary',
+  size = 'icon',
+}: {
+  groupId: string
+  showLabel?: boolean
+  variant?: ComponentProps<typeof Button>['variant']
+  size?: ComponentProps<typeof Button>['size']
+}) {
   const t = useTranslations('Expenses')
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button title={t('export')} variant="secondary" size="icon">
+        <Button title={t('export')} variant={variant} size={size}>
           <Download className="w-4 h-4" />
+          {showLabel && <span className="ml-2">{t('export')}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

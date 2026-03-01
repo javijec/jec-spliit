@@ -9,15 +9,27 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { useBaseUrl } from '@/lib/hooks'
+import { cn } from '@/lib/utils'
 import { Group } from '@prisma/client'
 import { Share } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { ComponentProps } from 'react'
 
 type Props = {
   group: Group
+  showLabel?: boolean
+  className?: string
+  variant?: ComponentProps<typeof Button>['variant']
+  size?: ComponentProps<typeof Button>['size']
 }
 
-export function ShareButton({ group }: Props) {
+export function ShareButton({
+  group,
+  showLabel = false,
+  className,
+  variant = 'default',
+  size = 'icon',
+}: Props) {
   const t = useTranslations('Share')
   const baseUrl = useBaseUrl()
   const url = baseUrl && `${baseUrl}/groups/${group.id}/expenses?ref=share`
@@ -25,8 +37,14 @@ export function ShareButton({ group }: Props) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button title={t('title')} size="icon" className="flex-shrink-0">
+        <Button
+          title={t('title')}
+          size={size}
+          variant={variant}
+          className={cn('flex-shrink-0', className)}
+        >
           <Share className="w-4 h-4" />
+          {showLabel && <span className="ml-2">{t('title')}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="[&_p]:text-sm flex flex-col gap-3">
