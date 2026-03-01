@@ -14,12 +14,14 @@ export function TotalsYourShare({
   const t = useTranslations('Stats.Totals')
 
   return (
-    <div>
-      <div className="text-muted-foreground">{t('yourShare')}</div>
+    <div className="rounded-lg border bg-card/60 p-3">
+      <div className="text-[11px] sm:text-xs uppercase tracking-wide text-muted-foreground">
+        {t('yourShare')}
+      </div>
       <div
         className={cn(
-          'text-lg',
-          totalParticipantShare < 0 ? 'text-green-600' : 'text-red-600',
+          'text-xl sm:text-2xl font-semibold tabular-nums mt-1',
+          totalParticipantShare < 0 ? 'text-emerald-500' : 'text-red-500',
         )}
       >
         {formatCurrency(currency, Math.abs(totalParticipantShare), locale)}
