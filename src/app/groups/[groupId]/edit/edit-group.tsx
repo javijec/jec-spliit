@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogClose,
@@ -30,6 +31,9 @@ import { useCurrentGroup } from '../current-group-context'
 export const EditGroup = () => {
   const { groupId } = useCurrentGroup()
   const [password, setPassword] = useState('')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteConfirmChecked, setDeleteConfirmChecked] = useState(false)
+  const [deleteConfirmName, setDeleteConfirmName] = useState('')
   const { toast } = useToast()
   const { data, isLoading } = trpc.groups.getDetails.useQuery({ groupId })
   const { mutateAsync: mutateGroupAsync } = trpc.groups.update.useMutation()
@@ -54,20 +58,33 @@ export const EditGroup = () => {
   }
 
   if (isLoading) return <></>
+  const groupName = data?.group?.name ?? ''
+  const canDeleteGroup =
+    deleteConfirmChecked && deleteConfirmName.trim() === groupName
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      <section className="rounded-lg border bg-card px-4 py-3 sm:px-6 sm:py-4">
-        <h2 className="text-base sm:text-lg font-semibold">
+      <section className="rounded-lg border bg-card/80 backdrop-blur-sm px-4 py-3 sm:px-6 sm:py-4">
+        <h2 className="text-base sm:text-lg font-semibold leading-tight">
           Ajustes del grupo
         </h2>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Administra participantes, moneda principal y seguridad de acceso.
+          Administra participantes, moneda por defecto y seguridad de acceso.
         </p>
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          <Badge variant="secondary" className="text-[11px] sm:text-xs">
+            {data?.group?.participants.length ?? 0} participantes
+          </Badge>
+          {data?.group?.currencyCode && (
+            <Badge variant="secondary" className="text-[11px] sm:text-xs">
+              Moneda por defecto: {data.group.currencyCode}
+            </Badge>
+          )}
+        </div>
       </section>
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-        <div className="order-2 lg:order-1">
+        <div className="order-1 lg:order-1">
           <GroupForm
             group={data?.group}
             onSubmit={async (groupFormValues, participantId) => {
@@ -82,8 +99,8 @@ export const EditGroup = () => {
           />
         </div>
 
-        <aside className="order-1 lg:order-2 space-y-3 sm:space-y-4 lg:sticky lg:top-20">
-          <Card>
+        <aside className="order-2 lg:order-2 space-y-3 sm:space-y-4 lg:sticky lg:top-20">
+          <Card className="overflow-hidden">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-2">
@@ -131,7 +148,7 @@ export const EditGroup = () => {
                     })
                   }}
                   disabled={isSettingPassword || password.trim().length < 4}
-                  className="w-full"
+                  className="w-full h-11"
                 >
                   <Lock className="w-4 h-4 mr-2" />
                   {data?.hasAccessPassword ? 'Actualizar' : 'Activar'}
@@ -151,7 +168,7 @@ export const EditGroup = () => {
                     })
                   }}
                   disabled={!data?.hasAccessPassword || isClearingPassword}
-                  className="w-full"
+                  className="w-full h-11"
                 >
                   <LockOpen className="w-4 h-4 mr-2" />
                   Quitar
@@ -170,7 +187,7 @@ export const EditGroup = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="overflow-hidden border-destructive/30">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Zona peligrosa</CardTitle>
               <CardDescription>
@@ -178,24 +195,63 @@ export const EditGroup = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-              <Dialog>
+              <Dialog
+                open={deleteDialogOpen}
+                onOpenChange={(open) => {
+                  setDeleteDialogOpen(open)
+                  if (!open) {
+                    setDeleteConfirmChecked(false)
+                    setDeleteConfirmName('')
+                  }
+                }}
+              >
                 <DialogTrigger asChild>
-                  <Button variant="destructive" className="w-full">
+                  <Button variant="destructive" className="w-full h-11">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Eliminar grupo
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="sm:max-w-md">
                   <DialogTitle>¿Eliminar grupo?</DialogTitle>
                   <DialogDescription>
                     Se eliminarán participantes, gastos, deudas y actividad.
                     Esta acción no se puede deshacer.
                   </DialogDescription>
+                  <div className="space-y-3 py-2">
+                    <div className="flex items-start gap-2 rounded-md border p-3 bg-muted/30">
+                      <Checkbox
+                        id="confirm-delete-group"
+                        checked={deleteConfirmChecked}
+                        onCheckedChange={(checked) =>
+                          setDeleteConfirmChecked(Boolean(checked))
+                        }
+                      />
+                      <label
+                        htmlFor="confirm-delete-group"
+                        className="text-sm leading-snug cursor-pointer"
+                      >
+                        Entiendo que esta eliminación es definitiva.
+                      </label>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">
+                        Escribe el nombre del grupo para confirmar:
+                      </p>
+                      <Input
+                        value={deleteConfirmName}
+                        onChange={(event) =>
+                          setDeleteConfirmName(event.target.value)
+                        }
+                        placeholder={groupName}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
                   <DialogFooter className="flex flex-col gap-2">
                     <Button
                       type="button"
                       variant="destructive"
-                      disabled={isDeletingGroup}
+                      disabled={isDeletingGroup || !canDeleteGroup}
                       onClick={async () => {
                         await deleteGroupAsync({
                           groupId,
@@ -207,11 +263,14 @@ export const EditGroup = () => {
                         })
                         router.push('/groups')
                       }}
+                      className="w-full"
                     >
-                      Confirmar eliminación
+                      Eliminar para siempre
                     </Button>
                     <DialogClose asChild>
-                      <Button variant="secondary">Cancelar</Button>
+                      <Button variant="secondary" className="w-full">
+                        Cancelar
+                      </Button>
                     </DialogClose>
                   </DialogFooter>
                 </DialogContent>

@@ -97,9 +97,9 @@
       "description": "We’ll use it to display amounts."
     },
     "CurrencyCodeField": {
-      "label": "Main currency",
-      "createDescription": "All amounts and balances will be in this currency.",
-      "editDescription": "All amounts and balances will be in this currency. Changing this will NOT convert expenses already entered, except when the currency has different \"minor units\" than the current one (e.g. changing from US Dollar to Japanese Yen)",
+      "label": "Default currency",
+      "createDescription": "Used as the default currency when creating new expenses.",
+      "editDescription": "This only sets the group's default currency. It does not convert existing expenses or merge balances across different currencies.",
       "customOption": "Custom"
     },
     "Participants": {

@@ -122,9 +122,9 @@
       "cancel": "Cancelar"
     },
     "CurrencyCodeField": {
-      "label": "Moneda principal",
-      "createDescription": "Todos los importes y saldos estarán en esta moneda.",
-      "editDescription": "Todos los importes y saldos estarán en esta moneda. Al cambiarla, NO se convertirán los gastos ya ingresados, excepto cuando la moneda tenga «unidades menores» diferentes a las actuales (por ejemplo, al cambiar de dólares estadounidenses a yenes japoneses)",
+      "label": "Moneda por defecto",
+      "createDescription": "Se usará como moneda predeterminada al crear nuevos gastos.",
+      "editDescription": "Solo define la moneda predeterminada del grupo. No convierte los gastos existentes ni unifica balances de distintas monedas.",
       "customOption": "Personalizado"
     }
   },

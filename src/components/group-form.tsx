@@ -139,7 +139,9 @@ export function GroupForm({
         ? []
         : collectErrorPaths(item, currentPath ? `${currentPath}.${key}` : key),
     )
-    return hasMessage && currentPath ? [currentPath, ...nestedPaths] : nestedPaths
+    return hasMessage && currentPath
+      ? [currentPath, ...nestedPaths]
+      : nestedPaths
   }
 
   const focusFirstInvalidField = () => {
@@ -154,7 +156,11 @@ export function GroupForm({
   const errorCount = countErrors(form.formState.errors)
   const errorPaths = collectErrorPaths(form.formState.errors)
   const normalizedErrorPaths = Array.from(
-    new Set(errorPaths.map((path) => path.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, ''))),
+    new Set(
+      errorPaths.map((path) =>
+        path.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, ''),
+      ),
+    ),
   )
   const labelByPath: Record<string, string> = {
     name: t('NameField.label'),
@@ -193,7 +199,8 @@ export function GroupForm({
               Hay {errorCount} campo(s) con errores. Te llevamos al primero.
               {topInvalidFields.length > 0 && (
                 <>
-                  {' '}Campos: {topInvalidFields.join(', ')}
+                  {' '}
+                  Campos: {topInvalidFields.join(', ')}
                   {uniqueInvalidFieldLabels.length > topInvalidFields.length &&
                     ', ...'}
                   .
@@ -289,7 +296,6 @@ export function GroupForm({
                 </FormItem>
               )}
             />
-
           </CardContent>
         </Card>
 
@@ -419,16 +425,17 @@ export function GroupForm({
           </CardContent>
         </Card>
 
-        <div className="flex mt-4 gap-2">
+        <div className="flex flex-col sm:flex-row mt-4 gap-2">
           <SubmitButton
             loadingContent={t(group ? 'Settings.saving' : 'Settings.creating')}
             onClick={updateActiveUser}
+            className="w-full sm:w-auto"
           >
             <Save className="w-4 h-4 mr-2" />{' '}
             {t(group ? 'Settings.save' : 'Settings.create')}
           </SubmitButton>
           {!group && (
-            <Button variant="ghost" asChild>
+            <Button variant="ghost" asChild className="w-full sm:w-auto">
               <Link href="/groups">{t('Settings.cancel')}</Link>
             </Button>
           )}
