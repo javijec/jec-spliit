@@ -92,7 +92,7 @@ export function ExpenseList() {
     <>
       <SearchBar
         onValueChange={(value) => setSearchText(value)}
-        containerClassName="sticky top-16 z-20 py-2 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+        containerClassName="sticky top-16 z-20 py-1.5 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border-b"
       />
       <ExpenseListForSearch
         groupId={groupId}
@@ -191,7 +191,7 @@ const ExpenseListForSearch = ({
           <div key={expenseGroup}>
             <div
               className={
-                'text-muted-foreground text-xs pl-4 sm:pl-6 py-1 font-semibold sticky top-[7.25rem] bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 z-10'
+                'text-muted-foreground text-[11px] sm:text-xs pl-4 sm:pl-6 py-1.5 font-semibold uppercase tracking-wide sticky top-[7.5rem] sm:top-[7.25rem] bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 z-10 border-b'
               }
             >
               {t(`Groups.${expenseGroup}`)}

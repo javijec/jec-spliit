@@ -150,34 +150,43 @@ export default function GroupExpensesPageClient({
       )}
 
       <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
-        <CardHeader className="p-4 sm:p-6 border-b">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <CardTitle className="text-xl leading-none">{t('title')}</CardTitle>
-              <CardDescription className="mt-2">{t('description')}</CardDescription>
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto self-stretch sm:self-auto">
-              <ExportButton
-                groupId={groupId}
-                showLabel
-                size="default"
-                variant="outline"
-              />
-              {enableReceiptExtract && <CreateFromReceiptButton />}
-              <Button
-                asChild
-                size="default"
-                className="ml-auto sm:ml-0 sm:px-3"
-              >
-                <Link
-                  href={`/groups/${groupId}/expenses/create`}
-                  title={t('create')}
+        <CardHeader className="p-3 sm:p-6 border-b">
+          <div className="space-y-1 sm:space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-lg sm:text-xl leading-none">
+                {t('title')}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="sm:hidden">
+                  <ExportButton groupId={groupId} size="icon" variant="outline" />
+                </div>
+                <div className="hidden sm:block">
+                  <ExportButton
+                    groupId={groupId}
+                    showLabel
+                    size="default"
+                    variant="outline"
+                  />
+                </div>
+                {enableReceiptExtract && <CreateFromReceiptButton />}
+                <Button
+                  asChild
+                  size="default"
+                  className="hidden sm:inline-flex sm:px-3"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span className="ml-2">{t('create')}</span>
-                </Link>
-              </Button>
+                  <Link
+                    href={`/groups/${groupId}/expenses/create`}
+                    title={t('create')}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="ml-2">{t('create')}</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
+            <CardDescription className="hidden sm:block">
+              {t('description')}
+            </CardDescription>
           </div>
         </CardHeader>
 
