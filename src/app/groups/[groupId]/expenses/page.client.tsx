@@ -92,139 +92,159 @@ export default function GroupExpensesPageClient() {
     </div>
   )
 
-  return (
-    <>
-      {group && (
-        <div className="mb-4 grid gap-4 lg:grid-cols-2">
-          <GroupSectionCard className="lg:mx-0 lg:border-x">
-            <GroupSectionHeader>
-              <GroupSectionTitle className="text-xl leading-none">
-                Deudas
-              </GroupSectionTitle>
-              <GroupSectionDescription className="mt-2">
-                Quién le debe a quién, separado por moneda.
-              </GroupSectionDescription>
-            </GroupSectionHeader>
-            <GroupSectionContent>
-              {balancesAreLoading || !balancesData ? (
-                <LoadingPairs />
-              ) : groupedDebtSummary.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No hay deudas simplificadas pendientes.
-                </p>
-              ) : (
-                <div className="space-y-2.5">
-                  {groupedDebtSummary.map((pair) => (
-                    <div
-                      key={`${pair.from}-${pair.to}`}
-                      className="rounded-lg border bg-card/60 p-3 sm:p-3.5 text-sm"
+  const DebtSection = () => (
+    <GroupSectionCard className="lg:mx-0 lg:border-x">
+      <GroupSectionHeader>
+        <GroupSectionTitle className="text-xl leading-none">
+          Deudas
+        </GroupSectionTitle>
+        <GroupSectionDescription className="mt-2">
+          Quién le debe a quién, separado por moneda.
+        </GroupSectionDescription>
+      </GroupSectionHeader>
+      <GroupSectionContent>
+        {balancesAreLoading || !balancesData ? (
+          <LoadingPairs />
+        ) : groupedDebtSummary.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No hay deudas simplificadas pendientes.
+          </p>
+        ) : (
+          <div className="space-y-2.5">
+            {groupedDebtSummary.map((pair) => (
+              <div
+                key={`${pair.from}-${pair.to}`}
+                className="rounded-lg border bg-card/60 p-3 sm:p-3.5 text-sm"
+              >
+                <div className="leading-snug">
+                  <span className="font-semibold break-words">
+                    {getParticipantName(pair.from)}
+                  </span>{' '}
+                  <span className="text-muted-foreground">debe a</span>{' '}
+                  <span className="font-semibold break-words">
+                    {getParticipantName(pair.to)}
+                  </span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {pair.items.map((item) => (
+                    <span
+                      key={`${pair.from}-${pair.to}-${item.currencyCode}`}
+                      className="inline-flex items-center rounded-full border bg-muted/60 px-2 py-0.5 text-xs tabular-nums"
                     >
-                      <div className="leading-snug">
-                        <span className="font-semibold break-words">
-                          {getParticipantName(pair.from)}
-                        </span>{' '}
-                        <span className="text-muted-foreground">debe a</span>{' '}
-                        <span className="font-semibold break-words">
-                          {getParticipantName(pair.to)}
-                        </span>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {pair.items.map((item) => (
-                          <span
-                            key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                            className="inline-flex items-center rounded-full border bg-muted/60 px-2 py-0.5 text-xs tabular-nums"
-                          >
-                            {formatCurrency(
-                              resolveCurrency(item.currencyCode),
-                              item.amount,
-                              locale,
-                            )}
-                            <span className="ml-1 text-muted-foreground uppercase">
-                              {item.currencyCode}
-                            </span>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                      {formatCurrency(
+                        resolveCurrency(item.currencyCode),
+                        item.amount,
+                        locale,
+                      )}
+                      <span className="ml-1 text-muted-foreground uppercase">
+                        {item.currencyCode}
+                      </span>
+                    </span>
                   ))}
                 </div>
-              )}
-            </GroupSectionContent>
-          </GroupSectionCard>
+              </div>
+            ))}
+          </div>
+        )}
+      </GroupSectionContent>
+    </GroupSectionCard>
+  )
 
-          <GroupSectionCard className="hidden sm:block lg:mx-0 lg:border-x">
-            <GroupSectionHeader>
-              <GroupSectionTitle className="text-xl leading-none">
-                Liquidaciones
-              </GroupSectionTitle>
-              <GroupSectionDescription className="mt-2">
-                {tBalances('Reimbursements.description')}
-              </GroupSectionDescription>
+  const SettlementsSection = () => (
+    <GroupSectionCard className="lg:mx-0 lg:border-x">
+      <GroupSectionHeader>
+        <GroupSectionTitle className="text-xl leading-none">
+          Liquidaciones
+        </GroupSectionTitle>
+        <GroupSectionDescription className="mt-2">
+          {tBalances('Reimbursements.description')}
+        </GroupSectionDescription>
+      </GroupSectionHeader>
+      <GroupSectionContent>
+        {balancesAreLoading || !balancesData ? (
+          <LoadingPairs />
+        ) : (
+          <ReimbursementList
+            reimbursements={balancesData.reimbursements}
+            participants={group!.participants}
+            currency={getCurrencyFromGroup(group!)}
+            groupId={groupId}
+          />
+        )}
+      </GroupSectionContent>
+    </GroupSectionCard>
+  )
+
+  return (
+    <>
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-4">
+        <div className="order-2 lg:order-1">
+          {group && (
+            <div className="mb-4 lg:hidden space-y-4">
+              <DebtSection />
+              <div className="hidden sm:block">
+                <SettlementsSection />
+              </div>
+            </div>
+          )}
+
+          <GroupSectionCard className="mb-4">
+            <GroupSectionHeader className="p-3 sm:p-6">
+              <div className="space-y-1 sm:space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <GroupSectionTitle className="text-lg sm:text-xl leading-none">
+                    {t('title')}
+                  </GroupSectionTitle>
+                  <div className="flex items-center gap-2">
+                    <div className="sm:hidden">
+                      <ExportButton
+                        groupId={groupId}
+                        size="icon"
+                        variant="outline"
+                      />
+                    </div>
+                    <div className="hidden sm:block">
+                      <ExportButton
+                        groupId={groupId}
+                        showLabel
+                        size="default"
+                        variant="outline"
+                      />
+                    </div>
+                    <Button
+                      asChild
+                      size="default"
+                      className="hidden sm:inline-flex sm:px-3"
+                    >
+                      <Link
+                        href={`/groups/${groupId}/expenses/create`}
+                        title={t('create')}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span className="ml-2">{t('create')}</span>
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+                <GroupSectionDescription className="hidden sm:block">
+                  {t('description')}
+                </GroupSectionDescription>
+              </div>
             </GroupSectionHeader>
-            <GroupSectionContent>
-              {balancesAreLoading || !balancesData ? (
-                <LoadingPairs />
-              ) : (
-                <ReimbursementList
-                  reimbursements={balancesData.reimbursements}
-                  participants={group.participants}
-                  currency={getCurrencyFromGroup(group)}
-                  groupId={groupId}
-                />
-              )}
+
+            <GroupSectionContent className="p-0 pb-4 sm:pb-6 flex flex-col gap-4 relative">
+              <ExpenseList />
             </GroupSectionContent>
           </GroupSectionCard>
         </div>
-      )}
 
-      <GroupSectionCard className="mb-4">
-        <GroupSectionHeader className="p-3 sm:p-6">
-          <div className="space-y-1 sm:space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <GroupSectionTitle className="text-lg sm:text-xl leading-none">
-                {t('title')}
-              </GroupSectionTitle>
-              <div className="flex items-center gap-2">
-                <div className="sm:hidden">
-                  <ExportButton
-                    groupId={groupId}
-                    size="icon"
-                    variant="outline"
-                  />
-                </div>
-                <div className="hidden sm:block">
-                  <ExportButton
-                    groupId={groupId}
-                    showLabel
-                    size="default"
-                    variant="outline"
-                  />
-                </div>
-                <Button
-                  asChild
-                  size="default"
-                  className="hidden sm:inline-flex sm:px-3"
-                >
-                  <Link
-                    href={`/groups/${groupId}/expenses/create`}
-                    title={t('create')}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span className="ml-2">{t('create')}</span>
-                  </Link>
-                </Button>
-              </div>
-            </div>
-            <GroupSectionDescription className="hidden sm:block">
-              {t('description')}
-            </GroupSectionDescription>
-          </div>
-        </GroupSectionHeader>
-
-        <GroupSectionContent className="p-0 pb-4 sm:pb-6 flex flex-col gap-4 relative">
-          <ExpenseList />
-        </GroupSectionContent>
-      </GroupSectionCard>
+        {group && (
+          <aside className="order-1 lg:order-2 hidden lg:block space-y-4 sticky top-20">
+            <DebtSection />
+            <SettlementsSection />
+          </aside>
+        )}
+      </div>
 
       <ActiveUserModal groupId={groupId} />
     </>
