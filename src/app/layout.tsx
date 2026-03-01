@@ -10,7 +10,6 @@ import { TRPCProvider } from '@/trpc/client'
 import type { Metadata, Viewport } from 'next'
 import { NextIntlClientProvider, useTranslations } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import './globals.css'
@@ -70,17 +69,20 @@ function Content({ children }: { children: React.ReactNode }) {
       <header className="fixed top-0 left-0 right-0 h-16 bg-white/70 dark:bg-gray-950/70 border-b backdrop-blur-sm z-50">
         <div className="h-full w-full max-w-screen-xl mx-auto px-3 sm:px-4 lg:px-8 flex items-center justify-between gap-2">
           <Link
-            className="flex items-center gap-2 hover:scale-105 transition-transform"
+            className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-primary/10 transition-colors"
             href="/"
           >
-            <h1>
-              <Image
-                src="/javijec-logo.svg"
-                className="m-1 h-auto w-auto"
-                width={152}
-                height={35}
+            <h1 className="flex items-center gap-2">
+              <img
+                src="/logo.svg"
+                className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
+                width={28}
+                height={28}
                 alt="Javijec"
               />
+              <span className="text-sm sm:text-base font-semibold tracking-tight">
+                Javijec
+              </span>
             </h1>
           </Link>
           <div role="navigation" aria-label="Menu" className="flex">
@@ -111,15 +113,16 @@ function Content({ children }: { children: React.ReactNode }) {
       <footer className="bg-slate-50 dark:bg-card border-t mt-8 sm:mt-16">
         <div className="w-full max-w-screen-xl mx-auto px-4 lg:px-8 py-6 sm:py-8 md:py-12 flex flex-col sm:flex-row sm:justify-between gap-4 text-xs sm:text-sm md:text-base [&_a]:underline">
           <div className="flex flex-col space-y-2">
-            <div className="sm:text-lg font-semibold text-base flex space-x-2 items-center">
+            <div className="sm:text-lg font-semibold text-base flex items-center">
               <Link className="flex items-center gap-2" href="/">
-                <Image
-                  src="/javijec-logo.svg"
-                  className="m-1 h-auto w-auto"
-                  width={152}
-                  height={35}
+                <img
+                  src="/logo.svg"
+                  className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
+                  width={28}
+                  height={28}
                   alt="Javijec"
                 />
+                <span>Javijec</span>
               </Link>
             </div>
             <div className="flex flex-col space-y a--no-underline-text-white">
