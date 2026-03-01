@@ -120,7 +120,7 @@ function ExpensesByGroup({
             </div>
             {expensesInGroup.map((expense, index) => (
               <ExpenseCard
-                key={`${expense.id}-${index}`}
+                key={`${expense.id}-${expense.createdAt}`}
                 expense={expense}
                 currency={getCurrencyFromGroup(group)}
                 groupId={groupId}
@@ -212,4 +212,3 @@ const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   )
 })
 ExpensesLoading.displayName = 'ExpensesLoading'
-

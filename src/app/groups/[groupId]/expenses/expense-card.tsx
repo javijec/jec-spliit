@@ -227,7 +227,6 @@ export function ExpenseCard({ expense, currency, groupId }: Props) {
 
   return (
     <div
-      key={expense.id}
       className={cn(
         'group flex justify-between mx-2 sm:mx-6 px-3 sm:px-4 py-2 rounded-xl text-sm cursor-pointer gap-2 items-start border bg-card/60 border-border/70 hover:border-border hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-safe:transition-all motion-safe:duration-150',
         expense.isReimbursement &&
@@ -272,4 +271,3 @@ export function ExpenseCard({ expense, currency, groupId }: Props) {
     </div>
   )
 }
-
