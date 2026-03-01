@@ -46,14 +46,42 @@ export function ReimbursementList({
   groupId,
 }: Props) {
   const locale = useLocale()
+  const isSpanish = locale.toLowerCase().startsWith('es')
+  const labels = {
+    paymentRegisteredTitle: isSpanish ? 'Pago registrado' : 'Payment recorded',
+    paymentRegisteredDescription: isSpanish
+      ? 'La deuda se marcó como pagada.'
+      : 'The debt was marked as paid.',
+    paymentErrorTitle: isSpanish
+      ? 'No se pudo registrar el pago'
+      : 'Could not record payment',
+    noDebtsDescription: isSpanish
+      ? 'No hay deudas pendientes para saldar en este grupo.'
+      : 'There are no pending debts to settle in this group.',
+    totalPayment: isSpanish ? 'Pago total' : 'Total payment',
+    partialPayment: isSpanish ? 'Pago parcial' : 'Partial payment',
+    confirmTotalPayment: isSpanish
+      ? 'Confirmar pago total'
+      : 'Confirm total payment',
+    confirmPartialPayment: isSpanish
+      ? 'Confirmar pago parcial'
+      : 'Confirm partial payment',
+    paysTo: isSpanish ? 'le paga a' : 'pays',
+    inCurrency: isSpanish ? 'en' : 'in',
+    partialAmount: isSpanish ? 'Monto del pago parcial' : 'Partial payment amount',
+    currentDebt: isSpanish ? 'Deuda actual' : 'Current debt',
+    willRecord: isSpanish ? 'Vas a registrar' : 'You are about to record',
+    remaining: isSpanish ? 'Restante' : 'Remaining',
+    cancel: isSpanish ? 'Cancelar' : 'Cancel',
+  } as const
   const t = useTranslations('Balances.Reimbursements')
   const utils = trpc.useUtils()
   const { toast } = useToast()
   const createExpense = trpc.groups.expenses.create.useMutation({
     onSuccess: async () => {
       toast({
-        title: 'Pago registrado',
-        description: 'La deuda se marcó como pagada.',
+        title: labels.paymentRegisteredTitle,
+        description: labels.paymentRegisteredDescription,
       })
       await Promise.all([
         utils.groups.balances.invalidate(),
@@ -62,7 +90,7 @@ export function ReimbursementList({
     },
     onError: (error) => {
       toast({
-        title: 'No se pudo registrar el pago',
+        title: labels.paymentErrorTitle,
         description: error.message,
         variant: 'destructive',
       })
@@ -117,7 +145,7 @@ export function ReimbursementList({
       <EmptyState
         icon={CheckCircle2}
         title={t('noImbursements')}
-        description="No hay deudas pendientes para saldar en este grupo."
+        description={labels.noDebtsDescription}
         className="mb-2"
       />
     )
@@ -247,7 +275,7 @@ export function ReimbursementList({
                           })
                         }
                       >
-                        Pago total
+                        {labels.totalPayment}
                       </Button>
                       <Button
                         variant="outline"
@@ -264,7 +292,7 @@ export function ReimbursementList({
                           })
                         }}
                       >
-                        Pago parcial
+                        {labels.partialPayment}
                       </Button>
                     </div>
                   </div>
@@ -285,14 +313,14 @@ export function ReimbursementList({
           <DialogHeader>
             <DialogTitle>
               {paymentDialog?.mode === 'TOTAL'
-                ? 'Confirmar pago total'
-                : 'Confirmar pago parcial'}
+                ? labels.confirmTotalPayment
+                : labels.confirmPartialPayment}
             </DialogTitle>
             <DialogDescription>
               {paymentDialog &&
-                `${getParticipant(paymentDialog.from)?.name ?? ''} le paga a ${
+                `${getParticipant(paymentDialog.from)?.name ?? ''} ${labels.paysTo} ${
                   getParticipant(paymentDialog.to)?.name ?? ''
-                } en ${paymentDialog.currencyCode}.`}
+                } ${labels.inCurrency} ${paymentDialog.currencyCode}.`}
             </DialogDescription>
           </DialogHeader>
 
@@ -300,7 +328,7 @@ export function ReimbursementList({
             <div className="space-y-3">
               {paymentDialog.mode === 'PARTIAL' && (
                 <div className="space-y-1.5">
-                  <div className="text-sm font-medium">Monto del pago parcial</div>
+                  <div className="text-sm font-medium">{labels.partialAmount}</div>
                   <Input
                     value={partialAmountInput}
                     onChange={(event) => setPartialAmountInput(event.target.value)}
@@ -317,7 +345,7 @@ export function ReimbursementList({
 
               <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1.5">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Deuda actual</span>
+                  <span className="text-muted-foreground">{labels.currentDebt}</span>
                   <strong>
                     {formatCurrency(
                       dialogCurrency,
@@ -327,13 +355,13 @@ export function ReimbursementList({
                   </strong>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Vas a registrar</span>
+                  <span className="text-muted-foreground">{labels.willRecord}</span>
                   <strong>
                     {formatCurrency(dialogCurrency, selectedMinorUnits, locale)}
                   </strong>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Restante</span>
+                  <span className="text-muted-foreground">{labels.remaining}</span>
                   <strong>
                     {formatCurrency(
                       dialogCurrency,
@@ -348,15 +376,15 @@ export function ReimbursementList({
 
           <DialogFooter>
             <Button variant="ghost" onClick={closeDialog}>
-              Cancelar
+              {labels.cancel}
             </Button>
             <Button
               onClick={confirmPayment}
               disabled={!canConfirmPayment || createExpense.isPending}
             >
               {paymentDialog?.mode === 'TOTAL'
-                ? 'Confirmar pago total'
-                : 'Confirmar pago parcial'}
+                ? labels.confirmTotalPayment
+                : labels.confirmPartialPayment}
             </Button>
           </DialogFooter>
         </DialogContent>
