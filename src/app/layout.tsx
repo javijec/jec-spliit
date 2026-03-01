@@ -108,7 +108,9 @@ function Content({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="pt-16 flex-1 flex flex-col">{children}</div>
+      <div className="pt-16 flex-1 flex flex-col app-shell">
+        <div className="relative z-10 flex-1 flex flex-col">{children}</div>
+      </div>
 
       <footer className="bg-slate-50 dark:bg-card border-t mt-8 sm:mt-16">
         <div className="w-full max-w-screen-xl mx-auto px-4 lg:px-8 py-6 sm:py-8 md:py-12 flex flex-col sm:flex-row sm:justify-between gap-4 text-xs sm:text-sm md:text-base [&_a]:underline">

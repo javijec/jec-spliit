@@ -44,7 +44,7 @@ export function RecentGroupListCard({
     <li key={group.id}>
       <Button
         variant="secondary"
-        className="group h-fit w-full py-3 rounded-lg border bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5"
+        className="group h-fit w-full py-3 rounded-lg border bg-card/70 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5"
         asChild
       >
         <div

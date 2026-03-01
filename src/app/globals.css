@@ -66,3 +66,36 @@
 .landing-header strong {
   @apply font-bold text-transparent;
 }
+
+.app-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.app-shell::before {
+  content: '';
+  position: absolute;
+  top: -7rem;
+  left: 50%;
+  width: 18rem;
+  height: 18rem;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    hsl(var(--primary) / 0.35) 0%,
+    hsl(var(--primary) / 0) 68%
+  );
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.app-shell [data-slot='card'] {
+  background-color: hsl(var(--card) / 0.72);
+  backdrop-filter: blur(8px);
+  border-color: hsl(var(--border) / 0.85);
+}
+
+.dark .app-shell [data-slot='card'] {
+  background-color: hsl(var(--card) / 0.68);
+}
