@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-label="Javijec">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0ea5a3" />
+      <stop offset="100%" stop-color="#22c55e" />
+    </linearGradient>
+  </defs>
+  <rect width="520" height="120" rx="20" fill="#02130f" />
+  <circle cx="56" cy="60" r="30" fill="url(#g)" />
+  <path d="M42 61h28M56 45v32" stroke="#02130f" stroke-width="7" stroke-linecap="round" />
+  <text x="102" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="44" font-weight="700" fill="#d1fae5">
+    Javijec
+  </text>
+</svg>

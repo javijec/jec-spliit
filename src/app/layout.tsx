@@ -18,15 +18,15 @@ import './globals.css'
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
   title: {
-    default: 'Spliit · Share Expenses with Friends & Family',
-    template: '%s · Spliit',
+    default: 'Javijec · Gestión de Gastos',
+    template: '%s · Javijec',
   },
   description:
-    'Spliit is a minimalist web application to share expenses with friends and family. No ads, no account, no problem.',
+    'Javijec es una app para compartir y gestionar gastos, basada en Spliit.',
   openGraph: {
-    title: 'Spliit · Share Expenses with Friends & Family',
+    title: 'Javijec · Gestión de Gastos',
     description:
-      'Spliit is a minimalist web application to share expenses with friends and family. No ads, no account, no problem.',
+      'Javijec es una app para compartir y gestionar gastos, basada en Spliit.',
     images: `/banner.png`,
     type: 'website',
     url: '/',
@@ -36,15 +36,15 @@ export const metadata: Metadata = {
     creator: '@scastiel',
     site: '@scastiel',
     images: `/banner.png`,
-    title: 'Spliit · Share Expenses with Friends & Family',
+    title: 'Javijec · Gestión de Gastos',
     description:
-      'Spliit is a minimalist web application to share expenses with friends and family. No ads, no account, no problem.',
+      'Javijec es una app para compartir y gestionar gastos, basada en Spliit.',
   },
   appleWebApp: {
     capable: true,
-    title: 'Spliit',
+    title: 'Javijec',
   },
-  applicationName: 'Spliit',
+  applicationName: 'Javijec',
   icons: [
     {
       url: '/android-chrome-192x192.png',
@@ -74,11 +74,11 @@ function Content({ children }: { children: React.ReactNode }) {
         >
           <h1>
             <Image
-              src="/logo-with-text.png"
+              src="/javijec-logo.svg"
               className="m-1 h-auto w-auto"
-              width={(35 * 522) / 180}
+              width={152}
               height={35}
-              alt="Spliit"
+              alt="Javijec"
             />
           </h1>
         </Link>
@@ -111,11 +111,11 @@ function Content({ children }: { children: React.ReactNode }) {
           <div className="sm:text-lg font-semibold text-base flex space-x-2 items-center">
             <Link className="flex items-center gap-2" href="/">
               <Image
-                src="/logo-with-text.png"
+                src="/javijec-logo.svg"
                 className="m-1 h-auto w-auto"
-                width={(35 * 522) / 180}
+                width={152}
                 height={35}
-                alt="Spliit"
+                alt="Javijec"
               />
             </Link>
           </div>
@@ -139,6 +139,24 @@ function Content({ children }: { children: React.ReactNode }) {
                 ),
               })}
             </span>
+            <span>
+              Hecho por{' '}
+              <a
+                href="https://github.com/javijec"
+                target="_blank"
+                rel="noopener"
+              >
+                Javijec
+              </a>{' '}
+              · Basada en{' '}
+              <a
+                href="https://github.com/spliit-app/spliit/"
+                target="_blank"
+                rel="noopener"
+              >
+                Spliit
+              </a>
+            </span>
           </div>
         </div>
       </footer>
@@ -156,7 +174,7 @@ export default async function RootLayout({
   const messages = await getMessages()
   return (
     <html lang={locale} suppressHydrationWarning>
-      <ApplePwaSplash icon="/logo-with-text.png" color="#027756" />
+      <ApplePwaSplash icon="/javijec-logo.svg" color="#027756" />
       <body className="min-h-[100dvh] flex flex-col items-stretch bg-slate-50 bg-opacity-30 dark:bg-background">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider

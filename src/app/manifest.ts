@@ -2,10 +2,10 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Spliit',
-    short_name: 'Spliit',
+    name: 'Javijec',
+    short_name: 'Javijec',
     description:
-      'A minimalist web application to share expenses with friends and family. No ads, no account, no problem.',
+      'Aplicación de gestión de gastos de Javijec, basada en Spliit.',
     start_url: '/groups',
     id: '/groups',
     display: 'standalone',
