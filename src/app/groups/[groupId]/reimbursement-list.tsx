@@ -1,4 +1,12 @@
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
@@ -21,6 +29,14 @@ type Props = {
   participants: Participant[]
   currency: Currency
   groupId: string
+}
+
+type PaymentDialogState = {
+  from: string
+  to: string
+  currencyCode: string
+  maxAmount: number
+  mode: 'TOTAL' | 'PARTIAL'
 }
 
 export function ReimbursementList({
@@ -52,9 +68,10 @@ export function ReimbursementList({
       })
     },
   })
-  const [partialAmounts, setPartialAmounts] = useState<Record<string, string>>(
-    {},
+  const [paymentDialog, setPaymentDialog] = useState<PaymentDialogState | null>(
+    null,
   )
+  const [partialAmountInput, setPartialAmountInput] = useState('')
 
   const groupedReimbursements = useMemo(() => {
     const pairMap = new Map<
@@ -107,49 +124,98 @@ export function ReimbursementList({
   }
 
   const getParticipant = (id: string) => participants.find((p) => p.id === id)
-  return (
-    <div className="space-y-2.5">
-      {groupedReimbursements.map((pair) => (
-        <div
-          className="rounded-lg border bg-card/60 p-3 sm:p-4 flex flex-col gap-3"
-          key={`${pair.from}-${pair.to}`}
-        >
-          <div className="text-sm">
-            {t.rich('owes', {
-              from: getParticipant(pair.from)?.name ?? '',
-              to: getParticipant(pair.to)?.name ?? '',
-              strong: (chunks) => <strong>{chunks}</strong>,
-            })}
-          </div>
+  const dialogCurrency = paymentDialog
+    ? paymentDialog.currencyCode === currency.code
+      ? currency
+      : getCurrency(paymentDialog.currencyCode)
+    : null
+  const parsedPartialAmount = Number(partialAmountInput.replace(',', '.'))
+  const isValidPartialAmount =
+    Number.isFinite(parsedPartialAmount) && parsedPartialAmount > 0
+  const selectedMinorUnits =
+    paymentDialog && dialogCurrency
+      ? paymentDialog.mode === 'TOTAL'
+        ? paymentDialog.maxAmount
+        : isValidPartialAmount
+        ? Math.min(
+            paymentDialog.maxAmount,
+            amountAsMinorUnits(parsedPartialAmount, dialogCurrency),
+          )
+        : 0
+      : 0
+  const canConfirmPayment =
+    !!paymentDialog &&
+    (paymentDialog.mode === 'TOTAL' || isValidPartialAmount)
 
-          <div className="space-y-2">
-            {pair.items.map((item) => (
-              (() => {
+  const closeDialog = () => {
+    setPaymentDialog(null)
+    setPartialAmountInput('')
+  }
+
+  const confirmPayment = () => {
+    if (!paymentDialog || !dialogCurrency) return
+    if (paymentDialog.mode === 'PARTIAL' && !isValidPartialAmount) return
+
+    createExpense.mutate({
+      groupId,
+      expenseFormValues: {
+        title: 'Reimbursement',
+        expenseDate: new Date(),
+        amount: selectedMinorUnits,
+        originalCurrency:
+          paymentDialog.currencyCode === currency.code
+            ? currency.code
+            : paymentDialog.currencyCode,
+        originalAmount:
+          paymentDialog.currencyCode === currency.code
+            ? undefined
+            : selectedMinorUnits,
+        conversionRate: undefined,
+        category: 1,
+        paidBy: paymentDialog.from,
+        paidFor: [
+          {
+            participant: paymentDialog.to,
+            shares: 1,
+          },
+        ],
+        isReimbursement: true,
+        splitMode: 'EVENLY',
+        saveDefaultSplittingOptions: false,
+        documents: [],
+        notes: '',
+        recurrenceRule: 'NONE',
+      },
+    })
+    closeDialog()
+  }
+
+  return (
+    <>
+      <div className="space-y-2.5">
+        {groupedReimbursements.map((pair) => (
+          <div
+            className="rounded-lg border bg-card/60 p-3 sm:p-4 flex flex-col gap-3"
+            key={`${pair.from}-${pair.to}`}
+          >
+            <div className="text-sm">
+              {t.rich('owes', {
+                from: getParticipant(pair.from)?.name ?? '',
+                to: getParticipant(pair.to)?.name ?? '',
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
+            </div>
+
+            <div className="space-y-2">
+              {pair.items.map((item) => {
                 const reimbursementCurrency =
                   item.currencyCode === currency.code
                     ? currency
                     : getCurrency(item.currencyCode)
-                const itemId = `${pair.from}-${pair.to}-${item.currencyCode}`
-                const rawAmount =
-                  partialAmounts[itemId] ??
-                  amountAsDecimal(
-                    item.amount,
-                    reimbursementCurrency,
-                    true,
-                  ).toString()
-                const parsedAmount = Number(rawAmount.replace(',', '.'))
-                const isValidPartialAmount =
-                  Number.isFinite(parsedAmount) && parsedAmount > 0
-                const selectedMinorUnits = isValidPartialAmount
-                  ? Math.min(
-                      item.amount,
-                      amountAsMinorUnits(parsedAmount, reimbursementCurrency),
-                    )
-                  : item.amount
 
                 return (
                   <div
-                    key={itemId}
+                    key={`${pair.from}-${pair.to}-${item.currencyCode}`}
                     className="rounded-md bg-muted/50 px-2.5 py-2.5"
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -166,78 +232,133 @@ export function ReimbursementList({
                       </div>
                     </div>
 
-                    <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                      <Input
-                        className="w-full sm:w-[150px] h-9"
-                        inputMode="decimal"
-                        step={10 ** -reimbursementCurrency.decimal_digits}
-                        value={rawAmount}
-                        onChange={(event) =>
-                          setPartialAmounts((prev) => ({
-                            ...prev,
-                            [itemId]: event.target.value,
-                          }))
+                    <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                      <Button
+                        variant="secondary"
+                        disabled={createExpense.isPending}
+                        onClick={() =>
+                          setPaymentDialog({
+                            from: pair.from,
+                            to: pair.to,
+                            currencyCode: item.currencyCode,
+                            maxAmount: item.amount,
+                            mode: 'TOTAL',
+                          })
                         }
-                        aria-label="Partial payment amount"
-                      />
-                      {isValidPartialAmount ? (
-                        <Button
-                          variant="secondary"
-                          className="sm:ml-auto"
-                          disabled={createExpense.isPending}
-                          onClick={() =>
-                            createExpense.mutate({
-                              groupId,
-                              expenseFormValues: {
-                                title: 'Reimbursement',
-                                expenseDate: new Date(),
-                                amount: selectedMinorUnits,
-                                originalCurrency:
-                                  item.currencyCode === currency.code
-                                    ? currency.code
-                                    : item.currencyCode,
-                                originalAmount:
-                                  item.currencyCode === currency.code
-                                    ? undefined
-                                    : selectedMinorUnits,
-                                conversionRate: undefined,
-                                category: 1,
-                                paidBy: pair.from,
-                                paidFor: [
-                                  {
-                                    participant: pair.to,
-                                    shares: 1,
-                                  },
-                                ],
-                                isReimbursement: true,
-                                splitMode: 'EVENLY',
-                                saveDefaultSplittingOptions: false,
-                                documents: [],
-                                notes: '',
-                                recurrenceRule: 'NONE',
-                              },
-                            })
-                          }
-                        >
-                          {t('markAsPaid')}
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="secondary"
-                          className="sm:ml-auto"
-                          disabled
-                        >
-                          {t('markAsPaid')}
-                        </Button>
-                      )}
+                      >
+                        Pago total
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={createExpense.isPending}
+                        onClick={() => {
+                          setPartialAmountInput('')
+                          setPaymentDialog({
+                            from: pair.from,
+                            to: pair.to,
+                            currencyCode: item.currencyCode,
+                            maxAmount: item.amount,
+                            mode: 'PARTIAL',
+                          })
+                        }}
+                      >
+                        Pago parcial
+                      </Button>
                     </div>
                   </div>
                 )
-              })()
-            ))}
+              })}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      <Dialog
+        open={!!paymentDialog}
+        onOpenChange={(open) => {
+          if (!open) closeDialog()
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {paymentDialog?.mode === 'TOTAL'
+                ? 'Confirmar pago total'
+                : 'Confirmar pago parcial'}
+            </DialogTitle>
+            <DialogDescription>
+              {paymentDialog &&
+                `${getParticipant(paymentDialog.from)?.name ?? ''} le paga a ${
+                  getParticipant(paymentDialog.to)?.name ?? ''
+                } en ${paymentDialog.currencyCode}.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          {paymentDialog && dialogCurrency && (
+            <div className="space-y-3">
+              {paymentDialog.mode === 'PARTIAL' && (
+                <div className="space-y-1.5">
+                  <div className="text-sm font-medium">Monto del pago parcial</div>
+                  <Input
+                    value={partialAmountInput}
+                    onChange={(event) => setPartialAmountInput(event.target.value)}
+                    placeholder={amountAsDecimal(
+                      paymentDialog.maxAmount,
+                      dialogCurrency,
+                      true,
+                    ).toString()}
+                    inputMode="decimal"
+                    step={10 ** -dialogCurrency.decimal_digits}
+                  />
+                </div>
+              )}
+
+              <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1.5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Deuda actual</span>
+                  <strong>
+                    {formatCurrency(
+                      dialogCurrency,
+                      paymentDialog.maxAmount,
+                      locale,
+                    )}
+                  </strong>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Vas a registrar</span>
+                  <strong>
+                    {formatCurrency(dialogCurrency, selectedMinorUnits, locale)}
+                  </strong>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Restante</span>
+                  <strong>
+                    {formatCurrency(
+                      dialogCurrency,
+                      Math.max(paymentDialog.maxAmount - selectedMinorUnits, 0),
+                      locale,
+                    )}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={closeDialog}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmPayment}
+              disabled={!canConfirmPayment || createExpense.isPending}
+            >
+              {paymentDialog?.mode === 'TOTAL'
+                ? 'Confirmar pago total'
+                : 'Confirmar pago parcial'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
