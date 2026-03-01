@@ -126,6 +126,23 @@ export function GroupForm({
     )
   }
 
+  const collectErrorPaths = (value: unknown, currentPath = ''): string[] => {
+    if (!value || typeof value !== 'object') return []
+    if (Array.isArray(value)) {
+      return value.flatMap((item, index) =>
+        collectErrorPaths(item, `${currentPath}.${index}`),
+      )
+    }
+    const record = value as Record<string, unknown>
+    const hasMessage = 'message' in record && typeof record.message === 'string'
+    const nestedPaths = Object.entries(record).flatMap(([key, item]) =>
+      key === 'message'
+        ? []
+        : collectErrorPaths(item, currentPath ? `${currentPath}.${key}` : key),
+    )
+    return hasMessage && currentPath ? [currentPath, ...nestedPaths] : nestedPaths
+  }
+
   const focusFirstInvalidField = () => {
     const firstInvalid = document.querySelector<HTMLElement>(
       '[aria-invalid="true"]',
@@ -136,6 +153,22 @@ export function GroupForm({
   }
 
   const errorCount = countErrors(form.formState.errors)
+  const errorPaths = collectErrorPaths(form.formState.errors)
+  const normalizedErrorPaths = Array.from(
+    new Set(errorPaths.map((path) => path.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, ''))),
+  )
+  const labelByPath: Record<string, string> = {
+    name: t('NameField.label'),
+    currencyCode: t('CurrencyCodeField.label'),
+    currency: t('CurrencyField.label'),
+    information: t('InformationField.label'),
+    'participants[].name': t('Participants.title'),
+  }
+  const invalidFieldLabels = normalizedErrorPaths
+    .map((path) => labelByPath[path])
+    .filter(Boolean)
+  const uniqueInvalidFieldLabels = Array.from(new Set(invalidFieldLabels))
+  const topInvalidFields = uniqueInvalidFieldLabels.slice(0, 4)
 
   return (
     <Form {...form}>
@@ -159,6 +192,14 @@ export function GroupForm({
             <AlertTitle>Revisa el formulario</AlertTitle>
             <AlertDescription>
               Hay {errorCount} campo(s) con errores. Te llevamos al primero.
+              {topInvalidFields.length > 0 && (
+                <>
+                  {' '}Campos: {topInvalidFields.join(', ')}
+                  {uniqueInvalidFieldLabels.length > topInvalidFields.length &&
+                    ', ...'}
+                  .
+                </>
+              )}
             </AlertDescription>
           </Alert>
         )}

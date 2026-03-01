@@ -149,13 +149,16 @@ const FormMessage = React.forwardRef<
   const { error, formMessageId, name } = useFormField()
   const normalizeFieldPath = (fieldPath: string) =>
     fieldPath.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, '')
+  const toFieldErrorKey = (fieldPath: string) =>
+    fieldPath.replace(/\[\]/g, '_items').replace(/\./g, '_')
 
   let body
   if (error) {
     body = String(error?.message)
     const fieldPath = normalizeFieldPath(String(name))
+    const fieldErrorKey = toFieldErrorKey(fieldPath)
     const byFieldTranslation = (messages as any).SchemaErrorsByField?.[
-      fieldPath
+      fieldErrorKey
     ]?.[body]
     const fallbackTranslation = (messages.SchemaErrors as any)[body]
     body = byFieldTranslation ?? fallbackTranslation ?? body

@@ -451,6 +451,23 @@ export function ExpenseForm({
     )
   }
 
+  const collectErrorPaths = (value: unknown, currentPath = ''): string[] => {
+    if (!value || typeof value !== 'object') return []
+    if (Array.isArray(value)) {
+      return value.flatMap((item, index) =>
+        collectErrorPaths(item, `${currentPath}.${index}`),
+      )
+    }
+    const record = value as Record<string, unknown>
+    const hasMessage = 'message' in record && typeof record.message === 'string'
+    const nestedPaths = Object.entries(record).flatMap(([key, item]) =>
+      key === 'message'
+        ? []
+        : collectErrorPaths(item, currentPath ? `${currentPath}.${key}` : key),
+    )
+    return hasMessage && currentPath ? [currentPath, ...nestedPaths] : nestedPaths
+  }
+
   const focusFirstInvalidField = () => {
     const firstInvalid = document.querySelector<HTMLElement>(
       '[aria-invalid="true"]',
@@ -461,6 +478,29 @@ export function ExpenseForm({
   }
 
   const errorCount = countErrors(form.formState.errors)
+  const errorPaths = collectErrorPaths(form.formState.errors)
+  const normalizedErrorPaths = Array.from(
+    new Set(errorPaths.map((path) => path.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, ''))),
+  )
+  const labelByPath: Record<string, string> = {
+    title: t(`${sExpense}.TitleField.label`),
+    expenseDate: t(`${sExpense}.DateField.label`),
+    category: t('categoryField.label'),
+    originalCurrency: t(`${sExpense}.currencyField.label`),
+    originalAmount: t('originalAmountField.label'),
+    amount: t('amountField.label'),
+    conversionRate: t('conversionRateField.label'),
+    paidBy: t(`${sExpense}.paidByField.label`),
+    paidFor: t(`${sExpense}.paidFor.title`),
+    'paidFor[].shares': t(`${sExpense}.paidFor.title`),
+    recurrenceRule: t(`${sExpense}.recurrenceRule.label`),
+    notes: t('notesField.label'),
+  }
+  const invalidFieldLabels = normalizedErrorPaths
+    .map((path) => labelByPath[path])
+    .filter(Boolean)
+  const uniqueInvalidFieldLabels = Array.from(new Set(invalidFieldLabels))
+  const topInvalidFields = uniqueInvalidFieldLabels.slice(0, 5)
 
   return (
     <Form {...form}>
@@ -475,6 +515,14 @@ export function ExpenseForm({
             <AlertTitle>Revisa el formulario</AlertTitle>
             <AlertDescription>
               Hay {errorCount} campo(s) con errores. Te llevamos al primero.
+              {topInvalidFields.length > 0 && (
+                <>
+                  {' '}Campos: {topInvalidFields.join(', ')}
+                  {uniqueInvalidFieldLabels.length > topInvalidFields.length &&
+                    ', ...'}
+                  .
+                </>
+              )}
             </AlertDescription>
           </Alert>
         )}

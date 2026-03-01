@@ -371,7 +371,7 @@
       "min2": "El nombre del grupo debe tener al menos 2 caracteres.",
       "max50": "El nombre del grupo no puede superar los 50 caracteres."
     },
-    "participants[].name": {
+    "participants_items_name": {
       "min2": "El nombre del participante debe tener al menos 2 caracteres.",
       "max50": "El nombre del participante no puede superar los 50 caracteres.",
       "duplicateParticipantName": "Ya existe otro participante con ese nombre."
@@ -394,6 +394,10 @@
       "paidForMin1": "Selecciona al menos una persona en \"Pagado para\".",
       "amountSum": "La división por importes debe coincidir con el monto total.",
       "percentageSum": "La división por porcentaje debe sumar exactamente 100%."
+    },
+    "paidFor_items_shares": {
+      "noZeroShares": "Todas las partes deben ser mayores a 0.",
+      "invalidNumber": "Ingresa un valor válido para la división."
     },
     "conversionRate": {
       "ratePositive": "La tasa de cambio debe ser mayor que 0."
