@@ -1,6 +1,5 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Github } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
@@ -35,20 +34,9 @@ export default function HomePage() {
                   strong: (chunks) => <strong>{chunks}</strong>,
                 })}
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full sm:w-auto">
+              <div className="grid grid-cols-1 gap-2 w-full sm:w-auto">
                 <Button asChild size="lg" className="w-full sm:min-w-40">
                   <Link href="/groups">{t('Homepage.button.groups')}</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="secondary"
-                  size="lg"
-                  className="w-full sm:min-w-40"
-                >
-                  <Link href="https://github.com/javijec/jec-spliit">
-                    <Github className="w-4 h-4 mr-2" />
-                    {t('Homepage.button.github')}
-                  </Link>
                 </Button>
               </div>
             </div>

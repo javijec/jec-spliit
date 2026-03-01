@@ -144,6 +144,14 @@ function Content({ children }: { children: React.ReactNode }) {
                   rel="noopener"
                 >
                   Spliit
+                </a>{' '}
+                ·{' '}
+                <a
+                  href="https://github.com/javijec/jec-spliit"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  GitHub
                 </a>
               </span>
             </div>
