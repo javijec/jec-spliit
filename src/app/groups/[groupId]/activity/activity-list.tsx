@@ -3,9 +3,11 @@ import {
   Activity,
   ActivityItem,
 } from '@/app/groups/[groupId]/activity/activity-item'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { trpc } from '@/trpc/client'
 import dayjs, { type Dayjs } from 'dayjs'
+import { Clock3 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { forwardRef, useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
@@ -64,20 +66,17 @@ function getGroupedActivitiesByDate(activities: Activity[]) {
 
 const ActivitiesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className="flex flex-col gap-4">
-      <Skeleton className="mt-2 h-3 w-24" />
-      {Array(5)
-        .fill(undefined)
-        .map((_, index) => (
-          <div key={index} className="flex gap-2 p-2">
-            <div className="flex-0">
-              <Skeleton className="h-3 w-12" />
-            </div>
-            <div className="flex-1">
-              <Skeleton className="h-3 w-48" />
-            </div>
+    <div ref={ref}>
+      <Skeleton className="mx-1 mt-1 mb-2 h-3 w-24 rounded-full" />
+      {[0, 1, 2, 3].map((index) => (
+        <div key={index} className="flex items-start gap-2 rounded-lg border bg-card/60 px-3 py-3 mb-2">
+          <Skeleton className="h-3 w-12 rounded-full mt-1" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-3 w-56 rounded-full" />
+            <Skeleton className="h-3 w-36 rounded-full" />
           </div>
-        ))}
+        </div>
+      ))}
     </div>
   )
 })
@@ -121,9 +120,7 @@ export function ActivityList() {
         return (
           <div key={dateGroup}>
             <div
-              className={
-                'text-muted-foreground text-xs py-1 font-semibold sticky top-16 bg-white dark:bg-[#1b1917]'
-              }
+              className="text-muted-foreground text-xs py-1 font-semibold bg-card border-b"
             >
               {t(`Groups.${dateGroup}`)}
             </div>
@@ -150,6 +147,11 @@ export function ActivityList() {
       {hasMore && <ActivitiesLoading ref={loadingRef} />}
     </>
   ) : (
-    <p className="text-sm py-6">{t('noActivity')}</p>
+    <EmptyState
+      icon={Clock3}
+      title={t('noActivity')}
+      description="Todavía no hay movimientos registrados en este grupo."
+      className="my-4"
+    />
   )
 }

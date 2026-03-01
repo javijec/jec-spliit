@@ -118,7 +118,7 @@ function ExpensesByGroup({
             <div className="text-muted-foreground text-[11px] sm:text-xs pl-4 sm:pl-6 py-1.5 font-semibold uppercase tracking-wide bg-card border-b">
               {t(`Groups.${expenseGroup}`)}
             </div>
-            {expensesInGroup.map((expense, index) => (
+            {expensesInGroup.map((expense) => (
               <ExpenseCard
                 key={`${expense.id}-${expense.createdAt}`}
                 expense={expense}
