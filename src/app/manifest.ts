@@ -6,8 +6,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'NexoGastos',
     description:
       'Aplicación de gestión de gastos de NexoGastos, basada en Spliit.',
-    start_url: '/groups',
-    id: '/groups',
+    start_url: '/',
+    id: '/',
+    scope: '/',
     display: 'standalone',
     background_color: '#fff',
     theme_color: '#047857',
