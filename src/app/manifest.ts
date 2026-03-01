@@ -2,10 +2,10 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Javijec',
-    short_name: 'Javijec',
+    name: 'NexoGastos',
+    short_name: 'NexoGastos',
     description:
-      'Aplicación de gestión de gastos de Javijec, basada en Spliit.',
+      'Aplicación de gestión de gastos de NexoGastos, basada en Spliit.',
     start_url: '/groups',
     id: '/groups',
     display: 'standalone',

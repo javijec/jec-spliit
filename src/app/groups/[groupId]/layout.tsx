@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: {
       default: group?.name ?? '',
-      template: `%s · ${group?.name} · Javijec`,
+      template: `%s · ${group?.name} · NexoGastos`,
     },
   }
 }

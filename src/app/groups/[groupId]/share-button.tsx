@@ -56,7 +56,7 @@ export function ShareButton({
             <Input className="flex-1" defaultValue={url} readOnly />
             <CopyButton text={url} />
             <ShareUrlButton
-              text={`Join my group ${group.name} on Javijec`}
+              text={`Join my group ${group.name} on NexoGastos`}
               url={url}
             />
           </div>

@@ -17,15 +17,15 @@ import './globals.css'
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
   title: {
-    default: 'Javijec · Gestión de Gastos',
-    template: '%s · Javijec',
+    default: 'NexoGastos · Gestión de Gastos',
+    template: '%s · NexoGastos',
   },
   description:
-    'Javijec es una app para compartir y gestionar gastos, basada en Spliit.',
+    'NexoGastos es una app para compartir y gestionar gastos, basada en Spliit.',
   openGraph: {
-    title: 'Javijec · Gestión de Gastos',
+    title: 'NexoGastos · Gestión de Gastos',
     description:
-      'Javijec es una app para compartir y gestionar gastos, basada en Spliit.',
+      'NexoGastos es una app para compartir y gestionar gastos, basada en Spliit.',
     images: `/banner.png`,
     type: 'website',
     url: '/',
@@ -35,15 +35,15 @@ export const metadata: Metadata = {
     creator: '@scastiel',
     site: '@scastiel',
     images: `/banner.png`,
-    title: 'Javijec · Gestión de Gastos',
+    title: 'NexoGastos · Gestión de Gastos',
     description:
-      'Javijec es una app para compartir y gestionar gastos, basada en Spliit.',
+      'NexoGastos es una app para compartir y gestionar gastos, basada en Spliit.',
   },
   appleWebApp: {
     capable: true,
-    title: 'Javijec',
+    title: 'NexoGastos',
   },
-  applicationName: 'Javijec',
+  applicationName: 'NexoGastos',
   icons: [
     {
       url: '/android-chrome-192x192.png',
@@ -78,10 +78,10 @@ function Content({ children }: { children: React.ReactNode }) {
                 className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
                 width={28}
                 height={28}
-                alt="Javijec"
+                alt="NexoGastos"
               />
               <span className="text-sm sm:text-base font-semibold tracking-tight">
-                Javijec
+                NexoGastos
               </span>
             </h1>
           </Link>
@@ -120,9 +120,9 @@ function Content({ children }: { children: React.ReactNode }) {
                   className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
                   width={28}
                   height={28}
-                  alt="Javijec"
+                  alt="NexoGastos"
                 />
-                <span>Javijec</span>
+                <span>NexoGastos</span>
               </Link>
             </div>
             <div className="flex flex-col space-y a--no-underline-text-white">
@@ -162,7 +162,7 @@ export default async function RootLayout({
   const messages = await getMessages()
   return (
     <html lang={locale} suppressHydrationWarning>
-      <ApplePwaSplash icon="/javijec-logo.svg" color="#027756" />
+      <ApplePwaSplash icon="/logo.svg" color="#027756" />
       <body className="min-h-[100dvh] flex flex-col items-stretch bg-slate-50 bg-opacity-30 dark:bg-background">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider
