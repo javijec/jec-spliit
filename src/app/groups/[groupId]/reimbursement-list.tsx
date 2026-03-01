@@ -1,13 +1,13 @@
 import { Button } from '@/components/ui/button'
-import { Reimbursement } from '@/lib/balances'
-import { Currency } from '@/lib/currency'
+import { ReimbursementByCurrency } from '@/lib/balances'
+import { Currency, getCurrency } from '@/lib/currency'
 import { formatCurrency } from '@/lib/utils'
 import { Participant } from '@prisma/client'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 type Props = {
-  reimbursements: Reimbursement[]
+  reimbursements: ReimbursementByCurrency[]
   participants: Participant[]
   currency: Currency
   groupId: string
@@ -40,13 +40,21 @@ export function ReimbursementList({
             </div>
             <Button variant="link" asChild className="-mx-4 -my-3">
               <Link
-                href={`/groups/${groupId}/expenses/create?reimbursement=yes&from=${reimbursement.from}&to=${reimbursement.to}&amount=${reimbursement.amount}`}
+                href={`/groups/${groupId}/expenses/create?reimbursement=yes&from=${reimbursement.from}&to=${reimbursement.to}&amount=${reimbursement.amount}&currency=${reimbursement.currencyCode}`}
               >
                 {t('markAsPaid')}
               </Link>
             </Button>
           </div>
-          <div>{formatCurrency(currency, reimbursement.amount, locale)}</div>
+          <div>
+            {formatCurrency(
+              reimbursement.currencyCode === currency.code
+                ? currency
+                : getCurrency(reimbursement.currencyCode),
+              reimbursement.amount,
+              locale,
+            )}
+          </div>
         </div>
       ))}
     </div>

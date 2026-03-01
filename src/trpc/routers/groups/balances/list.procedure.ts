@@ -1,6 +1,7 @@
-import { getGroupExpenses } from '@/lib/api'
+import { getGroup, getGroupExpenses } from '@/lib/api'
 import {
-  getBalances,
+  ReimbursementByCurrency,
+  getBalancesByCurrency,
   getPublicBalances,
   getSuggestedReimbursements,
 } from '@/lib/balances'
@@ -10,10 +11,32 @@ import { z } from 'zod'
 export const listGroupBalancesProcedure = baseProcedure
   .input(z.object({ groupId: z.string().min(1) }))
   .query(async ({ input: { groupId } }) => {
-    const expenses = await getGroupExpenses(groupId)
-    const balances = getBalances(expenses)
-    const reimbursements = getSuggestedReimbursements(balances)
-    const publicBalances = getPublicBalances(reimbursements)
+    const [expenses, group] = await Promise.all([
+      getGroupExpenses(groupId),
+      getGroup(groupId),
+    ])
+    const balancesByCurrency = getBalancesByCurrency(
+      expenses,
+      group?.currencyCode ?? null,
+    )
+    const publicBalancesByCurrency = Object.fromEntries(
+      Object.entries(balancesByCurrency).map(
+        ([currencyCode, currencyBalances]) => [
+          currencyCode,
+          getPublicBalances(getSuggestedReimbursements(currencyBalances)),
+        ],
+      ),
+    )
+    const reimbursements = Object.entries(balancesByCurrency).flatMap(
+      ([currencyCode, currencyBalances]) =>
+        getSuggestedReimbursements(currencyBalances).map((reimbursement) => ({
+          ...reimbursement,
+          currencyCode,
+        })),
+    ) satisfies ReimbursementByCurrency[]
 
-    return { balances: publicBalances, reimbursements }
+    return {
+      balancesByCurrency: publicBalancesByCurrency,
+      reimbursements,
+    }
   })

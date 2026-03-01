@@ -13,55 +13,97 @@ export type Reimbursement = {
   amount: number
 }
 
+export type ReimbursementByCurrency = Reimbursement & {
+  currencyCode: string
+}
+
+export type BalancesByCurrency = Record<string, Balances>
+
+function getOrCreateBalance(
+  balances: Balances,
+  participantId: Participant['id'],
+) {
+  if (!balances[participantId]) {
+    balances[participantId] = { paid: 0, paidFor: 0, total: 0 }
+  }
+  return balances[participantId]
+}
+
+function addExpenseToBalances(
+  balances: Balances,
+  expense: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>[number],
+  amount: number,
+) {
+  const paidBy = expense.paidBy.id
+  const paidFors = expense.paidFor
+
+  getOrCreateBalance(balances, paidBy).paid += amount
+
+  const totalPaidForShares = paidFors.reduce(
+    (sum, paidFor) => sum + paidFor.shares,
+    0,
+  )
+  let remaining = amount
+  paidFors.forEach((paidFor, index) => {
+    const isLast = index === paidFors.length - 1
+
+    const [shares, totalShares] = match(expense.splitMode)
+      .with('EVENLY', () => [1, paidFors.length])
+      .with('BY_SHARES', () => [paidFor.shares, totalPaidForShares])
+      .with('BY_PERCENTAGE', () => [paidFor.shares, totalPaidForShares])
+      .with('BY_AMOUNT', () => [paidFor.shares, totalPaidForShares])
+      .exhaustive()
+
+    const dividedAmount = isLast ? remaining : (amount * shares) / totalShares
+    remaining -= dividedAmount
+    getOrCreateBalance(balances, paidFor.participant.id).paidFor +=
+      dividedAmount
+  })
+}
+
+function finalizeBalances(balances: Balances) {
+  for (const participantId in balances) {
+    balances[participantId].paidFor =
+      Math.round(balances[participantId].paidFor) + 0
+    balances[participantId].paid = Math.round(balances[participantId].paid) + 0
+    balances[participantId].total =
+      balances[participantId].paid - balances[participantId].paidFor
+  }
+}
+
 export function getBalances(
   expenses: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>,
 ): Balances {
   const balances: Balances = {}
 
   for (const expense of expenses) {
-    const paidBy = expense.paidBy.id
-    const paidFors = expense.paidFor
-
-    if (!balances[paidBy]) balances[paidBy] = { paid: 0, paidFor: 0, total: 0 }
-    balances[paidBy].paid += expense.amount
-
-    const totalPaidForShares = paidFors.reduce(
-      (sum, paidFor) => sum + paidFor.shares,
-      0,
-    )
-    let remaining = expense.amount
-    paidFors.forEach((paidFor, index) => {
-      if (!balances[paidFor.participant.id])
-        balances[paidFor.participant.id] = { paid: 0, paidFor: 0, total: 0 }
-
-      const isLast = index === paidFors.length - 1
-
-      const [shares, totalShares] = match(expense.splitMode)
-        .with('EVENLY', () => [1, paidFors.length])
-        .with('BY_SHARES', () => [paidFor.shares, totalPaidForShares])
-        .with('BY_PERCENTAGE', () => [paidFor.shares, totalPaidForShares])
-        .with('BY_AMOUNT', () => [paidFor.shares, totalPaidForShares])
-        .exhaustive()
-
-      const dividedAmount = isLast
-        ? remaining
-        : (expense.amount * shares) / totalShares
-      remaining -= dividedAmount
-      balances[paidFor.participant.id].paidFor += dividedAmount
-    })
+    addExpenseToBalances(balances, expense, expense.amount)
   }
 
-  // rounding and add total
-  for (const participantId in balances) {
-    // add +0 to avoid negative zeros
-    balances[participantId].paidFor =
-      Math.round(balances[participantId].paidFor) + 0
-    balances[participantId].paid = Math.round(balances[participantId].paid) + 0
-
-    balances[participantId].total =
-      balances[participantId].paid - balances[participantId].paidFor
-  }
+  finalizeBalances(balances)
   return balances
+}
+
+export function getBalancesByCurrency(
+  expenses: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>,
+  groupCurrencyCode: string | null,
+): BalancesByCurrency {
+  const balancesByCurrency: BalancesByCurrency = {}
+
+  for (const expense of expenses) {
+    const currencyCode = expense.originalCurrency || groupCurrencyCode || ''
+    const amount = expense.originalAmount ?? expense.amount
+    if (!balancesByCurrency[currencyCode]) {
+      balancesByCurrency[currencyCode] = {}
+    }
+    addExpenseToBalances(balancesByCurrency[currencyCode], expense, amount)
+  }
+
+  for (const currencyCode in balancesByCurrency) {
+    finalizeBalances(balancesByCurrency[currencyCode])
+  }
+
+  return balancesByCurrency
 }
 
 export function getPublicBalances(reimbursements: Reimbursement[]): Balances {

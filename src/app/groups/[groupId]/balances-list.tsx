@@ -1,51 +1,54 @@
-import { Balances } from '@/lib/balances'
-import { Currency } from '@/lib/currency'
-import { cn, formatCurrency } from '@/lib/utils'
+import { BalancesByCurrency } from '@/lib/balances'
+import { Currency, getCurrency } from '@/lib/currency'
+import { formatCurrency } from '@/lib/utils'
 import { Participant } from '@prisma/client'
 import { useLocale } from 'next-intl'
 
 type Props = {
-  balances: Balances
+  balancesByCurrency: BalancesByCurrency
   participants: Participant[]
   currency: Currency
 }
 
-export function BalancesList({ balances, participants, currency }: Props) {
+export function BalancesList({
+  balancesByCurrency,
+  participants,
+  currency,
+}: Props) {
   const locale = useLocale()
-  const maxBalance = Math.max(
-    ...Object.values(balances).map((b) => Math.abs(b.total)),
-  )
 
   return (
     <div className="text-sm">
       {participants.map((participant) => {
-        const balance = balances[participant.id]?.total ?? 0
-        const isLeft = balance >= 0
+        const entries = Object.entries(balancesByCurrency)
+          .map(([currencyCode, balances]) => ({
+            currencyCode,
+            total: balances[participant.id]?.total ?? 0,
+          }))
+          .filter(({ total }) => total !== 0)
+          .sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
+
+        const zeroCurrencyCode = currency.code || ''
+        const visibleEntries =
+          entries.length > 0
+            ? entries
+            : [{ currencyCode: zeroCurrencyCode, total: 0 }]
+
         return (
-          <div
-            key={participant.id}
-            className={cn('flex', isLeft || 'flex-row-reverse')}
-          >
-            <div className={cn('w-1/2 p-2', isLeft && 'text-right')}>
-              {participant.name}
-            </div>
-            <div className={cn('w-1/2 relative', isLeft || 'text-right')}>
-              <div className="absolute inset-0 p-2 z-20">
-                {formatCurrency(currency, balance, locale)}
-              </div>
-              {balance !== 0 && (
-                <div
-                  className={cn(
-                    'absolute top-1 h-7 z-10',
-                    isLeft
-                      ? 'bg-green-200 dark:bg-green-800 left-0 rounded-r-lg border border-green-300 dark:border-green-700'
-                      : 'bg-red-200 dark:bg-red-800 right-0 rounded-l-lg border  border-red-300 dark:border-red-700',
-                  )}
-                  style={{
-                    width: (Math.abs(balance) / maxBalance) * 100 + '%',
-                  }}
-                ></div>
-              )}
+          <div key={participant.id} className="flex border-b last:border-b-0">
+            <div className="w-1/2 p-2">{participant.name}</div>
+            <div className="w-1/2 p-2 text-right">
+              {visibleEntries.map(({ currencyCode, total }, index) => {
+                const targetCurrency =
+                  currencyCode === currency.code
+                    ? currency
+                    : getCurrency(currencyCode)
+                return (
+                  <div key={`${participant.id}-${currencyCode}-${index}`}>
+                    {formatCurrency(targetCurrency, total, locale)}
+                  </div>
+                )
+              })}
             </div>
           </div>
         )

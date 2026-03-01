@@ -46,7 +46,7 @@ export default function BalancesAndReimbursements() {
             <BalancesLoading participantCount={group?.participants.length} />
           ) : (
             <BalancesList
-              balances={balancesData.balances}
+              balancesByCurrency={balancesData.balancesByCurrency}
               participants={group?.participants}
               currency={getCurrencyFromGroup(group)}
             />

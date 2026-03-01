@@ -212,13 +212,32 @@ export function ExpenseForm({
       ? {
           title: t('reimbursement'),
           expenseDate: new Date(),
-          amount: amountAsDecimal(
-            Number(searchParams.get('amount')) || 0,
-            groupCurrency,
-          ),
-          originalCurrency: group.currencyCode,
-          originalAmount: undefined,
-          conversionRate: undefined,
+          // Keep reimbursement in its own currency when coming from suggestions.
+          // The amount query param is in minor units.
+          ...(function () {
+            const reimbursementCurrencyCode =
+              searchParams.get('currency') ?? group.currencyCode ?? ''
+            const reimbursementCurrency = getCurrency(
+              reimbursementCurrencyCode,
+              locale,
+              'Custom',
+            )
+            const reimbursementAmount = amountAsDecimal(
+              Number(searchParams.get('amount')) || 0,
+              reimbursementCurrency,
+            )
+            const usesDifferentCurrency =
+              reimbursementCurrencyCode.length > 0 &&
+              reimbursementCurrencyCode !== (group.currencyCode ?? '')
+            return {
+              amount: reimbursementAmount,
+              originalCurrency: reimbursementCurrencyCode,
+              originalAmount: usesDifferentCurrency
+                ? reimbursementAmount
+                : undefined,
+              conversionRate: usesDifferentCurrency ? 1 : undefined,
+            }
+          })(),
           category: 1, // category with Id 1 is Payment
           paidBy: searchParams.get('from') ?? undefined,
           paidFor: [
