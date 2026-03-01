@@ -12,6 +12,7 @@ export type Currency = {
 }
 
 export const supportedCurrencyCodes = [
+  'ARS',
   'USD',
   'EUR',
   'JPY',
