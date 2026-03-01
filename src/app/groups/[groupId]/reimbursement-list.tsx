@@ -7,9 +7,9 @@ import {
   amountAsMinorUnits,
   formatCurrency,
 } from '@/lib/utils'
+import { trpc } from '@/trpc/client'
 import { Participant } from '@prisma/client'
 import { useLocale, useTranslations } from 'next-intl'
-import Link from 'next/link'
 import { useState } from 'react'
 
 type Props = {
@@ -27,6 +27,15 @@ export function ReimbursementList({
 }: Props) {
   const locale = useLocale()
   const t = useTranslations('Balances.Reimbursements')
+  const utils = trpc.useUtils()
+  const createExpense = trpc.groups.expenses.create.useMutation({
+    onSuccess: async () => {
+      await Promise.all([
+        utils.groups.balances.invalidate(),
+        utils.groups.expenses.invalidate(),
+      ])
+    },
+  })
   const [partialAmounts, setPartialAmounts] = useState<Record<string, string>>(
     {},
   )
@@ -86,12 +95,45 @@ export function ReimbursementList({
                     aria-label="Partial payment amount"
                   />
                   {isValidPartialAmount ? (
-                    <Button variant="link" asChild className="-mx-4 -my-3">
-                      <Link
-                        href={`/groups/${groupId}/expenses/create?reimbursement=yes&from=${reimbursement.from}&to=${reimbursement.to}&amount=${selectedMinorUnits}&currency=${reimbursement.currencyCode}`}
-                      >
-                        {t('markAsPaid')}
-                      </Link>
+                    <Button
+                      variant="link"
+                      className="-mx-4 -my-3"
+                      disabled={createExpense.isPending}
+                      onClick={() =>
+                        createExpense.mutate({
+                          groupId,
+                          expenseFormValues: {
+                            title: 'Reimbursement',
+                            expenseDate: new Date(),
+                            amount: selectedMinorUnits,
+                            originalCurrency:
+                              reimbursement.currencyCode === currency.code
+                                ? currency.code
+                                : reimbursement.currencyCode,
+                            originalAmount:
+                              reimbursement.currencyCode === currency.code
+                                ? undefined
+                                : selectedMinorUnits,
+                            conversionRate: undefined,
+                            category: 1,
+                            paidBy: reimbursement.from,
+                            paidFor: [
+                              {
+                                participant: reimbursement.to,
+                                shares: 1,
+                              },
+                            ],
+                            isReimbursement: true,
+                            splitMode: 'EVENLY',
+                            saveDefaultSplittingOptions: false,
+                            documents: [],
+                            notes: '',
+                            recurrenceRule: 'NONE',
+                          },
+                        })
+                      }
+                    >
+                      {t('markAsPaid')}
                     </Button>
                   ) : (
                     <Button variant="link" className="-mx-4 -my-3" disabled>
