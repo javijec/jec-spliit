@@ -183,13 +183,30 @@ export function ExpenseForm({
   }
   const defaultSplittingOptions = getDefaultSplittingOptions(group)
   const groupCurrency = getCurrencyFromGroup(group)
+  const resolveExpenseCurrency = (currencyCode?: string | null) => {
+    if (
+      group.currencyCode &&
+      group.currencyCode.length &&
+      currencyCode &&
+      currencyCode.length &&
+      currencyCode !== group.currencyCode
+    ) {
+      return getCurrency(currencyCode, locale, 'Custom')
+    }
+    return groupCurrency
+  }
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: expense
       ? {
           title: expense.title,
           expenseDate: expense.expenseDate ?? new Date(),
-          amount: amountAsDecimal(expense.amount, groupCurrency),
+          amount: amountAsDecimal(
+            expense.originalAmount ?? expense.amount,
+            resolveExpenseCurrency(
+              expense.originalCurrency ?? group.currencyCode,
+            ),
+          ),
           originalCurrency: expense.originalCurrency ?? group.currencyCode,
           originalAmount: expense.originalAmount ?? undefined,
           conversionRate: undefined,
@@ -198,7 +215,12 @@ export function ExpenseForm({
           paidFor: expense.paidFor.map(({ participantId, shares }) => ({
             participant: participantId,
             shares: (expense.splitMode === 'BY_AMOUNT'
-              ? amountAsDecimal(shares, groupCurrency)
+              ? amountAsDecimal(
+                  shares,
+                  resolveExpenseCurrency(
+                    expense.originalCurrency ?? group.currencyCode,
+                  ),
+                )
               : (shares / 100).toString()) as any, // Convert to string to ensure consistent handling
           })),
           splitMode: expense.splitMode,
@@ -292,19 +314,26 @@ export function ExpenseForm({
 
   const submit = async (values: ExpenseFormValues) => {
     await persistDefaultSplittingOptions(group.id, values)
+    const valuesCurrency = resolveExpenseCurrency(values.originalCurrency)
+    const valuesUseOriginalCurrency =
+      group.currencyCode &&
+      group.currencyCode.length &&
+      values.originalCurrency &&
+      values.originalCurrency.length &&
+      values.originalCurrency !== group.currencyCode
 
     // Store monetary amounts in minor units (cents)
-    values.amount = amountAsMinorUnits(values.amount, groupCurrency)
+    values.amount = amountAsMinorUnits(values.amount, valuesCurrency)
     values.paidFor = values.paidFor.map(({ participant, shares }) => ({
       participant,
       shares:
         values.splitMode === 'BY_AMOUNT'
-          ? amountAsMinorUnits(shares, groupCurrency)
+          ? amountAsMinorUnits(shares, valuesCurrency)
           : shares,
     }))
 
     // If it is the group currency, do not persist original currency fields.
-    if (!conversionRequired) {
+    if (!valuesUseOriginalCurrency) {
       delete values.originalAmount
       delete values.originalCurrency
     } else {
@@ -332,6 +361,7 @@ export function ExpenseForm({
     group.currencyCode.length &&
     originalCurrency.code.length &&
     originalCurrency.code !== group.currencyCode
+  const expenseCurrency = conversionRequired ? originalCurrency : groupCurrency
 
   useEffect(() => {
     setManuallyEditedParticipants(new Set())
@@ -376,7 +406,7 @@ export function ExpenseForm({
             return {
               ...participant,
               shares: amountPerRemaining.toFixed(
-                groupCurrency.decimal_digits,
+                expenseCurrency.decimal_digits,
               ) as any, // Keep as string for consistent schema handling
             }
           }
@@ -570,7 +600,7 @@ export function ExpenseForm({
                 <FormItem className="sm:order-5">
                   <FormLabel>{t('amountField.label')}</FormLabel>
                   <div className="flex items-baseline gap-2">
-                    <span>{group.currency}</span>
+                    <span>{expenseCurrency.symbol || group.currency}</span>
                     <FormControl>
                       <Input
                         className="text-base max-w-[120px]"
@@ -756,7 +786,7 @@ export function ExpenseForm({
                         return (
                           <div
                             data-id={`${id}/${form.getValues().splitMode}/${
-                              group.currency
+                              expenseCurrency.code || expenseCurrency.symbol
                             }`}
                             className="flex flex-wrap gap-y-4 items-center border-t last-of-type:border-b last-of-type:!mb-4 -mx-6 px-6 py-3"
                           >
@@ -803,11 +833,11 @@ export function ExpenseForm({
                                     <span className="text-muted-foreground ml-2">
                                       (
                                       {formatCurrency(
-                                        groupCurrency,
+                                        expenseCurrency,
                                         calculateShare(id, {
                                           amount: amountAsMinorUnits(
                                             Number(form.watch('amount')),
-                                            groupCurrency,
+                                            expenseCurrency,
                                           ), // Convert to cents
                                           paidFor: field.value.map(
                                             ({ participant, shares }) => ({
@@ -824,7 +854,7 @@ export function ExpenseForm({
                                                     'BY_AMOUNT'
                                                   ? amountAsMinorUnits(
                                                       shares,
-                                                      groupCurrency,
+                                                      expenseCurrency,
                                                     )
                                                   : shares,
                                               expenseId: '',
@@ -945,7 +975,7 @@ export function ExpenseForm({
                                           ))
                                           .with('BY_PERCENTAGE', () => <>%</>)
                                           .with('BY_AMOUNT', () => (
-                                            <>{group.currency}</>
+                                            <>{expenseCurrency.symbol}</>
                                           ))
                                           .otherwise(() => (
                                             <></>
@@ -1009,7 +1039,7 @@ export function ExpenseForm({
                                                 form.getValues().splitMode ===
                                                 'BY_AMOUNT'
                                                   ? 10 **
-                                                    -groupCurrency.decimal_digits
+                                                    -expenseCurrency.decimal_digits
                                                   : 1
                                               }
                                             />
