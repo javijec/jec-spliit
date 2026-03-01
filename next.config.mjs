@@ -24,9 +24,6 @@ if (process.env.S3_UPLOAD_ENDPOINT) {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
