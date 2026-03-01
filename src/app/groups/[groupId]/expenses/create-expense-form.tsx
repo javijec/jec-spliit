@@ -1,6 +1,7 @@
 'use client'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
 import { trpc } from '@/trpc/client'
+import { useToast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { ExpenseForm } from './expense-form'
 
@@ -23,6 +24,7 @@ export function CreateExpenseForm({
 
   const utils = trpc.useUtils()
   const router = useRouter()
+  const { toast } = useToast()
 
   if (!group || !categories) return null
 
@@ -31,13 +33,28 @@ export function CreateExpenseForm({
       group={group}
       categories={categories}
       onSubmit={async (expenseFormValues, participantId) => {
-        await createExpenseMutateAsync({
-          groupId,
-          expenseFormValues,
-          participantId,
-        })
-        utils.groups.expenses.invalidate()
-        router.push(`/groups/${group.id}`)
+        try {
+          await createExpenseMutateAsync({
+            groupId,
+            expenseFormValues,
+            participantId,
+          })
+          toast({
+            title: 'Gasto creado',
+            description: 'El gasto se guardó correctamente.',
+          })
+          utils.groups.expenses.invalidate()
+          router.push(`/groups/${group.id}`)
+        } catch (error) {
+          toast({
+            title: 'No se pudo crear el gasto',
+            description:
+              error instanceof Error
+                ? error.message
+                : 'Ocurrió un error al guardar el gasto.',
+            variant: 'destructive',
+          })
+        }
       }}
       runtimeFeatureFlags={runtimeFeatureFlags}
     />

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/use-toast'
 import { ReimbursementByCurrency } from '@/lib/balances'
 import { Currency, getCurrency } from '@/lib/currency'
 import {
@@ -28,12 +29,24 @@ export function ReimbursementList({
   const locale = useLocale()
   const t = useTranslations('Balances.Reimbursements')
   const utils = trpc.useUtils()
+  const { toast } = useToast()
   const createExpense = trpc.groups.expenses.create.useMutation({
     onSuccess: async () => {
+      toast({
+        title: 'Pago registrado',
+        description: 'La deuda se marcó como pagada.',
+      })
       await Promise.all([
         utils.groups.balances.invalidate(),
         utils.groups.expenses.invalidate(),
       ])
+    },
+    onError: (error) => {
+      toast({
+        title: 'No se pudo registrar el pago',
+        description: error.message,
+        variant: 'destructive',
+      })
     },
   })
   const [partialAmounts, setPartialAmounts] = useState<Record<string, string>>(

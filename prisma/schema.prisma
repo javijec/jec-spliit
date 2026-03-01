@@ -1,35 +1,32 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Group {
   id           String        @id
   name         String
-  information  String?       @db.Text
   currency     String        @default("$")
-  currencyCode String?
-  participants Participant[]
-  expenses     Expense[]
-  activities   Activity[]
   createdAt    DateTime      @default(now())
+  information  String?
+  currencyCode String?
+  activities   Activity[]
+  expenses     Expense[]
+  participants Participant[]
 }
 
 model Participant {
   id              String           @id
   name            String
-  group           Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId         String
   expensesPaidBy  Expense[]
   expensesPaidFor ExpensePaidFor[]
+  group           Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
 }
 
 model Category {
@@ -40,38 +37,70 @@ model Category {
 }
 
 model Expense {
-  id               String            @id
-  group            Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  expenseDate      DateTime          @default(dbgenerated("CURRENT_DATE")) @db.Date
-  title            String
-  category         Category?         @relation(fields: [categoryId], references: [id])
-  categoryId       Int               @default(0)
-  amount           Int
-  originalAmount   Int?
-  originalCurrency String?
-  conversionRate   Decimal?
-  paidBy           Participant       @relation(fields: [paidById], references: [id], onDelete: Cascade)
-  paidById         String
-  paidFor          ExpensePaidFor[]
-  groupId          String
-  isReimbursement  Boolean           @default(false)
-  splitMode        SplitMode         @default(EVENLY)
-  createdAt        DateTime          @default(now())
-  documents        ExpenseDocument[]
-  notes            String?
-
+  id                     String                @id
+  title                  String
+  amount                 Int
+  paidById               String
+  groupId                String
+  isReimbursement        Boolean               @default(false)
+  createdAt              DateTime              @default(now())
+  splitMode              SplitMode             @default(EVENLY)
+  expenseDate            DateTime              @default(dbgenerated("CURRENT_DATE")) @db.Date
+  categoryId             Int                   @default(0)
+  notes                  String?
   recurrenceRule         RecurrenceRule?       @default(NONE)
-  recurringExpenseLink   RecurringExpenseLink?
   recurringExpenseLinkId String?
+  conversionRate         Decimal?
+  originalAmount         Int?
+  originalCurrency       String?
+  category               Category              @relation(fields: [categoryId], references: [id])
+  group                  Group                 @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy                 Participant           @relation(fields: [paidById], references: [id], onDelete: Cascade)
+  documents              ExpenseDocument[]
+  paidFor                ExpensePaidFor[]
+  recurringExpenseLink   RecurringExpenseLink?
 }
 
 model ExpenseDocument {
   id        String   @id
   url       String
-  width     Int
-  height    Int
-  Expense   Expense? @relation(fields: [expenseId], references: [id])
   expenseId String?
+  height    Int
+  width     Int
+  Expense   Expense? @relation(fields: [expenseId], references: [id])
+}
+
+model RecurringExpenseLink {
+  id                    String    @id
+  groupId               String
+  currentFrameExpenseId String    @unique
+  nextExpenseCreatedAt  DateTime?
+  nextExpenseDate       DateTime
+  currentFrameExpense   Expense   @relation(fields: [currentFrameExpenseId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([groupId, nextExpenseCreatedAt, nextExpenseDate(sort: Desc)])
+}
+
+model ExpensePaidFor {
+  expenseId     String
+  participantId String
+  shares        Int         @default(1)
+  expense       Expense     @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@id([expenseId, participantId])
+}
+
+model Activity {
+  id            String       @id
+  groupId       String
+  time          DateTime     @default(now())
+  activityType  ActivityType
+  participantId String?
+  expenseId     String?
+  data          String?
+  group         Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
 }
 
 enum SplitMode {
@@ -81,48 +110,11 @@ enum SplitMode {
   BY_AMOUNT
 }
 
-model RecurringExpenseLink {
-  id                    String  @id
-  groupId               String
-  currentFrameExpense   Expense @relation(fields: [currentFrameExpenseId], references: [id], onDelete: Cascade)
-  currentFrameExpenseId String  @unique
-
-  // Note: We do not want to link to the next expense because once it is created, it should be 
-  // treated as it's own independent entity. This means that if a user wants to delete an Expense
-  // and any prior related recurring expenses, they'll need to delete them one by one.
-  nextExpenseCreatedAt DateTime?
-  nextExpenseDate      DateTime
-
-  @@index([groupId])
-  @@index([groupId, nextExpenseCreatedAt, nextExpenseDate(sort: Desc)])
-}
-
 enum RecurrenceRule {
   NONE
   DAILY
   WEEKLY
   MONTHLY
-}
-
-model ExpensePaidFor {
-  expense       Expense     @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  expenseId     String
-  participantId String
-  shares        Int         @default(1)
-
-  @@id([expenseId, participantId])
-}
-
-model Activity {
-  id            String       @id
-  group         Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId       String
-  time          DateTime     @default(now())
-  activityType  ActivityType
-  participantId String?
-  expenseId     String?
-  data          String?
 }
 
 enum ActivityType {

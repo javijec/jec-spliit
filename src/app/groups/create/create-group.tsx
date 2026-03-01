@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/use-toast'
 import {
   Select,
   SelectContent,
@@ -97,10 +98,22 @@ const normalizeFileName = (name: string) =>
 function SplitwiseImportCard() {
   const utils = trpc.useUtils()
   const router = useRouter()
+  const { toast } = useToast()
   const importSplitwise = trpc.groups.importSplitwise.useMutation({
     onSuccess: async ({ groupId }) => {
+      toast({
+        title: 'Importación completada',
+        description: 'El grupo y los gastos se importaron correctamente.',
+      })
       await utils.groups.invalidate()
       router.push(`/groups/${groupId}`)
+    },
+    onError: (error) => {
+      toast({
+        title: 'No se pudo importar el CSV',
+        description: error.message,
+        variant: 'destructive',
+      })
     },
   })
 
@@ -120,90 +133,123 @@ function SplitwiseImportCard() {
   const onSelectCsv = async (file: File) => {
     setParseError(null)
     setCsvData(null)
-    const rawText = await file.text()
-    const lines = rawText
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-    if (lines.length < 2) {
-      setParseError('El CSV no contiene datos.')
-      return
-    }
+    try {
+      const rawText = await file.text()
+      const lines = rawText
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+      if (lines.length < 2) {
+        const message = 'El CSV no contiene datos.'
+        setParseError(message)
+        toast({
+          title: 'Archivo CSV inválido',
+          description: message,
+          variant: 'destructive',
+        })
+        return
+      }
 
-    const headerLine = lines[0].replace(/^\uFEFF/, '')
-    const delimiter =
-      (headerLine.match(/;/g)?.length ?? 0) >
-      (headerLine.match(/,/g)?.length ?? 0)
-        ? ';'
-        : ','
-    const headers = parseCsvLine(headerLine, delimiter)
-    if (headers.length < 7) {
-      setParseError('No se detectaron columnas de participantes en el CSV.')
-      return
-    }
+      const headerLine = lines[0].replace(/^\uFEFF/, '')
+      const delimiter =
+        (headerLine.match(/;/g)?.length ?? 0) >
+        (headerLine.match(/,/g)?.length ?? 0)
+          ? ';'
+          : ','
+      const headers = parseCsvLine(headerLine, delimiter)
+      if (headers.length < 7) {
+        const message = 'No se detectaron columnas de participantes en el CSV.'
+        setParseError(message)
+        toast({
+          title: 'Archivo CSV inválido',
+          description: message,
+          variant: 'destructive',
+        })
+        return
+      }
 
-    const participants = headers.slice(5).map((value) => value.trim())
-    const expenses: ParsedExpenseDraft[] = []
-    const currencyCodes = new Set<string>()
+      const participants = headers.slice(5).map((value) => value.trim())
+      const expenses: ParsedExpenseDraft[] = []
+      const currencyCodes = new Set<string>()
 
-    for (let i = 1; i < lines.length; i++) {
-      const row = parseCsvLine(lines[i], delimiter)
-      if (row.length < headers.length) continue
-      const [
-        dateStr,
-        description,
-        category,
-        cost,
-        currencyCode,
-        ...balancesRaw
-      ] = row
-      const expenseDate = new Date(dateStr)
-      if (Number.isNaN(expenseDate.getTime())) continue
-      const parsedCurrencyCode = currencyCode.trim().toUpperCase()
-      if (!parsedCurrencyCode.length) continue
-      currencyCodes.add(parsedCurrencyCode)
-      const currency = getCurrency(parsedCurrencyCode)
-      const amountMinor = amountAsMinorUnits(
-        parseDecimal(cost, delimiter),
-        currency,
-      )
-      if (amountMinor <= 0) continue
-
-      const balancesMinor: ParticipantBalances = {}
-      participants.forEach((participant, index) => {
-        balancesMinor[participant] = amountAsMinorUnits(
-          parseDecimal(balancesRaw[index] ?? '0', delimiter),
+      for (let i = 1; i < lines.length; i++) {
+        const row = parseCsvLine(lines[i], delimiter)
+        if (row.length < headers.length) continue
+        const [
+          dateStr,
+          description,
+          category,
+          cost,
+          currencyCode,
+          ...balancesRaw
+        ] = row
+        const expenseDate = new Date(dateStr)
+        if (Number.isNaN(expenseDate.getTime())) continue
+        const parsedCurrencyCode = currencyCode.trim().toUpperCase()
+        if (!parsedCurrencyCode.length) continue
+        currencyCodes.add(parsedCurrencyCode)
+        const currency = getCurrency(parsedCurrencyCode)
+        const amountMinor = amountAsMinorUnits(
+          parseDecimal(cost, delimiter),
           currency,
         )
+        if (amountMinor <= 0) continue
+
+        const balancesMinor: ParticipantBalances = {}
+        participants.forEach((participant, index) => {
+          balancesMinor[participant] = amountAsMinorUnits(
+            parseDecimal(balancesRaw[index] ?? '0', delimiter),
+            currency,
+          )
+        })
+
+        expenses.push({
+          id: `${i}`,
+          expenseDate,
+          title: description.trim() || 'Gasto importado',
+          category: category.trim(),
+          amountMinor,
+          currencyCode: parsedCurrencyCode,
+          balancesMinor,
+          paidByName: detectPaidByName(balancesMinor),
+          isReimbursement: /pago/i.test(category),
+        })
+      }
+
+      if (!expenses.length) {
+        const message = 'No se pudieron parsear gastos válidos del CSV.'
+        setParseError(message)
+        toast({
+          title: 'Archivo CSV inválido',
+          description: message,
+          variant: 'destructive',
+        })
+        return
+      }
+
+      const parsed: ParsedSplitwiseCsv = {
+        participants,
+        currencyCodes: Array.from(currencyCodes),
+        expenses,
+        fileName: file.name,
+      }
+      setCsvData(parsed)
+      setGroupName(normalizeFileName(file.name) || 'Grupo importado')
+      setGroupCurrencyCode(parsed.currencyCodes[0] ?? 'USD')
+      toast({
+        title: 'CSV cargado',
+        description: `Se detectaron ${expenses.length} gastos para importar.`,
       })
-
-      expenses.push({
-        id: `${i}`,
-        expenseDate,
-        title: description.trim() || 'Gasto importado',
-        category: category.trim(),
-        amountMinor,
-        currencyCode: parsedCurrencyCode,
-        balancesMinor,
-        paidByName: detectPaidByName(balancesMinor),
-        isReimbursement: /pago/i.test(category),
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Error al leer el archivo CSV.'
+      setParseError(message)
+      toast({
+        title: 'No se pudo leer el CSV',
+        description: message,
+        variant: 'destructive',
       })
     }
-
-    if (!expenses.length) {
-      setParseError('No se pudieron parsear gastos válidos del CSV.')
-      return
-    }
-
-    const parsed: ParsedSplitwiseCsv = {
-      participants,
-      currencyCodes: Array.from(currencyCodes),
-      expenses,
-      fileName: file.name,
-    }
-    setCsvData(parsed)
-    setGroupName(normalizeFileName(file.name) || 'Grupo importado')
-    setGroupCurrencyCode(parsed.currencyCodes[0] ?? 'USD')
   }
 
   const importData = async () => {
@@ -212,7 +258,13 @@ function SplitwiseImportCard() {
       (expense) => !(expense.paidByName ?? payerOverrides[expense.id]),
     )
     if (missingPayer) {
-      setParseError('Falta definir quién pagó en uno o más gastos.')
+      const message = 'Falta definir quién pagó en uno o más gastos.'
+      setParseError(message)
+      toast({
+        title: 'Faltan datos para importar',
+        description: message,
+        variant: 'destructive',
+      })
       return
     }
 
@@ -379,15 +431,33 @@ export const CreateGroup = () => {
   const createGroup = trpc.groups.create.useMutation()
   const utils = trpc.useUtils()
   const router = useRouter()
+  const { toast } = useToast()
 
   return (
     <>
       <SplitwiseImportCard />
       <GroupForm
         onSubmit={async (groupFormValues) => {
-          const { groupId } = await createGroup.mutateAsync({ groupFormValues })
-          await utils.groups.invalidate()
-          router.push(`/groups/${groupId}`)
+          try {
+            const { groupId } = await createGroup.mutateAsync({
+              groupFormValues,
+            })
+            toast({
+              title: 'Grupo creado',
+              description: 'El grupo se creó correctamente.',
+            })
+            await utils.groups.invalidate()
+            router.push(`/groups/${groupId}`)
+          } catch (error) {
+            toast({
+              title: 'No se pudo crear el grupo',
+              description:
+                error instanceof Error
+                  ? error.message
+                  : 'Ocurrió un error al crear el grupo.',
+              variant: 'destructive',
+            })
+          }
         }}
       />
     </>
