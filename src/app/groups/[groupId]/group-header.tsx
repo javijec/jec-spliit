@@ -4,7 +4,7 @@ import { GroupTabs } from '@/app/groups/[groupId]/group-tabs'
 import { ShareButton } from '@/app/groups/[groupId]/share-button'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Settings } from 'lucide-react'
+import { Activity, Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useCurrentGroup } from './current-group-context'
@@ -32,7 +32,7 @@ export const GroupHeader = () => {
           <GroupTabs groupId={groupId} />
         </div>
         {group && (
-          <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+          <div className="grid grid-cols-3 sm:flex items-center gap-2 w-full sm:w-auto">
             <ShareButton
               group={group}
               showLabel
@@ -40,6 +40,18 @@ export const GroupHeader = () => {
               size="default"
               className="w-full sm:w-auto"
             />
+            <Button
+              asChild
+              size="default"
+              variant="outline"
+              className="w-full sm:w-auto"
+              title={t('Activity.title')}
+            >
+              <Link href={`/groups/${groupId}/activity`}>
+                <Activity className="w-4 h-4" />
+                <span className="ml-2">{t('Activity.title')}</span>
+              </Link>
+            </Button>
             <Button
               asChild
               size="default"
