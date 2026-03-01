@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Locale, localeLabels } from '@/i18n/request'
 import { setUserLocale } from '@/lib/locale'
+import { Languages } from 'lucide-react'
 import { useLocale } from 'next-intl'
 
 export function LocaleSwitcher() {
@@ -16,8 +17,15 @@ export function LocaleSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="-my-3 text-primary">
-          <span>{localeLabels[locale]}</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="-my-3 text-primary"
+          aria-label={`Idioma actual: ${localeLabels[locale]}`}
+          title="Cambiar idioma"
+        >
+          <Languages className="h-4 w-4" />
+          <span className="sr-only">{localeLabels[locale]}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
