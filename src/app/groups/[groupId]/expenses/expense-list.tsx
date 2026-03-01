@@ -202,7 +202,6 @@ const ExpenseListForSearch = ({
                 expense={expense}
                 currency={getCurrencyFromGroup(group)}
                 groupId={groupId}
-                participantCount={group.participants.length}
               />
             ))}
           </div>

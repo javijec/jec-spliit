@@ -7,58 +7,73 @@ import { getGroupExpenses } from '@/lib/api'
 import { Currency } from '@/lib/currency'
 import { cn, formatCurrency, formatDateOnly } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Fragment } from 'react'
 
 type Expense = Awaited<ReturnType<typeof getGroupExpenses>>[number]
 
-function Participants({
+function getPaidForAmounts({
   expense,
-  participantCount,
 }: {
   expense: Expense
-  participantCount: number
 }) {
-  const t = useTranslations('ExpenseCard')
-  const key = expense.amount > 0 ? 'paidBy' : 'receivedBy'
-  const paidFor =
-    expense.paidFor.length == participantCount && participantCount >= 4 ? (
-      <strong>{t('everyone')}</strong>
-    ) : (
-      expense.paidFor.map((paidFor, index) => (
-        <Fragment key={index}>
-          {index !== 0 && <>, </>}
-          <strong>{paidFor.participant.name}</strong>
-        </Fragment>
-      ))
-    )
+  const totalShares = expense.paidFor.reduce(
+    (sum, paidFor) => sum + paidFor.shares,
+    0,
+  )
+  if (totalShares === 0) return []
 
-  const participants = t.rich(key, {
-    strong: (chunks) => <strong>{chunks}</strong>,
-    paidBy: expense.paidBy.name,
-    paidFor: () => paidFor,
-    forCount: expense.paidFor.length,
-  })
-  return <>{participants}</>
+  return expense.paidFor.map((paidFor) => ({
+    participantName: paidFor.participant.name,
+    amount: Math.round((expense.amount * paidFor.shares) / totalShares),
+  }))
+}
+
+function ParticipantsBreakdown({
+  expense,
+  currency,
+  locale,
+}: {
+  expense: Expense
+  currency: Currency
+  locale: string
+}) {
+  const paidForAmounts = getPaidForAmounts({ expense })
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {paidForAmounts.map((paidFor) => (
+        <span
+          key={`${expense.id}-${paidFor.participantName}`}
+          className="inline-flex items-center rounded-full border bg-muted/60 px-2 py-0.5 text-[10px] sm:text-xs tabular-nums"
+        >
+          <span className="font-medium">{paidFor.participantName}:</span>
+          <span className="ml-1">
+            {formatCurrency(currency, paidFor.amount, locale)}
+          </span>
+        </span>
+      ))}
+    </div>
+  )
 }
 
 type Props = {
   expense: Expense
   currency: Currency
   groupId: string
-  participantCount: number
 }
 
 export function ExpenseCard({
   expense,
   currency,
   groupId,
-  participantCount,
 }: Props) {
   const router = useRouter()
   const locale = useLocale()
+  const isSpanish = locale.toLowerCase().startsWith('es')
+  const paidByLabel = isSpanish ? 'Pago:' : 'Paid by:'
+  const splitLabel = isSpanish ? 'Debe cada uno:' : 'Each pays:'
 
   return (
     <div
@@ -92,10 +107,21 @@ export function ExpenseCard({
         >
           {expense.title}
         </div>
-        <div className="text-[11px] text-muted-foreground leading-tight pr-1 truncate">
-          <Participants expense={expense} participantCount={participantCount} />
+        <div className="text-[11px] text-muted-foreground leading-tight pr-1">
+          <span>{paidByLabel}</span>{' '}
+          <strong className="text-foreground">{expense.paidBy.name}</strong>
         </div>
-        <div className="text-[11px] text-muted-foreground mt-0.5 leading-tight truncate">
+        <div className="text-[11px] text-muted-foreground mt-1 leading-tight">
+          <span>{splitLabel}</span>
+          <div className="mt-1">
+            <ParticipantsBreakdown
+              expense={expense}
+              currency={currency}
+              locale={locale}
+            />
+          </div>
+        </div>
+        <div className="text-[11px] text-muted-foreground mt-1 leading-tight">
           <ActiveUserBalance {...{ groupId, currency, expense }} />
         </div>
       </div>

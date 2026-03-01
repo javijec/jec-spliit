@@ -3,6 +3,7 @@
 import { ActiveUserModal } from '@/app/groups/[groupId]/expenses/active-user-modal'
 import { ExpenseList } from '@/app/groups/[groupId]/expenses/expense-list'
 import ExportButton from '@/app/groups/[groupId]/export-button'
+import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -13,7 +14,7 @@ import {
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrency, type Currency } from '@/lib/currency'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { Plus } from 'lucide-react'
 import { Metadata } from 'next'
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
 
 export default function GroupExpensesPageClient() {
   const t = useTranslations('Expenses')
+  const tBalances = useTranslations('Balances')
   const locale = useLocale()
   const { groupId, group } = useCurrentGroup()
   const { data: balancesData, isLoading: balancesAreLoading } =
@@ -86,62 +88,90 @@ export default function GroupExpensesPageClient() {
   return (
     <>
       {group && (
-        <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
-          <CardHeader className="p-4 sm:p-6 border-b">
-            <CardTitle className="text-xl leading-none">Deudas</CardTitle>
-            <CardDescription className="mt-2">
-              Quién le debe a quién, separado por moneda.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            {balancesAreLoading || !balancesData ? (
-              <div className="space-y-2">
-                <Skeleton className="h-14 w-full rounded-lg" />
-                <Skeleton className="h-14 w-full rounded-lg" />
-              </div>
-            ) : groupedDebtSummary.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No hay deudas simplificadas pendientes.
-              </p>
-            ) : (
-              <div className="space-y-2.5">
-                {groupedDebtSummary.map((pair) => (
-                  <div
-                    key={`${pair.from}-${pair.to}`}
-                    className="rounded-lg border bg-card/60 p-3 sm:p-3.5 text-sm"
-                  >
-                    <div className="leading-snug">
-                      <span className="font-semibold break-words">
-                        {getParticipantName(pair.from)}
-                      </span>{' '}
-                      <span className="text-muted-foreground">debe a</span>{' '}
-                      <span className="font-semibold break-words">
-                        {getParticipantName(pair.to)}
-                      </span>
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {pair.items.map((item) => (
-                        <span
-                          key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                          className="inline-flex items-center rounded-full border bg-muted/60 px-2 py-0.5 text-xs tabular-nums"
-                        >
-                          {formatCurrency(
-                            resolveCurrency(item.currencyCode),
-                            item.amount,
-                            locale,
-                          )}
-                          <span className="ml-1 text-muted-foreground uppercase">
-                            {item.currencyCode}
-                          </span>
+        <div className="mb-4 grid gap-4 lg:grid-cols-2">
+          <Card className="rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 lg:mx-0 lg:border-x overflow-hidden">
+            <CardHeader className="p-4 sm:p-6 border-b">
+              <CardTitle className="text-xl leading-none">Deudas</CardTitle>
+              <CardDescription className="mt-2">
+                Quién le debe a quién, separado por moneda.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              {balancesAreLoading || !balancesData ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-14 w-full rounded-lg" />
+                  <Skeleton className="h-14 w-full rounded-lg" />
+                </div>
+              ) : groupedDebtSummary.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No hay deudas simplificadas pendientes.
+                </p>
+              ) : (
+                <div className="space-y-2.5">
+                  {groupedDebtSummary.map((pair) => (
+                    <div
+                      key={`${pair.from}-${pair.to}`}
+                      className="rounded-lg border bg-card/60 p-3 sm:p-3.5 text-sm"
+                    >
+                      <div className="leading-snug">
+                        <span className="font-semibold break-words">
+                          {getParticipantName(pair.from)}
+                        </span>{' '}
+                        <span className="text-muted-foreground">debe a</span>{' '}
+                        <span className="font-semibold break-words">
+                          {getParticipantName(pair.to)}
                         </span>
-                      ))}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {pair.items.map((item) => (
+                          <span
+                            key={`${pair.from}-${pair.to}-${item.currencyCode}`}
+                            className="inline-flex items-center rounded-full border bg-muted/60 px-2 py-0.5 text-xs tabular-nums"
+                          >
+                            {formatCurrency(
+                              resolveCurrency(item.currencyCode),
+                              item.amount,
+                              locale,
+                            )}
+                            <span className="ml-1 text-muted-foreground uppercase">
+                              {item.currencyCode}
+                            </span>
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="hidden sm:block rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 lg:mx-0 lg:border-x overflow-hidden">
+            <CardHeader className="p-4 sm:p-6 border-b">
+              <CardTitle className="text-xl leading-none">
+                Liquidaciones
+              </CardTitle>
+              <CardDescription className="mt-2">
+                {tBalances('Reimbursements.description')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              {balancesAreLoading || !balancesData ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-14 w-full rounded-lg" />
+                  <Skeleton className="h-14 w-full rounded-lg" />
+                </div>
+              ) : (
+                <ReimbursementList
+                  reimbursements={balancesData.reimbursements}
+                  participants={group.participants}
+                  currency={getCurrencyFromGroup(group)}
+                  groupId={groupId}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
