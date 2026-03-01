@@ -3,7 +3,7 @@
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
-import { Plus, Wallet } from 'lucide-react'
+import { HandCoins, Plus, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -28,7 +28,7 @@ export function GroupLayoutClient({
         variant: 'destructive',
       })
     }
-  }, [data])
+  }, [data, t, toast])
 
   const props =
     isLoading || !data?.group
@@ -58,11 +58,7 @@ export function GroupLayoutClient({
           <div className="grid grid-cols-3 items-center gap-1 rounded-2xl border bg-background/95 backdrop-blur px-2 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
             <Button
               asChild
-              variant={
-                pathname.includes('/balances') || pathname.includes('/edit')
-                  ? 'ghost'
-                  : 'secondary'
-              }
+              variant={pathname.includes('/balances') ? 'ghost' : 'secondary'}
               size="sm"
               className="h-10 flex-col gap-0.5"
             >
@@ -87,7 +83,7 @@ export function GroupLayoutClient({
               className="h-10 flex-col gap-0.5"
             >
               <Link href={`/groups/${groupId}/balances`}>
-                <Wallet className="h-4 w-4" />
+                <HandCoins className="h-4 w-4" />
                 <span className="text-[10px] leading-none">Liquidaciones</span>
               </Link>
             </Button>
