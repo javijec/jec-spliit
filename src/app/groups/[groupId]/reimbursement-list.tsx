@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 import { ReimbursementByCurrency } from '@/lib/balances'
@@ -10,6 +11,7 @@ import {
 } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { Participant } from '@prisma/client'
+import { CheckCircle2 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 
@@ -53,7 +55,14 @@ export function ReimbursementList({
     {},
   )
   if (reimbursements.length === 0) {
-    return <p className="text-sm pb-6">{t('noImbursements')}</p>
+    return (
+      <EmptyState
+        icon={CheckCircle2}
+        title={t('noImbursements')}
+        description="No hay deudas pendientes para saldar en este grupo."
+        className="mb-2"
+      />
+    )
   }
 
   const getParticipant = (id: string) => participants.find((p) => p.id === id)

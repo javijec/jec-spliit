@@ -2,11 +2,13 @@
 import { ExpenseCard } from '@/app/groups/[groupId]/expenses/expense-card'
 import { getGroupExpensesAction } from '@/app/groups/[groupId]/expenses/expense-list-fetch-action'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { SearchBar } from '@/components/ui/search-bar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import dayjs, { type Dayjs } from 'dayjs'
+import { SearchX, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { forwardRef, useEffect, useMemo, useState } from 'react'
@@ -140,17 +142,41 @@ const ExpenseListForSearch = ({
 
   if (isLoading) return <ExpensesLoading />
 
-  if (expenses.length === 0)
+  if (expenses.length === 0) {
+    const hasActiveSearch = searchText.trim().length > 0
     return (
-      <p className="px-6 text-sm py-6">
-        {t('noExpenses')}{' '}
-        <Button variant="link" asChild className="-m-4">
-          <Link href={`/groups/${groupId}/expenses/create`}>
-            {t('createFirst')}
-          </Link>
-        </Button>
-      </p>
+      <div className="px-4 sm:px-6 py-6">
+        <EmptyState
+          icon={hasActiveSearch ? SearchX : Wallet}
+          title={
+            hasActiveSearch
+              ? 'No se encontraron gastos con ese filtro'
+              : t('noExpenses')
+          }
+          description={
+            hasActiveSearch
+              ? 'Probá con otra palabra o limpiá el buscador para ver todos los gastos.'
+              : 'Todavía no hay movimientos cargados en este grupo.'
+          }
+          action={
+            hasActiveSearch ? (
+              <Button variant="secondary" asChild>
+                <Link href={`/groups/${groupId}/expenses`}>
+                  Limpiar búsqueda
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link href={`/groups/${groupId}/expenses/create`}>
+                  {t('createFirst')}
+                </Link>
+              </Button>
+            )
+          }
+        />
+      </div>
     )
+  }
 
   return (
     <>

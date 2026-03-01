@@ -17,18 +17,30 @@ export function GroupTabs({ groupId }: Props) {
   return (
     <Tabs
       value={value}
-      className="[&>*]:border overflow-x-auto"
+      className="overflow-x-auto"
       onValueChange={(value) => {
         router.push(`/groups/${groupId}/${value}`)
       }}
     >
-      <TabsList>
-        <TabsTrigger value="expenses">{t('Expenses.title')}</TabsTrigger>
-        <TabsTrigger value="balances">{t('Balances.title')}</TabsTrigger>
-        <TabsTrigger value="information">{t('Information.title')}</TabsTrigger>
-        <TabsTrigger value="stats">{t('Stats.title')}</TabsTrigger>
-        <TabsTrigger value="activity">{t('Activity.title')}</TabsTrigger>
-        <TabsTrigger value="edit">{t('Settings.title')}</TabsTrigger>
+      <TabsList className="h-11 w-max min-w-full sm:min-w-0 rounded-lg border">
+        <TabsTrigger value="expenses" className="px-3.5">
+          {t('Expenses.title')}
+        </TabsTrigger>
+        <TabsTrigger value="balances" className="px-3.5">
+          {t('Balances.title')}
+        </TabsTrigger>
+        <TabsTrigger value="information" className="px-3.5">
+          {t('Information.title')}
+        </TabsTrigger>
+        <TabsTrigger value="stats" className="px-3.5">
+          {t('Stats.title')}
+        </TabsTrigger>
+        <TabsTrigger value="activity" className="px-3.5">
+          {t('Activity.title')}
+        </TabsTrigger>
+        <TabsTrigger value="edit" className="px-3.5">
+          {t('Settings.title')}
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   )

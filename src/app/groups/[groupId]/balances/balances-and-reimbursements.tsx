@@ -36,12 +36,12 @@ export default function BalancesAndReimbursements() {
 
   return (
     <>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-          <CardDescription>{t('description')}</CardDescription>
+      <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
+        <CardHeader className="p-4 sm:p-6 border-b">
+          <CardTitle className="text-xl leading-none">{t('title')}</CardTitle>
+          <CardDescription className="mt-2">{t('description')}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {isLoading ? (
             <BalancesLoading participantCount={group?.participants.length} />
           ) : (
@@ -53,12 +53,16 @@ export default function BalancesAndReimbursements() {
           )}
         </CardContent>
       </Card>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>{t('Reimbursements.title')}</CardTitle>
-          <CardDescription>{t('Reimbursements.description')}</CardDescription>
+      <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
+        <CardHeader className="p-4 sm:p-6 border-b">
+          <CardTitle className="text-xl leading-none">
+            {t('Reimbursements.title')}
+          </CardTitle>
+          <CardDescription className="mt-2">
+            {t('Reimbursements.description')}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {isLoading ? (
             <ReimbursementsLoading
               participantCount={group?.participants.length}

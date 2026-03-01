@@ -440,13 +440,13 @@ export function ExpenseForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(submit)}>
-        <Card>
-          <CardHeader>
-            <CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="p-4 sm:p-6 border-b">
+            <CardTitle className="text-xl leading-none">
               {t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid sm:grid-cols-2 gap-6">
+          <CardContent className="grid sm:grid-cols-2 gap-6 p-4 sm:p-6">
             <FormField
               control={form.control}
               name="title"
@@ -732,8 +732,8 @@ export function ExpenseForm({
           </CardContent>
         </Card>
 
-        <Card className="mt-4">
-          <CardHeader>
+        <Card className="mt-4 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6 border-b">
             <CardTitle className="flex justify-between">
               <span>{t(`${sExpense}.paidFor.title`)}</span>
               <Button
@@ -767,11 +767,11 @@ export function ExpenseForm({
                 )}
               </Button>
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="mt-2">
               {t(`${sExpense}.paidFor.description`)}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6">
             <FormField
               control={form.control}
               name="paidFor"
@@ -1147,16 +1147,16 @@ export function ExpenseForm({
         </Card>
 
         {runtimeFeatureFlags.enableExpenseDocuments && (
-          <Card className="mt-4">
-            <CardHeader>
+          <Card className="mt-4 overflow-hidden">
+            <CardHeader className="p-4 sm:p-6 border-b">
               <CardTitle className="flex justify-between">
                 <span>{t('attachDocuments')}</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="mt-2">
                 {t(`${sExpense}.attachDescription`)}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <FormField
                 control={form.control}
                 name="documents"
@@ -1171,7 +1171,7 @@ export function ExpenseForm({
           </Card>
         )}
 
-        <div className="flex mt-4 gap-2">
+        <div className="sticky bottom-3 z-20 mt-4 flex flex-wrap gap-2 rounded-lg border bg-background/95 backdrop-blur px-3 py-2 shadow-sm">
           <SubmitButton loadingContent={t(isCreate ? 'creating' : 'saving')}>
             <Save className="w-4 h-4 mr-2" />
             {t(isCreate ? 'create' : 'save')}

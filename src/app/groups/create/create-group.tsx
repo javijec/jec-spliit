@@ -331,6 +331,12 @@ function SplitwiseImportCard() {
             if (file) void onSelectCsv(file)
           }}
         />
+        {!csvData && !parseError && (
+          <p className="text-sm text-muted-foreground">
+            Subí el export CSV de Splitwise para pre-cargar participantes y
+            gastos, luego completás solo los datos faltantes.
+          </p>
+        )}
         {parseError && (
           <div className="text-sm text-destructive flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />

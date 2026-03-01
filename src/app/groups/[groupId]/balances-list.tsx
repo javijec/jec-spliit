@@ -1,7 +1,9 @@
+import { EmptyState } from '@/components/ui/empty-state'
 import { BalancesByCurrency } from '@/lib/balances'
 import { Currency, getCurrency } from '@/lib/currency'
 import { formatCurrency } from '@/lib/utils'
 import { Participant } from '@prisma/client'
+import { Scale } from 'lucide-react'
 import { useLocale } from 'next-intl'
 
 type Props = {
@@ -16,6 +18,19 @@ export function BalancesList({
   currency,
 }: Props) {
   const locale = useLocale()
+  const hasPendingBalances = Object.values(balancesByCurrency).some(
+    (balances) => Object.values(balances).some((balance) => balance.total !== 0),
+  )
+
+  if (!hasPendingBalances) {
+    return (
+      <EmptyState
+        icon={Scale}
+        title="No hay saldos pendientes"
+        description="Todos los participantes están al día en todas las monedas."
+      />
+    )
+  }
 
   return (
     <div className="text-sm">
