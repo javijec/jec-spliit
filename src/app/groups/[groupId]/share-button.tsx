@@ -10,13 +10,15 @@ import {
 } from '@/components/ui/popover'
 import { useBaseUrl } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
-import { Group } from '@prisma/client'
 import { Share } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { ComponentProps } from 'react'
 
 type Props = {
-  group: Group
+  group: {
+    id: string
+    name: string
+  }
   showLabel?: boolean
   className?: string
   variant?: ComponentProps<typeof Button>['variant']

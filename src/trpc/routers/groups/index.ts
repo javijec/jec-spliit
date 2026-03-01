@@ -1,9 +1,11 @@
 import { createTRPCRouter } from '@/trpc/init'
 import { activitiesRouter } from '@/trpc/routers/groups/activities'
 import { groupBalancesRouter } from '@/trpc/routers/groups/balances'
+import { clearGroupAccessPasswordProcedure } from '@/trpc/routers/groups/clearAccessPassword.procedure'
 import { createGroupProcedure } from '@/trpc/routers/groups/create.procedure'
 import { groupExpensesRouter } from '@/trpc/routers/groups/expenses'
 import { getGroupProcedure } from '@/trpc/routers/groups/get.procedure'
+import { setGroupAccessPasswordProcedure } from '@/trpc/routers/groups/setAccessPassword.procedure'
 import { groupStatsRouter } from '@/trpc/routers/groups/stats'
 import { updateGroupProcedure } from '@/trpc/routers/groups/update.procedure'
 import { getGroupDetailsProcedure } from './getDetails.procedure'
@@ -22,4 +24,6 @@ export const groupsRouter = createTRPCRouter({
   create: createGroupProcedure,
   importSplitwise: importSplitwiseProcedure,
   update: updateGroupProcedure,
+  setAccessPassword: setGroupAccessPasswordProcedure,
+  clearAccessPassword: clearGroupAccessPasswordProcedure,
 })

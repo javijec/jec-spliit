@@ -36,6 +36,10 @@ const envSchema = z
       z.boolean().default(false),
     ),
     OPENAI_API_KEY: z.string().optional(),
+    GROUP_ACCESS_SECRET: z
+      .string()
+      .optional()
+      .default('dev-group-access-secret'),
   })
   .superRefine((env, ctx) => {
     if (

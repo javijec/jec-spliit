@@ -15,6 +15,7 @@ model Group {
   createdAt    DateTime      @default(now())
   information  String?
   currencyCode String?
+  accessPasswordHash String?
   activities   Activity[]
   expenses     Expense[]
   participants Participant[]

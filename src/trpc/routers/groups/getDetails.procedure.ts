@@ -1,4 +1,8 @@
-import { getGroup, getGroupExpensesParticipants } from '@/lib/api'
+import {
+  getGroup,
+  getGroupAccessControl,
+  getGroupExpensesParticipants,
+} from '@/lib/api'
 import { baseProcedure } from '@/trpc/init'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -15,5 +19,10 @@ export const getGroupDetailsProcedure = baseProcedure
     }
 
     const participantsWithExpenses = await getGroupExpensesParticipants(groupId)
-    return { group, participantsWithExpenses }
+    const accessControl = await getGroupAccessControl(groupId)
+    return {
+      group,
+      participantsWithExpenses,
+      hasAccessPassword: accessControl?.hasAccessPassword ?? false,
+    }
   })

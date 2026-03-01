@@ -1,3 +1,4 @@
+import { hashPassword, verifyPassword } from '@/lib/password'
 import { prisma } from '@/lib/prisma'
 import { ExpenseFormValues, GroupFormValues } from '@/lib/schemas'
 import {
@@ -31,6 +32,59 @@ export async function createGroup(groupFormValues: GroupFormValues) {
       },
     },
     include: { participants: true },
+  })
+}
+
+export async function getGroupAccessControl(groupId: string) {
+  const group = await prisma.group.findUnique({
+    where: { id: groupId },
+    select: { id: true, accessPasswordHash: true },
+  })
+  if (!group) return null
+  return {
+    id: group.id,
+    hasAccessPassword: !!group.accessPasswordHash,
+    accessPasswordHash: group.accessPasswordHash,
+  }
+}
+
+export async function verifyGroupAccessPassword(
+  groupId: string,
+  password: string,
+) {
+  const group = await prisma.group.findUnique({
+    where: { id: groupId },
+    select: { accessPasswordHash: true },
+  })
+  if (!group || !group.accessPasswordHash) return false
+  return verifyPassword(password, group.accessPasswordHash)
+}
+
+export async function setGroupAccessPassword(
+  groupId: string,
+  password: string,
+  participantId?: string,
+) {
+  const existingGroup = await getGroup(groupId)
+  if (!existingGroup) throw new Error('Invalid group ID')
+  const passwordHash = hashPassword(password)
+  await logActivity(groupId, ActivityType.UPDATE_GROUP, { participantId })
+  await prisma.group.update({
+    where: { id: groupId },
+    data: { accessPasswordHash: passwordHash },
+  })
+}
+
+export async function clearGroupAccessPassword(
+  groupId: string,
+  participantId?: string,
+) {
+  const existingGroup = await getGroup(groupId)
+  if (!existingGroup) throw new Error('Invalid group ID')
+  await logActivity(groupId, ActivityType.UPDATE_GROUP, { participantId })
+  await prisma.group.update({
+    where: { id: groupId },
+    data: { accessPasswordHash: null },
   })
 }
 
@@ -406,7 +460,15 @@ export async function updateGroup(
 export async function getGroup(groupId: string) {
   return prisma.group.findUnique({
     where: { id: groupId },
-    include: { participants: true },
+    select: {
+      id: true,
+      name: true,
+      currency: true,
+      createdAt: true,
+      information: true,
+      currencyCode: true,
+      participants: true,
+    },
   })
 }
 
