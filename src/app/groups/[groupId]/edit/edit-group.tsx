@@ -1,6 +1,7 @@
 'use client'
 
 import { GroupForm } from '@/components/group-form'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -42,84 +43,121 @@ export const EditGroup = () => {
   if (isLoading) return <></>
 
   return (
-    <>
-      <GroupForm
-        group={data?.group}
-        onSubmit={async (groupFormValues, participantId) => {
-          await mutateGroupAsync({ groupId, participantId, groupFormValues })
-          await utils.groups.invalidate()
-        }}
-        protectedParticipantIds={data?.participantsWithExpenses}
-      />
+    <div className="space-y-3 sm:space-y-4">
+      <section className="rounded-lg border bg-card px-4 py-3 sm:px-6 sm:py-4">
+        <h2 className="text-base sm:text-lg font-semibold">
+          Ajustes del grupo
+        </h2>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+          Administra participantes, moneda principal y seguridad de acceso.
+        </p>
+      </section>
 
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4" />
-            Seguridad del grupo
-          </CardTitle>
-          <CardDescription>
-            Protege este grupo con contraseña para que el enlace no alcance por
-            sí solo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-2">
-          <Input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder={
-              data?.hasAccessPassword
-                ? 'Cambiar contraseña (mínimo 4 caracteres)'
-                : 'Definir contraseña (mínimo 4 caracteres)'
-            }
-            minLength={4}
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        <div className="order-2 lg:order-1">
+          <GroupForm
+            group={data?.group}
+            onSubmit={async (groupFormValues, participantId) => {
+              await mutateGroupAsync({
+                groupId,
+                participantId,
+                groupFormValues,
+              })
+              await utils.groups.invalidate()
+            }}
+            protectedParticipantIds={data?.participantsWithExpenses}
           />
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              onClick={async () => {
-                if (password.trim().length < 4) return
-                await setAccessPasswordAsync({
-                  groupId,
-                  password,
-                  participantId: getActiveParticipantId(),
-                })
-                setPassword('')
-                await utils.groups.getDetails.invalidate({ groupId })
-                toast({
-                  title: data?.hasAccessPassword
-                    ? 'Contraseña actualizada'
-                    : 'Contraseña activada',
-                })
-              }}
-              disabled={isSettingPassword || password.trim().length < 4}
-            >
-              <Lock className="w-4 h-4 mr-2" />
-              {data?.hasAccessPassword ? 'Actualizar' : 'Activar'}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={async () => {
-                await clearAccessPasswordAsync({
-                  groupId,
-                  participantId: getActiveParticipantId(),
-                })
-                setPassword('')
-                await utils.groups.getDetails.invalidate({ groupId })
-                toast({
-                  title: 'Contraseña eliminada',
-                })
-              }}
-              disabled={!data?.hasAccessPassword || isClearingPassword}
-            >
-              <LockOpen className="w-4 h-4 mr-2" />
-              Desactivar
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+        </div>
+
+        <aside className="order-1 lg:order-2 space-y-3 sm:space-y-4 lg:sticky lg:top-20">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4" />
+                  Seguridad
+                </span>
+                <Badge
+                  variant={data?.hasAccessPassword ? 'default' : 'outline'}
+                >
+                  {data?.hasAccessPassword ? 'Protegido' : 'Abierto'}
+                </Badge>
+              </CardTitle>
+              <CardDescription>
+                Exige contraseña cuando acceden con la URL del grupo.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 pt-0">
+              <Input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder={
+                  data?.hasAccessPassword
+                    ? 'Cambiar contraseña (mínimo 4 caracteres)'
+                    : 'Definir contraseña (mínimo 4 caracteres)'
+                }
+                minLength={4}
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  onClick={async () => {
+                    if (password.trim().length < 4) return
+                    await setAccessPasswordAsync({
+                      groupId,
+                      password,
+                      participantId: getActiveParticipantId(),
+                    })
+                    setPassword('')
+                    await utils.groups.getDetails.invalidate({ groupId })
+                    toast({
+                      title: data?.hasAccessPassword
+                        ? 'Contraseña actualizada'
+                        : 'Contraseña activada',
+                    })
+                  }}
+                  disabled={isSettingPassword || password.trim().length < 4}
+                  className="w-full"
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  {data?.hasAccessPassword ? 'Actualizar' : 'Activar'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={async () => {
+                    await clearAccessPasswordAsync({
+                      groupId,
+                      participantId: getActiveParticipantId(),
+                    })
+                    setPassword('')
+                    await utils.groups.getDetails.invalidate({ groupId })
+                    toast({
+                      title: 'Contraseña eliminada',
+                    })
+                  }}
+                  disabled={!data?.hasAccessPassword || isClearingPassword}
+                  className="w-full"
+                >
+                  <LockOpen className="w-4 h-4 mr-2" />
+                  Quitar
+                </Button>
+              </div>
+              <div className="rounded-md border bg-muted/30 p-3 text-xs sm:text-sm text-muted-foreground space-y-1">
+                <p className="font-medium text-foreground">Acceso por enlace</p>
+                <p>
+                  Con contraseña activa, compartir solo la URL no alcanza para
+                  entrar al grupo.
+                </p>
+                <p>
+                  Si la cambias, quienes ya entraron deberán validarse otra vez.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </aside>
+      </div>
+    </div>
   )
 }
