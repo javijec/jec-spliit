@@ -39,7 +39,14 @@
       "lastYear": "Ultimo anno",
       "older": "Più vecchio"
     },
-    "export": "Esporta"
+    "export": "Esporta",
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "Pagato da <strong>{paidBy}</strong> per <paidFor></paidFor>",
@@ -270,6 +277,29 @@
     "title": "Bilanci",
     "description": "Questo è l'importo che ciascun partecipante ha pagato o deve pagare.",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "Rimborsi suggeriti",
       "description": "Ecco alcuni suggerimenti per ottimizzare i rimborsi tra i partecipanti.",
       "noImbursements": "Sembra che il tuo gruppo non abbia bisogno di alcun rimborso 😁",

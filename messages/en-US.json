@@ -39,7 +39,14 @@
       "earlierThisYear": "Earlier this year",
       "lastYear": "Last year",
       "older": "Older"
-    }
+    },
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "Paid by <strong>{paidBy}</strong> for <paidFor></paidFor>",
@@ -182,7 +189,6 @@
       "recurrenceRule": {
         "label": "Expense Recurrence",
         "description": "Select how often the expense should repeat.",
-
         "none": "None",
         "daily": "Daily",
         "weekly": "Weekly",
@@ -295,6 +301,29 @@
     "title": "Balances",
     "description": "This is the amount that each participant paid or was paid for.",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "Suggested reimbursements",
       "description": "Here are suggestions for optimized reimbursements between participants.",
       "noImbursements": "It looks like your group doesn’t need any reimbursement 😁",

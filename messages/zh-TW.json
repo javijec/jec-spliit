@@ -38,7 +38,14 @@
       "earlierThisYear": "今年稍早",
       "lastYear": "去年",
       "older": "更早"
-    }
+    },
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "由 <strong>{paidBy}</strong> 支付 <paidFor></paidFor>。",
@@ -247,6 +254,29 @@
     "title": "總覽",
     "description": "這是每個成員已支付及需支付的金額",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "建議核銷",
       "description": "這是建議的銷帳方式",
       "noImbursements": "看起來你的群組目前不需要銷帳😁",

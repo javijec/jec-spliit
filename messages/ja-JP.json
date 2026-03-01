@@ -39,7 +39,14 @@
       "earlierThisYear": "今年初め",
       "lastYear": "昨年",
       "older": "それ以前"
-    }
+    },
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "<strong>{paidBy}</strong>が<paidFor></paidFor>のために支払いました",
@@ -294,6 +301,29 @@
     "title": "残高",
     "description": "これは各参加者が支払ったまたは支払われた金額です。",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "提案される払い戻し",
       "description": "参加者間の最適化された払い戻しの提案です。",
       "noImbursements": "グループに払い戻しが必要ないようです 😁",

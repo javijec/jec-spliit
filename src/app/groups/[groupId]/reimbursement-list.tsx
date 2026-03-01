@@ -46,42 +46,14 @@ export function ReimbursementList({
   groupId,
 }: Props) {
   const locale = useLocale()
-  const isSpanish = locale.toLowerCase().startsWith('es')
-  const labels = {
-    paymentRegisteredTitle: isSpanish ? 'Pago registrado' : 'Payment recorded',
-    paymentRegisteredDescription: isSpanish
-      ? 'La deuda se marcó como pagada.'
-      : 'The debt was marked as paid.',
-    paymentErrorTitle: isSpanish
-      ? 'No se pudo registrar el pago'
-      : 'Could not record payment',
-    noDebtsDescription: isSpanish
-      ? 'No hay deudas pendientes para saldar en este grupo.'
-      : 'There are no pending debts to settle in this group.',
-    totalPayment: isSpanish ? 'Pago total' : 'Total payment',
-    partialPayment: isSpanish ? 'Pago parcial' : 'Partial payment',
-    confirmTotalPayment: isSpanish
-      ? 'Confirmar pago total'
-      : 'Confirm total payment',
-    confirmPartialPayment: isSpanish
-      ? 'Confirmar pago parcial'
-      : 'Confirm partial payment',
-    paysTo: isSpanish ? 'le paga a' : 'pays',
-    inCurrency: isSpanish ? 'en' : 'in',
-    partialAmount: isSpanish ? 'Monto del pago parcial' : 'Partial payment amount',
-    currentDebt: isSpanish ? 'Deuda actual' : 'Current debt',
-    willRecord: isSpanish ? 'Vas a registrar' : 'You are about to record',
-    remaining: isSpanish ? 'Restante' : 'Remaining',
-    cancel: isSpanish ? 'Cancelar' : 'Cancel',
-  } as const
   const t = useTranslations('Balances.Reimbursements')
   const utils = trpc.useUtils()
   const { toast } = useToast()
   const createExpense = trpc.groups.expenses.create.useMutation({
     onSuccess: async () => {
       toast({
-        title: labels.paymentRegisteredTitle,
-        description: labels.paymentRegisteredDescription,
+        title: t('paymentRegistered.title'),
+        description: t('paymentRegistered.description'),
       })
       await Promise.all([
         utils.groups.balances.invalidate(),
@@ -90,7 +62,7 @@ export function ReimbursementList({
     },
     onError: (error) => {
       toast({
-        title: labels.paymentErrorTitle,
+        title: t('paymentErrorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -145,7 +117,7 @@ export function ReimbursementList({
       <EmptyState
         icon={CheckCircle2}
         title={t('noImbursements')}
-        description={labels.noDebtsDescription}
+        description={t('noPendingDebtsDescription')}
         className="mb-2"
       />
     )
@@ -275,7 +247,7 @@ export function ReimbursementList({
                           })
                         }
                       >
-                        {labels.totalPayment}
+                        {t('actions.totalPayment')}
                       </Button>
                       <Button
                         variant="outline"
@@ -292,7 +264,7 @@ export function ReimbursementList({
                           })
                         }}
                       >
-                        {labels.partialPayment}
+                        {t('actions.partialPayment')}
                       </Button>
                     </div>
                   </div>
@@ -313,14 +285,16 @@ export function ReimbursementList({
           <DialogHeader>
             <DialogTitle>
               {paymentDialog?.mode === 'TOTAL'
-                ? labels.confirmTotalPayment
-                : labels.confirmPartialPayment}
+                ? t('confirm.total')
+                : t('confirm.partial')}
             </DialogTitle>
             <DialogDescription>
               {paymentDialog &&
-                `${getParticipant(paymentDialog.from)?.name ?? ''} ${labels.paysTo} ${
-                  getParticipant(paymentDialog.to)?.name ?? ''
-                } ${labels.inCurrency} ${paymentDialog.currencyCode}.`}
+                t('paymentDescription', {
+                  from: getParticipant(paymentDialog.from)?.name ?? '',
+                  to: getParticipant(paymentDialog.to)?.name ?? '',
+                  currency: paymentDialog.currencyCode,
+                })}
             </DialogDescription>
           </DialogHeader>
 
@@ -328,7 +302,9 @@ export function ReimbursementList({
             <div className="space-y-3">
               {paymentDialog.mode === 'PARTIAL' && (
                 <div className="space-y-1.5">
-                  <div className="text-sm font-medium">{labels.partialAmount}</div>
+                  <div className="text-sm font-medium">
+                    {t('partialAmountLabel')}
+                  </div>
                   <Input
                     value={partialAmountInput}
                     onChange={(event) => setPartialAmountInput(event.target.value)}
@@ -345,7 +321,9 @@ export function ReimbursementList({
 
               <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1.5">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">{labels.currentDebt}</span>
+                  <span className="text-muted-foreground">
+                    {t('summary.currentDebt')}
+                  </span>
                   <strong>
                     {formatCurrency(
                       dialogCurrency,
@@ -355,13 +333,17 @@ export function ReimbursementList({
                   </strong>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">{labels.willRecord}</span>
+                  <span className="text-muted-foreground">
+                    {t('summary.willRecord')}
+                  </span>
                   <strong>
                     {formatCurrency(dialogCurrency, selectedMinorUnits, locale)}
                   </strong>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">{labels.remaining}</span>
+                  <span className="text-muted-foreground">
+                    {t('summary.remaining')}
+                  </span>
                   <strong>
                     {formatCurrency(
                       dialogCurrency,
@@ -376,15 +358,15 @@ export function ReimbursementList({
 
           <DialogFooter>
             <Button variant="ghost" onClick={closeDialog}>
-              {labels.cancel}
+              {t('actions.cancel')}
             </Button>
             <Button
               onClick={confirmPayment}
               disabled={!canConfirmPayment || createExpense.isPending}
             >
               {paymentDialog?.mode === 'TOTAL'
-                ? labels.confirmTotalPayment
-                : labels.confirmPartialPayment}
+                ? t('confirm.total')
+                : t('confirm.partial')}
             </Button>
           </DialogFooter>
         </DialogContent>

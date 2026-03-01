@@ -33,18 +33,6 @@ export default function GroupExpensesPageClient() {
   const t = useTranslations('Expenses')
   const tBalances = useTranslations('Balances')
   const locale = useLocale()
-  const isSpanish = locale.toLowerCase().startsWith('es')
-  const labels = {
-    debtsTitle: isSpanish ? 'Deudas' : 'Debts',
-    debtsDescription: isSpanish
-      ? 'Quién le debe a quién, separado por moneda.'
-      : 'Who owes whom, split by currency.',
-    noPendingDebts: isSpanish
-      ? 'No hay deudas simplificadas pendientes.'
-      : 'There are no pending simplified debts.',
-    owesTo: isSpanish ? 'debe a' : 'owes',
-    settlementsTitle: isSpanish ? 'Liquidaciones' : 'Settlements',
-  } as const
   const { groupId, group } = useCurrentGroup()
   const { data: balancesData, isLoading: balancesAreLoading } =
     trpc.groups.balances.list.useQuery(
@@ -108,10 +96,10 @@ export default function GroupExpensesPageClient() {
     <GroupSectionCard className="lg:mx-0 lg:border-x">
       <GroupSectionHeader>
         <GroupSectionTitle className="text-xl leading-none">
-          {labels.debtsTitle}
+          {t('Debts.title')}
         </GroupSectionTitle>
         <GroupSectionDescription className="mt-2">
-          {labels.debtsDescription}
+          {t('Debts.description')}
         </GroupSectionDescription>
       </GroupSectionHeader>
       <GroupSectionContent>
@@ -119,7 +107,7 @@ export default function GroupExpensesPageClient() {
           <LoadingPairs />
         ) : groupedDebtSummary.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {labels.noPendingDebts}
+            {t('Debts.noPending')}
           </p>
         ) : (
           <div className="space-y-2.5">
@@ -132,7 +120,9 @@ export default function GroupExpensesPageClient() {
                   <span className="font-semibold break-words">
                     {getParticipantName(pair.from)}
                   </span>{' '}
-                  <span className="text-muted-foreground">{labels.owesTo}</span>{' '}
+                  <span className="text-muted-foreground">
+                    {t('Debts.owesTo')}
+                  </span>{' '}
                   <span className="font-semibold break-words">
                     {getParticipantName(pair.to)}
                   </span>
@@ -166,7 +156,7 @@ export default function GroupExpensesPageClient() {
     <GroupSectionCard className="lg:mx-0 lg:border-x">
       <GroupSectionHeader>
         <GroupSectionTitle className="text-xl leading-none">
-          {labels.settlementsTitle}
+          {tBalances('Reimbursements.settlementsTitle')}
         </GroupSectionTitle>
         <GroupSectionDescription className="mt-2">
           {tBalances('Reimbursements.description')}

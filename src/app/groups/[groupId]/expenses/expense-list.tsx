@@ -9,7 +9,7 @@ import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import dayjs, { type Dayjs } from 'dayjs'
 import { Wallet } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { forwardRef, useEffect, useMemo } from 'react'
 import { useInView } from 'react-intersection-observer'
@@ -76,18 +76,13 @@ function syncActiveUser(groupId: string, participants?: { id: string; name: stri
 
 function EmptyExpenses({ groupId }: { groupId: string }) {
   const t = useTranslations('Expenses')
-  const locale = useLocale()
-  const isSpanish = locale.toLowerCase().startsWith('es')
-  const description = isSpanish
-    ? 'Todavía no hay movimientos cargados en este grupo.'
-    : 'There are no entries in this group yet.'
 
   return (
     <div className="px-4 sm:px-6 py-6">
       <EmptyState
         icon={Wallet}
         title={t('noExpenses')}
-        description={description}
+        description={t('noEntriesYet')}
         action={
           <Button asChild>
             <Link href={`/groups/${groupId}/expenses/create`}>

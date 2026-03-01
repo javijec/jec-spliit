@@ -39,7 +39,14 @@
       "earlierThisYear": "מוקדם יותר השנה",
       "lastYear": "שנה שעברה",
       "older": "ישנות יותר"
-    }
+    },
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "שולם על ידי <strong>{paidBy}</strong> עבור <paidFor></paidFor>",
@@ -294,6 +301,29 @@
     "title": "יתרות",
     "description": "זה הסכום שכל משתתף שילם או קיבל.",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "החזרים מוצעים",
       "description": "הנה הצעות להחזרים אופטימליים בין משתתפים.",
       "noImbursements": "נראה שהקבוצה שלך לא צריכה החזרים 😁",

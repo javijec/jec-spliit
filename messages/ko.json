@@ -23,7 +23,14 @@
     "create": "지출 추가하기",
     "noExpenses": "그룹에 아직 지출 항목이 없네요.",
     "searchPlaceholder": "지출 검색하기…",
-    "createFirst": "첫 지출 추가하기"
+    "createFirst": "첫 지출 추가하기",
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "Groups": {
     "myGroups": "내 그룹",
@@ -189,6 +196,29 @@
   "Balances": {
     "title": "잔액",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "추천 정산 방법",
       "description": "참가자 간에 가장 좋은 정산 방안을 알려드려요.",
       "noImbursements": "그룹에선 따로 정산할 게 없네요 😁",

@@ -39,7 +39,14 @@
       "earlierThisYear": "Eerder dit jaar",
       "lastYear": "Vorig jaar",
       "older": "Ouder"
-    }
+    },
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "Betaald door <strong>{paidBy}</strong> voor <paidFor></paidFor>",
@@ -302,6 +309,29 @@
     "title": "Balans",
     "description": "Dit zijn de bedragen die elke deelnemer heeft betaald of waarvoor is betaald.",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "Voorgestelde terugbetalingen",
       "description": "Dit zijn de voorgestelde terugbetalingen tussen deelnemers.",
       "noImbursements": "Lijkt erop dat je groep geen terugbetalingen nodig heeft 😁",

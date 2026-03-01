@@ -39,7 +39,14 @@
       "lastYear": "В прошлом году",
       "older": "Очень давно"
     },
-    "export": "Экспортировать"
+    "export": "Экспортировать",
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "Потратил <strong>{paidBy}</strong> за <paidFor></paidFor>",
@@ -248,6 +255,29 @@
     "title": "Балансы",
     "description": "Это список балансов всех участников группы. Баланс увеличивается у тех, кто оплачивает расход, и уменьшается у тех, между кем он был распределен.",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "Предложенные возмещения",
       "description": "Вот список задолженностей между участниками.",
       "noImbursements": "Похоже, все в расчете 😁",

@@ -38,7 +38,14 @@
       "earlierThisYear": "Раніше цього року",
       "lastYear": "Минулого року",
       "older": "Старіші"
-    }
+    },
+    "Debts": {
+      "title": "Debts",
+      "description": "Who owes whom, split by currency.",
+      "noPending": "There are no pending simplified debts.",
+      "owesTo": "owes"
+    },
+    "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
     "paidBy": "Сплачено <strong>{paidBy}</strong> за <paidFor></paidFor>",
@@ -247,6 +254,29 @@
     "title": "Баланси",
     "description": "Це список балансів всіх учасників групи. Баланс збільшується у тих, хто слачує витрату, і зменшується в тих, між ким вона була розподілена",
     "Reimbursements": {
+      "settlementsTitle": "Settlements",
+      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "paymentRegistered": {
+        "title": "Payment recorded",
+        "description": "The debt was marked as paid."
+      },
+      "paymentErrorTitle": "Could not record payment",
+      "actions": {
+        "totalPayment": "Total payment",
+        "partialPayment": "Partial payment",
+        "cancel": "Cancel"
+      },
+      "confirm": {
+        "total": "Confirm total payment",
+        "partial": "Confirm partial payment"
+      },
+      "paymentDescription": "{from} pays {to} in {currency}.",
+      "partialAmountLabel": "Partial payment amount",
+      "summary": {
+        "currentDebt": "Current debt",
+        "willRecord": "You are about to record",
+        "remaining": "Remaining"
+      },
       "title": "Запропоновані відшкодування",
       "description": "Ось пропозиції для оптимізованих відшкодувань між учасниками",
       "noImbursements": "Схоже, ніхто нікому не винен 😁",
