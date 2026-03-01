@@ -10,10 +10,20 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
-import { Lock, LockOpen, ShieldCheck } from 'lucide-react'
+import { Lock, LockOpen, ShieldCheck, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 
@@ -29,7 +39,10 @@ export const EditGroup = () => {
     mutateAsync: clearAccessPasswordAsync,
     isPending: isClearingPassword,
   } = trpc.groups.clearAccessPassword.useMutation()
+  const { mutateAsync: deleteGroupAsync, isPending: isDeletingGroup } =
+    trpc.groups.delete.useMutation()
   const utils = trpc.useUtils()
+  const router = useRouter()
 
   const getActiveParticipantId = () => {
     const rawActiveUser = localStorage.getItem(`${groupId}-activeUser`)
@@ -154,6 +167,55 @@ export const EditGroup = () => {
                   Si la cambias, quienes ya entraron deberán validarse otra vez.
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Zona peligrosa</CardTitle>
+              <CardDescription>
+                Esta acción elimina el grupo y todos sus datos.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="destructive" className="w-full">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Eliminar grupo
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogTitle>¿Eliminar grupo?</DialogTitle>
+                  <DialogDescription>
+                    Se eliminarán participantes, gastos, deudas y actividad.
+                    Esta acción no se puede deshacer.
+                  </DialogDescription>
+                  <DialogFooter className="flex flex-col gap-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      disabled={isDeletingGroup}
+                      onClick={async () => {
+                        await deleteGroupAsync({
+                          groupId,
+                          participantId: getActiveParticipantId(),
+                        })
+                        await utils.groups.invalidate()
+                        toast({
+                          title: 'Grupo eliminado',
+                        })
+                        router.push('/groups')
+                      }}
+                    >
+                      Confirmar eliminación
+                    </Button>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Cancelar</Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </aside>
