@@ -63,8 +63,48 @@ export function defaultCurrencyList(
         },
       ]
     : []
-  const allCurrencies = currencyList[locale]
-  return currencies.concat(Object.values(allCurrencies))
+  const allCurrencies = currencyList[locale] ?? currencyList['en-US']
+  const currenciesByCode = Object.values(allCurrencies).reduce<
+    Record<string, Currency>
+  >((acc, currency) => {
+    acc[currency.code] = currency
+    return acc
+  }, {})
+
+  const topPriorityCodes = ['ARS', 'USD', 'EUR']
+  const latinAmericaCodes = [
+    'COP',
+    'MXN',
+    'BRL',
+    'CLP',
+    'PEN',
+    'UYU',
+    'PYG',
+    'BOB',
+    'VES',
+    'DOP',
+    'CRC',
+    'GTQ',
+    'HNL',
+    'NIO',
+    'PAB',
+  ]
+
+  const usedCodes = new Set<string>()
+  const orderedCurrencies = [...topPriorityCodes, ...latinAmericaCodes]
+    .map((code) => currenciesByCode[code])
+    .filter((currency): currency is Currency => !!currency)
+    .filter((currency) => {
+      if (usedCodes.has(currency.code)) return false
+      usedCodes.add(currency.code)
+      return true
+    })
+
+  const remainingCurrencies = Object.values(allCurrencies)
+    .filter((currency) => !usedCodes.has(currency.code))
+    .sort((a, b) => a.name.localeCompare(b.name, locale))
+
+  return currencies.concat(orderedCurrencies, remainingCurrencies)
 }
 
 export function getCurrency(

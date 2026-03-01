@@ -8,7 +8,13 @@ import {
   CommandInput,
   CommandItem,
 } from '@/components/ui/command'
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 import {
   Popover,
   PopoverContent,
@@ -81,6 +87,9 @@ export function CurrencySelector({
         />
       </DrawerTrigger>
       <DrawerContent className="p-0">
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>Select currency</DrawerTitle>
+        </DrawerHeader>
         <CurrencyCommand
           currencies={currencies}
           onValueChange={(id) => {
@@ -124,20 +133,22 @@ function CurrencyCommand({
     }),
     {},
   )
+  const groupOrder = ['common', 'other', 'custom']
 
   return (
     <Command>
       <CommandInput placeholder={t('search')} className="text-base" />
       <CommandEmpty>{t('noCurrency')}</CommandEmpty>
       <div className="w-full max-h-[300px] overflow-y-auto">
-        {Object.entries(currenciesByGroup).map(
-          ([group, groupCurrencies], index) => (
-            <CommandGroup key={index} heading={t(`${group}.heading`)}>
-              {groupCurrencies.map((currency) => (
+        {groupOrder
+          .filter((group) => (currenciesByGroup[group] ?? []).length > 0)
+          .map((group) => (
+            <CommandGroup key={group} heading={t(`${group}.heading`)}>
+              {currenciesByGroup[group].map((currency) => (
                 <CommandItem
                   key={currency.code}
                   value={`${currency.code} ${currency.name} ${currency.symbol}`}
-                  onSelect={(currentValue) => {
+                  onSelect={() => {
                     onValueChange(currency.code)
                   }}
                 >
@@ -145,8 +156,7 @@ function CurrencyCommand({
                 </CommandItem>
               ))}
             </CommandGroup>
-          ),
-        )}
+          ))}
       </div>
     </Command>
   )
