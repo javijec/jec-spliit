@@ -1,7 +1,7 @@
 'use client'
 
 import { GroupForm } from '@/components/group-form'
-import { SubmitButton } from '@/components/submit-button'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -20,7 +20,7 @@ import {
 import { getCurrency } from '@/lib/currency'
 import { amountAsMinorUnits } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { AlertTriangle, FileUp } from 'lucide-react'
+import { AlertTriangle, FileUp, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -351,14 +351,23 @@ function SplitwiseImportCard() {
                 ))}
               </div>
             )}
-            <SubmitButton
-              loadingContent="Importando..."
+            <Button
               onClick={() => void importData()}
               type="button"
+              disabled={importSplitwise.isPending}
             >
-              <FileUp className="w-4 h-4 mr-2" />
-              Crear grupo e importar gastos
-            </SubmitButton>
+              {importSplitwise.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Importando...
+                </>
+              ) : (
+                <>
+                  <FileUp className="w-4 h-4 mr-2" />
+                  Crear grupo e importar gastos
+                </>
+              )}
+            </Button>
           </>
         )}
       </CardContent>
