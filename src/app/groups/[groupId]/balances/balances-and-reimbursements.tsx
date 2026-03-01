@@ -35,7 +35,7 @@ export default function BalancesAndReimbursements() {
   const isLoading = balancesAreLoading || !balancesData || !group
 
   return (
-    <>
+    <div className="grid gap-4 xl:grid-cols-2">
       <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
         <CardHeader className="p-4 sm:p-6 border-b">
           <CardTitle className="text-xl leading-none">{t('title')}</CardTitle>
@@ -77,7 +77,7 @@ export default function BalancesAndReimbursements() {
           )}
         </CardContent>
       </Card>
-    </>
+    </div>
   )
 }
 

@@ -8,10 +8,11 @@ import { Search, XCircle } from 'lucide-react'
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   onValueChange?: (value: string) => void
+  containerClassName?: string
 }
 
 const SearchBar = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, onValueChange, ...props }, ref) => {
+  ({ className, type, onValueChange, containerClassName, ...props }, ref) => {
     const t = useTranslations('Expenses')
     const [value, _setValue] = React.useState('')
 
@@ -21,12 +22,12 @@ const SearchBar = React.forwardRef<HTMLInputElement, InputProps>(
     }
 
     return (
-      <div className="mx-4 sm:mx-6 flex relative">
+      <div className={cn('mx-4 sm:mx-6 flex relative', containerClassName)}>
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           type={type}
           className={cn(
-            'pl-10 text-sm focus:text-base bg-muted border-none text-muted-foreground',
+            'pl-10 pr-10 h-10 sm:h-11 text-sm bg-muted border-none text-muted-foreground focus:text-foreground',
             className,
           )}
           ref={ref}
@@ -37,7 +38,7 @@ const SearchBar = React.forwardRef<HTMLInputElement, InputProps>(
         />
         <XCircle
           className={cn(
-            'absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 cursor-pointer',
+            'absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 cursor-pointer text-muted-foreground hover:text-foreground transition-colors',
             !value && 'hidden',
           )}
           onClick={() => setValue('')}

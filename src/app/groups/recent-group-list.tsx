@@ -200,7 +200,7 @@ function GroupList({
   refreshGroupsFromStorage: () => void
 }) {
   return (
-    <ul className="grid gap-2 sm:grid-cols-2">
+    <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
       {groups.map((group) => (
         <RecentGroupListCard
           key={group.id}
@@ -224,11 +224,11 @@ function GroupsPage({
   const t = useTranslations('Groups')
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <h1 className="font-bold text-2xl flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h1 className="font-semibold text-2xl sm:text-3xl leading-tight tracking-tight flex-1">
           <Link href="/groups">{t('myGroups')}</Link>
         </h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:justify-end flex-wrap">
           <AddGroupByUrlButton reload={reload} />
           <Button asChild>
             <Link href="/groups/create">
