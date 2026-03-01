@@ -1,7 +1,6 @@
 'use client'
 
 import { ActiveUserModal } from '@/app/groups/[groupId]/expenses/active-user-modal'
-import { CreateFromReceiptButton } from '@/app/groups/[groupId]/expenses/create-from-receipt-button'
 import { ExpenseList } from '@/app/groups/[groupId]/expenses/expense-list'
 import ExportButton from '@/app/groups/[groupId]/export-button'
 import { Button } from '@/components/ui/button'
@@ -29,11 +28,7 @@ export const metadata: Metadata = {
   title: 'Expenses',
 }
 
-export default function GroupExpensesPageClient({
-  enableReceiptExtract,
-}: {
-  enableReceiptExtract: boolean
-}) {
+export default function GroupExpensesPageClient() {
   const t = useTranslations('Expenses')
   const locale = useLocale()
   const { groupId, group } = useCurrentGroup()
@@ -158,7 +153,11 @@ export default function GroupExpensesPageClient({
               </CardTitle>
               <div className="flex items-center gap-2">
                 <div className="sm:hidden">
-                  <ExportButton groupId={groupId} size="icon" variant="outline" />
+                  <ExportButton
+                    groupId={groupId}
+                    size="icon"
+                    variant="outline"
+                  />
                 </div>
                 <div className="hidden sm:block">
                   <ExportButton
@@ -168,7 +167,6 @@ export default function GroupExpensesPageClient({
                     variant="outline"
                   />
                 </div>
-                {enableReceiptExtract && <CreateFromReceiptButton />}
                 <Button
                   asChild
                   size="default"

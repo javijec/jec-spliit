@@ -2,8 +2,8 @@ import { CategorySelector } from '@/components/category-selector'
 import { CurrencySelector } from '@/components/currency-selector'
 import { ExpenseDocumentsInput } from '@/components/expense-documents-input'
 import { SubmitButton } from '@/components/submit-button'
-import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -63,7 +63,6 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import { DeletePopup } from '../../../../components/delete-popup'
-import { extractCategoryFromTitle } from '../../../../components/expense-form-actions'
 import { Textarea } from '../../../../components/ui/textarea'
 
 const enforceCurrencyPattern = (value: string) =>
@@ -232,85 +231,84 @@ export function ExpenseForm({
           recurrenceRule: expense.recurrenceRule ?? undefined,
         }
       : searchParams.get('reimbursement')
-      ? {
-          title: t('reimbursement'),
-          expenseDate: new Date(),
-          // Keep reimbursement in its own currency when coming from suggestions.
-          // The amount query param is in minor units.
-          ...(function () {
-            const reimbursementCurrencyCode =
-              searchParams.get('currency') ?? group.currencyCode ?? ''
-            const reimbursementCurrency = getCurrency(
-              reimbursementCurrencyCode,
-              locale,
-              'Custom',
-            )
-            const reimbursementAmount = amountAsDecimal(
-              Number(searchParams.get('amount')) || 0,
-              reimbursementCurrency,
-            )
-            const usesDifferentCurrency =
-              reimbursementCurrencyCode.length > 0 &&
-              reimbursementCurrencyCode !== (group.currencyCode ?? '')
-            return {
-              amount: reimbursementAmount,
-              originalCurrency: reimbursementCurrencyCode,
-              originalAmount: usesDifferentCurrency
-                ? reimbursementAmount
+        ? {
+            title: t('reimbursement'),
+            expenseDate: new Date(),
+            // Keep reimbursement in its own currency when coming from suggestions.
+            // The amount query param is in minor units.
+            ...(function () {
+              const reimbursementCurrencyCode =
+                searchParams.get('currency') ?? group.currencyCode ?? ''
+              const reimbursementCurrency = getCurrency(
+                reimbursementCurrencyCode,
+                locale,
+                'Custom',
+              )
+              const reimbursementAmount = amountAsDecimal(
+                Number(searchParams.get('amount')) || 0,
+                reimbursementCurrency,
+              )
+              const usesDifferentCurrency =
+                reimbursementCurrencyCode.length > 0 &&
+                reimbursementCurrencyCode !== (group.currencyCode ?? '')
+              return {
+                amount: reimbursementAmount,
+                originalCurrency: reimbursementCurrencyCode,
+                originalAmount: usesDifferentCurrency
+                  ? reimbursementAmount
+                  : undefined,
+                conversionRate: undefined,
+              }
+            })(),
+            category: 1, // category with Id 1 is Payment
+            paidBy: searchParams.get('from') ?? undefined,
+            paidFor: [
+              searchParams.get('to')
+                ? {
+                    participant: searchParams.get('to')!,
+                    shares: '1' as any, // String for consistent form handling
+                  }
                 : undefined,
-              conversionRate: undefined,
-            }
-          })(),
-          category: 1, // category with Id 1 is Payment
-          paidBy: searchParams.get('from') ?? undefined,
-          paidFor: [
-            searchParams.get('to')
-              ? {
-                  participant: searchParams.get('to')!,
-                  shares: '1' as any, // String for consistent form handling
-                }
-              : undefined,
-          ],
-          isReimbursement: true,
-          splitMode: defaultSplittingOptions.splitMode,
-          saveDefaultSplittingOptions: false,
-          documents: [],
-          notes: '',
-          recurrenceRule: RecurrenceRule.NONE,
-        }
-      : {
-          title: searchParams.get('title') ?? '',
-          expenseDate: searchParams.get('date')
-            ? new Date(searchParams.get('date') as string)
-            : new Date(),
-          amount: Number(searchParams.get('amount')) || 0,
-          originalCurrency: group.currencyCode ?? undefined,
-          originalAmount: undefined,
-          conversionRate: undefined,
-          category: searchParams.get('categoryId')
-            ? Number(searchParams.get('categoryId'))
-            : 0, // category with Id 0 is General
-          // paid for all, split evenly
-          paidFor: defaultSplittingOptions.paidFor,
-          paidBy: getSelectedPayer(),
-          isReimbursement: false,
-          splitMode: defaultSplittingOptions.splitMode,
-          saveDefaultSplittingOptions: false,
-          documents: searchParams.get('imageUrl')
-            ? [
-                {
-                  id: randomId(),
-                  url: searchParams.get('imageUrl') as string,
-                  width: Number(searchParams.get('imageWidth')),
-                  height: Number(searchParams.get('imageHeight')),
-                },
-              ]
-            : [],
-          notes: '',
-          recurrenceRule: RecurrenceRule.NONE,
-        },
+            ],
+            isReimbursement: true,
+            splitMode: defaultSplittingOptions.splitMode,
+            saveDefaultSplittingOptions: false,
+            documents: [],
+            notes: '',
+            recurrenceRule: RecurrenceRule.NONE,
+          }
+        : {
+            title: searchParams.get('title') ?? '',
+            expenseDate: searchParams.get('date')
+              ? new Date(searchParams.get('date') as string)
+              : new Date(),
+            amount: Number(searchParams.get('amount')) || 0,
+            originalCurrency: group.currencyCode ?? undefined,
+            originalAmount: undefined,
+            conversionRate: undefined,
+            category: searchParams.get('categoryId')
+              ? Number(searchParams.get('categoryId'))
+              : 0, // category with Id 0 is General
+            // paid for all, split evenly
+            paidFor: defaultSplittingOptions.paidFor,
+            paidBy: getSelectedPayer(),
+            isReimbursement: false,
+            splitMode: defaultSplittingOptions.splitMode,
+            saveDefaultSplittingOptions: false,
+            documents: searchParams.get('imageUrl')
+              ? [
+                  {
+                    id: randomId(),
+                    url: searchParams.get('imageUrl') as string,
+                    width: Number(searchParams.get('imageWidth')),
+                    height: Number(searchParams.get('imageHeight')),
+                  },
+                ]
+              : [],
+            notes: '',
+            recurrenceRule: RecurrenceRule.NONE,
+          },
   })
-  const [isCategoryLoading, setCategoryLoading] = useState(false)
   const activeUserId = useActiveUser(group.id)
 
   const submit = async (values: ExpenseFormValues) => {
@@ -465,7 +463,9 @@ export function ExpenseForm({
         ? []
         : collectErrorPaths(item, currentPath ? `${currentPath}.${key}` : key),
     )
-    return hasMessage && currentPath ? [currentPath, ...nestedPaths] : nestedPaths
+    return hasMessage && currentPath
+      ? [currentPath, ...nestedPaths]
+      : nestedPaths
   }
 
   const focusFirstInvalidField = () => {
@@ -480,7 +480,11 @@ export function ExpenseForm({
   const errorCount = countErrors(form.formState.errors)
   const errorPaths = collectErrorPaths(form.formState.errors)
   const normalizedErrorPaths = Array.from(
-    new Set(errorPaths.map((path) => path.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, ''))),
+    new Set(
+      errorPaths.map((path) =>
+        path.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, ''),
+      ),
+    ),
   )
   const labelByPath: Record<string, string> = {
     title: t(`${sExpense}.TitleField.label`),
@@ -517,7 +521,8 @@ export function ExpenseForm({
               Hay {errorCount} campo(s) con errores. Te llevamos al primero.
               {topInvalidFields.length > 0 && (
                 <>
-                  {' '}Campos: {topInvalidFields.join(', ')}
+                  {' '}
+                  Campos: {topInvalidFields.join(', ')}
                   {uniqueInvalidFieldLabels.length > topInvalidFields.length &&
                     ', ...'}
                   .
@@ -544,17 +549,6 @@ export function ExpenseForm({
                       placeholder={t(`${sExpense}.TitleField.placeholder`)}
                       className="text-base"
                       {...field}
-                      onBlur={async () => {
-                        field.onBlur() // avoid skipping other blur event listeners since we overwrite `field`
-                        if (runtimeFeatureFlags.enableCategoryExtract) {
-                          setCategoryLoading(true)
-                          const { categoryId } = await extractCategoryFromTitle(
-                            field.value,
-                          )
-                          form.setValue('category', categoryId)
-                          setCategoryLoading(false)
-                        }
-                      }}
                     />
                   </FormControl>
                   <FormDescription>
@@ -669,7 +663,7 @@ export function ExpenseForm({
                       form.watch(field.name) // may be overwritten externally
                     }
                     onValueChange={field.onChange}
-                    isLoading={isCategoryLoading}
+                    isLoading={false}
                   />
                   <FormDescription>
                     {t(`${sExpense}.categoryFieldDescription`)}
@@ -937,12 +931,12 @@ export function ExpenseForm({
                                                 'BY_PERCENTAGE'
                                                   ? Number(shares) * 100 // Convert percentage to basis points (e.g., 50% -> 5000)
                                                   : form.watch('splitMode') ===
-                                                    'BY_AMOUNT'
-                                                  ? amountAsMinorUnits(
-                                                      shares,
-                                                      expenseCurrency,
-                                                    )
-                                                  : shares,
+                                                      'BY_AMOUNT'
+                                                    ? amountAsMinorUnits(
+                                                        shares,
+                                                        expenseCurrency,
+                                                      )
+                                                    : shares,
                                               expenseId: '',
                                               participantId: '',
                                             }),

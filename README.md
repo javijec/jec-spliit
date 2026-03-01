@@ -18,7 +18,6 @@ Spliit is a free and open source alternative to Splitwise. You can either use th
 - [x] Assign a category to expenses [(#35)](https://github.com/spliit-app/spliit/issues/35)
 - [x] Search for expenses in a group [(#51)](https://github.com/spliit-app/spliit/issues/51)
 - [x] Upload and attach images to expenses [(#63)](https://github.com/spliit-app/spliit/issues/63)
-- [x] Create expense by scanning a receipt [(#23)](https://github.com/spliit-app/spliit/issues/23)
 
 ### Possible incoming features
 
@@ -35,7 +34,7 @@ Spliit is a free and open source alternative to Splitwise. You can either use th
 
 ## Contribute
 
-The project is open to contributions. Feel free to open an issue or even a pull-request! 
+The project is open to contributions. Feel free to open an issue or even a pull-request!
 Join the discussion in [the Spliit Discord server](https://discord.gg/YSyVXbwvSY).
 
 If you want to contribute financially and help us keep the application free and without ads, you can also:
@@ -45,7 +44,7 @@ If you want to contribute financially and help us keep the application free and 
 
 ### Translation
 
-The project's translations are managed using [our Weblate project](https://hosted.weblate.org/projects/spliit/spliit/). 
+The project's translations are managed using [our Weblate project](https://hosted.weblate.org/projects/spliit/spliit/).
 You can easily add missing translations to the project or even add a new language!
 Here is the current state of translation:
 
@@ -96,30 +95,6 @@ You can also use other S3 providers by providing a custom endpoint:
 
 ```.env
 S3_UPLOAD_ENDPOINT=http://localhost:9000
-```
-
-### Create expense from receipt
-
-You can offer users to create expense by uploading a receipt. This feature relies on [OpenAI GPT-4 with Vision](https://platform.openai.com/docs/guides/vision) and a public S3 storage endpoint.
-
-To enable the feature:
-
-- You must enable expense documents feature as well (see section above). That might change in the future, but for now we need to store images to make receipt scanning work.
-- Subscribe to OpenAI API and get access to GPT 4 with Vision (you might need to buy credits in advance).
-- Update your environment variables with appropriate values:
-
-```.env
-NEXT_PUBLIC_ENABLE_RECEIPT_EXTRACT=true
-OPENAI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-### Deduce category from title
-
-You can offer users to automatically deduce the expense category from the title. Since this feature relies on a OpenAI subscription, follow the signup instructions above and configure the following environment variables:
-
-```.env
-NEXT_PUBLIC_ENABLE_CATEGORY_EXTRACT=true
-OPENAI_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
 ## License
