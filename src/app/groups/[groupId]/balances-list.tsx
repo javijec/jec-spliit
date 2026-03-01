@@ -1,7 +1,7 @@
 import { EmptyState } from '@/components/ui/empty-state'
 import { BalancesByCurrency } from '@/lib/balances'
 import { Currency, getCurrency } from '@/lib/currency'
-import { formatCurrency } from '@/lib/utils'
+import { cn, formatCurrency } from '@/lib/utils'
 import { Participant } from '@prisma/client'
 import { Scale } from 'lucide-react'
 import { useLocale } from 'next-intl'
@@ -33,7 +33,7 @@ export function BalancesList({
   }
 
   return (
-    <div className="text-sm">
+    <div className="space-y-2.5">
       {participants.map((participant) => {
         const entries = Object.entries(balancesByCurrency)
           .map(([currencyCode, balances]) => ({
@@ -50,17 +50,36 @@ export function BalancesList({
             : [{ currencyCode: zeroCurrencyCode, total: 0 }]
 
         return (
-          <div key={participant.id} className="flex border-b last:border-b-0">
-            <div className="w-1/2 p-2">{participant.name}</div>
-            <div className="w-1/2 p-2 text-right">
+          <div
+            key={participant.id}
+            className="rounded-lg border bg-card/60 p-3 sm:p-4"
+          >
+            <div className="text-sm font-semibold truncate">
+              {participant.name}
+            </div>
+            <div className="mt-2 space-y-1.5">
               {visibleEntries.map(({ currencyCode, total }, index) => {
                 const targetCurrency =
                   currencyCode === currency.code
                     ? currency
                     : getCurrency(currencyCode)
                 return (
-                  <div key={`${participant.id}-${currencyCode}-${index}`}>
-                    {formatCurrency(targetCurrency, total, locale)}
+                  <div
+                    key={`${participant.id}-${currencyCode}-${index}`}
+                    className="flex items-center justify-between gap-2 rounded-md bg-muted/50 px-2.5 py-2"
+                  >
+                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {currencyCode}
+                    </span>
+                    <span
+                      className={cn(
+                        'font-semibold tabular-nums',
+                        total > 0 && 'text-emerald-600 dark:text-emerald-400',
+                        total < 0 && 'text-red-600 dark:text-red-400',
+                      )}
+                    >
+                      {formatCurrency(targetCurrency, total, locale)}
+                    </span>
                   </div>
                 )
               })}

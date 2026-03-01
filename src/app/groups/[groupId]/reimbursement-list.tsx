@@ -7,6 +7,7 @@ import { Currency, getCurrency } from '@/lib/currency'
 import {
   amountAsDecimal,
   amountAsMinorUnits,
+  cn,
   formatCurrency,
 } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
@@ -67,17 +68,37 @@ export function ReimbursementList({
 
   const getParticipant = (id: string) => participants.find((p) => p.id === id)
   return (
-    <div className="text-sm">
+    <div className="space-y-2.5">
       {reimbursements.map((reimbursement, index) => (
-        <div className="py-4 flex justify-between gap-3" key={index}>
-          <div className="flex flex-col gap-1 items-start sm:gap-2">
-            <div>
+        <div
+          className="rounded-lg border bg-card/60 p-3 sm:p-4 flex flex-col gap-3"
+          key={index}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="text-sm">
               {t.rich('owes', {
                 from: getParticipant(reimbursement.from)?.name ?? '',
                 to: getParticipant(reimbursement.to)?.name ?? '',
                 strong: (chunks) => <strong>{chunks}</strong>,
               })}
             </div>
+            <div
+              className={cn(
+                'text-sm sm:text-base font-semibold tabular-nums whitespace-nowrap',
+                'text-amber-700 dark:text-amber-400',
+              )}
+            >
+              {formatCurrency(
+                reimbursement.currencyCode === currency.code
+                  ? currency
+                  : getCurrency(reimbursement.currencyCode),
+                reimbursement.amount,
+                locale,
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
             {(() => {
               const reimbursementCurrency =
                 reimbursement.currencyCode === currency.code
@@ -102,9 +123,9 @@ export function ReimbursementList({
                 : reimbursement.amount
 
               return (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <>
                   <Input
-                    className="w-[110px] h-8"
+                    className="w-full sm:w-[150px] h-9"
                     inputMode="decimal"
                     step={10 ** -reimbursementCurrency.decimal_digits}
                     value={rawAmount}
@@ -116,10 +137,13 @@ export function ReimbursementList({
                     }
                     aria-label="Partial payment amount"
                   />
+                  <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                    {reimbursementCurrency.code}
+                  </span>
                   {isValidPartialAmount ? (
                     <Button
-                      variant="link"
-                      className="-mx-4 -my-3"
+                      variant="secondary"
+                      className="sm:ml-auto"
                       disabled={createExpense.isPending}
                       onClick={() =>
                         createExpense.mutate({
@@ -158,22 +182,13 @@ export function ReimbursementList({
                       {t('markAsPaid')}
                     </Button>
                   ) : (
-                    <Button variant="link" className="-mx-4 -my-3" disabled>
+                    <Button variant="secondary" className="sm:ml-auto" disabled>
                       {t('markAsPaid')}
                     </Button>
                   )}
-                </div>
+                </>
               )
             })()}
-          </div>
-          <div>
-            {formatCurrency(
-              reimbursement.currencyCode === currency.code
-                ? currency
-                : getCurrency(reimbursement.currencyCode),
-              reimbursement.amount,
-              locale,
-            )}
           </div>
         </div>
       ))}
