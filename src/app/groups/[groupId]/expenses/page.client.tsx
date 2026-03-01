@@ -6,12 +6,12 @@ import ExportButton from '@/app/groups/[groupId]/export-button'
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import { Button } from '@/components/ui/button'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+  GroupSectionCard,
+  GroupSectionContent,
+  GroupSectionDescription,
+  GroupSectionHeader,
+  GroupSectionTitle,
+} from '@/components/ui/group-section-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrency, type Currency } from '@/lib/currency'
 import { formatCurrency, getCurrencyFromGroup } from '@/lib/utils'
@@ -85,23 +85,29 @@ export default function GroupExpensesPageClient() {
       ? getCurrency(group.currencyCode)
       : getCurrency(currencyCode)
 
+  const LoadingPairs = () => (
+    <div className="space-y-2">
+      <Skeleton className="h-14 w-full rounded-lg" />
+      <Skeleton className="h-14 w-full rounded-lg" />
+    </div>
+  )
+
   return (
     <>
       {group && (
         <div className="mb-4 grid gap-4 lg:grid-cols-2">
-          <Card className="rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 lg:mx-0 lg:border-x overflow-hidden">
-            <CardHeader className="p-4 sm:p-6 border-b">
-              <CardTitle className="text-xl leading-none">Deudas</CardTitle>
-              <CardDescription className="mt-2">
+          <GroupSectionCard className="lg:mx-0 lg:border-x">
+            <GroupSectionHeader>
+              <GroupSectionTitle className="text-xl leading-none">
+                Deudas
+              </GroupSectionTitle>
+              <GroupSectionDescription className="mt-2">
                 Quién le debe a quién, separado por moneda.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6">
+              </GroupSectionDescription>
+            </GroupSectionHeader>
+            <GroupSectionContent>
               {balancesAreLoading || !balancesData ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-14 w-full rounded-lg" />
-                  <Skeleton className="h-14 w-full rounded-lg" />
-                </div>
+                <LoadingPairs />
               ) : groupedDebtSummary.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No hay deudas simplificadas pendientes.
@@ -143,24 +149,21 @@ export default function GroupExpensesPageClient() {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </GroupSectionContent>
+          </GroupSectionCard>
 
-          <Card className="hidden sm:block rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 lg:mx-0 lg:border-x overflow-hidden">
-            <CardHeader className="p-4 sm:p-6 border-b">
-              <CardTitle className="text-xl leading-none">
+          <GroupSectionCard className="hidden sm:block lg:mx-0 lg:border-x">
+            <GroupSectionHeader>
+              <GroupSectionTitle className="text-xl leading-none">
                 Liquidaciones
-              </CardTitle>
-              <CardDescription className="mt-2">
+              </GroupSectionTitle>
+              <GroupSectionDescription className="mt-2">
                 {tBalances('Reimbursements.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6">
+              </GroupSectionDescription>
+            </GroupSectionHeader>
+            <GroupSectionContent>
               {balancesAreLoading || !balancesData ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-14 w-full rounded-lg" />
-                  <Skeleton className="h-14 w-full rounded-lg" />
-                </div>
+                <LoadingPairs />
               ) : (
                 <ReimbursementList
                   reimbursements={balancesData.reimbursements}
@@ -169,18 +172,18 @@ export default function GroupExpensesPageClient() {
                   groupId={groupId}
                 />
               )}
-            </CardContent>
-          </Card>
+            </GroupSectionContent>
+          </GroupSectionCard>
         </div>
       )}
 
-      <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
-        <CardHeader className="p-3 sm:p-6 border-b">
+      <GroupSectionCard className="mb-4">
+        <GroupSectionHeader className="p-3 sm:p-6">
           <div className="space-y-1 sm:space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <CardTitle className="text-lg sm:text-xl leading-none">
+              <GroupSectionTitle className="text-lg sm:text-xl leading-none">
                 {t('title')}
-              </CardTitle>
+              </GroupSectionTitle>
               <div className="flex items-center gap-2">
                 <div className="sm:hidden">
                   <ExportButton
@@ -212,16 +215,16 @@ export default function GroupExpensesPageClient() {
                 </Button>
               </div>
             </div>
-            <CardDescription className="hidden sm:block">
+            <GroupSectionDescription className="hidden sm:block">
               {t('description')}
-            </CardDescription>
+            </GroupSectionDescription>
           </div>
-        </CardHeader>
+        </GroupSectionHeader>
 
-        <CardContent className="p-0 pb-4 sm:pb-6 flex flex-col gap-4 relative">
+        <GroupSectionContent className="p-0 pb-4 sm:pb-6 flex flex-col gap-4 relative">
           <ExpenseList />
-        </CardContent>
-      </Card>
+        </GroupSectionContent>
+      </GroupSectionCard>
 
       <ActiveUserModal groupId={groupId} />
     </>
