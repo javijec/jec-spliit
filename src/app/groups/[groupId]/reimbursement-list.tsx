@@ -232,9 +232,10 @@ export function ReimbursementList({
                       </div>
                     </div>
 
-                    <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="mt-2 flex items-center gap-2">
                       <Button
                         variant="secondary"
+                        className="flex-1"
                         disabled={createExpense.isPending}
                         onClick={() =>
                           setPaymentDialog({
@@ -250,6 +251,7 @@ export function ReimbursementList({
                       </Button>
                       <Button
                         variant="outline"
+                        className="flex-1"
                         disabled={createExpense.isPending}
                         onClick={() => {
                           setPartialAmountInput('')
