@@ -3,17 +3,15 @@ import { ExpenseCard } from '@/app/groups/[groupId]/expenses/expense-card'
 import { getGroupExpensesAction } from '@/app/groups/[groupId]/expenses/expense-list-fetch-action'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
-import { SearchBar } from '@/components/ui/search-bar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import dayjs, { type Dayjs } from 'dayjs'
-import { SearchX, Wallet } from 'lucide-react'
+import { Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { forwardRef, useEffect, useMemo, useState } from 'react'
+import { forwardRef, useEffect, useMemo } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { useDebounce } from 'use-debounce'
 import { useCurrentGroup } from '../current-group-context'
 
 const PAGE_SIZE = 20
@@ -62,9 +60,6 @@ function getGroupedExpensesByDate(expenses: ExpensesType) {
 
 export function ExpenseList() {
   const { groupId, group } = useCurrentGroup()
-  const [searchText, setSearchText] = useState('')
-  const [debouncedSearchText] = useDebounce(searchText, 300)
-
   const participants = group?.participants
 
   useEffect(() => {
@@ -88,26 +83,13 @@ export function ExpenseList() {
     }
   }, [groupId, participants])
 
-  return (
-    <>
-      <SearchBar
-        onValueChange={(value) => setSearchText(value)}
-        containerClassName="sticky top-16 z-20 py-1.5 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border-b"
-      />
-      <ExpenseListForSearch
-        groupId={groupId}
-        searchText={debouncedSearchText}
-      />
-    </>
-  )
+  return <ExpenseListForSearch groupId={groupId} />
 }
 
 const ExpenseListForSearch = ({
   groupId,
-  searchText,
 }: {
   groupId: string
-  searchText: string
 }) => {
   const utils = trpc.useUtils()
   const { group } = useCurrentGroup()
@@ -126,7 +108,7 @@ const ExpenseListForSearch = ({
     isLoading: expensesAreLoading,
     fetchNextPage,
   } = trpc.groups.expenses.list.useInfiniteQuery(
-    { groupId, limit: PAGE_SIZE, filter: searchText },
+    { groupId, limit: PAGE_SIZE, filter: '' },
     { getNextPageParam: ({ nextCursor }) => nextCursor },
   )
   const expenses = data?.pages.flatMap((page) => page.expenses)
@@ -146,35 +128,18 @@ const ExpenseListForSearch = ({
   if (isLoading) return <ExpensesLoading />
 
   if (expenses.length === 0) {
-    const hasActiveSearch = searchText.trim().length > 0
     return (
       <div className="px-4 sm:px-6 py-6">
         <EmptyState
-          icon={hasActiveSearch ? SearchX : Wallet}
-          title={
-            hasActiveSearch
-              ? 'No se encontraron gastos con ese filtro'
-              : t('noExpenses')
-          }
-          description={
-            hasActiveSearch
-              ? 'Probá con otra palabra o limpiá el buscador para ver todos los gastos.'
-              : 'Todavía no hay movimientos cargados en este grupo.'
-          }
+          icon={Wallet}
+          title={t('noExpenses')}
+          description="Todavía no hay movimientos cargados en este grupo."
           action={
-            hasActiveSearch ? (
-              <Button variant="secondary" asChild>
-                <Link href={`/groups/${groupId}/expenses`}>
-                  Limpiar búsqueda
-                </Link>
-              </Button>
-            ) : (
-              <Button asChild>
-                <Link href={`/groups/${groupId}/expenses/create`}>
-                  {t('createFirst')}
-                </Link>
-              </Button>
-            )
+            <Button asChild>
+              <Link href={`/groups/${groupId}/expenses/create`}>
+                {t('createFirst')}
+              </Link>
+            </Button>
           }
         />
       </div>
@@ -191,7 +156,7 @@ const ExpenseListForSearch = ({
           <div key={expenseGroup}>
             <div
               className={
-                'text-muted-foreground text-[11px] sm:text-xs pl-4 sm:pl-6 py-1.5 font-semibold uppercase tracking-wide sticky top-[7.5rem] sm:top-[7.25rem] bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 z-10 border-b'
+                'text-muted-foreground text-[11px] sm:text-xs pl-4 sm:pl-6 py-1.5 font-semibold uppercase tracking-wide bg-card border-b'
               }
             >
               {t(`Groups.${expenseGroup}`)}
