@@ -1,6 +1,5 @@
 'use client'
 
-import { BalancesList } from '@/app/groups/[groupId]/balances-list'
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import {
   Card,
@@ -13,8 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { useTranslations } from 'next-intl'
-import { Fragment, useEffect } from 'react'
-import { match } from 'ts-pattern'
+import { useEffect } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 
 export default function BalancesAndReimbursements() {
@@ -35,29 +33,10 @@ export default function BalancesAndReimbursements() {
   const isLoading = balancesAreLoading || !balancesData || !group
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
+    <div>
       <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
         <CardHeader className="p-4 sm:p-6 border-b">
-          <CardTitle className="text-xl leading-none">{t('title')}</CardTitle>
-          <CardDescription className="mt-2">{t('description')}</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6">
-          {isLoading ? (
-            <BalancesLoading participantCount={group?.participants.length} />
-          ) : (
-            <BalancesList
-              balancesByCurrency={balancesData.balancesByCurrency}
-              participants={group?.participants}
-              currency={getCurrencyFromGroup(group)}
-            />
-          )}
-        </CardContent>
-      </Card>
-      <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
-        <CardHeader className="p-4 sm:p-6 border-b">
-          <CardTitle className="text-xl leading-none">
-            {t('Reimbursements.title')}
-          </CardTitle>
+          <CardTitle className="text-xl leading-none">Liquidaciones</CardTitle>
           <CardDescription className="mt-2">
             {t('Reimbursements.description')}
           </CardDescription>
@@ -99,46 +78,6 @@ const ReimbursementsLoading = ({
             <Skeleton className="h-3 w-16" />
           </div>
         ))}
-    </div>
-  )
-}
-
-const BalancesLoading = ({
-  participantCount = 3,
-}: {
-  participantCount?: number
-}) => {
-  const barWidth = (index: number) =>
-    match(index % 3)
-      .with(0, () => 'w-1/3')
-      .with(1, () => 'w-2/3')
-      .otherwise(() => 'w-full')
-
-  return (
-    <div className="grid grid-cols-2 py-1 gap-y-2">
-      {Array(participantCount)
-        .fill(undefined)
-        .map((_, index) =>
-          index % 2 === 0 ? (
-            <Fragment key={index}>
-              <div className="flex items-center justify-end pr-2">
-                <Skeleton className="h-3 w-16" />
-              </div>
-              <div className="self-start">
-                <Skeleton className={`h-7 ${barWidth(index)} rounded-l-none`} />
-              </div>
-            </Fragment>
-          ) : (
-            <Fragment key={index}>
-              <div className="flex items-center justify-end">
-                <Skeleton className={`h-7 ${barWidth(index)} rounded-r-none`} />
-              </div>
-              <div className="flex items-center pl-2">
-                <Skeleton className="h-3 w-16" />
-              </div>
-            </Fragment>
-          ),
-        )}
     </div>
   )
 }

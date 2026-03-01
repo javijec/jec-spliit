@@ -2,12 +2,16 @@
 
 import { GroupTabs } from '@/app/groups/[groupId]/group-tabs'
 import { ShareButton } from '@/app/groups/[groupId]/share-button'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Settings } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useCurrentGroup } from './current-group-context'
 
 export const GroupHeader = () => {
   const { isLoading, groupId, group } = useCurrentGroup()
+  const t = useTranslations()
 
   return (
     <div className="flex flex-col gap-3 pb-1">
@@ -27,7 +31,21 @@ export const GroupHeader = () => {
         <div className="min-w-0 flex-1">
           <GroupTabs groupId={groupId} />
         </div>
-        {group && <ShareButton group={group} />}
+        {group && (
+          <div className="flex items-center gap-2">
+            <ShareButton group={group} />
+            <Button
+              asChild
+              size="icon"
+              variant="outline"
+              title={t('Settings.title')}
+            >
+              <Link href={`/groups/${groupId}/edit`}>
+                <Settings className="w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -24,19 +24,16 @@ export function GroupTabs({ groupId }: Props) {
     >
       <TabsList className="h-11 w-max min-w-full sm:min-w-0 rounded-lg border">
         <TabsTrigger value="expenses" className="px-3.5">
-          {t('Expenses.title')}
+          General
         </TabsTrigger>
         <TabsTrigger value="balances" className="px-3.5">
-          {t('Balances.title')}
+          Liquidaciones
         </TabsTrigger>
         <TabsTrigger value="stats" className="px-3.5">
           {t('Stats.title')}
         </TabsTrigger>
         <TabsTrigger value="activity" className="px-3.5">
           {t('Activity.title')}
-        </TabsTrigger>
-        <TabsTrigger value="edit" className="px-3.5">
-          {t('Settings.title')}
         </TabsTrigger>
       </TabsList>
     </Tabs>
