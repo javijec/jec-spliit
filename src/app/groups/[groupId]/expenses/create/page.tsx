@@ -1,4 +1,4 @@
-import { CreateExpenseForm } from '@/app/groups/[groupId]/expenses/create-expense-form'
+import { CreateExpenseModal } from '@/app/groups/[groupId]/expenses/create/create-expense-modal'
 import { getRuntimeFeatureFlags } from '@/lib/featureFlags'
 import { Metadata } from 'next'
 
@@ -13,7 +13,7 @@ export default async function ExpensePage({
 }) {
   const { groupId } = await params
   return (
-    <CreateExpenseForm
+    <CreateExpenseModal
       groupId={groupId}
       runtimeFeatureFlags={await getRuntimeFeatureFlags()}
     />
