@@ -196,9 +196,9 @@ const ExpenseListForSearch = ({
             >
               {t(`Groups.${expenseGroup}`)}
             </div>
-            {groupExpenses.map((expense) => (
+            {groupExpenses.map((expense, index) => (
               <ExpenseCard
-                key={expense.id}
+                key={`${expense.id}-${index}`}
                 expense={expense}
                 currency={getCurrencyFromGroup(group)}
                 groupId={groupId}

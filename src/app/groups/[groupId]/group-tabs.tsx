@@ -29,9 +29,6 @@ export function GroupTabs({ groupId }: Props) {
         <TabsTrigger value="balances" className="px-3.5">
           {t('Balances.title')}
         </TabsTrigger>
-        <TabsTrigger value="information" className="px-3.5">
-          {t('Information.title')}
-        </TabsTrigger>
         <TabsTrigger value="stats" className="px-3.5">
           {t('Stats.title')}
         </TabsTrigger>

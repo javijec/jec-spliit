@@ -42,7 +42,6 @@ import { useEffect, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { CurrencySelector } from './currency-selector'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
-import { Textarea } from './ui/textarea'
 
 export type Props = {
   group?: NonNullable<Awaited<ReturnType<typeof getGroup>>>
@@ -291,26 +290,6 @@ export function GroupForm({
               )}
             />
 
-            <div className="col-span-2">
-              <FormField
-                control={form.control}
-                name="information"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('InformationField.label')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        rows={2}
-                        className="text-base"
-                        {...field}
-                        placeholder={t('InformationField.placeholder')}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
           </CardContent>
         </Card>
 
