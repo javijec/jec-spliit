@@ -1,4 +1,5 @@
 'use client'
+
 import { ExpenseCard } from '@/app/groups/[groupId]/expenses/expense-card'
 import { getGroupExpensesAction } from '@/app/groups/[groupId]/expenses/expense-list-fetch-action'
 import { Button } from '@/components/ui/button'
@@ -15,153 +16,109 @@ import { useInView } from 'react-intersection-observer'
 import { useCurrentGroup } from '../current-group-context'
 
 const PAGE_SIZE = 20
+const EXPENSE_GROUP_ORDER = [
+  'upcoming',
+  'thisWeek',
+  'earlierThisMonth',
+  'lastMonth',
+  'earlierThisYear',
+  'lastYear',
+  'older',
+] as const
 
-type ExpensesType = NonNullable<
-  Awaited<ReturnType<typeof getGroupExpensesAction>>
->
+type ExpensesType = NonNullable<Awaited<ReturnType<typeof getGroupExpensesAction>>>
+type ExpenseGroupKey = (typeof EXPENSE_GROUP_ORDER)[number]
+type GroupedExpenses = Partial<Record<ExpenseGroupKey, ExpensesType>>
 
-const EXPENSE_GROUPS = {
-  UPCOMING: 'upcoming',
-  THIS_WEEK: 'thisWeek',
-  EARLIER_THIS_MONTH: 'earlierThisMonth',
-  LAST_MONTH: 'lastMonth',
-  EARLIER_THIS_YEAR: 'earlierThisYear',
-  LAST_YEAR: 'lastYear',
-  OLDER: 'older',
+function getExpenseGroup(date: Dayjs, today: Dayjs): ExpenseGroupKey {
+  if (today.isBefore(date)) return 'upcoming'
+  if (today.isSame(date, 'week')) return 'thisWeek'
+  if (today.isSame(date, 'month')) return 'earlierThisMonth'
+  if (today.subtract(1, 'month').isSame(date, 'month')) return 'lastMonth'
+  if (today.isSame(date, 'year')) return 'earlierThisYear'
+  if (today.subtract(1, 'year').isSame(date, 'year')) return 'lastYear'
+  return 'older'
 }
 
-function getExpenseGroup(date: Dayjs, today: Dayjs) {
-  if (today.isBefore(date)) {
-    return EXPENSE_GROUPS.UPCOMING
-  } else if (today.isSame(date, 'week')) {
-    return EXPENSE_GROUPS.THIS_WEEK
-  } else if (today.isSame(date, 'month')) {
-    return EXPENSE_GROUPS.EARLIER_THIS_MONTH
-  } else if (today.subtract(1, 'month').isSame(date, 'month')) {
-    return EXPENSE_GROUPS.LAST_MONTH
-  } else if (today.isSame(date, 'year')) {
-    return EXPENSE_GROUPS.EARLIER_THIS_YEAR
-  } else if (today.subtract(1, 'year').isSame(date, 'year')) {
-    return EXPENSE_GROUPS.LAST_YEAR
-  } else {
-    return EXPENSE_GROUPS.OLDER
-  }
-}
-
-function getGroupedExpensesByDate(expenses: ExpensesType) {
+function groupExpensesByDate(expenses: ExpensesType): GroupedExpenses {
   const today = dayjs()
-  return expenses.reduce((result: { [key: string]: ExpensesType }, expense) => {
-    const expenseGroup = getExpenseGroup(dayjs(expense.expenseDate), today)
-    result[expenseGroup] = result[expenseGroup] ?? []
-    result[expenseGroup].push(expense)
+  return expenses.reduce<GroupedExpenses>((result, expense) => {
+    const groupKey = getExpenseGroup(dayjs(expense.expenseDate), today)
+    result[groupKey] = result[groupKey] ?? []
+    result[groupKey]!.push(expense)
     return result
   }, {})
 }
 
-export function ExpenseList() {
-  const { groupId, group } = useCurrentGroup()
-  const participants = group?.participants
+function syncActiveUser(groupId: string, participants?: { id: string; name: string }[]) {
+  if (!participants) return
 
-  useEffect(() => {
-    if (!participants) return
+  const activeUser = localStorage.getItem('newGroup-activeUser')
+  const newUser = localStorage.getItem(`${groupId}-newUser`)
+  if (!activeUser && !newUser) return
 
-    const activeUser = localStorage.getItem('newGroup-activeUser')
-    const newUser = localStorage.getItem(`${groupId}-newUser`)
-    if (activeUser || newUser) {
-      localStorage.removeItem('newGroup-activeUser')
-      localStorage.removeItem(`${groupId}-newUser`)
-      if (activeUser === 'None') {
-        localStorage.setItem(`${groupId}-activeUser`, 'None')
-      } else {
-        const userId = participants.find(
-          (p) => p.name === (activeUser || newUser),
-        )?.id
-        if (userId) {
-          localStorage.setItem(`${groupId}-activeUser`, userId)
-        }
-      }
-    }
-  }, [groupId, participants])
+  localStorage.removeItem('newGroup-activeUser')
+  localStorage.removeItem(`${groupId}-newUser`)
 
-  return <ExpenseListForSearch groupId={groupId} />
+  if (activeUser === 'None') {
+    localStorage.setItem(`${groupId}-activeUser`, 'None')
+    return
+  }
+
+  const selectedName = activeUser || newUser
+  const selectedParticipantId = participants.find(
+    (participant) => participant.name === selectedName,
+  )?.id
+  if (selectedParticipantId) {
+    localStorage.setItem(`${groupId}-activeUser`, selectedParticipantId)
+  }
 }
 
-const ExpenseListForSearch = ({
+function EmptyExpenses({ groupId }: { groupId: string }) {
+  const t = useTranslations('Expenses')
+
+  return (
+    <div className="px-4 sm:px-6 py-6">
+      <EmptyState
+        icon={Wallet}
+        title={t('noExpenses')}
+        description="Todavía no hay movimientos cargados en este grupo."
+        action={
+          <Button asChild>
+            <Link href={`/groups/${groupId}/expenses/create`}>
+              {t('createFirst')}
+            </Link>
+          </Button>
+        }
+      />
+    </div>
+  )
+}
+
+function ExpensesByGroup({
+  groupedExpenses,
   groupId,
 }: {
+  groupedExpenses: GroupedExpenses
   groupId: string
-}) => {
-  const utils = trpc.useUtils()
+}) {
+  const t = useTranslations('Expenses')
   const { group } = useCurrentGroup()
 
-  useEffect(() => {
-    // Until we use tRPC more widely and can invalidate the cache on expense
-    // update, it's easier and safer to invalidate the cache on page load.
-    utils.groups.expenses.invalidate()
-  }, [utils])
-
-  const t = useTranslations('Expenses')
-  const { ref: loadingRef, inView } = useInView()
-
-  const {
-    data,
-    isLoading: expensesAreLoading,
-    fetchNextPage,
-  } = trpc.groups.expenses.list.useInfiniteQuery(
-    { groupId, limit: PAGE_SIZE, filter: '' },
-    { getNextPageParam: ({ nextCursor }) => nextCursor },
-  )
-  const expenses = data?.pages.flatMap((page) => page.expenses)
-  const hasMore = data?.pages.at(-1)?.hasMore ?? false
-
-  const isLoading = expensesAreLoading || !expenses || !group
-
-  useEffect(() => {
-    if (inView && hasMore && !isLoading) fetchNextPage()
-  }, [fetchNextPage, hasMore, inView, isLoading])
-
-  const groupedExpensesByDate = useMemo(
-    () => (expenses ? getGroupedExpensesByDate(expenses) : {}),
-    [expenses],
-  )
-
-  if (isLoading) return <ExpensesLoading />
-
-  if (expenses.length === 0) {
-    return (
-      <div className="px-4 sm:px-6 py-6">
-        <EmptyState
-          icon={Wallet}
-          title={t('noExpenses')}
-          description="Todavía no hay movimientos cargados en este grupo."
-          action={
-            <Button asChild>
-              <Link href={`/groups/${groupId}/expenses/create`}>
-                {t('createFirst')}
-              </Link>
-            </Button>
-          }
-        />
-      </div>
-    )
-  }
+  if (!group) return null
 
   return (
     <>
-      {Object.values(EXPENSE_GROUPS).map((expenseGroup: string) => {
-        let groupExpenses = groupedExpensesByDate[expenseGroup]
-        if (!groupExpenses || groupExpenses.length === 0) return null
+      {EXPENSE_GROUP_ORDER.map((expenseGroup) => {
+        const expensesInGroup = groupedExpenses[expenseGroup]
+        if (!expensesInGroup || expensesInGroup.length === 0) return null
 
         return (
           <div key={expenseGroup}>
-            <div
-              className={
-                'text-muted-foreground text-[11px] sm:text-xs pl-4 sm:pl-6 py-1.5 font-semibold uppercase tracking-wide bg-card border-b'
-              }
-            >
+            <div className="text-muted-foreground text-[11px] sm:text-xs pl-4 sm:pl-6 py-1.5 font-semibold uppercase tracking-wide bg-card border-b">
               {t(`Groups.${expenseGroup}`)}
             </div>
-            {groupExpenses.map((expense, index) => (
+            {expensesInGroup.map((expense, index) => (
               <ExpenseCard
                 key={`${expense.id}-${index}`}
                 expense={expense}
@@ -172,6 +129,58 @@ const ExpenseListForSearch = ({
           </div>
         )
       })}
+    </>
+  )
+}
+
+export function ExpenseList() {
+  const { groupId, group } = useCurrentGroup()
+
+  useEffect(() => {
+    syncActiveUser(groupId, group?.participants)
+  }, [groupId, group?.participants])
+
+  return <ExpenseListContent groupId={groupId} />
+}
+
+function ExpenseListContent({ groupId }: { groupId: string }) {
+  const utils = trpc.useUtils()
+  const { group } = useCurrentGroup()
+  const { ref: loadingRef, inView } = useInView()
+
+  useEffect(() => {
+    // Until we use tRPC more widely and can invalidate the cache on expense
+    // update, it's easier and safer to invalidate the cache on page load.
+    utils.groups.expenses.invalidate()
+  }, [utils])
+
+  const { data, isLoading: expensesAreLoading, fetchNextPage } =
+    trpc.groups.expenses.list.useInfiniteQuery(
+      { groupId, limit: PAGE_SIZE, filter: '' },
+      { getNextPageParam: ({ nextCursor }) => nextCursor },
+    )
+
+  const expenses = data?.pages.flatMap((page) => page.expenses)
+  const hasMore = data?.pages.at(-1)?.hasMore ?? false
+  const isLoading = expensesAreLoading || !expenses || !group
+
+  useEffect(() => {
+    if (inView && hasMore && !isLoading) {
+      fetchNextPage()
+    }
+  }, [fetchNextPage, hasMore, inView, isLoading])
+
+  const groupedExpenses = useMemo(
+    () => (expenses ? groupExpensesByDate(expenses) : {}),
+    [expenses],
+  )
+
+  if (isLoading) return <ExpensesLoading />
+  if (expenses.length === 0) return <EmptyExpenses groupId={groupId} />
+
+  return (
+    <>
+      <ExpensesByGroup groupedExpenses={groupedExpenses} groupId={groupId} />
       {hasMore && <ExpensesLoading ref={loadingRef} />}
     </>
   )
@@ -181,9 +190,9 @@ const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div ref={ref}>
       <Skeleton className="mx-4 sm:mx-6 mt-1 mb-2 h-3 w-32 rounded-full" />
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2].map((index) => (
         <div
-          key={i}
+          key={index}
           className="flex justify-between items-start px-2 sm:px-6 py-4 text-sm gap-2"
         >
           <div className="flex-0 pl-2 pr-1">
@@ -203,3 +212,4 @@ const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   )
 })
 ExpensesLoading.displayName = 'ExpensesLoading'
+
