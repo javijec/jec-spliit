@@ -27,6 +27,7 @@ import { Lock, LockOpen, ShieldCheck, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
+import { ShareButton } from '../share-button'
 
 export const EditGroup = () => {
   const { groupId } = useCurrentGroup()
@@ -81,6 +82,16 @@ export const EditGroup = () => {
             </Badge>
           )}
         </div>
+        {data?.group && (
+          <div className="mt-3">
+            <ShareButton
+              group={{ id: data.group.id, name: data.group.name }}
+              showLabel
+              variant="outline"
+              size="default"
+            />
+          </div>
+        )}
       </section>
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">

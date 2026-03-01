@@ -1,10 +1,8 @@
 'use client'
 
-import { GroupTabs } from '@/app/groups/[groupId]/group-tabs'
-import { ShareButton } from '@/app/groups/[groupId]/share-button'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Activity, Settings } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useCurrentGroup } from './current-group-context'
@@ -14,9 +12,9 @@ export const GroupHeader = () => {
   const t = useTranslations()
 
   return (
-    <div className="flex flex-col gap-3 pb-1">
-      <div className="min-w-0">
-        <h1 className="font-semibold text-2xl sm:text-3xl leading-tight tracking-tight">
+    <div className="pb-1">
+      <div className="min-w-0 flex items-center justify-between gap-2">
+        <h1 className="min-w-0 flex-1 font-semibold text-2xl sm:text-3xl leading-tight tracking-tight">
           <Link href={`/groups/${groupId}`} className="inline-block max-w-full">
             {isLoading ? (
               <Skeleton className="mt-1.5 mb-1.5 h-7 w-48" />
@@ -25,47 +23,18 @@ export const GroupHeader = () => {
             )}
           </Link>
         </h1>
-      </div>
-
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="min-w-0 flex-1 sm:hidden">
-          <GroupTabs groupId={groupId} />
-        </div>
-        {group && (
-          <div className="grid grid-cols-3 sm:flex items-center gap-2 w-full sm:w-auto">
-            <ShareButton
-              group={group}
-              showLabel
-              variant="outline"
-              size="default"
-              className="w-full sm:w-auto"
-            />
-            <Button
-              asChild
-              size="default"
-              variant="outline"
-              className="w-full sm:w-auto"
-              title={t('Activity.title')}
-            >
-              <Link href={`/groups/${groupId}/activity`}>
-                <Activity className="w-4 h-4" />
-                <span className="ml-2">{t('Activity.title')}</span>
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="default"
-              variant="outline"
-              className="w-full sm:w-auto"
-              title={t('Settings.title')}
-            >
-              <Link href={`/groups/${groupId}/edit`}>
-                <Settings className="w-4 h-4" />
-                <span className="ml-2">{t('Settings.title')}</span>
-              </Link>
-            </Button>
-          </div>
-        )}
+        <Button
+          asChild
+          size="default"
+          variant="outline"
+          className="h-9 shrink-0 px-2 sm:px-3"
+          title={t('Settings.title')}
+        >
+          <Link href={`/groups/${groupId}/edit`}>
+            <Settings className="w-4 h-4" />
+            <span className="ml-2 hidden sm:inline">{t('Settings.title')}</span>
+          </Link>
+        </Button>
       </div>
     </div>
   )
