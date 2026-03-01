@@ -37,7 +37,7 @@ import { Locale } from '@/i18n/request'
 import { randomId } from '@/lib/api'
 import { defaultCurrencyList, getCurrency } from '@/lib/currency'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
-import { useActiveUser, useCurrencyRate } from '@/lib/hooks'
+import { useActiveUser } from '@/lib/hooks'
 import {
   ExpenseFormValues,
   SplittingOptions,
@@ -192,7 +192,7 @@ export function ExpenseForm({
           amount: amountAsDecimal(expense.amount, groupCurrency),
           originalCurrency: expense.originalCurrency ?? group.currencyCode,
           originalAmount: expense.originalAmount ?? undefined,
-          conversionRate: expense.conversionRate?.toNumber(),
+          conversionRate: undefined,
           category: expense.categoryId,
           paidBy: expense.paidById,
           paidFor: expense.paidFor.map(({ participantId, shares }) => ({
@@ -235,7 +235,7 @@ export function ExpenseForm({
               originalAmount: usesDifferentCurrency
                 ? reimbursementAmount
                 : undefined,
-              conversionRate: usesDifferentCurrency ? 1 : undefined,
+              conversionRate: undefined,
             }
           })(),
           category: 1, // category with Id 1 is Payment
@@ -303,10 +303,14 @@ export function ExpenseForm({
           : shares,
     }))
 
-    // Currency should be blank if same as group currency
+    // If it is the group currency, do not persist original currency fields.
     if (!conversionRequired) {
       delete values.originalAmount
       delete values.originalCurrency
+    } else {
+      // No currency conversion: keep the original amount as entered.
+      values.originalAmount = values.originalAmount ?? values.amount
+      values.conversionRate = undefined
     }
     return onSubmit(values, activeUserId ?? undefined)
   }
@@ -323,12 +327,6 @@ export function ExpenseForm({
     locale,
     'Custom',
   )
-  const exchangeRate = useCurrencyRate(
-    form.watch('expenseDate'),
-    form.watch('originalCurrency') ?? '',
-    groupCurrency.code,
-  )
-
   const conversionRequired =
     group.currencyCode &&
     group.currencyCode.length &&
@@ -393,70 +391,21 @@ export function ExpenseForm({
     form.watch('splitMode'),
   ])
 
-  const [usingCustomConversionRate, setUsingCustomConversionRate] = useState(
-    !!form.formState.defaultValues?.conversionRate,
-  )
-
-  useEffect(() => {
-    if (!usingCustomConversionRate && exchangeRate.data) {
-      form.setValue('conversionRate', exchangeRate.data)
-    }
-  }, [exchangeRate.data, usingCustomConversionRate])
-
   useEffect(() => {
     if (!form.getFieldState('originalAmount').isTouched) return
     const originalAmount = form.getValues('originalAmount') ?? 0
-    const conversionRate = form.getValues('conversionRate')
-
-    if (conversionRate && originalAmount) {
-      const rate = Number(conversionRate)
-      const convertedAmount = originalAmount * rate
-      if (!Number.isNaN(convertedAmount)) {
-        const v = enforceCurrencyPattern(
-          convertedAmount.toFixed(groupCurrency.decimal_digits),
-        )
-        const income = Number(v) < 0
-        setIsIncome(income)
-        if (income) form.setValue('isReimbursement', false)
-        form.setValue('amount', Number(v))
-      }
+    if (conversionRequired && originalAmount) {
+      const v = enforceCurrencyPattern(String(originalAmount))
+      const income = Number(v) < 0
+      setIsIncome(income)
+      if (income) form.setValue('isReimbursement', false)
+      form.setValue('amount', Number(v))
     }
   }, [
     form.watch('originalAmount'),
-    form.watch('conversionRate'),
+    conversionRequired,
     form.getFieldState('originalAmount').isTouched,
   ])
-
-  let conversionRateMessage = ''
-  if (exchangeRate.isLoading) {
-    conversionRateMessage = t('conversionRateState.loading')
-  } else {
-    let ratesDisplay = ''
-    if (exchangeRate.data) {
-      // non breaking spaces so the rate text is not split with line feeds
-      ratesDisplay = `${form.getValues('originalCurrency')}\xa01\xa0=\xa0${
-        group.currencyCode
-      }\xa0${exchangeRate.data}`
-    }
-    if (exchangeRate.error) {
-      if (exchangeRate.error instanceof RangeError && exchangeRate.data)
-        conversionRateMessage = t('conversionRateState.dateMismatch', {
-          date: exchangeRate.error.message,
-        })
-      else {
-        conversionRateMessage = t('conversionRateState.error')
-      }
-      conversionRateMessage +=
-        ' ' +
-        (ratesDisplay.length
-          ? `${t('conversionRateState.staleRate')} ${ratesDisplay}`
-          : t('conversionRateState.noRate'))
-    } else {
-      conversionRateMessage = ratesDisplay.length
-        ? `${t('conversionRateState.success')} ${ratesDisplay}`
-        : t('conversionRateState.currencyNotFound')
-    }
-  }
 
   return (
     <Form {...form}>
@@ -558,7 +507,7 @@ export function ExpenseForm({
             <div
               className={`sm:order-4 ${
                 !conversionRequired ? 'max-sm:hidden sm:invisible' : ''
-              } col-span-2 md:col-span-1 space-y-2`}
+              } col-span-2 md:col-span-1`}
             >
               <FormField
                 control={form.control}
@@ -586,85 +535,11 @@ export function ExpenseForm({
                         />
                       </FormControl>
                     </div>
-                    <FormDescription>
-                      {isNaN(form.getValues('expenseDate').getTime()) ? (
-                        t('conversionRateState.noDate')
-                      ) : form.getValues('expenseDate') &&
-                        !usingCustomConversionRate ? (
-                        <>
-                          {conversionRateMessage}
-                          {!exchangeRate.isLoading && (
-                            <Button
-                              className="h-auto py-0"
-                              variant="link"
-                              onClick={() => exchangeRate.refresh()}
-                            >
-                              {t('conversionRateState.refresh')}
-                            </Button>
-                          )}
-                        </>
-                      ) : (
-                        t('conversionRateState.customRate')
-                      )}
-                    </FormDescription>
+                    <FormDescription />
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Collapsible
-                open={usingCustomConversionRate}
-                onOpenChange={setUsingCustomConversionRate}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button variant="link" className="-mx-4">
-                    {usingCustomConversionRate
-                      ? t('conversionRateField.useApi')
-                      : t('conversionRateField.useCustom')}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <FormField
-                    control={form.control}
-                    name="conversionRate"
-                    render={({ field: { onChange, ...field } }) => (
-                      <FormItem
-                        className={`sm:order-4 ${
-                          !conversionRequired
-                            ? 'max-sm:hidden sm:invisible'
-                            : ''
-                        }`}
-                      >
-                        <FormLabel>{t('conversionRateField.label')}</FormLabel>
-                        <div className="flex items-baseline gap-2">
-                          <span>
-                            {originalCurrency.symbol} 1 = {group.currency}
-                          </span>
-                          <FormControl>
-                            <Input
-                              className="text-base max-w-[120px]"
-                              type="text"
-                              inputMode="decimal"
-                              placeholder="0.00"
-                              onChange={(event) => {
-                                const v = enforceCurrencyPattern(
-                                  event.target.value,
-                                )
-                                onChange(v)
-                              }}
-                              {...field}
-                              onFocus={(e) => {
-                                const target = e.currentTarget
-                                setTimeout(() => target.select(), 1)
-                              }}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CollapsibleContent>
-              </Collapsible>
             </div>
             <FormField
               control={form.control}
@@ -1015,35 +890,18 @@ export function ExpenseForm({
                                                   )?.originalAmount ?? ''
                                                 }
                                                 onChange={(event) => {
-                                                  const originalAmount = Number(
-                                                    event.target.value,
-                                                  )
-                                                  let convertedAmount = ''
-                                                  if (
-                                                    !Number.isNaN(
-                                                      originalAmount,
-                                                    ) &&
-                                                    exchangeRate.data
-                                                  ) {
-                                                    convertedAmount = (
-                                                      originalAmount *
-                                                      exchangeRate.data
-                                                    ).toFixed(
-                                                      groupCurrency.decimal_digits,
+                                                  const originalAmount =
+                                                    enforceCurrencyPattern(
+                                                      event.target.value,
                                                     )
-                                                  }
                                                   field.onChange(
                                                     field.value.map((p) =>
                                                       p.participant === id
                                                         ? {
                                                             participant: id,
-                                                            originalAmount:
-                                                              event.target
-                                                                .value,
+                                                            originalAmount,
                                                             shares:
-                                                              enforceCurrencyPattern(
-                                                                convertedAmount,
-                                                              ),
+                                                              originalAmount,
                                                           }
                                                         : p,
                                                     ),
