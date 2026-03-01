@@ -295,7 +295,15 @@ export async function getGroups(groupIds: string[]) {
   return (
     await prisma.group.findMany({
       where: { id: { in: groupIds } },
-      include: { _count: { select: { participants: true } } },
+      select: {
+        id: true,
+        name: true,
+        currency: true,
+        createdAt: true,
+        information: true,
+        currencyCode: true,
+        _count: { select: { participants: true } },
+      },
     })
   ).map((group) => ({
     ...group,
