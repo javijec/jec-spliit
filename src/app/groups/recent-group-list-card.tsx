@@ -44,11 +44,11 @@ export function RecentGroupListCard({
     <li key={group.id}>
       <Button
         variant="secondary"
-        className="h-fit w-full py-3 rounded-lg border bg-card shadow-sm"
+        className="group h-fit w-full py-3 rounded-lg border bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5"
         asChild
       >
         <div
-          className="text-base"
+          className="text-base focus-visible:outline-none"
           onClick={() => router.push(`/groups/${group.id}`)}
         >
           <div className="w-full flex flex-col gap-1">
@@ -63,7 +63,7 @@ export function RecentGroupListCard({
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="-my-3 -ml-3 -mr-1.5"
+                  className="-my-3 -ml-3 -mr-1.5 hover:scale-105"
                   onClick={(event) => {
                     event.stopPropagation()
                     if (isStarred) {
@@ -86,7 +86,7 @@ export function RecentGroupListCard({
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="-my-3 -mr-3 -ml-1.5"
+                      className="-my-3 -mr-3 -ml-1.5 hover:scale-105"
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>

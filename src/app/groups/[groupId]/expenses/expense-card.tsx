@@ -64,11 +64,19 @@ export function ExpenseCard({
     <div
       key={expense.id}
       className={cn(
-        'flex justify-between sm:mx-6 px-4 sm:rounded-lg sm:pr-2 sm:pl-4 py-4 text-sm cursor-pointer hover:bg-accent gap-1 items-stretch',
+        'group flex justify-between sm:mx-6 px-4 sm:rounded-lg sm:pr-2 sm:pl-4 py-4 text-sm cursor-pointer gap-1 items-stretch border border-transparent hover:border-border hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-safe:transition-all motion-safe:duration-150',
         expense.isReimbursement && 'italic',
       )}
+      role="button"
+      tabIndex={0}
       onClick={() => {
         router.push(`/groups/${groupId}/expenses/${expense.id}/edit`)
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          router.push(`/groups/${groupId}/expenses/${expense.id}/edit`)
+        }
       }}
     >
       <CategoryIcon
@@ -105,7 +113,7 @@ export function ExpenseCard({
       <Button
         size="icon"
         variant="link"
-        className="self-center hidden sm:flex"
+        className="self-center hidden sm:flex opacity-50 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
         asChild
       >
         <Link href={`/groups/${groupId}/expenses/${expense.id}/edit`}>
