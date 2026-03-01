@@ -12,8 +12,12 @@ import { setUserLocale } from '@/lib/locale'
 import { Languages } from 'lucide-react'
 import { useLocale } from 'next-intl'
 
+const AVAILABLE_LOCALES: Locale[] = ['es', 'en-US']
+
 export function LocaleSwitcher() {
   const locale = useLocale() as Locale
+  const visibleLocale = AVAILABLE_LOCALES.includes(locale) ? locale : 'es'
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -21,20 +25,20 @@ export function LocaleSwitcher() {
           variant="ghost"
           size="icon"
           className="-my-3 text-primary"
-          aria-label={`Idioma actual: ${localeLabels[locale]}`}
+          aria-label={`Idioma actual: ${localeLabels[visibleLocale]}`}
           title="Cambiar idioma"
         >
           <Languages className="h-4 w-4" />
-          <span className="sr-only">{localeLabels[locale]}</span>
+          <span className="sr-only">{localeLabels[visibleLocale]}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {Object.entries(localeLabels).map(([locale, label]) => (
+        {AVAILABLE_LOCALES.map((availableLocale) => (
           <DropdownMenuItem
-            key={locale}
-            onClick={() => setUserLocale(locale as Locale)}
+            key={availableLocale}
+            onClick={() => setUserLocale(availableLocale)}
           >
-            {label}
+            {localeLabels[availableLocale]}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

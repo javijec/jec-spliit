@@ -4,12 +4,11 @@ import { ProgressBar } from '@/components/progress-bar'
 import { PwaRegister } from '@/components/pwa-register'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/toaster'
 import { env } from '@/lib/env'
 import { TRPCProvider } from '@/trpc/client'
 import type { Metadata, Viewport } from 'next'
-import { NextIntlClientProvider, useTranslations } from 'next-intl'
+import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -64,7 +63,6 @@ export const viewport: Viewport = {
 }
 
 function Content({ children }: { children: React.ReactNode }) {
-  const t = useTranslations()
   return (
     <TRPCProvider>
       <header className="fixed top-0 left-0 right-0 h-16 bg-white/70 dark:bg-gray-950/70 border-b backdrop-blur-sm z-50">
@@ -88,16 +86,6 @@ function Content({ children }: { children: React.ReactNode }) {
           </Link>
           <div role="navigation" aria-label="Menu" className="flex">
             <ul className="flex items-center text-sm gap-0.5 sm:gap-1">
-              <li>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  asChild
-                  className="text-primary px-2.5 sm:px-3"
-                >
-                  <Link href="/groups">{t('Header.groups')}</Link>
-                </Button>
-              </li>
               <li>
                 <LocaleSwitcher />
               </li>

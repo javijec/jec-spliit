@@ -9,6 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 import {
@@ -21,7 +29,7 @@ import {
 import { getCurrency } from '@/lib/currency'
 import { amountAsMinorUnits } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { AlertTriangle, FileUp, Loader2 } from 'lucide-react'
+import { AlertTriangle, CalendarDays, FileUp, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -95,6 +103,35 @@ const normalizeFileName = (name: string) =>
     .replace(/[_-]/g, ' ')
     .trim()
 
+const formatDateLabel = (date: Date) =>
+  date.toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+
+const formatDateInputValue = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const parseDateInputValue = (value: string) => {
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return null
+  const parsed = new Date(year, month - 1, day)
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return null
+  }
+  return parsed
+}
+
 function SplitwiseImportCard() {
   const utils = trpc.useUtils()
   const router = useRouter()
@@ -124,15 +161,37 @@ function SplitwiseImportCard() {
   const [payerOverrides, setPayerOverrides] = useState<Record<string, string>>(
     {},
   )
+  const [expenseDateOverrides, setExpenseDateOverrides] = useState<
+    Record<string, string>
+  >({})
+  const [dateDialogExpenseId, setDateDialogExpenseId] = useState<string | null>(
+    null,
+  )
+  const [dateDialogValue, setDateDialogValue] = useState('')
 
   const unresolvedExpenses = useMemo(
     () => csvData?.expenses.filter((expense) => !expense.paidByName) ?? [],
     [csvData],
   )
+  const dateDialogExpense = useMemo(
+    () =>
+      csvData?.expenses.find((expense) => expense.id === dateDialogExpenseId) ??
+      null,
+    [csvData, dateDialogExpenseId],
+  )
+
+  const getExpenseDate = (expense: ParsedExpenseDraft) => {
+    const override = expenseDateOverrides[expense.id]
+    if (!override) return expense.expenseDate
+    return parseDateInputValue(override) ?? expense.expenseDate
+  }
 
   const onSelectCsv = async (file: File) => {
     setParseError(null)
     setCsvData(null)
+    setExpenseDateOverrides({})
+    setDateDialogExpenseId(null)
+    setDateDialogValue('')
     try {
       const rawText = await file.text()
       const lines = rawText
@@ -291,7 +350,7 @@ function SplitwiseImportCard() {
       }
 
       return {
-        expenseDate: expense.expenseDate,
+        expenseDate: getExpenseDate(expense),
         title: expense.title,
         amount: expense.amountMinor,
         currencyCode: expense.currencyCode,
@@ -311,6 +370,31 @@ function SplitwiseImportCard() {
       },
       importedExpenses,
     })
+  }
+
+  const openDateDialog = (expense: ParsedExpenseDraft) => {
+    const currentDate = getExpenseDate(expense)
+    setDateDialogExpenseId(expense.id)
+    setDateDialogValue(formatDateInputValue(currentDate))
+  }
+
+  const saveDateDialog = () => {
+    if (!dateDialogExpenseId) return
+    const parsedDate = parseDateInputValue(dateDialogValue)
+    if (!parsedDate) {
+      toast({
+        title: 'Fecha inválida',
+        description: 'Selecciona una fecha válida para continuar.',
+        variant: 'destructive',
+      })
+      return
+    }
+    setExpenseDateOverrides((prev) => ({
+      ...prev,
+      [dateDialogExpenseId]: formatDateInputValue(parsedDate),
+    }))
+    setDateDialogExpenseId(null)
+    setDateDialogValue('')
   }
 
   return (
@@ -382,8 +466,15 @@ function SplitwiseImportCard() {
                     className="grid sm:grid-cols-[1fr_220px] gap-2 items-center"
                   >
                     <div className="text-sm">
-                      {expense.expenseDate.toISOString().slice(0, 10)} ·{' '}
-                      {expense.title}
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 text-primary hover:underline mr-2"
+                        onClick={() => openDateDialog(expense)}
+                      >
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        {formatDateLabel(getExpenseDate(expense))}
+                      </button>
+                      · {expense.title}
                     </div>
                     <Select
                       value={payerOverrides[expense.id] ?? ''}
@@ -409,6 +500,32 @@ function SplitwiseImportCard() {
                 ))}
               </div>
             )}
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Fecha de gastos (opcional):</div>
+              {csvData.expenses.slice(0, 12).map((expense) => (
+                <div
+                  key={`date-${expense.id}`}
+                  className="flex items-center justify-between gap-2 rounded-md border p-2"
+                >
+                  <div className="text-sm truncate">{expense.title}</div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openDateDialog(expense)}
+                    className="shrink-0"
+                  >
+                    <CalendarDays className="w-4 h-4 mr-2" />
+                    {formatDateLabel(getExpenseDate(expense))}
+                  </Button>
+                </div>
+              ))}
+              {csvData.expenses.length > 12 && (
+                <p className="text-xs text-muted-foreground">
+                  Mostrando 12 gastos. El resto mantiene la fecha original del CSV.
+                </p>
+              )}
+            </div>
             <Button
               onClick={() => void importData()}
               type="button"
@@ -429,6 +546,44 @@ function SplitwiseImportCard() {
           </>
         )}
       </CardContent>
+      <Dialog
+        open={!!dateDialogExpense}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDateDialogExpenseId(null)
+            setDateDialogValue('')
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Seleccionar fecha del gasto</DialogTitle>
+            <DialogDescription>
+              {dateDialogExpense?.title ?? 'Gasto importado'}
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="date"
+            value={dateDialogValue}
+            onChange={(event) => setDateDialogValue(event.target.value)}
+          />
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setDateDialogExpenseId(null)
+                setDateDialogValue('')
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button type="button" onClick={saveDateDialog}>
+              Guardar fecha
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

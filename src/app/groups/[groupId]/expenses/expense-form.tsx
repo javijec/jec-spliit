@@ -518,23 +518,11 @@ export function ExpenseForm({
                     <FormControl>
                       <Input
                         className="text-base"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="dd/mm/aaaa"
-                        defaultValue={formatDateForDisplay(field.value)}
-                        onBlur={(event) => {
-                          const parsedDate = parseDateFromDisplay(
-                            event.target.value,
-                          )
-                          if (parsedDate) {
-                            field.onChange(parsedDate)
-                            event.target.value =
-                              formatDateForDisplay(parsedDate)
-                          } else {
-                            event.target.value = formatDateForDisplay(
-                              field.value,
-                            )
-                          }
+                        type="date"
+                        value={formatDateInputValue(field.value ?? new Date())}
+                        onChange={(event) => {
+                          const nextDate = parseDateFromInput(event.target.value)
+                          if (nextDate) field.onChange(nextDate)
                         }}
                       />
                     </FormControl>
@@ -1078,14 +1066,16 @@ function formatDateForDisplay(date?: Date) {
   return `${day}/${month}/${year}`
 }
 
-function parseDateFromDisplay(value: string): Date | null {
-  const normalized = value.trim()
-  const match = normalized.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
-  if (!match) return null
+function formatDateInputValue(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
-  const day = Number(match[1])
-  const month = Number(match[2])
-  const year = Number(match[3])
+function parseDateFromInput(value: string): Date | null {
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return null
   const parsed = new Date(year, month - 1, day)
   if (
     Number.isNaN(parsed.getTime()) ||
