@@ -146,14 +146,19 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const messages = useMessages()
-  const { error, formMessageId } = useFormField()
+  const { error, formMessageId, name } = useFormField()
+  const normalizeFieldPath = (fieldPath: string) =>
+    fieldPath.replace(/\.\d+(\.|$)/g, '[].$1').replace(/\.$/, '')
+
   let body
   if (error) {
     body = String(error?.message)
-    const translation = (messages.SchemaErrors as any)[body]
-    if (translation) {
-      body = translation
-    }
+    const fieldPath = normalizeFieldPath(String(name))
+    const byFieldTranslation = (messages as any).SchemaErrorsByField?.[
+      fieldPath
+    ]?.[body]
+    const fallbackTranslation = (messages.SchemaErrors as any)[body]
+    body = byFieldTranslation ?? fallbackTranslation ?? body
   } else {
     body = children
   }

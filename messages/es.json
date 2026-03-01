@@ -366,6 +366,39 @@
     "percentageSum": "La suma de porcentajes debe ser exactamente 100%.",
     "ratePositive": "La tasa de cambio debe ser mayor que 0."
   },
+  "SchemaErrorsByField": {
+    "name": {
+      "min2": "El nombre del grupo debe tener al menos 2 caracteres.",
+      "max50": "El nombre del grupo no puede superar los 50 caracteres."
+    },
+    "participants[].name": {
+      "min2": "El nombre del participante debe tener al menos 2 caracteres.",
+      "max50": "El nombre del participante no puede superar los 50 caracteres.",
+      "duplicateParticipantName": "Ya existe otro participante con ese nombre."
+    },
+    "title": {
+      "titleRequired": "Ingresa un título del gasto para continuar.",
+      "min2": "El título del gasto debe tener al menos 2 caracteres.",
+      "max50": "El título del gasto no puede superar los 50 caracteres."
+    },
+    "amount": {
+      "amountRequired": "Ingresa el monto del gasto.",
+      "amountNotZero": "El monto del gasto debe ser distinto de 0.",
+      "amountTenMillion": "El monto del gasto debe ser menor a 10.000.000.",
+      "invalidNumber": "Ingresa un monto válido."
+    },
+    "paidBy": {
+      "paidByRequired": "Selecciona quién pagó el gasto."
+    },
+    "paidFor": {
+      "paidForMin1": "Selecciona al menos una persona en \"Pagado para\".",
+      "amountSum": "La división por importes debe coincidir con el monto total.",
+      "percentageSum": "La división por porcentaje debe sumar exactamente 100%."
+    },
+    "conversionRate": {
+      "ratePositive": "La tasa de cambio debe ser mayor que 0."
+    }
+  },
   "Categories": {
     "search": "Buscar categoría...",
     "noCategory": "Categoría no encontrada.",

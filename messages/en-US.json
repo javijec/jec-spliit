@@ -367,6 +367,39 @@
     "amountSum": "The participant amount split must match the total amount.",
     "percentageSum": "The percentage split must add up to exactly 100%."
   },
+  "SchemaErrorsByField": {
+    "name": {
+      "min2": "Group name must be at least 2 characters.",
+      "max50": "Group name must be 50 characters or fewer."
+    },
+    "participants[].name": {
+      "min2": "Participant name must be at least 2 characters.",
+      "max50": "Participant name must be 50 characters or fewer.",
+      "duplicateParticipantName": "Another participant already has this name."
+    },
+    "title": {
+      "titleRequired": "Enter an expense title to continue.",
+      "min2": "Expense title must be at least 2 characters.",
+      "max50": "Expense title must be 50 characters or fewer."
+    },
+    "amount": {
+      "amountRequired": "Enter the expense amount.",
+      "amountNotZero": "Expense amount must be different from 0.",
+      "amountTenMillion": "Expense amount must be below 10,000,000.",
+      "invalidNumber": "Enter a valid amount."
+    },
+    "paidBy": {
+      "paidByRequired": "Select who paid for this expense."
+    },
+    "paidFor": {
+      "paidForMin1": "Select at least one person in \"Paid for\".",
+      "amountSum": "Split-by-amount must match the total expense amount.",
+      "percentageSum": "Split-by-percentage must add up to exactly 100%."
+    },
+    "conversionRate": {
+      "ratePositive": "Exchange rate must be greater than 0."
+    }
+  },
   "Categories": {
     "search": "Search category...",
     "noCategory": "No category found.",
