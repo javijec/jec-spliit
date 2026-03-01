@@ -3,6 +3,7 @@ import { CurrencySelector } from '@/components/currency-selector'
 import { ExpenseDocumentsInput } from '@/components/expense-documents-input'
 import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   Card,
   CardContent,
@@ -54,7 +55,7 @@ import {
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RecurrenceRule } from '@prisma/client'
-import { ChevronRight, Save } from 'lucide-react'
+import { AlertTriangle, ChevronRight, Save } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -437,9 +438,46 @@ export function ExpenseForm({
     form.getFieldState('originalAmount').isTouched,
   ])
 
+  const countErrors = (value: unknown): number => {
+    if (!value || typeof value !== 'object') return 0
+    if (Array.isArray(value)) {
+      return value.reduce<number>((sum, item) => sum + countErrors(item), 0)
+    }
+    const record = value as Record<string, unknown>
+    if ('message' in record && typeof record.message === 'string') return 1
+    return Object.values(record).reduce<number>(
+      (sum, item) => sum + countErrors(item),
+      0,
+    )
+  }
+
+  const focusFirstInvalidField = () => {
+    const firstInvalid = document.querySelector<HTMLElement>(
+      '[aria-invalid="true"]',
+    )
+    if (!firstInvalid) return
+    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    firstInvalid.focus()
+  }
+
+  const errorCount = countErrors(form.formState.errors)
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(submit)}>
+      <form
+        onSubmit={form.handleSubmit(submit, () => {
+          focusFirstInvalidField()
+        })}
+      >
+        {form.formState.submitCount > 0 && errorCount > 0 && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Revisa el formulario</AlertTitle>
+            <AlertDescription>
+              Hay {errorCount} campo(s) con errores. Te llevamos al primero.
+            </AlertDescription>
+          </Alert>
+        )}
         <Card className="overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
             <CardTitle className="text-xl leading-none">

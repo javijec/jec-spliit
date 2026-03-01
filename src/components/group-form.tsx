@@ -35,12 +35,13 @@ import { getGroup } from '@/lib/api'
 import { defaultCurrencyList, getCurrency } from '@/lib/currency'
 import { GroupFormValues, groupFormSchema } from '@/lib/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Save, Trash2 } from 'lucide-react'
+import { AlertTriangle, Save, Trash2 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { CurrencySelector } from './currency-selector'
+import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { Textarea } from './ui/textarea'
 
 export type Props = {
@@ -112,17 +113,56 @@ export function GroupForm({
     }
   }
 
+  const countErrors = (value: unknown): number => {
+    if (!value || typeof value !== 'object') return 0
+    if (Array.isArray(value)) {
+      return value.reduce<number>((sum, item) => sum + countErrors(item), 0)
+    }
+    const record = value as Record<string, unknown>
+    if ('message' in record && typeof record.message === 'string') return 1
+    return Object.values(record).reduce<number>(
+      (sum, item) => sum + countErrors(item),
+      0,
+    )
+  }
+
+  const focusFirstInvalidField = () => {
+    const firstInvalid = document.querySelector<HTMLElement>(
+      '[aria-invalid="true"]',
+    )
+    if (!firstInvalid) return
+    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    firstInvalid.focus()
+  }
+
+  const errorCount = countErrors(form.formState.errors)
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(async (values) => {
-          await onSubmit(
-            values,
-            group?.participants.find((p) => p.name === activeUser)?.id ??
-              undefined,
-          )
-        })}
+        onSubmit={form.handleSubmit(
+          async (values) => {
+            await onSubmit(
+              values,
+              group?.participants.find((p) => p.name === activeUser)?.id ??
+                undefined,
+            )
+          },
+          () => {
+            focusFirstInvalidField()
+          },
+        )}
       >
+        {form.formState.submitCount > 0 && errorCount > 0 && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Revisa el formulario</AlertTitle>
+            <AlertDescription>
+              Hay {errorCount} campo(s) con errores. Te llevamos al primero.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Card className="mb-4">
           <CardHeader>
             <CardTitle>{t('title')}</CardTitle>
