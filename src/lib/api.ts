@@ -36,15 +36,36 @@ export async function createGroup(groupFormValues: GroupFormValues) {
 }
 
 export async function getGroupAccessControl(groupId: string) {
-  const group = await prisma.group.findUnique({
-    where: { id: groupId },
-    select: { id: true, accessPasswordHash: true },
-  })
-  if (!group) return null
-  return {
-    id: group.id,
-    hasAccessPassword: !!group.accessPasswordHash,
-    accessPasswordHash: group.accessPasswordHash,
+  try {
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { id: true, accessPasswordHash: true },
+    })
+    if (!group) return null
+    return {
+      id: group.id,
+      hasAccessPassword: !!group.accessPasswordHash,
+      accessPasswordHash: group.accessPasswordHash,
+    }
+  } catch (error) {
+    // Backward-compatible fallback for environments where the migration
+    // that adds accessPasswordHash has not been deployed yet.
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2022'
+    ) {
+      const group = await prisma.group.findUnique({
+        where: { id: groupId },
+        select: { id: true },
+      })
+      if (!group) return null
+      return {
+        id: group.id,
+        hasAccessPassword: false,
+        accessPasswordHash: null,
+      }
+    }
+    throw error
   }
 }
 
