@@ -1,4 +1,3 @@
-import { CategorySelector } from '@/components/category-selector'
 import { CurrencySelector } from '@/components/currency-selector'
 import { ExpenseDocumentsInput } from '@/components/expense-documents-input'
 import { SubmitButton } from '@/components/submit-button'
@@ -63,7 +62,6 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import { DeletePopup } from '../../../../components/delete-popup'
-import { Textarea } from '../../../../components/ui/textarea'
 
 const enforceCurrencyPattern = (value: string) =>
   value
@@ -178,9 +176,6 @@ export function ExpenseForm({
     return field?.value
   }
 
-  const getSelectedRecurrenceRule = (field?: { value: string }) => {
-    return field?.value as RecurrenceRule
-  }
   const defaultSplittingOptions = getDefaultSplittingOptions(group)
   const groupCurrency = getCurrencyFromGroup(group)
   const resolveExpenseCurrency = (currencyCode?: string | null) => {
@@ -230,54 +225,7 @@ export function ExpenseForm({
           notes: expense.notes ?? '',
           recurrenceRule: expense.recurrenceRule ?? undefined,
         }
-      : searchParams.get('reimbursement')
-        ? {
-            title: t('reimbursement'),
-            expenseDate: new Date(),
-            // Keep reimbursement in its own currency when coming from suggestions.
-            // The amount query param is in minor units.
-            ...(function () {
-              const reimbursementCurrencyCode =
-                searchParams.get('currency') ?? group.currencyCode ?? ''
-              const reimbursementCurrency = getCurrency(
-                reimbursementCurrencyCode,
-                locale,
-                'Custom',
-              )
-              const reimbursementAmount = amountAsDecimal(
-                Number(searchParams.get('amount')) || 0,
-                reimbursementCurrency,
-              )
-              const usesDifferentCurrency =
-                reimbursementCurrencyCode.length > 0 &&
-                reimbursementCurrencyCode !== (group.currencyCode ?? '')
-              return {
-                amount: reimbursementAmount,
-                originalCurrency: reimbursementCurrencyCode,
-                originalAmount: usesDifferentCurrency
-                  ? reimbursementAmount
-                  : undefined,
-                conversionRate: undefined,
-              }
-            })(),
-            category: 1, // category with Id 1 is Payment
-            paidBy: searchParams.get('from') ?? undefined,
-            paidFor: [
-              searchParams.get('to')
-                ? {
-                    participant: searchParams.get('to')!,
-                    shares: '1' as any, // String for consistent form handling
-                  }
-                : undefined,
-            ],
-            isReimbursement: true,
-            splitMode: defaultSplittingOptions.splitMode,
-            saveDefaultSplittingOptions: false,
-            documents: [],
-            notes: '',
-            recurrenceRule: RecurrenceRule.NONE,
-          }
-        : {
+      : {
             title: searchParams.get('title') ?? '',
             expenseDate: searchParams.get('date')
               ? new Date(searchParams.get('date') as string)
@@ -312,6 +260,8 @@ export function ExpenseForm({
   const activeUserId = useActiveUser(group.id)
 
   const submit = async (values: ExpenseFormValues) => {
+    values.isReimbursement = false
+    values.recurrenceRule = RecurrenceRule.NONE
     await persistDefaultSplittingOptions(group.id, values)
     const valuesCurrency = resolveExpenseCurrency(values.originalCurrency)
     const valuesUseOriginalCurrency =
@@ -427,7 +377,6 @@ export function ExpenseForm({
       const v = enforceCurrencyPattern(String(originalAmount))
       const income = Number(v) < 0
       setIsIncome(income)
-      if (income) form.setValue('isReimbursement', false)
       form.setValue('amount', Number(v))
     }
   }, [
@@ -542,7 +491,7 @@ export function ExpenseForm({
               control={form.control}
               name="title"
               render={({ field }) => (
-                <FormItem className="">
+                <FormItem className="sm:col-span-2">
                   <FormLabel>{t(`${sExpense}.TitleField.label`)}</FormLabel>
                   <FormControl>
                     <Input
@@ -559,60 +508,75 @@ export function ExpenseForm({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="expenseDate"
-              render={({ field }) => (
-                <FormItem className="sm:order-1">
-                  <FormLabel>{t(`${sExpense}.DateField.label`)}</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="date-base"
-                      type="date"
-                      defaultValue={formatDate(field.value)}
-                      onChange={(event) => {
-                        return field.onChange(new Date(event.target.value))
-                      }}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {t(`${sExpense}.DateField.description`)}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name="originalCurrency"
-              render={({ field: { onChange, ...field } }) => (
-                <FormItem className="sm:order-3">
-                  <FormLabel>{t(`${sExpense}.currencyField.label`)}</FormLabel>
-                  <FormControl>
-                    {group.currencyCode ? (
-                      <CurrencySelector
-                        currencies={defaultCurrencyList(locale, '')}
-                        defaultValue={form.watch(field.name) ?? ''}
-                        isLoading={false}
-                        onValueChange={(v) => onChange(v)}
-                      />
-                    ) : (
+            <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="expenseDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t(`${sExpense}.DateField.label`)}</FormLabel>
+                    <FormControl>
                       <Input
                         className="text-base"
-                        disabled={true}
-                        {...field}
-                        placeholder={group.currency}
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="dd/mm/aaaa"
+                        defaultValue={formatDateForDisplay(field.value)}
+                        onBlur={(event) => {
+                          const parsedDate = parseDateFromDisplay(
+                            event.target.value,
+                          )
+                          if (parsedDate) {
+                            field.onChange(parsedDate)
+                            event.target.value =
+                              formatDateForDisplay(parsedDate)
+                          } else {
+                            event.target.value = formatDateForDisplay(
+                              field.value,
+                            )
+                          }
+                        }}
                       />
-                    )}
-                  </FormControl>
-                  <FormDescription>
-                    {t(`${sExpense}.currencyField.description`)}{' '}
-                    {!group.currencyCode && t('conversionUnavailable')}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormDescription>
+                      {t(`${sExpense}.DateField.description`)}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="originalCurrency"
+                render={({ field: { onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>{t(`${sExpense}.currencyField.label`)}</FormLabel>
+                    <FormControl>
+                      {group.currencyCode ? (
+                        <CurrencySelector
+                          currencies={defaultCurrencyList(locale, '')}
+                          defaultValue={form.watch(field.name) ?? ''}
+                          isLoading={false}
+                          onValueChange={(v) => onChange(v)}
+                        />
+                      ) : (
+                        <Input
+                          className="text-base"
+                          disabled={true}
+                          {...field}
+                          placeholder={group.currency}
+                        />
+                      )}
+                    </FormControl>
+                    <FormDescription>
+                      {t(`${sExpense}.currencyField.description`)}{' '}
+                      {!group.currencyCode && t('conversionUnavailable')}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div
               className={`sm:order-4 ${
@@ -653,28 +617,6 @@ export function ExpenseForm({
             </div>
             <FormField
               control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem className="order-3 sm:order-2">
-                  <FormLabel>{t('categoryField.label')}</FormLabel>
-                  <CategorySelector
-                    categories={categories}
-                    defaultValue={
-                      form.watch(field.name) // may be overwritten externally
-                    }
-                    onValueChange={field.onChange}
-                    isLoading={false}
-                  />
-                  <FormDescription>
-                    {t(`${sExpense}.categoryFieldDescription`)}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="amount"
               render={({ field: { onChange, ...field } }) => (
                 <FormItem className="sm:order-5">
@@ -687,13 +629,12 @@ export function ExpenseForm({
                         type="text"
                         inputMode="decimal"
                         placeholder="0.00"
-                        onChange={(event) => {
-                          const v = enforceCurrencyPattern(event.target.value)
-                          const income = Number(v) < 0
-                          setIsIncome(income)
-                          if (income) form.setValue('isReimbursement', false)
-                          onChange(v)
-                        }}
+                          onChange={(event) => {
+                            const v = enforceCurrencyPattern(event.target.value)
+                            const income = Number(v) < 0
+                            setIsIncome(income)
+                            onChange(v)
+                          }}
                         onFocus={(e) => {
                           // we're adding a small delay to get around safaris issue with onMouseUp deselecting things again
                           const target = e.currentTarget
@@ -704,28 +645,6 @@ export function ExpenseForm({
                     </FormControl>
                   </div>
                   <FormMessage />
-
-                  {!isIncome && (
-                    <FormField
-                      control={form.control}
-                      name="isReimbursement"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row gap-2 items-center space-y-0 pt-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div>
-                            <FormLabel>
-                              {t('isReimbursementField.label')}
-                            </FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  )}
                 </FormItem>
               )}
             />
@@ -760,93 +679,11 @@ export function ExpenseForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem className="sm:order-6">
-                  <FormLabel>{t('notesField.label')}</FormLabel>
-                  <FormControl>
-                    <Textarea className="text-base" {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="recurrenceRule"
-              render={({ field }) => (
-                <FormItem className="sm:order-5">
-                  <FormLabel>{t(`${sExpense}.recurrenceRule.label`)}</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      form.setValue('recurrenceRule', value as RecurrenceRule)
-                    }}
-                    defaultValue={getSelectedRecurrenceRule(field)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="NONE" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NONE">
-                        {t(`${sExpense}.recurrenceRule.none`)}
-                      </SelectItem>
-                      <SelectItem value="DAILY">
-                        {t(`${sExpense}.recurrenceRule.daily`)}
-                      </SelectItem>
-                      <SelectItem value="WEEKLY">
-                        {t(`${sExpense}.recurrenceRule.weekly`)}
-                      </SelectItem>
-                      <SelectItem value="MONTHLY">
-                        {t(`${sExpense}.recurrenceRule.monthly`)}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    {t(`${sExpense}.recurrenceRule.description`)}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </CardContent>
         </Card>
 
         <Card className="mt-4 overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
-            <CardTitle className="flex justify-between">
-              <span>{t(`${sExpense}.paidFor.title`)}</span>
-              <Button
-                variant="link"
-                type="button"
-                className="-my-2 -mx-4"
-                onClick={() => {
-                  const paidFor = form.getValues().paidFor
-                  const allSelected =
-                    paidFor.length === group.participants.length
-                  const newPaidFor = allSelected
-                    ? []
-                    : group.participants.map((p) => ({
-                        participant: p.id,
-                        shares: (paidFor.find(
-                          (pfor) => pfor.participant === p.id,
-                        )?.shares ?? '1') as any, // Use string to ensure consistent schema handling
-                      }))
-                  form.setValue('paidFor', newPaidFor as any, {
-                    shouldDirty: true,
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  })
-                }}
-              >
-                {form.getValues().paidFor.length ===
-                group.participants.length ? (
-                  <>{t('selectNone')}</>
-                ) : (
-                  <>{t('selectAll')}</>
-                )}
-              </Button>
-            </CardTitle>
             <CardDescription className="mt-2">
               {t(`${sExpense}.paidFor.description`)}
             </CardDescription>
@@ -1270,7 +1107,30 @@ export function ExpenseForm({
   )
 }
 
-function formatDate(date?: Date) {
+function formatDateForDisplay(date?: Date) {
   if (!date || isNaN(date as any)) date = new Date()
-  return date.toISOString().substring(0, 10)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = String(date.getFullYear())
+  return `${day}/${month}/${year}`
+}
+
+function parseDateFromDisplay(value: string): Date | null {
+  const normalized = value.trim()
+  const match = normalized.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+  if (!match) return null
+
+  const day = Number(match[1])
+  const month = Number(match[2])
+  const year = Number(match[3])
+  const parsed = new Date(year, month - 1, day)
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return null
+  }
+  return parsed
 }
