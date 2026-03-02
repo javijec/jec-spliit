@@ -4,6 +4,14 @@ Spliit is a free and open source alternative to Splitwise. You can either use th
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fspliit-app%2Fspliit&project-name=my-spliit-instance&repository-name=my-spliit-instance&stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D&)
 
+## Notes for this fork (jec-spliit / NexoGastos)
+
+- PWA is enabled with `next-pwa`.
+- Manifest is served at `/manifest.webmanifest` (generated from `src/app/manifest.ts`).
+- Production service worker is generated during build; this project uses `next build --webpack` because `next-pwa` currently relies on webpack integration.
+- A floating "Instalar app" button is shown only when the app is not installed and the browser exposes `beforeinstallprompt`.
+- GitHub Actions CI workflow was removed from this repository (`.github/workflows/ci.yml`).
+
 ## Features
 
 - [x] Create a group and share it with friends
