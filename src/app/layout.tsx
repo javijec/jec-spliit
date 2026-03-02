@@ -1,5 +1,6 @@
 import { ApplePwaSplash } from '@/app/apple-pwa-splash'
 import { LocaleSwitcher } from '@/components/locale-switcher'
+import { PwaInstallButton } from '@/components/pwa-install-button'
 import { ProgressBar } from '@/components/progress-bar'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -173,6 +174,7 @@ export default async function RootLayout({
             <Suspense>
               <ProgressBar />
             </Suspense>
+            <PwaInstallButton />
             <Content>{children}</Content>
           </ThemeProvider>
         </NextIntlClientProvider>
