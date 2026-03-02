@@ -1,6 +1,13 @@
 import createNextIntlPlugin from 'next-intl/plugin'
+import createPWA from 'next-pwa'
 
 const withNextIntl = createNextIntlPlugin()
+const withPWA = createPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+})
 
 /**
  * Undefined entries are not supported. Push optional patterns to this array only if defined.
@@ -38,4 +45,4 @@ const nextConfig = {
   },
 }
 
-export default withNextIntl(nextConfig)
+export default withPWA(withNextIntl(nextConfig))

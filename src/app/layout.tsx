@@ -1,7 +1,6 @@
 import { ApplePwaSplash } from '@/app/apple-pwa-splash'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { ProgressBar } from '@/components/progress-bar'
-import { PwaRegister } from '@/components/pwa-register'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Toaster } from '@/components/ui/toaster'
@@ -16,6 +15,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
+  manifest: '/manifest.webmanifest',
   title: {
     default: 'NexoGastos · Gestión de Gastos',
     template: '%s · NexoGastos',
@@ -173,7 +173,6 @@ export default async function RootLayout({
             <Suspense>
               <ProgressBar />
             </Suspense>
-            <PwaRegister />
             <Content>{children}</Content>
           </ThemeProvider>
         </NextIntlClientProvider>
