@@ -68,13 +68,6 @@ Here is the current state of translation:
 4. Run `npm install` to install dependencies. This will also apply database migrations and update Prisma Client.
 5. Run `npm run dev` to start the development server
 
-## Run in a container
-
-1. Run `npm run build-image` to build the docker image from the Dockerfile
-2. Copy the file `container.env.example` as `container.env`
-3. Run `npm run start-container` to start the postgres and the spliit2 containers
-4. You can access the app by browsing to http://localhost:3000
-
 ## Health check
 
 The application has a health check endpoint that can be used to check if the application is running and if the database is accessible.
