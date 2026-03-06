@@ -9,35 +9,60 @@ import Link from 'next/link'
 export default function HomePage() {
   const t = useTranslations()
   return (
-    <main className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 opacity-30">
-        <div className="absolute -top-20 left-1/2 h-52 w-52 -translate-x-1/2 rounded-full bg-primary blur-3xl" />
-      </div>
-
-      <section className="relative py-8 sm:py-14 md:py-20">
-        <div className="mx-auto w-full max-w-screen-md px-4">
-          <div className="rounded-2xl border bg-card/70 backdrop-blur-sm p-5 sm:p-8 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+      <section className="page-panel overflow-hidden">
+        <div className="grid gap-8 px-5 py-8 md:px-8 md:py-10 xl:grid-cols-[minmax(0,1.2fr)_360px] xl:gap-10">
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">Mobile first</Badge>
               <Badge variant="secondary">Multi-moneda</Badge>
-              <Badge variant="secondary">Pagos parciales</Badge>
-              <Badge variant="secondary">Importación CSV</Badge>
+              <Badge variant="secondary">Liquidaciones claras</Badge>
             </div>
 
-            <div className="flex flex-col items-center gap-4 text-center">
-              <h1 className="!leading-none font-bold text-3xl sm:text-4xl md:text-5xl landing-header py-2">
+            <div className="space-y-4">
+              <p className="hero-kicker">Expense cockpit</p>
+              <h1 className="max-w-3xl text-balance text-4xl sm:text-5xl xl:text-6xl">
                 {t.rich('Homepage.title', {
-                  strong: (chunks) => <strong>{chunks}</strong>,
+                  strong: (chunks) => <span className="text-primary">{chunks}</span>,
                 })}
               </h1>
-              <p className="max-w-[42rem] leading-normal text-muted-foreground text-base sm:text-xl sm:leading-8">
+              <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
                 {t.rich('Homepage.description', {
-                  strong: (chunks) => <strong>{chunks}</strong>,
+                  strong: (chunks) => <strong className="text-foreground">{chunks}</strong>,
                 })}
               </p>
-              <div className="grid grid-cols-1 gap-2 w-full sm:w-auto">
-                <Button asChild size="lg" className="w-full sm:min-w-40">
-                  <Link href="/groups">{t('Homepage.button.groups')}</Link>
-                </Button>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg" className="rounded-full px-6">
+                <Link href="/groups">{t('Homepage.button.groups')}</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full px-6">
+                <Link href="/groups/create">Crear grupo</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="page-panel-inset p-5 sm:p-6">
+            <p className="hero-kicker">Flujo ideal</p>
+            <div className="mt-4 space-y-4">
+              <div className="rounded-[22px] border border-black/5 bg-background/80 p-4 dark:border-white/10">
+                <p className="text-sm font-medium">1. Abrís un grupo</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Compartís el link y definís participantes en menos de un minuto.
+                </p>
+              </div>
+              <div className="rounded-[22px] border border-black/5 bg-background/80 p-4 dark:border-white/10">
+                <p className="text-sm font-medium">2. Cargás gastos rápido</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Monto, quién pagó y cómo se reparte. El resto debería ser opcional.
+                </p>
+              </div>
+              <div className="rounded-[22px] border border-black/5 bg-background/80 p-4 dark:border-white/10">
+                <p className="text-sm font-medium">3. Liquidás sin fricción</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  El grupo ve quién debe, cuánto y cuál es la mejor liquidación posible.
+                </p>
               </div>
             </div>
           </div>

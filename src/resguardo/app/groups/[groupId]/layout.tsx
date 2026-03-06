@@ -3,10 +3,10 @@ import {
   getGroupAccessCookieName,
   isValidGroupAccessCookieValue,
 } from '@/lib/group-access-session'
-import type { Metadata } from 'next'
+import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import type { PropsWithChildren } from 'react'
+import { PropsWithChildren } from 'react'
 import { GroupLayoutClient } from './layout.client'
 
 type Props = {
@@ -39,7 +39,6 @@ export default async function GroupLayout({
     const cookieValue = cookieStore.get(
       getGroupAccessCookieName(groupId),
     )?.value
-
     if (
       !accessControl.accessPasswordHash ||
       !isValidGroupAccessCookieValue(
