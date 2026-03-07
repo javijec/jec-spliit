@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/popover'
 import { Currency } from '@/lib/currency'
 import { useMediaQuery } from '@/lib/hooks'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { forwardRef, useEffect, useState } from 'react'
 
@@ -47,7 +48,7 @@ export function CurrencySelector({
   useEffect(() => {
     setValue(defaultValue)
     onValueChange(defaultValue)
-  }, [defaultValue])
+  }, [defaultValue, onValueChange])
 
   const selectedCurrency =
     currencies.find((currency) => (currency.code ?? '') === value) ??
@@ -200,7 +201,7 @@ function CurrencyLabel({ currency }: { currency: Currency }) {
   }.png`
   return (
     <div className="flex items-center gap-3">
-      <img src={flagUrl} className="w-4" alt="" />
+      <Image src={flagUrl} className="w-4" alt="" width={16} height={12} />
       {currency.name}
       {currency.code ? ` (${currency.code})` : ''}
     </div>

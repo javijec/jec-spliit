@@ -59,7 +59,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import { DeletePopup } from '../../../../components/delete-popup'
 
@@ -278,6 +278,25 @@ export function ExpenseForm({
           },
   })
   const activeUserId = useActiveUser(group.id)
+  const watchedPaidBy = useWatch({ control: form.control, name: 'paidBy' })
+  const watchedPaidFor = useWatch({ control: form.control, name: 'paidFor' })
+  const watchedAmount = useWatch({ control: form.control, name: 'amount' })
+  const watchedSplitMode = useWatch({
+    control: form.control,
+    name: 'splitMode',
+  })
+  const watchedOriginalAmount = useWatch({
+    control: form.control,
+    name: 'originalAmount',
+  })
+  const watchedExpenseDate = useWatch({
+    control: form.control,
+    name: 'expenseDate',
+  })
+  const watchedIsReimbursement = useWatch({
+    control: form.control,
+    name: 'isReimbursement',
+  })
 
   const submit = async (values: ExpenseFormValues) => {
     values.isReimbursement = false
@@ -331,15 +350,16 @@ export function ExpenseForm({
     originalCurrency.code.length &&
     originalCurrency.code !== group.currencyCode
   const expenseCurrency = conversionRequired ? originalCurrency : groupCurrency
+  const originalAmountTouched = form.getFieldState('originalAmount').isTouched
   const selectedPayerName =
-    group.participants.find(({ id }) => id === form.watch('paidBy'))?.name ??
+    group.participants.find(({ id }) => id === watchedPaidBy)?.name ??
     t('mobile.unassignedPayer')
-  const selectedParticipantsCount = form.watch('paidFor')?.length ?? 0
-  const enteredAmount = Number(form.watch('amount')) || 0
+  const selectedParticipantsCount = watchedPaidFor?.length ?? 0
+  const enteredAmount = Number(watchedAmount) || 0
 
   useEffect(() => {
     setManuallyEditedParticipants(new Set())
-  }, [form.watch('splitMode'), form.watch('amount')])
+  }, [watchedSplitMode, watchedAmount])
 
   useEffect(() => {
     const splitMode = form.getValues().splitMode
@@ -390,13 +410,15 @@ export function ExpenseForm({
       form.setValue('paidFor', newPaidFor, { shouldValidate: true })
     }
   }, [
+    expenseCurrency.decimal_digits,
+    form,
     manuallyEditedParticipants,
-    form.watch('amount'),
-    form.watch('splitMode'),
+    watchedAmount,
+    watchedSplitMode,
   ])
 
   useEffect(() => {
-    if (!form.getFieldState('originalAmount').isTouched) return
+    if (!originalAmountTouched) return
     const originalAmount = form.getValues('originalAmount') ?? 0
     if (conversionRequired && originalAmount) {
       const v = enforceCurrencyPattern(String(originalAmount))
@@ -405,9 +427,10 @@ export function ExpenseForm({
       form.setValue('amount', Number(v))
     }
   }, [
-    form.watch('originalAmount'),
+    form,
     conversionRequired,
-    form.getFieldState('originalAmount').isTouched,
+    originalAmountTouched,
+    watchedOriginalAmount,
   ])
 
   const countErrors = (value: unknown): number => {
@@ -511,7 +534,7 @@ export function ExpenseForm({
               {isIncome ? 'Ingreso' : 'Gasto'}
             </span>
             <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
-              {formatDateForDisplay(form.watch('expenseDate'))}
+              {formatDateForDisplay(watchedExpenseDate)}
             </span>
           </div>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
@@ -599,7 +622,7 @@ export function ExpenseForm({
                       {group.currencyCode ? (
                         <CurrencySelector
                           currencies={defaultCurrencyList(locale, '')}
-                          defaultValue={form.watch(field.name) ?? ''}
+                          defaultValue={field.value ?? ''}
                           isLoading={false}
                           onValueChange={(v) => onChange(v)}
                         />
@@ -776,14 +799,14 @@ export function ExpenseForm({
                                   {name}
                                 </FormLabel>
                                 {isSelected &&
-                                  !form.watch('isReimbursement') && (
+                                  !watchedIsReimbursement && (
                                     <p className="mt-1 text-xs text-muted-foreground">
                                       {t('mobile.estimatedShare')}{' '}
                                       {formatCurrency(
                                         expenseCurrency,
                                         calculateShare(id, {
                                           amount: amountAsMinorUnits(
-                                            Number(form.watch('amount')),
+                                            Number(watchedAmount),
                                             expenseCurrency,
                                           ), // Convert to cents
                                           paidFor: field.value.map(
@@ -794,10 +817,10 @@ export function ExpenseForm({
                                                 groupId: '',
                                               },
                                               shares:
-                                                form.watch('splitMode') ===
+                                                watchedSplitMode ===
                                                 'BY_PERCENTAGE'
                                                   ? Number(shares) * 100 // Convert percentage to basis points (e.g., 50% -> 5000)
-                                                  : form.watch('splitMode') ===
+                                                  : watchedSplitMode ===
                                                       'BY_AMOUNT'
                                                     ? amountAsMinorUnits(
                                                         shares,
@@ -808,9 +831,8 @@ export function ExpenseForm({
                                               participantId: '',
                                             }),
                                           ),
-                                          splitMode: form.watch('splitMode'),
-                                          isReimbursement:
-                                            form.watch('isReimbursement'),
+                                          splitMode: watchedSplitMode,
+                                          isReimbursement: watchedIsReimbursement,
                                         }),
                                         locale,
                                       )}

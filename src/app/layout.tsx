@@ -9,6 +9,7 @@ import { env } from '@/lib/env'
 import { TRPCProvider } from '@/trpc/client'
 import { ExternalLink, FolderKanban } from 'lucide-react'
 import type { Metadata, Viewport } from 'next'
+import Image from 'next/image'
 import { NextIntlClientProvider, useTranslations } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import Link from 'next/link'
@@ -75,7 +76,7 @@ function Content({ children }: { children: React.ReactNode }) {
             href="/"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border bg-card/80">
-              <img
+              <Image
                 src="/logo.svg"
                 className="h-5 w-5 object-contain sm:h-6 sm:w-6"
                 width={24}
@@ -115,7 +116,7 @@ function Content({ children }: { children: React.ReactNode }) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border bg-card/80">
-                <img
+                <Image
                   src="/logo.svg"
                   className="h-5 w-5 object-contain"
                   width={20}

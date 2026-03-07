@@ -38,7 +38,7 @@ import { AlertTriangle, Info, Save, Trash2 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ReactNode, useEffect, useState } from 'react'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { CurrencySelector } from './currency-selector'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
@@ -117,6 +117,14 @@ export function GroupForm({
     control: form.control,
     name: 'participants',
     keyName: 'key',
+  })
+  const watchedCurrencyCode = useWatch({
+    control: form.control,
+    name: 'currencyCode',
+  })
+  const watchedParticipants = useWatch({
+    control: form.control,
+    name: 'participants',
   })
 
   const [activeUser, setActiveUser] = useState<string | null>(null)
@@ -286,7 +294,7 @@ export function GroupForm({
                       locale as Locale,
                       t('CurrencyCodeField.customOption'),
                     )}
-                    defaultValue={form.watch(field.name) ?? ''}
+                    defaultValue={field.value ?? ''}
                     onValueChange={(newCurrency) => {
                       field.onChange(newCurrency)
                       const currency = getCurrency(newCurrency)
@@ -311,7 +319,7 @@ export function GroupForm({
               control={form.control}
               name="currency"
               render={({ field }) => (
-                <FormItem hidden={!!form.watch('currencyCode')?.length}>
+                <FormItem hidden={!!watchedCurrencyCode?.length}>
                   <LabelWithInfo
                     label={t('CurrencyField.label')}
                     description={t('CurrencyField.description')}
@@ -443,7 +451,7 @@ export function GroupForm({
                         <SelectContent>
                           {[
                             { name: t('Settings.ActiveUserField.none') },
-                            ...form.watch('participants'),
+                            ...(watchedParticipants ?? []),
                           ]
                             .filter((item) => item.name.length > 0)
                             .map(({ name }) => (
