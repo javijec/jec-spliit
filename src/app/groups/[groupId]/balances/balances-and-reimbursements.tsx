@@ -11,6 +11,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
+import { CheckCircle2, Layers3, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
 import { useCurrentGroup } from '../current-group-context'
@@ -31,9 +32,36 @@ export default function BalancesAndReimbursements() {
   }, [utils])
 
   const isLoading = balancesAreLoading || !balancesData || !group
+  const reimbursementCount = balancesData?.reimbursements.length ?? 0
+  const currencyCount = new Set(
+    balancesData?.reimbursements.map((item) => item.currencyCode) ?? [],
+  ).size
 
   return (
     <div>
+      <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
+        <CardHeader className="p-4 sm:p-6 border-b">
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1">
+              <Wallet className="h-3.5 w-3.5" />
+              {reimbursementCount > 0
+                ? t('summary.pendingPayments', { count: reimbursementCount })
+                : t('summary.allClear')}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1">
+              <Layers3 className="h-3.5 w-3.5" />
+              {t('summary.currenciesInPlay', { count: currencyCount })}
+            </span>
+          </div>
+          <CardTitle className="mt-3 flex items-center gap-2 text-xl leading-none">
+            <CheckCircle2 className="h-5 w-5 text-primary" />
+            {t('title')}
+          </CardTitle>
+          <CardDescription className="mt-2">
+            {t('description')}
+          </CardDescription>
+        </CardHeader>
+      </Card>
       <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
         <CardHeader className="p-4 sm:p-6 border-b">
           <CardTitle className="text-xl leading-none">

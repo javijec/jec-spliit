@@ -401,6 +401,11 @@
   "Balances": {
     "title": "Balances",
     "description": "This is the amount that each participant paid or was paid for.",
+    "summary": {
+      "pendingPayments": "{count} pending settlement(s)",
+      "currenciesInPlay": "{count} active currency(ies)",
+      "allClear": "All settled"
+    },
     "emptyTitle": "There are no pending balances",
     "emptyDescription": "All participants are up to date across every currency.",
     "Reimbursements": {
@@ -518,7 +523,12 @@
   "Summary": {
     "title": "Summary",
     "description": "General group status and main entry points.",
-    "settingsDescription": "Edit participants, currency, access security, and exports."
+    "settingsDescription": "Edit participants, currency, access security, and exports.",
+    "participantsBadge": "{count} participant(s)",
+    "defaultCurrencyBadge": "Base currency: {currencyCode}",
+    "pendingPairsBadge": "{count} active debt pair(s)",
+    "currenciesBadge": "{count} currencies in play",
+    "settledBadge": "No pending debts"
   },
   "Layout": {
     "tagline": "Track shared expenses",

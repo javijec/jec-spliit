@@ -14,8 +14,10 @@ import { trpc } from '@/trpc/client'
 import {
   ArrowRight,
   HandCoins,
+  Layers3,
   ReceiptText,
   Settings,
+  Users,
   Wallet,
 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
@@ -115,6 +117,9 @@ export function SummaryPageClient() {
   const locale = useLocale()
   const { groupId, group } = useCurrentGroup()
   const { groupedDebtSummary, isLoading } = useGroupedDebtSummary(groupId)
+  const debtCurrencyCount = new Set(
+    groupedDebtSummary.flatMap((pair) => pair.items.map((item) => item.currencyCode)),
+  ).size
 
   const getParticipantName = (id: string) =>
     group?.participants.find((participant) => participant.id === id)?.name ?? id
@@ -126,6 +131,39 @@ export function SummaryPageClient() {
 
   return (
     <div className="space-y-4">
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+              <Users className="h-3.5 w-3.5" />
+              {tSummary('participantsBadge', {
+                count: group?.participants.length ?? 0,
+              })}
+            </span>
+            {group?.currencyCode && (
+              <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+                <Wallet className="h-3.5 w-3.5" />
+                {tSummary('defaultCurrencyBadge', {
+                  currencyCode: group.currencyCode,
+                })}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+              <Layers3 className="h-3.5 w-3.5" />
+              {groupedDebtSummary.length > 0
+                ? tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })
+                : tSummary('settledBadge')}
+            </span>
+          </div>
+          <GroupSectionTitle className="mt-3 text-xl leading-none">
+            {tSummary('title')}
+          </GroupSectionTitle>
+          <GroupSectionDescription className="mt-2">
+            {tSummary('description')}
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+      </GroupSectionCard>
+
       <GroupSectionCard>
         <GroupSectionHeader>
           <GroupSectionTitle className="text-xl leading-none">
@@ -178,6 +216,14 @@ export function SummaryPageClient() {
             </p>
           ) : (
             <div className="space-y-2.5">
+              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  {tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  {tSummary('currenciesBadge', { count: debtCurrencyCount })}
+                </span>
+              </div>
               {groupedDebtSummary.map((pair) => (
                 <div
                   key={`${pair.from}-${pair.to}`}

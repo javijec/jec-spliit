@@ -401,6 +401,11 @@
   "Balances": {
     "title": "Balances",
     "description": "Se trata del importe que ha pagado o ha recibido cada participante.",
+    "summary": {
+      "pendingPayments": "{count} liquidación(es) pendientes",
+      "currenciesInPlay": "{count} moneda(s) activas",
+      "allClear": "Todo saldado"
+    },
     "emptyTitle": "No hay saldos pendientes",
     "emptyDescription": "Todos los participantes están al día en todas las monedas.",
     "Reimbursements": {
@@ -518,7 +523,12 @@
   "Summary": {
     "title": "Resumen",
     "description": "Estado general del grupo y accesos principales.",
-    "settingsDescription": "Editar participantes, moneda, seguridad y exportaciones."
+    "settingsDescription": "Editar participantes, moneda, seguridad y exportaciones.",
+    "participantsBadge": "{count} participante(s)",
+    "defaultCurrencyBadge": "Moneda base: {currencyCode}",
+    "pendingPairsBadge": "{count} deuda(s) activas",
+    "currenciesBadge": "{count} moneda(s) en juego",
+    "settledBadge": "Sin deudas pendientes"
   },
   "Layout": {
     "tagline": "Controla gastos compartidos",
