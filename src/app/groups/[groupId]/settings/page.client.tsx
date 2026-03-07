@@ -57,7 +57,7 @@ function SettingsActionCard({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-xl border bg-card/60 px-4 py-3 transition-colors hover:bg-card"
+      className="flex min-h-20 items-center gap-3 rounded-xl border bg-card/60 px-4 py-3 transition-colors hover:bg-card"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Icon className="h-5 w-5" />
@@ -125,7 +125,7 @@ export function SettingsPageClient() {
     deleteConfirmChecked && deleteConfirmName.trim() === data.group.name
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <GroupSectionCard>
         <GroupSectionHeader>
           <div className="flex flex-wrap gap-1.5">

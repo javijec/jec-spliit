@@ -29,11 +29,11 @@ export default function GroupExpensesPageClient() {
 
   return (
     <>
-      <GroupSectionCard className="mb-4">
-        <GroupSectionHeader className="p-3 sm:p-6">
+      <GroupSectionCard>
+        <GroupSectionHeader>
           <div className="space-y-1 sm:space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <GroupSectionTitle className="text-lg sm:text-xl leading-none">
+              <GroupSectionTitle className="text-xl leading-none">
                 {t('title')}
               </GroupSectionTitle>
               <div className="flex items-center gap-2">
@@ -59,13 +59,13 @@ export default function GroupExpensesPageClient() {
                 </Button>
               </div>
             </div>
-            <GroupSectionDescription className="hidden sm:block">
+            <GroupSectionDescription className="mt-2">
               {t('description')}
             </GroupSectionDescription>
           </div>
         </GroupSectionHeader>
 
-        <GroupSectionContent className="p-0 pb-4 sm:pb-6 flex flex-col gap-4 relative">
+        <GroupSectionContent className="relative flex flex-col gap-4 p-0 pb-4 sm:pb-6">
           <ExpenseList />
         </GroupSectionContent>
       </GroupSectionCard>

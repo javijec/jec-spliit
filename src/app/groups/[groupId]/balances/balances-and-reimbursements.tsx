@@ -2,12 +2,12 @@
 
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+  GroupSectionCard,
+  GroupSectionContent,
+  GroupSectionDescription,
+  GroupSectionHeader,
+  GroupSectionTitle,
+} from '@/components/ui/group-section-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
@@ -39,9 +39,9 @@ export default function BalancesAndReimbursements() {
   ).size
 
   return (
-    <div>
-      <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
-        <CardHeader className="p-4 sm:p-6 border-b">
+    <div className="space-y-5">
+      <GroupSectionCard>
+        <GroupSectionHeader>
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
             {isLoading ? (
               <>
@@ -63,25 +63,25 @@ export default function BalancesAndReimbursements() {
               </>
             )}
           </div>
-          <CardTitle className="mt-3 flex items-center gap-2 text-xl leading-none">
+          <GroupSectionTitle className="mt-3 flex items-center gap-2 text-xl leading-none">
             <CheckCircle2 className="h-5 w-5 text-primary" />
             {t('title')}
-          </CardTitle>
-          <CardDescription className="mt-2">
+          </GroupSectionTitle>
+          <GroupSectionDescription className="mt-2">
             {t('description')}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-      <Card className="mb-4 rounded-none -mx-4 border-x-0 sm:border-x sm:rounded-lg sm:mx-0 overflow-hidden">
-        <CardHeader className="p-4 sm:p-6 border-b">
-          <CardTitle className="text-xl leading-none">
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+      </GroupSectionCard>
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <GroupSectionTitle className="text-xl leading-none">
             {t('Reimbursements.settlementsTitle')}
-          </CardTitle>
-          <CardDescription className="mt-2">
+          </GroupSectionTitle>
+          <GroupSectionDescription className="mt-2">
             {t('Reimbursements.description')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6">
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+        <GroupSectionContent>
           {isLoading ? (
             <ReimbursementsLoading
               participantCount={group?.participants.length}
@@ -94,8 +94,8 @@ export default function BalancesAndReimbursements() {
               groupId={groupId}
             />
           )}
-        </CardContent>
-      </Card>
+        </GroupSectionContent>
+      </GroupSectionCard>
     </div>
   )
 }
