@@ -1,4 +1,5 @@
 import { ApplePwaSplash } from '@/app/apple-pwa-splash'
+import { ConditionalFooter } from '@/components/conditional-footer'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { PwaInstallButton } from '@/components/pwa-install-button'
 import { ProgressBar } from '@/components/progress-bar'
@@ -7,7 +8,7 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Toaster } from '@/components/ui/toaster'
 import { env } from '@/lib/env'
 import { TRPCProvider } from '@/trpc/client'
-import { ExternalLink, FolderKanban } from 'lucide-react'
+import { FolderKanban } from 'lucide-react'
 import type { Metadata, Viewport } from 'next'
 import Image from 'next/image'
 import { NextIntlClientProvider, useTranslations } from 'next-intl'
@@ -111,42 +112,7 @@ function Content({ children }: { children: React.ReactNode }) {
         <div className="relative z-10 flex-1 flex flex-col">{children}</div>
       </div>
 
-      <footer className="mt-8 border-t bg-background/80 sm:mt-16">
-        <div className="mx-auto grid w-full max-w-screen-xl gap-6 px-4 py-6 sm:px-4 sm:py-8 lg:px-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border bg-card/80">
-                <Image
-                  src="/logo.svg"
-                  className="h-5 w-5 object-contain"
-                  width={20}
-                  height={20}
-                  alt="NexoGastos"
-                />
-              </div>
-              <div>
-                <Link className="text-sm font-semibold sm:text-base" href="/">
-                  NexoGastos
-                </Link>
-                <p className="text-xs text-muted-foreground sm:text-sm">
-                  {t('footerDescription')}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <FooterLink href="https://github.com/javijec" label="Javijec" />
-              <FooterLink
-                href="https://github.com/spliit-app/spliit/"
-                label="Spliit"
-              />
-              <FooterLink
-                href="https://github.com/javijec/jec-spliit"
-                label="GitHub"
-              />
-            </div>
-          </div>
-        </div>
-      </footer>
+      <ConditionalFooter footerDescription={t('footerDescription')} />
       <Toaster />
     </TRPCProvider>
   )
@@ -161,20 +127,6 @@ function ButtonLink({ href, label }: { href: string; label: string }) {
       <FolderKanban className="h-4 w-4 text-primary" />
       <span>{label}</span>
     </Link>
-  )
-}
-
-function FooterLink({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener"
-      className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-card hover:text-foreground sm:text-sm"
-    >
-      <span>{label}</span>
-      <ExternalLink className="h-3.5 w-3.5" />
-    </a>
   )
 }
 

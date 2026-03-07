@@ -13,16 +13,12 @@ import { getCurrency, type Currency } from '@/lib/currency'
 import { formatCurrency } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import {
-  ArrowRight,
   HandCoins,
   Layers3,
-  ReceiptText,
-  Settings,
   Users,
   Wallet,
 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
-import Link from 'next/link'
 import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 
@@ -82,38 +78,8 @@ function useGroupedDebtSummary(groupId: string) {
   }
 }
 
-function QuickLink({
-  href,
-  icon: Icon,
-  title,
-  description,
-}: {
-  href: string
-  icon: typeof Wallet
-  title: string
-  description: string
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex min-h-20 items-center gap-3 rounded-xl border bg-card/60 px-4 py-3 transition-colors hover:bg-card"
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="font-medium leading-none">{title}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      </div>
-      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-    </Link>
-  )
-}
-
 export function SummaryPageClient() {
   const tExpenses = useTranslations('Expenses')
-  const tBalances = useTranslations('Balances')
-  const tSettings = useTranslations('Settings')
   const tSummary = useTranslations('Summary')
   const locale = useLocale()
   const { groupId, group } = useCurrentGroup()
@@ -163,37 +129,6 @@ export function SummaryPageClient() {
             {tSummary('description')}
           </GroupSectionDescription>
         </GroupSectionHeader>
-      </GroupSectionCard>
-
-      <GroupSectionCard>
-        <GroupSectionHeader>
-          <GroupSectionTitle className="text-xl leading-none">
-            {tSummary('quickActionsTitle')}
-          </GroupSectionTitle>
-          <GroupSectionDescription className="mt-2">
-            {tSummary('quickActionsDescription')}
-          </GroupSectionDescription>
-        </GroupSectionHeader>
-        <GroupSectionContent className="grid gap-3">
-          <QuickLink
-            href={`/groups/${groupId}/expenses`}
-            icon={ReceiptText}
-            title={tExpenses('title')}
-            description={tExpenses('description')}
-          />
-          <QuickLink
-            href={`/groups/${groupId}/balances`}
-            icon={HandCoins}
-            title={tBalances('Reimbursements.settlementsTitle')}
-            description={tBalances('Reimbursements.description')}
-          />
-          <QuickLink
-            href={`/groups/${groupId}/settings`}
-            icon={Settings}
-            title={tSettings('title')}
-            description={tSummary('settingsDescription')}
-          />
-        </GroupSectionContent>
       </GroupSectionCard>
 
       <GroupSectionCard>
