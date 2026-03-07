@@ -24,6 +24,7 @@ export default function BalancesAndReimbursements() {
       groupId,
     })
   const t = useTranslations('Balances')
+  const tSummary = useTranslations('Balances.summary')
 
   useEffect(() => {
     // Until we use tRPC more widely and can invalidate the cache on expense
@@ -45,12 +46,12 @@ export default function BalancesAndReimbursements() {
             <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1">
               <Wallet className="h-3.5 w-3.5" />
               {reimbursementCount > 0
-                ? t('summary.pendingPayments', { count: reimbursementCount })
-                : t('summary.allClear')}
+                ? tSummary('pendingPayments', { count: reimbursementCount })
+                : tSummary('allClear')}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1">
               <Layers3 className="h-3.5 w-3.5" />
-              {t('summary.currenciesInPlay', { count: currencyCount })}
+              {tSummary('currenciesInPlay', { count: currencyCount })}
             </span>
           </div>
           <CardTitle className="mt-3 flex items-center gap-2 text-xl leading-none">
