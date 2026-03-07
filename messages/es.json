@@ -329,6 +329,8 @@
       "stepCounter": "Paso {current} de {total}",
       "back": "Volver",
       "continue": "Continuar",
+      "included": "Incluido",
+      "excluded": "Fuera",
       "selectedCount": "Seleccionados: {count}",
       "splitMode": "División: {mode}",
       "estimatedShare": "Parte estimada:"

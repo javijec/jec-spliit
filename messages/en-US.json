@@ -350,6 +350,8 @@
       "stepCounter": "Step {current} of {total}",
       "back": "Back",
       "continue": "Continue",
+      "included": "Included",
+      "excluded": "Excluded",
       "selectedCount": "Selected: {count}",
       "splitMode": "Split: {mode}",
       "estimatedShare": "Estimated share:"
