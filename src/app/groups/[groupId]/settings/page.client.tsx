@@ -105,8 +105,17 @@ export function SettingsPageClient() {
   if (isLoading || !data?.group) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-56 w-full rounded-xl" />
+        <div className="rounded-xl border bg-card/70 p-5">
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-6 w-28 rounded-full" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+          <Skeleton className="mt-4 h-7 w-40 rounded-lg" />
+          <Skeleton className="mt-3 h-4 w-64 rounded-lg" />
+        </div>
+        <Skeleton className="h-48 w-full rounded-xl" />
+        <Skeleton className="h-44 w-full rounded-xl" />
         <Skeleton className="h-48 w-full rounded-xl" />
       </div>
     )
@@ -150,10 +159,10 @@ export function SettingsPageClient() {
       <GroupSectionCard>
         <GroupSectionHeader>
           <GroupSectionTitle className="text-xl leading-none">
-            {t('title')}
+            {t('quickActionsTitle')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
-            {t('summaryDescription')}
+            {t('quickActionsDescription')}
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent className="space-y-3">

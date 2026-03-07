@@ -7,6 +7,7 @@ import {
   GroupSectionHeader,
   GroupSectionTitle,
 } from '@/components/ui/group-section-card'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrency, type Currency } from '@/lib/currency'
 import { formatCurrency } from '@/lib/utils'
@@ -207,13 +208,19 @@ export function SummaryPageClient() {
         <GroupSectionContent>
           {isLoading ? (
             <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-6 w-36 rounded-full" />
+                <Skeleton className="h-6 w-32 rounded-full" />
+              </div>
               <Skeleton className="h-14 w-full rounded-lg" />
               <Skeleton className="h-14 w-full rounded-lg" />
             </div>
           ) : groupedDebtSummary.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {tExpenses('Debts.noPending')}
-            </p>
+            <EmptyState
+              icon={HandCoins}
+              title={tSummary('settledBadge')}
+              description={tSummary('noPendingDescription')}
+            />
           ) : (
             <div className="space-y-2.5">
               <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
