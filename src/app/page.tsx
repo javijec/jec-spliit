@@ -9,7 +9,7 @@ import Link from 'next/link'
 export default function HomePage() {
   const t = useTranslations()
   return (
-    <main className="relative flex min-h-[calc(100dvh-14rem)] items-start px-4 pb-2 pt-1 sm:min-h-[calc(100dvh-4rem)] sm:items-center sm:px-6 sm:py-10">
+    <main className="relative flex min-h-[calc(100dvh-18rem)] items-start px-4 pb-2 pt-3 sm:min-h-[calc(100dvh-4rem)] sm:items-center sm:px-6 sm:py-10">
       <section className="relative mx-auto w-full max-w-screen-md">
         <div className="rounded-[1.5rem] border bg-card p-4 shadow-sm sm:rounded-[1.75rem] sm:p-8">
           <div className="space-y-4 sm:space-y-5">

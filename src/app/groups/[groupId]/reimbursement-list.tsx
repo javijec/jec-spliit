@@ -20,7 +20,7 @@ import {
 } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { Participant } from '@prisma/client'
-import { CheckCircle2 } from 'lucide-react'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
@@ -192,21 +192,23 @@ export function ReimbursementList({
 
   return (
     <>
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         {groupedReimbursements.map((pair) => (
           <div
-            className="rounded-lg border bg-card/60 p-3 sm:p-4 flex flex-col gap-3"
+            className="rounded-lg border bg-card p-2.5"
             key={`${pair.from}-${pair.to}`}
           >
-            <div className="text-sm">
-              {t.rich('owes', {
-                from: getParticipant(pair.from)?.name ?? '',
-                to: getParticipant(pair.to)?.name ?? '',
-                strong: (chunks) => <strong>{chunks}</strong>,
-              })}
+            <div className="mb-2 flex items-center gap-1.5 text-sm leading-tight">
+              <strong className="min-w-0 flex-1 truncate">
+                {getParticipant(pair.from)?.name ?? ''}
+              </strong>
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <strong className="min-w-0 flex-1 truncate text-right">
+                {getParticipant(pair.to)?.name ?? ''}
+              </strong>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {pair.items.map((item) => {
                 const reimbursementCurrency =
                   item.currencyCode === currency.code
@@ -216,26 +218,25 @@ export function ReimbursementList({
                 return (
                   <div
                     key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                    className="rounded-md bg-muted/50 px-2.5 py-2.5"
+                    className="rounded-md border bg-muted/30 px-2 py-2"
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                         {reimbursementCurrency.code}
                       </span>
                       <div
                         className={cn(
-                          'text-sm sm:text-base font-semibold tabular-nums whitespace-nowrap',
-                          'text-amber-700 dark:text-amber-400',
+                          'text-sm font-semibold tabular-nums whitespace-nowrap text-primary',
                         )}
                       >
                         {formatCurrency(reimbursementCurrency, item.amount, locale)}
                       </div>
                     </div>
 
-                    <div className="mt-2 flex items-center gap-2">
+                    <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                       <Button
                         variant="secondary"
-                        className="flex-1"
+                        className="h-8 px-2 text-[11px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() =>
                           setPaymentDialog({
@@ -251,7 +252,7 @@ export function ReimbursementList({
                       </Button>
                       <Button
                         variant="outline"
-                        className="flex-1"
+                        className="h-8 px-2 text-[11px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() => {
                           setPartialAmountInput('')
