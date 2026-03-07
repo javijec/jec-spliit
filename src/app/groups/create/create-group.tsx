@@ -31,7 +31,7 @@ import { getCurrency } from '@/lib/currency'
 import { amountAsMinorUnits } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { AlertTriangle, CalendarDays, FileUp, Loader2 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -105,8 +105,8 @@ const normalizeFileName = (name: string) =>
     .replace(/[_-]/g, ' ')
     .trim()
 
-const formatDateLabel = (date: Date) =>
-  date.toLocaleDateString('es-AR', {
+const formatDateLabel = (date: Date, locale: string) =>
+  date.toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -135,21 +135,23 @@ const parseDateInputValue = (value: string) => {
 }
 
 function SplitwiseImportCard() {
+  const locale = useLocale()
+  const t = useTranslations('Groups.Import')
   const utils = trpc.useUtils()
   const router = useRouter()
   const { toast } = useToast()
   const importSplitwise = trpc.groups.importSplitwise.useMutation({
     onSuccess: async ({ groupId }) => {
       toast({
-        title: 'Importación completada',
-        description: 'El grupo y los gastos se importaron correctamente.',
+        title: t('successTitle'),
+        description: t('successDescription'),
       })
       await utils.groups.invalidate()
       router.push(`/groups/${groupId}`)
     },
     onError: (error) => {
       toast({
-        title: 'No se pudo importar el CSV',
+        title: t('importErrorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -201,10 +203,10 @@ function SplitwiseImportCard() {
         .map((line) => line.trim())
         .filter(Boolean)
       if (lines.length < 2) {
-        const message = 'El CSV no contiene datos.'
+        const message = t('csvWithoutData')
         setParseError(message)
         toast({
-          title: 'Archivo CSV inválido',
+          title: t('invalidCsvTitle'),
           description: message,
           variant: 'destructive',
         })
@@ -219,10 +221,10 @@ function SplitwiseImportCard() {
           : ','
       const headers = parseCsvLine(headerLine, delimiter)
       if (headers.length < 7) {
-        const message = 'No se detectaron columnas de participantes en el CSV.'
+        const message = t('csvWithoutParticipants')
         setParseError(message)
         toast({
-          title: 'Archivo CSV inválido',
+          title: t('invalidCsvTitle'),
           description: message,
           variant: 'destructive',
         })
@@ -267,7 +269,7 @@ function SplitwiseImportCard() {
         expenses.push({
           id: `${i}`,
           expenseDate,
-          title: description.trim() || 'Gasto importado',
+          title: description.trim() || t('importedExpenseFallback'),
           category: category.trim(),
           amountMinor,
           currencyCode: parsedCurrencyCode,
@@ -278,10 +280,10 @@ function SplitwiseImportCard() {
       }
 
       if (!expenses.length) {
-        const message = 'No se pudieron parsear gastos válidos del CSV.'
+        const message = t('csvWithoutExpenses')
         setParseError(message)
         toast({
-          title: 'Archivo CSV inválido',
+          title: t('invalidCsvTitle'),
           description: message,
           variant: 'destructive',
         })
@@ -295,18 +297,18 @@ function SplitwiseImportCard() {
         fileName: file.name,
       }
       setCsvData(parsed)
-      setGroupName(normalizeFileName(file.name) || 'Grupo importado')
+      setGroupName(normalizeFileName(file.name) || t('importedGroupName'))
       setGroupCurrencyCode(parsed.currencyCodes[0] ?? 'USD')
       toast({
-        title: 'CSV cargado',
-        description: `Se detectaron ${expenses.length} gastos para importar.`,
+        title: t('csvLoadedTitle'),
+        description: t('csvLoadedDescription', { count: expenses.length }),
       })
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Error al leer el archivo CSV.'
+        error instanceof Error ? error.message : t('readErrorDescription')
       setParseError(message)
       toast({
-        title: 'No se pudo leer el CSV',
+        title: t('readErrorTitle'),
         description: message,
         variant: 'destructive',
       })
@@ -319,10 +321,10 @@ function SplitwiseImportCard() {
       (expense) => !(expense.paidByName ?? payerOverrides[expense.id]),
     )
     if (missingPayer) {
-      const message = 'Falta definir quién pagó en uno o más gastos.'
+      const message = t('missingPayerDescription')
       setParseError(message)
       toast({
-        title: 'Faltan datos para importar',
+        title: t('missingDataTitle'),
         description: message,
         variant: 'destructive',
       })
@@ -364,8 +366,8 @@ function SplitwiseImportCard() {
 
     await importSplitwise.mutateAsync({
       groupFormValues: {
-        name: groupName || 'Grupo importado',
-        information: `Importado desde CSV de Splitwise (${csvData.fileName})`,
+        name: groupName || t('importedGroupName'),
+        information: t('importedGroupInfo', { fileName: csvData.fileName }),
         currencyCode: groupCurrencyCode,
         currency: getCurrency(groupCurrencyCode).symbol,
         participants: csvData.participants.map((name) => ({ name })),
@@ -385,8 +387,8 @@ function SplitwiseImportCard() {
     const parsedDate = parseDateInputValue(dateDialogValue)
     if (!parsedDate) {
       toast({
-        title: 'Fecha inválida',
-        description: 'Selecciona una fecha válida para continuar.',
+        title: t('invalidDateTitle'),
+        description: t('invalidDateDescription'),
         variant: 'destructive',
       })
       return
@@ -404,28 +406,23 @@ function SplitwiseImportCard() {
       <CardHeader className="border-b bg-card/60 p-4 sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="rounded-full px-3 py-1">
-            CSV
+            {t('badges.csv')}
           </Badge>
           <Badge variant="secondary" className="rounded-full px-3 py-1">
-            Splitwise
+            {t('badges.splitwise')}
           </Badge>
         </div>
         <div className="mt-3 space-y-1">
-          <CardTitle>Importar desde CSV de Splitwise</CardTitle>
-          <CardDescription>
-            Crea un grupo nuevo desde un export CSV y completa lo que falte antes
-            de importar.
-          </CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('description')}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="space-y-4 p-4 sm:p-6">
         <div className="rounded-2xl border bg-muted/20 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-medium">1. Sube el archivo CSV</p>
-              <p className="text-sm text-muted-foreground">
-                Usa el export de Splitwise para precargar participantes y gastos.
-              </p>
+              <p className="text-sm font-medium">{t('step1Title')}</p>
+              <p className="text-sm text-muted-foreground">{t('step1Description')}</p>
             </div>
             <Input
               type="file"
@@ -440,8 +437,7 @@ function SplitwiseImportCard() {
         </div>
         {!csvData && !parseError && (
           <div className="rounded-xl border bg-card/40 p-4 text-sm text-muted-foreground">
-            Subí el export CSV de Splitwise para pre-cargar participantes y
-            gastos, luego completás solo los datos faltantes.
+            {t('emptyState')}
           </div>
         )}
         {parseError && (
@@ -455,27 +451,27 @@ function SplitwiseImportCard() {
             <div className="rounded-2xl border bg-card/40 p-4">
               <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
                 <span className="rounded-full bg-muted px-2.5 py-1">
-                  Archivo: {csvData.fileName}
+                  {t('fileLabel', { fileName: csvData.fileName })}
                 </span>
                 <span className="rounded-full bg-muted px-2.5 py-1">
-                  Participantes: {csvData.participants.length}
+                  {t('participantsLabel', { count: csvData.participants.length })}
                 </span>
                 <span className="rounded-full bg-muted px-2.5 py-1">
-                  Gastos: {csvData.expenses.length}
+                  {t('expensesLabel', { count: csvData.expenses.length })}
                 </span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Input
                   value={groupName}
                   onChange={(event) => setGroupName(event.target.value)}
-                  placeholder="Nombre del grupo"
+                  placeholder={t('groupNamePlaceholder')}
                 />
                 <Select
                   value={groupCurrencyCode}
                   onValueChange={(value) => setGroupCurrencyCode(value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Moneda del grupo" />
+                    <SelectValue placeholder={t('groupCurrencyPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {csvData.currencyCodes.map((code) => (
@@ -487,7 +483,9 @@ function SplitwiseImportCard() {
                 </Select>
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                Participantes: {csvData.participants.join(', ')}
+                {t('participantsList', {
+                  participants: csvData.participants.join(', '),
+                })}
               </p>
             </div>
 
@@ -495,11 +493,9 @@ function SplitwiseImportCard() {
               <div className="rounded-2xl border bg-card/40 p-4">
                 <div className="mb-3">
                   <p className="text-sm font-medium">
-                    2. Completa quién pagó en {unresolvedExpenses.length} gasto(s)
+                    {t('step2Title', { count: unresolvedExpenses.length })}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Solo necesitas resolver los gastos donde no se pudo detectar el pagador.
-                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('step2Description')}</p>
                 </div>
                 <div className="space-y-2">
                   {unresolvedExpenses.slice(0, 20).map((expense) => (
@@ -514,7 +510,7 @@ function SplitwiseImportCard() {
                           onClick={() => openDateDialog(expense)}
                         >
                           <CalendarDays className="h-3.5 w-3.5" />
-                          {formatDateLabel(getExpenseDate(expense))}
+                          {formatDateLabel(getExpenseDate(expense), locale)}
                         </button>
                         · {expense.title}
                       </div>
@@ -528,7 +524,7 @@ function SplitwiseImportCard() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar pagador" />
+                          <SelectValue placeholder={t('payerPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {csvData.participants.map((participant) => (
@@ -546,10 +542,8 @@ function SplitwiseImportCard() {
 
             <div className="rounded-2xl border bg-card/40 p-4">
               <div className="mb-3">
-                <p className="text-sm font-medium">3. Revisa las fechas</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Opcional. Puedes corregir fechas antes de importar.
-                </p>
+                <p className="text-sm font-medium">{t('step3Title')}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t('step3Description')}</p>
               </div>
               <div className="space-y-2">
                 {csvData.expenses.slice(0, 12).map((expense) => (
@@ -566,22 +560,20 @@ function SplitwiseImportCard() {
                       className="shrink-0"
                     >
                       <CalendarDays className="mr-2 h-4 w-4" />
-                      {formatDateLabel(getExpenseDate(expense))}
+                      {formatDateLabel(getExpenseDate(expense), locale)}
                     </Button>
                   </div>
                 ))}
               </div>
               {csvData.expenses.length > 12 && (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Mostrando 12 gastos. El resto mantiene la fecha original del CSV.
+                  {t('showingLimit')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">
-                Cuando confirmes, se creará el grupo y se importarán todos los gastos válidos.
-              </p>
+              <p className="text-sm text-muted-foreground">{t('finalDescription')}</p>
               <Button
                 onClick={() => void importData()}
                 type="button"
@@ -591,12 +583,12 @@ function SplitwiseImportCard() {
                 {importSplitwise.isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Importando...
+                    {t('submitting')}
                   </>
                 ) : (
                   <>
                     <FileUp className="w-4 h-4 mr-2" />
-                    Crear grupo e importar gastos
+                    {t('submit')}
                   </>
                 )}
               </Button>
@@ -615,9 +607,9 @@ function SplitwiseImportCard() {
       >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Seleccionar fecha del gasto</DialogTitle>
+            <DialogTitle>{t('dateDialogTitle')}</DialogTitle>
             <DialogDescription>
-              {dateDialogExpense?.title ?? 'Gasto importado'}
+              {dateDialogExpense?.title ?? t('importedExpenseFallback')}
             </DialogDescription>
           </DialogHeader>
           <Input
@@ -634,10 +626,10 @@ function SplitwiseImportCard() {
                 setDateDialogValue('')
               }}
             >
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button type="button" onClick={saveDateDialog}>
-              Guardar fecha
+              {t('saveDate')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -671,18 +663,18 @@ export const CreateGroup = () => {
               groupFormValues,
             })
             toast({
-              title: 'Grupo creado',
-              description: 'El grupo se creó correctamente.',
+              title: t('createSuccessTitle'),
+              description: t('createSuccessDescription'),
             })
             await utils.groups.invalidate()
             router.push(`/groups/${groupId}`)
           } catch (error) {
             toast({
-              title: 'No se pudo crear el grupo',
+              title: t('createErrorTitle'),
               description:
                 error instanceof Error
                   ? error.message
-                  : 'Ocurrió un error al crear el grupo.',
+                  : t('createErrorDescription'),
               variant: 'destructive',
             })
           }
