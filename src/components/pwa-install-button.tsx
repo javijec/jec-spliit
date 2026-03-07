@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { usePathname } from 'next/navigation'
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>
@@ -28,6 +29,12 @@ export function PwaInstallButton() {
   const [installed, setInstalled] = useState(false)
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null)
+  const pathname = usePathname()
+
+  const isGroupMobileChromeRoute =
+    /^\/groups\/[^/]+\/(summary|expenses|balances|settings)(\/.*)?$/.test(
+      pathname ?? '',
+    )
 
   useEffect(() => {
     setInstalled(isInstalled())
@@ -76,7 +83,10 @@ export function PwaInstallButton() {
     <Button
       type="button"
       onClick={() => void handleInstallClick()}
-      className="fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-4 z-[70] shadow-lg sm:bottom-4"
+      className={[
+        'fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] z-[70] shadow-lg sm:bottom-4 sm:right-4',
+        isGroupMobileChromeRoute ? 'left-4 right-auto' : 'right-4',
+      ].join(' ')}
     >
       Instalar app
     </Button>
