@@ -3,9 +3,11 @@
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
+import { usePwaInstallPrompt } from '@/components/use-pwa-install-prompt'
 import {
   ChartColumn,
   HandCoins,
+  Download,
   Plus,
   ReceiptText,
   Settings,
@@ -28,6 +30,7 @@ export function GroupLayoutClient({
   const tFlow = useTranslations('ExpenseFlow')
   const pathname = usePathname()
   const { toast } = useToast()
+  const { canInstall, install } = usePwaInstallPrompt()
 
   useEffect(() => {
     if (data && !data.group) {
@@ -114,7 +117,11 @@ export function GroupLayoutClient({
             </Button>
           )}
           <nav className="fixed inset-x-0 z-40 bottom-[env(safe-area-inset-bottom)] px-3 pb-3 sm:hidden">
-            <div className="grid grid-cols-4 items-center gap-1 rounded-2xl border bg-background/95 px-2 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.35)] backdrop-blur">
+            <div
+              className={`grid items-center gap-1 rounded-2xl border bg-background/95 px-2 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.35)] backdrop-blur ${
+                canInstall ? 'grid-cols-5' : 'grid-cols-4'
+              }`}
+            >
               {tabs.map((tab) => (
                 <Button
                   key={tab.key}
@@ -131,6 +138,18 @@ export function GroupLayoutClient({
                   </Link>
                 </Button>
               ))}
+              {canInstall && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-11 flex-col gap-1"
+                  onClick={() => void install()}
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="text-[10px] leading-none">Instalar</span>
+                </Button>
+              )}
             </div>
           </nav>
         </>
