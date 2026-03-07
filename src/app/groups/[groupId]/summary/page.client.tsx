@@ -1,6 +1,5 @@
 'use client'
 
-import { Totals } from '@/app/groups/[groupId]/stats/totals'
 import {
   GroupSectionCard,
   GroupSectionContent,
@@ -111,7 +110,6 @@ function QuickLink({
 export function SummaryPageClient() {
   const tExpenses = useTranslations('Expenses')
   const tBalances = useTranslations('Balances')
-  const tStats = useTranslations('Stats')
   const locale = useLocale()
   const { groupId, group } = useCurrentGroup()
   const { groupedDebtSummary, isLoading } = useGroupedDebtSummary(groupId)
@@ -221,20 +219,6 @@ export function SummaryPageClient() {
               ))}
             </div>
           )}
-        </GroupSectionContent>
-      </GroupSectionCard>
-
-      <GroupSectionCard>
-        <GroupSectionHeader>
-          <GroupSectionTitle className="text-xl leading-none">
-            {tStats('Totals.title')}
-          </GroupSectionTitle>
-          <GroupSectionDescription className="mt-2">
-            {tStats('Totals.description')}
-          </GroupSectionDescription>
-        </GroupSectionHeader>
-        <GroupSectionContent>
-          <Totals />
         </GroupSectionContent>
       </GroupSectionCard>
     </div>
