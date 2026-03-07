@@ -9,14 +9,9 @@ import Link from 'next/link'
 export default function HomePage() {
   const t = useTranslations()
   return (
-    <main className="relative flex min-h-[calc(100dvh-14rem)] items-start overflow-hidden px-4 pb-2 pt-1 sm:min-h-[calc(100dvh-4rem)] sm:items-center sm:px-6 sm:py-10">
-      <div className="pointer-events-none absolute inset-0 opacity-40">
-        <div className="absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/70 blur-3xl" />
-        <div className="absolute bottom-10 right-0 h-40 w-40 rounded-full bg-emerald-300/40 blur-3xl dark:bg-emerald-500/20" />
-      </div>
-
+    <main className="relative flex min-h-[calc(100dvh-14rem)] items-start px-4 pb-2 pt-1 sm:min-h-[calc(100dvh-4rem)] sm:items-center sm:px-6 sm:py-10">
       <section className="relative mx-auto w-full max-w-screen-md">
-        <div className="rounded-[1.5rem] border bg-card/75 p-4 shadow-sm backdrop-blur-sm sm:rounded-[1.75rem] sm:p-8">
+        <div className="rounded-[1.5rem] border bg-card p-4 shadow-sm sm:rounded-[1.75rem] sm:p-8">
           <div className="space-y-4 sm:space-y-5">
             <div className="space-y-2 sm:space-y-3">
               <h1 className="landing-header py-1 text-[2.35rem] font-bold leading-[0.92] sm:text-5xl">
@@ -48,7 +43,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border bg-background/70 p-3 sm:p-4">
+              <div className="rounded-2xl border bg-background p-3 sm:p-4">
                 <div className="flex items-center gap-2">
                   <Smartphone className="h-4 w-4 shrink-0 text-primary sm:h-5 sm:w-5" />
                   <p className="text-[15px] font-medium sm:text-base">
@@ -59,7 +54,7 @@ export default function HomePage() {
                   {t('Homepage.features.simpleFlow.description')}
                 </p>
               </div>
-              <div className="rounded-2xl border bg-background/70 p-3 sm:p-4">
+              <div className="rounded-2xl border bg-background p-3 sm:p-4">
                 <div className="flex items-center gap-2">
                   <ReceiptText className="h-4 w-4 shrink-0 text-primary sm:h-5 sm:w-5" />
                   <p className="text-[15px] font-medium sm:text-base">
@@ -70,7 +65,7 @@ export default function HomePage() {
                   {t('Homepage.features.clearExpenses.description')}
                 </p>
               </div>
-              <div className="rounded-2xl border bg-background/70 p-3 sm:p-4">
+              <div className="rounded-2xl border bg-background p-3 sm:p-4">
                 <div className="flex items-center gap-2">
                   <HandCoins className="h-4 w-4 shrink-0 text-primary sm:h-5 sm:w-5" />
                   <p className="text-[15px] font-medium sm:text-base">

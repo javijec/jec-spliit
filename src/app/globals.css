@@ -55,9 +55,6 @@
   }
   body {
     @apply bg-background text-foreground text-[15px] sm:text-base leading-6;
-    background-image:
-      radial-gradient(circle at top center, hsl(var(--primary) / 0.08), transparent 32rem),
-      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
   }
 
   h1 {
@@ -87,11 +84,12 @@
 }
 
 .landing-header {
-  @apply bg-gradient-to-br from-teal-800 to-emerald-600 dark:from-teal-200 dark:to-emerald-400 bg-clip-text;
+  color: hsl(var(--foreground));
 }
 
 .landing-header strong {
-  @apply font-bold text-transparent;
+  color: hsl(var(--primary));
+  font-weight: 700;
 }
 
 .app-shell {
@@ -100,29 +98,14 @@
 }
 
 .app-shell::before {
-  content: '';
-  position: absolute;
-  top: -7rem;
-  left: 50%;
-  width: 18rem;
-  height: 18rem;
-  transform: translateX(-50%);
-  border-radius: 9999px;
-  background: radial-gradient(
-    circle,
-    hsl(var(--primary) / 0.28) 0%,
-    hsl(var(--primary) / 0) 68%
-  );
-  filter: blur(22px);
-  pointer-events: none;
+  content: none;
 }
 
 .app-shell [data-slot='card'] {
-  background-color: hsl(var(--card) / 0.94);
-  backdrop-filter: blur(8px);
+  background-color: hsl(var(--card));
   border-color: hsl(var(--border) / 0.95);
 }
 
 .dark .app-shell [data-slot='card'] {
-  background-color: hsl(var(--card) / 0.86);
+  background-color: hsl(var(--card));
 }
