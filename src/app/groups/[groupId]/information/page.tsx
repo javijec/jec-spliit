@@ -11,5 +11,5 @@ export default async function InformationPage({
   params: Promise<{ groupId: string }>
 }) {
   const { groupId } = await params
-  redirect(`/groups/${groupId}/edit`)
+  redirect(`/groups/${groupId}/settings`)
 }

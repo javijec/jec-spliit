@@ -2,6 +2,27 @@
   "Homepage": {
     "title": "Share <strong>Expenses</strong> with <strong>Friends & Family</strong>",
     "description": "Welcome to <strong>NexoGastos</strong>!",
+    "badges": {
+      "mobileFirst": "Mobile-first",
+      "multiCurrency": "Multi-currency",
+      "partialPayments": "Partial payments",
+      "csvImport": "CSV import"
+    },
+    "secondaryCta": "Create group",
+    "features": {
+      "simpleFlow": {
+        "title": "Simple flow",
+        "description": "Open a group, add expenses, and settle up without getting lost in screens."
+      },
+      "clearExpenses": {
+        "title": "Clear expenses",
+        "description": "Add amounts, participants, and receipts directly from your phone."
+      },
+      "fastBalances": {
+        "title": "Fast balances",
+        "description": "See who owes whom and record partial payments when needed."
+      }
+    },
     "button": {
       "groups": "Go to groups",
       "github": "GitHub"
@@ -58,7 +79,61 @@
   "Groups": {
     "myGroups": "My groups",
     "create": "Create",
+    "createPageTitle": "New group",
+    "createPageDescription": "Create a group from scratch or import existing expenses to get started faster.",
+    "createSuccessTitle": "Group created",
+    "createSuccessDescription": "The group was created successfully.",
+    "createErrorTitle": "Could not create the group",
+    "createErrorDescription": "An error occurred while creating the group.",
+    "Import": {
+      "badges": {
+        "csv": "CSV",
+        "splitwise": "Splitwise"
+      },
+      "title": "Import from Splitwise CSV",
+      "description": "Create a new group from a CSV export and complete any missing data before importing.",
+      "step1Title": "1. Upload the CSV file",
+      "step1Description": "Use the Splitwise export to prefill participants and expenses.",
+      "emptyState": "Upload the Splitwise CSV export to prefill participants and expenses, then complete only the missing data.",
+      "fileLabel": "File: {fileName}",
+      "participantsLabel": "Participants: {count}",
+      "expensesLabel": "Expenses: {count}",
+      "groupNamePlaceholder": "Group name",
+      "groupCurrencyPlaceholder": "Group currency",
+      "participantsList": "Participants: {participants}",
+      "step2Title": "2. Complete who paid in {count} expense(s)",
+      "step2Description": "You only need to resolve expenses where the payer could not be detected.",
+      "payerPlaceholder": "Select payer",
+      "step3Title": "3. Review dates",
+      "step3Description": "Optional. You can adjust dates before importing.",
+      "showingLimit": "Showing 12 expenses. The rest keep the original CSV date.",
+      "finalDescription": "When you confirm, the group will be created and all valid expenses will be imported.",
+      "submit": "Create group and import expenses",
+      "submitting": "Importing...",
+      "dateDialogTitle": "Select expense date",
+      "importedExpenseFallback": "Imported expense",
+      "cancel": "Cancel",
+      "saveDate": "Save date",
+      "successTitle": "Import completed",
+      "successDescription": "The group and expenses were imported successfully.",
+      "importErrorTitle": "Could not import the CSV",
+      "invalidCsvTitle": "Invalid CSV file",
+      "missingDataTitle": "Missing data for import",
+      "readErrorTitle": "Could not read the CSV",
+      "csvWithoutData": "The CSV does not contain data.",
+      "csvWithoutParticipants": "Participant columns could not be detected in the CSV.",
+      "csvWithoutExpenses": "No valid expenses could be parsed from the CSV.",
+      "csvLoadedTitle": "CSV loaded",
+      "csvLoadedDescription": "{count} expenses were detected for import.",
+      "readErrorDescription": "Error reading the CSV file.",
+      "missingPayerDescription": "One or more expenses still need a payer.",
+      "invalidDateTitle": "Invalid date",
+      "invalidDateDescription": "Select a valid date to continue.",
+      "importedGroupName": "Imported group",
+      "importedGroupInfo": "Imported from Splitwise CSV ({fileName})"
+    },
     "loadingRecent": "Loading recent groups…",
+    "groupsHeroDescription": "Open a recent group, create a new one, or add one from a link.",
     "NoRecent": {
       "description": "You have not visited any group recently.",
       "create": "Create one",
@@ -259,7 +334,33 @@
     "save": "Save",
     "saving": "Saving…",
     "cancel": "Cancel",
-    "reimbursement": "Reimbursement"
+    "reimbursement": "Reimbursement",
+    "mobile": {
+      "unassignedPayer": "Unassigned",
+      "currentAmount": "Current amount",
+      "payer": "Paid by",
+      "participantsCount": "{count} participant(s)",
+      "step1": "Step 1",
+      "step1Description": "Define the concept, date, currency, and who made the payment.",
+      "step2": "Step 2",
+      "step3": "Step 3",
+      "detailsStep": "Details",
+      "splitStep": "Split",
+      "attachmentsStep": "Attachments",
+      "stepCounter": "Step {current} of {total}",
+      "back": "Back",
+      "continue": "Continue",
+      "continueTo": "Continue to {step}",
+      "nextStepHint": "Next: {step}",
+      "reviewBeforeSave": "Review the final content and save the entry.",
+      "completeFields": "Complete: {fields}",
+      "included": "Included",
+      "excluded": "Excluded",
+      "tapToInclude": "Tap to include in the split",
+      "selectedCount": "Selected: {count}",
+      "splitMode": "Split: {mode}",
+      "estimatedShare": "Estimated share:"
+    }
   },
   "ExpenseDocumentsInput": {
     "TooBigToast": {
@@ -300,6 +401,13 @@
   "Balances": {
     "title": "Balances",
     "description": "This is the amount that each participant paid or was paid for.",
+    "summary": {
+      "pendingPayments": "{count} pending settlement(s)",
+      "currenciesInPlay": "{count} active currency(ies)",
+      "allClear": "All settled"
+    },
+    "emptyTitle": "There are no pending balances",
+    "emptyDescription": "All participants are up to date across every currency.",
     "Reimbursements": {
       "settlementsTitle": "Settlements",
       "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
@@ -370,11 +478,100 @@
     "empty": "No group information yet."
   },
   "Settings": {
-    "title": "Settings"
+    "title": "Settings",
+    "summaryDescription": "Manage participants, currency, access, and exports.",
+    "hubDescription": "Choose a section and manage the group without loading everything on one screen.",
+    "backToSettings": "Back to settings",
+    "overviewBadge": "Overview",
+    "quickActionsTitle": "Quick actions",
+    "quickActionsDescription": "Jump to the most common group tasks without going through long forms.",
+    "editGroupShort": "Name, participants, and currency.",
+    "shareAndExportShort": "Share the link and export data.",
+    "securityShort": "Password and link access.",
+    "dangerZoneShort": "Delete the group permanently.",
+    "editGroup": "Edit group",
+    "editGroupDescription": "Name, participants, currency, and general information.",
+    "viewBalances": "View balances",
+    "viewBalancesDescription": "Review settlements and pending group payments.",
+    "shareAndExport": "Share and export",
+    "shareAndExportDescription": "Share group access or download its records.",
+    "groupInformationTitle": "Group information",
+    "emptyInformation": "There is no information yet.",
+    "exportInfoTitle": "Export",
+    "exportInfoDescription": "JSON and CSV export the group expenses with their current information.",
+    "securityTitle": "Security",
+    "securityDescription": "Protect group access when sharing by link.",
+    "dangerZoneTitle": "Danger zone",
+    "dangerZoneDescription": "Deleting the group removes expenses, balances, and activity.",
+    "protected": "Protected",
+    "open": "Open",
+    "passwordPlaceholderSet": "Set password (minimum 4 characters)",
+    "passwordPlaceholderChange": "Change password (minimum 4 characters)",
+    "updatePassword": "Update",
+    "enablePassword": "Enable",
+    "removePassword": "Remove",
+    "passwordUpdated": "Password updated",
+    "passwordEnabled": "Password enabled",
+    "passwordRemoved": "Password removed",
+    "linkAccessTitle": "Link access",
+    "linkAccessDescription1": "With an active password, sharing only the URL is not enough to access the group.",
+    "linkAccessDescription2": "If you change it, anyone who already entered will need to validate again.",
+    "deleteGroup": "Delete group",
+    "deleteDialogTitle": "Delete group?",
+    "deleteDialogDescription": "Participants, expenses, debts, and activity will be removed. This action cannot be undone.",
+    "deleteConfirmCheckbox": "I understand this deletion is permanent.",
+    "deleteConfirmLabel": "Type the group name to confirm:",
+    "deleteForever": "Delete forever",
+    "cancel": "Cancel",
+    "groupDeleted": "Group deleted",
+    "editPageTitle": "Group settings",
+    "editPageDescription": "Manage participants, default currency, and access security.",
+    "defaultCurrencyLabel": "Default currency: {currencyCode}",
+    "participantsBadge": "{count} participants"
+  },
+  "Summary": {
+    "title": "Summary",
+    "description": "General group status and main entry points.",
+    "quickActionsTitle": "Quick actions",
+    "quickActionsDescription": "Jump into the group based on what you need to do next.",
+    "settingsDescription": "Edit participants, currency, access security, and exports.",
+    "noPendingDescription": "When debts appear between participants, you will see them summarized here by person and currency.",
+    "participantsBadge": "{count} participant(s)",
+    "defaultCurrencyBadge": "Base currency: {currencyCode}",
+    "pendingPairsBadge": "{count} active debt pair(s)",
+    "currenciesBadge": "{count} currencies in play",
+    "settledBadge": "No pending debts"
+  },
+  "Layout": {
+    "tagline": "Track shared expenses",
+    "footerDescription": "Shared expense management with a mobile-first approach.",
+    "groupsCta": "Groups"
+  },
+  "ExpenseFlow": {
+    "createTitle": "Create expense",
+    "editTitle": "Edit expense",
+    "description": "Complete the details and save the transaction."
+  },
+  "Unlock": {
+    "title": "Protected group",
+    "description": "Enter the password to access <strong>{groupName}</strong>.",
+    "placeholder": "Group password",
+    "submit": "Unlock",
+    "submitting": "Checking...",
+    "invalidPassword": "Incorrect password.",
+    "errorTitle": "Could not unlock the group",
+    "errorDescription": "An error occurred while validating the password."
+  },
+  "GroupTabs": {
+    "summary": "Summary",
+    "expenses": "Expenses",
+    "balances": "Balances",
+    "settings": "Settings"
   },
   "Share": {
     "title": "Share",
     "description": "For other participants to see the group and add expenses, share its URL with them.",
+    "shareMessage": "Join my group {groupName} on NexoGastos",
     "warning": "Warning!",
     "warningHelp": "Every person with the group URL will be able to see and edit expenses. Share with caution!"
   },

@@ -112,7 +112,7 @@ function getDebtorsSummary({
 function LeadingIcon({ expense }: { expense: Expense }) {
   if (expense.isReimbursement) {
     return (
-      <div className="mt-0.5 rounded-full p-1 bg-emerald-500/15 text-emerald-400 shrink-0">
+      <div className="mt-0.5 shrink-0 rounded-full bg-primary/12 p-1 text-primary dark:bg-primary/18">
         <ArrowRightLeft className="w-3.5 h-3.5" />
       </div>
     )
@@ -141,7 +141,7 @@ function ExpenseBody({
 }) {
   if (expense.isReimbursement) {
     return (
-      <div className="text-sm font-semibold leading-tight text-emerald-300 whitespace-normal break-words pr-2">
+      <div className="pr-2 text-sm font-semibold leading-tight whitespace-normal break-words text-primary">
         {getSettlementLabel(expense, locale)}
       </div>
     )
@@ -200,7 +200,7 @@ function AmountMetaColumn({
       <div
         className={cn(
           'tabular-nums whitespace-nowrap text-[15px] sm:text-base leading-tight',
-          expense.isReimbursement ? 'font-semibold text-emerald-300' : 'font-bold',
+          expense.isReimbursement ? 'font-semibold text-primary' : 'font-bold',
         )}
       >
         {formatCurrency(displayCurrency, displayAmount, locale)}
@@ -230,7 +230,7 @@ export function ExpenseCard({ expense, currency, groupId }: Props) {
       className={cn(
         'group flex justify-between mx-2 sm:mx-6 px-3 sm:px-4 py-2 rounded-xl text-sm cursor-pointer gap-2 items-start border bg-card/60 border-border/70 hover:border-border hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-safe:transition-all motion-safe:duration-150',
         expense.isReimbursement &&
-          'border-emerald-500/30 bg-emerald-500/[0.08] hover:bg-emerald-500/[0.12]',
+          'border-primary/25 bg-primary/[0.08] hover:bg-primary/[0.12] dark:border-primary/20 dark:bg-primary/[0.10] dark:hover:bg-primary/[0.14]',
       )}
       role="button"
       tabIndex={0}

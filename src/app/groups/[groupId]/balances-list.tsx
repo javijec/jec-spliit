@@ -4,7 +4,7 @@ import { Currency, getCurrency } from '@/lib/currency'
 import { cn, formatCurrency } from '@/lib/utils'
 import { Participant } from '@prisma/client'
 import { Scale } from 'lucide-react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 
 type Props = {
   balancesByCurrency: BalancesByCurrency
@@ -18,6 +18,7 @@ export function BalancesList({
   currency,
 }: Props) {
   const locale = useLocale()
+  const t = useTranslations('Balances')
   const hasPendingBalances = Object.values(balancesByCurrency).some(
     (balances) => Object.values(balances).some((balance) => balance.total !== 0),
   )
@@ -26,8 +27,8 @@ export function BalancesList({
     return (
       <EmptyState
         icon={Scale}
-        title="No hay saldos pendientes"
-        description="Todos los participantes están al día en todas las monedas."
+        title={t('emptyTitle')}
+        description={t('emptyDescription')}
       />
     )
   }
@@ -74,7 +75,7 @@ export function BalancesList({
                     <span
                       className={cn(
                         'font-semibold tabular-nums',
-                        total > 0 && 'text-emerald-600 dark:text-emerald-400',
+                        total > 0 && 'text-primary',
                         total < 0 && 'text-red-600 dark:text-red-400',
                       )}
                     >

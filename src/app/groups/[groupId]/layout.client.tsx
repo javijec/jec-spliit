@@ -3,7 +3,15 @@
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
-import { HandCoins, Plus, Wallet } from 'lucide-react'
+import { usePwaInstallPrompt } from '@/components/use-pwa-install-prompt'
+import {
+  ChartColumn,
+  HandCoins,
+  Download,
+  Plus,
+  ReceiptText,
+  Settings,
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -18,8 +26,11 @@ export function GroupLayoutClient({
 }: PropsWithChildren<{ groupId: string }>) {
   const { data, isLoading } = trpc.groups.get.useQuery({ groupId })
   const t = useTranslations('Groups.NotFound')
+  const tTabs = useTranslations('GroupTabs')
+  const tFlow = useTranslations('ExpenseFlow')
   const pathname = usePathname()
   const { toast } = useToast()
+  const { canInstall, install } = usePwaInstallPrompt()
 
   useEffect(() => {
     if (data && !data.group) {
@@ -34,11 +45,46 @@ export function GroupLayoutClient({
     isLoading || !data?.group
       ? { isLoading: true as const, groupId, group: undefined }
       : { isLoading: false as const, groupId, group: data.group }
-  const showMobileBottomNav =
+  const showMobileChrome =
     !isLoading &&
     !!data?.group &&
     !pathname.endsWith('/expenses/create') &&
     !/\/expenses\/[^/]+\/edit$/.test(pathname)
+
+  const tabs = [
+    {
+      key: 'summary',
+      href: `/groups/${groupId}/summary`,
+      icon: ChartColumn,
+      active:
+        pathname === `/groups/${groupId}` ||
+        pathname.startsWith(`/groups/${groupId}/summary`),
+    },
+    {
+      key: 'expenses',
+      href: `/groups/${groupId}/expenses`,
+      icon: ReceiptText,
+      active:
+        pathname.startsWith(`/groups/${groupId}/expenses`) &&
+        !pathname.includes('/expenses/create') &&
+        !/\/expenses\/[^/]+\/edit$/.test(pathname),
+    },
+    {
+      key: 'balances',
+      href: `/groups/${groupId}/balances`,
+      icon: HandCoins,
+      active: pathname.startsWith(`/groups/${groupId}/balances`),
+    },
+    {
+      key: 'settings',
+      href: `/groups/${groupId}/settings`,
+      icon: Settings,
+      active:
+        pathname.startsWith(`/groups/${groupId}/settings`) ||
+        pathname.startsWith(`/groups/${groupId}/edit`) ||
+        pathname.startsWith(`/groups/${groupId}/information`),
+    },
+  ] as const
 
   if (isLoading) {
     return (
@@ -53,42 +99,64 @@ export function GroupLayoutClient({
     <CurrentGroupProvider {...props}>
       <GroupHeader />
       <div className="pb-24 sm:pb-0">{children}</div>
-      {showMobileBottomNav && (
-        <nav className="fixed inset-x-0 z-40 sm:hidden bottom-[env(safe-area-inset-bottom)] px-3 pb-3">
-          <div className="grid grid-cols-3 items-center gap-1 rounded-2xl border bg-background/95 backdrop-blur px-2 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
-            <Button
-              asChild
-              variant={pathname.includes('/balances') ? 'ghost' : 'secondary'}
-              size="sm"
-              className="h-10 flex-col gap-0.5"
-            >
-              <Link href={`/groups/${groupId}/expenses`}>
-                <Wallet className="h-4 w-4" />
-                <span className="text-[10px] leading-none">General</span>
-              </Link>
-            </Button>
+      {showMobileChrome && (
+        <>
+          {(pathname.startsWith(`/groups/${groupId}/summary`) ||
+            pathname.startsWith(`/groups/${groupId}/expenses`)) && (
             <Button
               asChild
               size="icon"
-              className="mx-auto h-11 w-11 rounded-full shadow-[0_8px_18px_rgba(0,0,0,0.25)]"
+              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 z-40 h-12 w-12 rounded-full shadow-[0_10px_24px_rgba(0,0,0,0.28)] sm:hidden"
             >
-              <Link href={`/groups/${groupId}/expenses/create`} title="Crear gasto">
+              <Link
+                href={`/groups/${groupId}/expenses/create`}
+                title={tFlow('createTitle')}
+              >
                 <Plus className="h-5 w-5" />
               </Link>
             </Button>
-            <Button
-              asChild
-              variant={pathname.includes('/balances') ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-10 flex-col gap-0.5"
+          )}
+          <nav className="fixed inset-x-0 z-40 bottom-[env(safe-area-inset-bottom)] px-3 pb-3 sm:hidden">
+            <div
+              className={`grid items-center gap-1 rounded-[1.35rem] border border-border/95 bg-card/98 px-2 py-2 shadow-[0_10px_24px_hsl(var(--foreground)/0.12),0_2px_8px_hsl(var(--foreground)/0.08)] backdrop-blur ${
+                canInstall ? 'grid-cols-5' : 'grid-cols-4'
+              }`}
             >
-              <Link href={`/groups/${groupId}/balances`}>
-                <HandCoins className="h-4 w-4" />
-                <span className="text-[10px] leading-none">Liquidaciones</span>
-              </Link>
-            </Button>
-          </div>
-        </nav>
+              {tabs.map((tab) => (
+                <Button
+                  key={tab.key}
+                  asChild
+                  variant={tab.active ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className={`h-11 flex-col gap-1 rounded-xl ${
+                    tab.active
+                      ? 'border border-primary/15 bg-primary/12 text-primary shadow-sm'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  <Link href={tab.href}>
+                    <tab.icon className="h-4 w-4" />
+                    <span className="text-[10px] leading-none">
+                      {tTabs(tab.key)}
+                    </span>
+                  </Link>
+                </Button>
+              ))}
+              {canInstall && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-11 flex-col gap-1 rounded-xl text-muted-foreground"
+                  onClick={() => void install()}
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="text-[10px] leading-none">Instalar</span>
+                </Button>
+              )}
+            </div>
+          </nav>
+        </>
       )}
       <SaveGroupLocally />
     </CurrentGroupProvider>

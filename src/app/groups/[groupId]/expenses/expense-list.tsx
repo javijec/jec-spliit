@@ -188,24 +188,28 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
 
 const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref}>
-      <Skeleton className="mx-4 sm:mx-6 mt-1 mb-2 h-3 w-32 rounded-full" />
-      {[0, 1, 2].map((index) => (
-        <div
-          key={index}
-          className="flex justify-between items-start px-2 sm:px-6 py-4 text-sm gap-2"
-        >
-          <div className="flex-0 pl-2 pr-1">
-            <Skeleton className="h-4 w-4 rounded-full" />
-          </div>
-          <div className="flex-1 flex flex-col gap-2">
-            <Skeleton className="h-4 w-16 rounded-full" />
-            <Skeleton className="h-4 w-32 rounded-full" />
-          </div>
-          <div className="flex-0 flex flex-col gap-2 items-end mr-2 sm:mr-12">
-            <Skeleton className="h-4 w-16 rounded-full" />
-            <Skeleton className="h-4 w-20 rounded-full" />
-          </div>
+    <div ref={ref} className="space-y-4 px-4 sm:px-6">
+      {[0, 1].map((groupIndex) => (
+        <div key={groupIndex} className="space-y-2">
+          <Skeleton className="h-3 w-32 rounded-full" />
+          {[0, 1].map((index) => (
+            <div
+              key={`${groupIndex}-${index}`}
+              className="flex items-start justify-between gap-3 rounded-xl border bg-card/60 px-4 py-4 text-sm"
+            >
+              <div className="pt-0.5">
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-20 rounded-full" />
+                <Skeleton className="h-4 w-36 rounded-full" />
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <Skeleton className="h-4 w-16 rounded-full" />
+                <Skeleton className="h-4 w-20 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       ))}
     </div>

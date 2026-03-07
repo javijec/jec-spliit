@@ -15,6 +15,11 @@ const withPWA = createPWA({
  */
 const remotePatterns = []
 
+remotePatterns.push({
+  protocol: 'https',
+  hostname: 'flagcdn.com',
+})
+
 // S3 Storage
 if (process.env.S3_UPLOAD_ENDPOINT) {
   // custom endpoint for providers other than AWS

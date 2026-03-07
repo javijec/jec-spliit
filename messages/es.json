@@ -2,6 +2,27 @@
   "Homepage": {
     "title": "Comparte <strong>Gastos</strong> con <strong>Amigos y Familia</strong>",
     "description": "¡Bienvenido a <strong>NexoGastos</strong>!",
+    "badges": {
+      "mobileFirst": "Mobile-first",
+      "multiCurrency": "Multi-moneda",
+      "partialPayments": "Pagos parciales",
+      "csvImport": "Importación CSV"
+    },
+    "secondaryCta": "Crear grupo",
+    "features": {
+      "simpleFlow": {
+        "title": "Flujo simple",
+        "description": "Entra al grupo, agrega gastos y liquida sin perderte en pantallas."
+      },
+      "clearExpenses": {
+        "title": "Gastos claros",
+        "description": "Carga importes, participantes y comprobantes desde el celular."
+      },
+      "fastBalances": {
+        "title": "Balances rápidos",
+        "description": "Ve quién le debe a quién y registra pagos parciales cuando haga falta."
+      }
+    },
     "button": {
       "groups": "Ir a grupos",
       "github": "GitHub"
@@ -58,7 +79,61 @@
   "Groups": {
     "myGroups": "Mis grupos",
     "create": "Crear",
+    "createPageTitle": "Nuevo grupo",
+    "createPageDescription": "Crea un grupo desde cero o importa gastos existentes para empezar más rápido.",
+    "createSuccessTitle": "Grupo creado",
+    "createSuccessDescription": "El grupo se creó correctamente.",
+    "createErrorTitle": "No se pudo crear el grupo",
+    "createErrorDescription": "Ocurrió un error al crear el grupo.",
+    "Import": {
+      "badges": {
+        "csv": "CSV",
+        "splitwise": "Splitwise"
+      },
+      "title": "Importar desde CSV de Splitwise",
+      "description": "Crea un grupo nuevo desde un export CSV y completa lo que falte antes de importar.",
+      "step1Title": "1. Sube el archivo CSV",
+      "step1Description": "Usa el export de Splitwise para precargar participantes y gastos.",
+      "emptyState": "Subí el export CSV de Splitwise para pre-cargar participantes y gastos, luego completás solo los datos faltantes.",
+      "fileLabel": "Archivo: {fileName}",
+      "participantsLabel": "Participantes: {count}",
+      "expensesLabel": "Gastos: {count}",
+      "groupNamePlaceholder": "Nombre del grupo",
+      "groupCurrencyPlaceholder": "Moneda del grupo",
+      "participantsList": "Participantes: {participants}",
+      "step2Title": "2. Completa quién pagó en {count} gasto(s)",
+      "step2Description": "Solo necesitas resolver los gastos donde no se pudo detectar el pagador.",
+      "payerPlaceholder": "Seleccionar pagador",
+      "step3Title": "3. Revisa las fechas",
+      "step3Description": "Opcional. Puedes corregir fechas antes de importar.",
+      "showingLimit": "Mostrando 12 gastos. El resto mantiene la fecha original del CSV.",
+      "finalDescription": "Cuando confirmes, se creará el grupo y se importarán todos los gastos válidos.",
+      "submit": "Crear grupo e importar gastos",
+      "submitting": "Importando...",
+      "dateDialogTitle": "Seleccionar fecha del gasto",
+      "importedExpenseFallback": "Gasto importado",
+      "cancel": "Cancelar",
+      "saveDate": "Guardar fecha",
+      "successTitle": "Importación completada",
+      "successDescription": "El grupo y los gastos se importaron correctamente.",
+      "importErrorTitle": "No se pudo importar el CSV",
+      "invalidCsvTitle": "Archivo CSV inválido",
+      "missingDataTitle": "Faltan datos para importar",
+      "readErrorTitle": "No se pudo leer el CSV",
+      "csvWithoutData": "El CSV no contiene datos.",
+      "csvWithoutParticipants": "No se detectaron columnas de participantes en el CSV.",
+      "csvWithoutExpenses": "No se pudieron parsear gastos válidos del CSV.",
+      "csvLoadedTitle": "CSV cargado",
+      "csvLoadedDescription": "Se detectaron {count} gastos para importar.",
+      "readErrorDescription": "Error al leer el archivo CSV.",
+      "missingPayerDescription": "Falta definir quién pagó en uno o más gastos.",
+      "invalidDateTitle": "Fecha inválida",
+      "invalidDateDescription": "Selecciona una fecha válida para continuar.",
+      "importedGroupName": "Grupo importado",
+      "importedGroupInfo": "Importado desde CSV de Splitwise ({fileName})"
+    },
     "loadingRecent": "Cargando grupos recientes…",
+    "groupsHeroDescription": "Abre un grupo reciente, crea uno nuevo o suma uno desde un enlace.",
     "NoRecent": {
       "description": "No has visitado ningun grupo recientemente.",
       "create": "Crea uno",
@@ -239,6 +314,32 @@
     "saving": "Guardando…",
     "cancel": "Cancelar",
     "reimbursement": "Reembolso",
+    "mobile": {
+      "unassignedPayer": "Sin asignar",
+      "currentAmount": "Monto actual",
+      "payer": "Paga",
+      "participantsCount": "{count} participante(s)",
+      "step1": "Paso 1",
+      "step1Description": "Define el concepto, la fecha, la moneda y quién hizo el pago.",
+      "step2": "Paso 2",
+      "step3": "Paso 3",
+      "detailsStep": "Detalles",
+      "splitStep": "Reparto",
+      "attachmentsStep": "Adjuntos",
+      "stepCounter": "Paso {current} de {total}",
+      "back": "Volver",
+      "continue": "Continuar",
+      "continueTo": "Continuar a {step}",
+      "nextStepHint": "Sigue con {step}",
+      "reviewBeforeSave": "Revisa el contenido final y guarda el movimiento.",
+      "completeFields": "Completa: {fields}",
+      "included": "Incluido",
+      "excluded": "Fuera",
+      "tapToInclude": "Toca para incluirlo en el reparto",
+      "selectedCount": "Seleccionados: {count}",
+      "splitMode": "División: {mode}",
+      "estimatedShare": "Parte estimada:"
+    },
     "conversionUnavailable": "Para establecer una moneda diferente por gasto y convertir los importes, seleccione una moneda no personalizada para el grupo.",
     "originalAmountField": {
       "label": "Monto a convertir"
@@ -300,6 +401,13 @@
   "Balances": {
     "title": "Balances",
     "description": "Se trata del importe que ha pagado o ha recibido cada participante.",
+    "summary": {
+      "pendingPayments": "{count} liquidación(es) pendientes",
+      "currenciesInPlay": "{count} moneda(s) activas",
+      "allClear": "Todo saldado"
+    },
+    "emptyTitle": "No hay saldos pendientes",
+    "emptyDescription": "Todos los participantes están al día en todas las monedas.",
     "Reimbursements": {
       "settlementsTitle": "Liquidaciones",
       "noPendingDebtsDescription": "No hay deudas pendientes para saldar en este grupo.",
@@ -370,11 +478,100 @@
     "empty": "Aún no hay información sobre el grupo."
   },
   "Settings": {
-    "title": "Ajustes"
+    "title": "Ajustes",
+    "summaryDescription": "Administra participantes, moneda, acceso y exportaciones.",
+    "hubDescription": "Elige una sección y administra el grupo sin cargar todo en una sola pantalla.",
+    "backToSettings": "Volver a ajustes",
+    "overviewBadge": "Resumen",
+    "quickActionsTitle": "Accesos rápidos",
+    "quickActionsDescription": "Entra a las tareas más comunes del grupo sin pasar por formularios largos.",
+    "editGroupShort": "Nombre, participantes y moneda.",
+    "shareAndExportShort": "Compartir enlace y descargar datos.",
+    "securityShort": "Contraseña y acceso por enlace.",
+    "dangerZoneShort": "Eliminar el grupo definitivamente.",
+    "editGroup": "Editar grupo",
+    "editGroupDescription": "Nombre, participantes, moneda e información general.",
+    "viewBalances": "Ver balances",
+    "viewBalancesDescription": "Revisa liquidaciones y pagos pendientes del grupo.",
+    "shareAndExport": "Compartir y exportar",
+    "shareAndExportDescription": "Comparte el acceso al grupo o descarga sus movimientos.",
+    "groupInformationTitle": "Información del grupo",
+    "emptyInformation": "No hay información cargada todavía.",
+    "exportInfoTitle": "Exportación",
+    "exportInfoDescription": "JSON y CSV exportan los gastos del grupo con su información actual.",
+    "securityTitle": "Seguridad",
+    "securityDescription": "Protege el acceso al grupo cuando se comparte por enlace.",
+    "dangerZoneTitle": "Zona peligrosa",
+    "dangerZoneDescription": "Eliminar el grupo borra gastos, balances y actividad.",
+    "protected": "Protegido",
+    "open": "Abierto",
+    "passwordPlaceholderSet": "Definir contraseña (mínimo 4 caracteres)",
+    "passwordPlaceholderChange": "Cambiar contraseña (mínimo 4 caracteres)",
+    "updatePassword": "Actualizar",
+    "enablePassword": "Activar",
+    "removePassword": "Quitar",
+    "passwordUpdated": "Contraseña actualizada",
+    "passwordEnabled": "Contraseña activada",
+    "passwordRemoved": "Contraseña eliminada",
+    "linkAccessTitle": "Acceso por enlace",
+    "linkAccessDescription1": "Con contraseña activa, compartir solo la URL no alcanza para entrar al grupo.",
+    "linkAccessDescription2": "Si la cambias, quienes ya entraron deberán validarse otra vez.",
+    "deleteGroup": "Eliminar grupo",
+    "deleteDialogTitle": "¿Eliminar grupo?",
+    "deleteDialogDescription": "Se eliminarán participantes, gastos, deudas y actividad. Esta acción no se puede deshacer.",
+    "deleteConfirmCheckbox": "Entiendo que esta eliminación es definitiva.",
+    "deleteConfirmLabel": "Escribe el nombre del grupo para confirmar:",
+    "deleteForever": "Eliminar para siempre",
+    "cancel": "Cancelar",
+    "groupDeleted": "Grupo eliminado",
+    "editPageTitle": "Ajustes del grupo",
+    "editPageDescription": "Administra participantes, moneda por defecto y seguridad de acceso.",
+    "defaultCurrencyLabel": "Moneda por defecto: {currencyCode}",
+    "participantsBadge": "{count} participantes"
+  },
+  "Summary": {
+    "title": "Resumen",
+    "description": "Estado general del grupo y accesos principales.",
+    "quickActionsTitle": "Accesos rápidos",
+    "quickActionsDescription": "Entra al detalle del grupo según lo que necesites hacer ahora.",
+    "settingsDescription": "Editar participantes, moneda, seguridad y exportaciones.",
+    "noPendingDescription": "Cuando aparezcan deudas entre participantes, las verás resumidas aquí por persona y moneda.",
+    "participantsBadge": "{count} participante(s)",
+    "defaultCurrencyBadge": "Moneda base: {currencyCode}",
+    "pendingPairsBadge": "{count} deuda(s) activas",
+    "currenciesBadge": "{count} moneda(s) en juego",
+    "settledBadge": "Sin deudas pendientes"
+  },
+  "Layout": {
+    "tagline": "Controla gastos compartidos",
+    "footerDescription": "Gestión de gastos compartidos con enfoque móvil.",
+    "groupsCta": "Grupos"
+  },
+  "ExpenseFlow": {
+    "createTitle": "Crear gasto",
+    "editTitle": "Editar gasto",
+    "description": "Completa los datos y guarda el movimiento."
+  },
+  "Unlock": {
+    "title": "Grupo protegido",
+    "description": "Ingresa la contraseña para acceder a <strong>{groupName}</strong>.",
+    "placeholder": "Contraseña del grupo",
+    "submit": "Desbloquear",
+    "submitting": "Verificando...",
+    "invalidPassword": "Clave incorrecta.",
+    "errorTitle": "No se pudo desbloquear el grupo",
+    "errorDescription": "Ocurrió un error al validar la contraseña."
+  },
+  "GroupTabs": {
+    "summary": "Resumen",
+    "expenses": "Gastos",
+    "balances": "Balances",
+    "settings": "Ajustes"
   },
   "Share": {
     "title": "Compartir",
     "description": "Para que otros participantes puedan ver el grupo y añadir gastos, compárteles su URL.",
+    "shareMessage": "Únete a mi grupo {groupName} en NexoGastos",
     "warning": "Cuidado!",
     "warningHelp": "Todas las personas que tengan la URL del grupo podrán ver y editar los gastos. ¡Comparte con precaución!"
   },

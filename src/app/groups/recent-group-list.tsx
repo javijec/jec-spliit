@@ -7,10 +7,17 @@ import {
   getStarredGroups,
 } from '@/app/groups/recent-groups-helpers'
 import { Button } from '@/components/ui/button'
+import {
+  GroupSectionCard,
+  GroupSectionContent,
+  GroupSectionDescription,
+  GroupSectionHeader,
+  GroupSectionTitle,
+} from '@/components/ui/group-section-card'
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
-import { Loader2 } from 'lucide-react'
+import { FolderOpen, Loader2, Sparkles } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { PropsWithChildren, useEffect, useState } from 'react'
@@ -110,10 +117,10 @@ function RecentGroupList_({
   if (isLoading || !data) {
     return (
       <GroupsPage reload={refreshGroupsFromStorage}>
-        <p>
-          <Loader2 className="w-4 m-4 mr-2 inline animate-spin" />{' '}
+        <div className="rounded-xl border bg-card/60 px-4 py-5 text-sm text-muted-foreground">
+          <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
           {t('loadingRecent')}
-        </p>
+        </div>
       </GroupsPage>
     )
   }
@@ -121,15 +128,23 @@ function RecentGroupList_({
   if (data.groups.length === 0) {
     return (
       <GroupsPage reload={refreshGroupsFromStorage}>
-        <div className="text-sm space-y-2">
-          <p>{t('NoRecent.description')}</p>
-          <p>
-            <Button variant="link" asChild className="-m-4">
+        <GroupSectionCard>
+          <GroupSectionHeader>
+            <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
+              <FolderOpen className="h-5 w-5" />
+              {t('myGroups')}
+            </GroupSectionTitle>
+            <GroupSectionDescription className="mt-2">
+              {t('NoRecent.description')}
+            </GroupSectionDescription>
+          </GroupSectionHeader>
+          <GroupSectionContent className="space-y-3 text-sm text-muted-foreground">
+            <p>{t('NoRecent.orAsk')}</p>
+            <Button asChild className="w-full sm:w-auto">
               <Link href={`/groups/create`}>{t('NoRecent.create')}</Link>
-            </Button>{' '}
-            {t('NoRecent.orAsk')}
-          </p>
-        </div>
+            </Button>
+          </GroupSectionContent>
+        </GroupSectionCard>
       </GroupsPage>
     )
   }
@@ -200,7 +215,7 @@ function GroupList({
   refreshGroupsFromStorage: () => void
 }) {
   return (
-    <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+    <ul className="grid gap-3">
       {groups.map((group) => (
         <RecentGroupListCard
           key={group.id}
@@ -223,22 +238,34 @@ function GroupsPage({
 }: PropsWithChildren<{ reload: () => void }>) {
   const t = useTranslations('Groups')
   return (
-    <>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h1 className="font-semibold text-2xl sm:text-3xl leading-tight tracking-tight flex-1">
-          <Link href="/groups">{t('myGroups')}</Link>
-        </h1>
-        <div className="flex gap-2 sm:justify-end flex-wrap">
-          <AddGroupByUrlButton reload={reload} />
-          <Button asChild>
-            <Link href="/groups/create">
-              {/* <Plus className="w-4 h-4 mr-2" /> */}
-              {t('create')}
-            </Link>
-          </Button>
+    <div className="space-y-4">
+      <section className="relative overflow-hidden rounded-2xl border bg-card/70 px-4 py-5 shadow-sm backdrop-blur-sm sm:px-6 sm:py-6">
+        <div className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5" />
+            {t('myGroups')}
+          </div>
+          <div className="space-y-1">
+            <h1 className="font-semibold text-2xl leading-tight tracking-tight sm:text-3xl">
+              <Link href="/groups">{t('myGroups')}</Link>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {t('groupsHeroDescription')}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button asChild className="w-full sm:w-auto">
+              <Link href="/groups/create">{t('create')}</Link>
+            </Button>
+            <AddGroupByUrlButton reload={reload} />
+          </div>
         </div>
+      </section>
+
+      <div className="space-y-5">
+        {children}
       </div>
-      <div>{children}</div>
-    </>
+    </div>
   )
 }

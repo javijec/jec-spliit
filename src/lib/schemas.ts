@@ -50,24 +50,21 @@ const inputCoercedToNumber = z.union([
 export const expenseFormSchema = z
   .object({
     expenseDate: z.coerce.date(),
-    title: z.string({ required_error: 'titleRequired' }).min(2, 'min2'),
+    title: z.string().min(1, 'titleRequired').min(2, 'min2'),
     category: z.coerce.number().default(0),
     amount: z
-      .union(
-        [
-          z.number(),
-          z.string().transform((value, ctx) => {
-            const valueAsNumber = Number(value)
-            if (Number.isNaN(valueAsNumber))
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: 'invalidNumber',
-              })
-            return valueAsNumber
-          }),
-        ],
-        { required_error: 'amountRequired' },
-      )
+      .union([
+        z.number(),
+        z.string().min(1, 'amountRequired').transform((value, ctx) => {
+          const valueAsNumber = Number(value)
+          if (Number.isNaN(valueAsNumber))
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'invalidNumber',
+            })
+          return valueAsNumber
+        }),
+      ])
       .refine((amount) => amount != 0, 'amountNotZero')
       .refine((amount) => amount <= 10_000_000_00, 'amountTenMillion'),
     originalAmount: z
@@ -85,7 +82,7 @@ export const expenseFormSchema = z
         inputCoercedToNumber.refine((amount) => amount > 0, 'ratePositive'),
       ])
       .optional(),
-    paidBy: z.string({ required_error: 'paidByRequired' }),
+    paidBy: z.string().min(1, 'paidByRequired'),
     paidFor: z
       .array(
         z.object({
@@ -118,11 +115,7 @@ export const expenseFormSchema = z
           }
         }
       }),
-    splitMode: z
-      .enum<SplitMode, [SplitMode, ...SplitMode[]]>(
-        Object.values(SplitMode) as any,
-      )
-      .default('EVENLY'),
+    splitMode: z.nativeEnum(SplitMode).default(SplitMode.EVENLY),
     saveDefaultSplittingOptions: z.boolean(),
     isReimbursement: z.boolean(),
     documents: z
@@ -137,10 +130,8 @@ export const expenseFormSchema = z
       .default([]),
     notes: z.string().optional(),
     recurrenceRule: z
-      .enum<RecurrenceRule, [RecurrenceRule, ...RecurrenceRule[]]>(
-        Object.values(RecurrenceRule) as any,
-      )
-      .default('NONE'),
+      .nativeEnum(RecurrenceRule)
+      .default(RecurrenceRule.NONE),
   })
   .superRefine((expense, ctx) => {
     switch (expense.splitMode) {

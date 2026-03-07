@@ -1,4 +1,5 @@
 import { ApplePwaSplash } from '@/app/apple-pwa-splash'
+import { ConditionalFooter } from '@/components/conditional-footer'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { PwaInstallButton } from '@/components/pwa-install-button'
 import { ProgressBar } from '@/components/progress-bar'
@@ -7,8 +8,10 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Toaster } from '@/components/ui/toaster'
 import { env } from '@/lib/env'
 import { TRPCProvider } from '@/trpc/client'
+import { FolderKanban } from 'lucide-react'
 import type { Metadata, Viewport } from 'next'
-import { NextIntlClientProvider } from 'next-intl'
+import Image from 'next/image'
+import { NextIntlClientProvider, useTranslations } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -64,28 +67,35 @@ export const viewport: Viewport = {
 }
 
 function Content({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('Layout')
   return (
     <TRPCProvider>
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white/70 dark:bg-gray-950/70 border-b backdrop-blur-sm z-50">
-        <div className="h-full w-full max-w-screen-xl mx-auto px-3 sm:px-4 lg:px-8 flex items-center justify-between gap-2">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b bg-background/88 backdrop-blur-md">
+        <div className="mx-auto flex h-16 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:px-4 lg:px-8">
           <Link
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-primary/10 transition-colors"
+            className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-primary/10"
             href="/"
           >
-            <h1 className="flex items-center gap-2">
-              <img
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border bg-card/80">
+              <Image
                 src="/logo.svg"
-                className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
-                width={28}
-                height={28}
+                className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+                width={24}
+                height={24}
                 alt="NexoGastos"
               />
-              <span className="text-sm sm:text-base font-semibold tracking-tight">
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold tracking-tight sm:text-base">
                 NexoGastos
-              </span>
-            </h1>
+              </p>
+              <p className="hidden text-xs text-muted-foreground sm:block">
+                {t('tagline')}
+              </p>
+            </div>
           </Link>
-          <div role="navigation" aria-label="Menu" className="flex">
+          <div role="navigation" aria-label="Menu" className="flex items-center gap-1">
+            <ButtonLink href="/groups" label={t('groupsCta')} />
             <ul className="flex items-center text-sm gap-0.5 sm:gap-1">
               <li>
                 <LocaleSwitcher />
@@ -102,54 +112,21 @@ function Content({ children }: { children: React.ReactNode }) {
         <div className="relative z-10 flex-1 flex flex-col">{children}</div>
       </div>
 
-      <footer className="bg-slate-50 dark:bg-card border-t mt-8 sm:mt-16">
-        <div className="w-full max-w-screen-xl mx-auto px-4 lg:px-8 py-6 sm:py-8 md:py-12 flex flex-col sm:flex-row sm:justify-between gap-4 text-xs sm:text-sm md:text-base [&_a]:underline">
-          <div className="flex flex-col space-y-2">
-            <div className="sm:text-lg font-semibold text-base flex items-center">
-              <Link className="flex items-center gap-2" href="/">
-                <img
-                  src="/logo.svg"
-                  className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
-                  width={28}
-                  height={28}
-                  alt="NexoGastos"
-                />
-                <span>NexoGastos</span>
-              </Link>
-            </div>
-            <div className="flex flex-col space-y a--no-underline-text-white">
-              <span>
-                Hecho por{' '}
-                <a
-                  href="https://github.com/javijec"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Javijec
-                </a>{' '}
-                · Basada en{' '}
-                <a
-                  href="https://github.com/spliit-app/spliit/"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Spliit
-                </a>{' '}
-                ·{' '}
-                <a
-                  href="https://github.com/javijec/jec-spliit"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  GitHub
-                </a>
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <ConditionalFooter footerDescription={t('footerDescription')} />
       <Toaster />
     </TRPCProvider>
+  )
+}
+
+function ButtonLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="hidden items-center gap-2 rounded-xl border bg-card/70 px-3 py-2 text-sm text-foreground/90 transition-colors hover:bg-card sm:inline-flex"
+    >
+      <FolderKanban className="h-4 w-4 text-primary" />
+      <span>{label}</span>
+    </Link>
   )
 }
 

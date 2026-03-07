@@ -37,7 +37,7 @@ import { Locale } from '@/i18n/request'
 import { randomId } from '@/lib/api'
 import { defaultCurrencyList, getCurrency } from '@/lib/currency'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
-import { useActiveUser } from '@/lib/hooks'
+import { useActiveUser, useMediaQuery } from '@/lib/hooks'
 import {
   ExpenseFormValues,
   SplittingOptions,
@@ -58,8 +58,8 @@ import { AlertTriangle, ChevronRight, Save } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useEffect, useMemo, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import { DeletePopup } from '../../../../components/delete-popup'
 
@@ -71,6 +71,28 @@ const enforceCurrencyPattern = (value: string) =>
     .replace(/_/, '-') // change back _ to minus
     .replace(/#/, '.') // change back # to dot
     .replace(/[^-\d.]/g, '') // remove all non-numeric characters
+
+function SectionIntro({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string
+  title: string
+  description: string
+}) {
+  return (
+    <div className="mb-4 space-y-1">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {eyebrow}
+      </p>
+      <h2 className="text-lg font-semibold leading-none">{title}</h2>
+      <p className="text-sm text-muted-foreground">{description}</p>
+    </div>
+  )
+}
+
+type FlowStepId = 'details' | 'split' | 'attachments'
 
 const getDefaultSplittingOptions = (
   group: NonNullable<AppRouterOutput['groups']['get']['group']>,
@@ -258,6 +280,26 @@ export function ExpenseForm({
           },
   })
   const activeUserId = useActiveUser(group.id)
+  const isDesktopLayout = useMediaQuery('(min-width: 640px)')
+  const watchedPaidBy = useWatch({ control: form.control, name: 'paidBy' })
+  const watchedPaidFor = useWatch({ control: form.control, name: 'paidFor' })
+  const watchedAmount = useWatch({ control: form.control, name: 'amount' })
+  const watchedSplitMode = useWatch({
+    control: form.control,
+    name: 'splitMode',
+  })
+  const watchedOriginalAmount = useWatch({
+    control: form.control,
+    name: 'originalAmount',
+  })
+  const watchedExpenseDate = useWatch({
+    control: form.control,
+    name: 'expenseDate',
+  })
+  const watchedIsReimbursement = useWatch({
+    control: form.control,
+    name: 'isReimbursement',
+  })
 
   const submit = async (values: ExpenseFormValues) => {
     values.isReimbursement = false
@@ -311,10 +353,16 @@ export function ExpenseForm({
     originalCurrency.code.length &&
     originalCurrency.code !== group.currencyCode
   const expenseCurrency = conversionRequired ? originalCurrency : groupCurrency
+  const originalAmountTouched = form.getFieldState('originalAmount').isTouched
+  const selectedPayerName =
+    group.participants.find(({ id }) => id === watchedPaidBy)?.name ??
+    t('mobile.unassignedPayer')
+  const selectedParticipantsCount = watchedPaidFor?.length ?? 0
+  const enteredAmount = Number(watchedAmount) || 0
 
   useEffect(() => {
     setManuallyEditedParticipants(new Set())
-  }, [form.watch('splitMode'), form.watch('amount')])
+  }, [watchedSplitMode, watchedAmount])
 
   useEffect(() => {
     const splitMode = form.getValues().splitMode
@@ -365,13 +413,15 @@ export function ExpenseForm({
       form.setValue('paidFor', newPaidFor, { shouldValidate: true })
     }
   }, [
+    expenseCurrency.decimal_digits,
+    form,
     manuallyEditedParticipants,
-    form.watch('amount'),
-    form.watch('splitMode'),
+    watchedAmount,
+    watchedSplitMode,
   ])
 
   useEffect(() => {
-    if (!form.getFieldState('originalAmount').isTouched) return
+    if (!originalAmountTouched) return
     const originalAmount = form.getValues('originalAmount') ?? 0
     if (conversionRequired && originalAmount) {
       const v = enforceCurrencyPattern(String(originalAmount))
@@ -380,9 +430,10 @@ export function ExpenseForm({
       form.setValue('amount', Number(v))
     }
   }, [
-    form.watch('originalAmount'),
+    form,
     conversionRequired,
-    form.getFieldState('originalAmount').isTouched,
+    originalAmountTouched,
+    watchedOriginalAmount,
   ])
 
   const countErrors = (value: unknown): number => {
@@ -454,6 +505,118 @@ export function ExpenseForm({
     .filter(Boolean)
   const uniqueInvalidFieldLabels = Array.from(new Set(invalidFieldLabels))
   const topInvalidFields = uniqueInvalidFieldLabels.slice(0, 5)
+  const selectedParticipantIds = new Set(
+    (watchedPaidFor ?? []).map(({ participant }) => participant),
+  )
+  const activeSplitModeLabel = t(
+    `SplitModeField.${match(watchedSplitMode)
+      .with('EVENLY', () => 'evenly')
+      .with('BY_SHARES', () => 'byShares')
+      .with('BY_PERCENTAGE', () => 'byPercentage')
+      .otherwise(() => 'byAmount')}`,
+  )
+  const flowSteps = useMemo<Array<{ id: FlowStepId; label: string }>>(
+    () => [
+      { id: 'details', label: t('mobile.detailsStep') },
+      { id: 'split', label: t('mobile.splitStep') },
+      ...(runtimeFeatureFlags.enableExpenseDocuments
+        ? [{ id: 'attachments' as const, label: t('mobile.attachmentsStep') }]
+        : []),
+    ],
+    [runtimeFeatureFlags.enableExpenseDocuments, t],
+  )
+  const [currentStep, setCurrentStep] = useState<FlowStepId>('details')
+  const [stepAdvanceError, setStepAdvanceError] = useState(false)
+  const currentStepIndex = flowSteps.findIndex((step) => step.id === currentStep)
+  const isLastStep = currentStepIndex === flowSteps.length - 1
+  const isFirstStep = currentStepIndex <= 0
+  const stepProgress = ((currentStepIndex + 1) / flowSteps.length) * 100
+  const nextStep = !isLastStep ? flowSteps[currentStepIndex + 1] : null
+  const formattedEnteredAmount = formatCurrency(
+    expenseCurrency,
+    enteredAmount || 0,
+    locale,
+    true,
+  )
+
+  useEffect(() => {
+    if (!flowSteps.some((step) => step.id === currentStep)) {
+      setCurrentStep(flowSteps[flowSteps.length - 1].id)
+    }
+  }, [currentStep, flowSteps])
+
+  const goToStep = (stepId: FlowStepId) => {
+    setStepAdvanceError(false)
+    setCurrentStep(stepId)
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const validateCurrentStep = async () => {
+    switch (currentStep) {
+      case 'details':
+        return form.trigger([
+          'title',
+          'expenseDate',
+          'originalCurrency',
+          'amount',
+          'paidBy',
+        ])
+      case 'split':
+        return form.trigger(['paidFor', 'splitMode'])
+      case 'attachments':
+        return true
+    }
+  }
+
+  const handleAdvanceStep = async () => {
+    const isValid = await validateCurrentStep()
+    if (!isValid) {
+      setStepAdvanceError(true)
+      focusFirstInvalidField()
+      return
+    }
+    setStepAdvanceError(false)
+    if (!isLastStep) {
+      goToStep(flowSteps[currentStepIndex + 1].id)
+    }
+  }
+
+  const shouldShowStep = (stepId: FlowStepId) =>
+    isDesktopLayout || currentStep === stepId
+  const updateSelectedParticipants = (
+    nextPaidFor: ExpenseFormValues['paidFor'],
+    options = {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    },
+  ) => {
+    form.setValue('paidFor', nextPaidFor as any, options)
+  }
+  const fieldPathsByStep: Record<FlowStepId, string[]> = {
+    details: ['title', 'expenseDate', 'originalCurrency', 'amount', 'paidBy'],
+    split: ['paidFor', 'paidFor[].shares', 'splitMode'],
+    attachments: [],
+  }
+  const currentStepInvalidLabels = Array.from(
+    new Set(
+      normalizedErrorPaths
+        .filter((path) => fieldPathsByStep[currentStep].includes(path))
+        .map((path) => labelByPath[path])
+        .filter(Boolean),
+    ),
+  )
+  const footerHint = stepAdvanceError && currentStepInvalidLabels.length > 0
+    ? t('mobile.completeFields', {
+        fields: currentStepInvalidLabels.slice(0, 3).join(', '),
+      })
+    : isLastStep
+      ? t('mobile.reviewBeforeSave')
+      : nextStep
+        ? t('mobile.nextStepHint', { step: nextStep.label })
+        : ''
 
   return (
     <Form {...form}>
@@ -480,11 +643,94 @@ export function ExpenseForm({
             </AlertDescription>
           </Alert>
         )}
+        <div className="mb-4 rounded-2xl border bg-card/60 p-4 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {isIncome ? 'Ingreso' : 'Gasto'}
+            </span>
+            <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+              {formatDateForDisplay(watchedExpenseDate)}
+            </span>
+          </div>
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm text-muted-foreground">{t('mobile.currentAmount')}</p>
+              <p className="text-2xl font-semibold leading-none">
+                {formattedEnteredAmount}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {flowSteps[currentStepIndex]?.label}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                {t('mobile.payer')}: {selectedPayerName}
+              </span>
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                {t('mobile.participantsCount', {
+                  count: selectedParticipantsCount,
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+        {!isDesktopLayout && (
+          <div className="mb-4 rounded-2xl border bg-card/60 p-3 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm font-medium">
+                {t('mobile.stepCounter', {
+                  current: currentStepIndex + 1,
+                  total: flowSteps.length,
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {flowSteps[currentStepIndex]?.label}
+              </p>
+            </div>
+            <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+                style={{ width: `${stepProgress}%` }}
+              />
+            </div>
+            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${flowSteps.length}, minmax(0, 1fr))` }}>
+              {flowSteps.map((step, index) => {
+                const isActive = step.id === currentStep
+                const isPast = index < currentStepIndex
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => goToStep(step.id)}
+                    className={cn(
+                      'rounded-xl border px-3 py-2 text-left transition-all duration-200',
+                      isActive
+                        ? 'border-primary bg-primary/10 shadow-sm'
+                        : isPast
+                          ? 'border-primary/20 bg-primary/5'
+                          : 'border-border bg-background',
+                    )}
+                  >
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {index + 1}
+                    </p>
+                    <p className="mt-1 text-sm font-medium leading-tight">
+                      {step.label}
+                    </p>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+        {shouldShowStep('details') && (
         <Card className="overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
-            <CardTitle className="text-xl leading-none">
-              {t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
-            </CardTitle>
+            <SectionIntro
+              eyebrow={t('mobile.step1')}
+              title={t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
+              description={t('mobile.step1Description')}
+            />
           </CardHeader>
           <CardContent className="grid sm:grid-cols-2 gap-6 p-4 sm:p-6">
             <FormField
@@ -543,7 +789,7 @@ export function ExpenseForm({
                       {group.currencyCode ? (
                         <CurrencySelector
                           currencies={defaultCurrencyList(locale, '')}
-                          defaultValue={form.watch(field.name) ?? ''}
+                          defaultValue={field.value ?? ''}
                           isLoading={false}
                           onValueChange={(v) => onChange(v)}
                         />
@@ -632,14 +878,55 @@ export function ExpenseForm({
             />
           </CardContent>
         </Card>
+        )}
 
+        {shouldShowStep('split') && (
         <Card className="mt-4 overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
-            <CardDescription className="mt-2">
-              {t(`${sExpense}.paidFor.description`)}
-            </CardDescription>
+            <SectionIntro
+              eyebrow={t('mobile.step2')}
+              title={t(`${sExpense}.paidFor.title`)}
+              description={t(`${sExpense}.paidFor.description`)}
+            />
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
+            <div className="sticky top-[4.5rem] z-10 -mx-4 mb-4 border-b bg-background/95 px-4 pb-4 pt-1 backdrop-blur sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
+              <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                {t('mobile.selectedCount', { count: selectedParticipantsCount })}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  {t('mobile.splitMode', {
+                    mode: activeSplitModeLabel,
+                  })}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    updateSelectedParticipants(
+                      group.participants.map(({ id }) => ({
+                        participant: id,
+                        shares: '1' as any,
+                      })),
+                    )
+                  }
+                >
+                  {t('selectAll')}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => updateSelectedParticipants([])}
+                >
+                  {t('selectNone')}
+                </Button>
+              </div>
+            </div>
             <FormField
               control={form.control}
               name="paidFor"
@@ -651,19 +938,24 @@ export function ExpenseForm({
                       control={form.control}
                       name="paidFor"
                       render={({ field }) => {
+                        const isSelected = selectedParticipantIds.has(id)
+
                         return (
                           <div
-                            data-id={`${id}/${form.getValues().splitMode}/${
+                            data-id={`${id}/${watchedSplitMode}/${
                               expenseCurrency.code || expenseCurrency.symbol
                             }`}
-                            className="flex flex-wrap gap-y-4 items-center border-t last-of-type:border-b last-of-type:!mb-4 -mx-6 px-6 py-3"
+                            className={cn(
+                              '-mx-2 mb-2 rounded-2xl border px-3 py-3 transition-all duration-200 sm:-mx-0',
+                              isSelected
+                                ? 'border-primary/30 bg-primary/5 shadow-sm'
+                                : 'border-border/70 bg-card/40',
+                            )}
                           >
-                            <FormItem className="flex-1 flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:space-x-3 sm:space-y-0">
                               <FormControl>
                                 <Checkbox
-                                  checked={field.value?.some(
-                                    ({ participant }) => participant === id,
-                                  )}
+                                  checked={isSelected}
                                   onCheckedChange={(checked) => {
                                     const options = {
                                       shouldDirty: true,
@@ -692,19 +984,38 @@ export function ExpenseForm({
                                   }}
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm font-normal flex-1">
-                                {name}
-                                {field.value?.some(
-                                  ({ participant }) => participant === id,
-                                ) &&
-                                  !form.watch('isReimbursement') && (
-                                    <span className="text-muted-foreground ml-2">
-                                      (
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <FormLabel className="block truncate text-sm font-medium">
+                                      {name}
+                                    </FormLabel>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                      {isSelected
+                                        ? activeSplitModeLabel
+                                        : t('mobile.tapToInclude')}
+                                    </p>
+                                  </div>
+                                  <span
+                                    className={cn(
+                                      'rounded-full px-2 py-0.5 text-[11px]',
+                                      isSelected
+                                        ? 'bg-primary/10 text-primary'
+                                        : 'bg-muted text-muted-foreground',
+                                    )}
+                                  >
+                                    {isSelected ? t('mobile.included') : t('mobile.excluded')}
+                                  </span>
+                                </div>
+                                {isSelected &&
+                                  !watchedIsReimbursement && (
+                                    <p className="mt-2 text-xs text-muted-foreground">
+                                      {t('mobile.estimatedShare')}{' '}
                                       {formatCurrency(
                                         expenseCurrency,
                                         calculateShare(id, {
                                           amount: amountAsMinorUnits(
-                                            Number(form.watch('amount')),
+                                            Number(watchedAmount),
                                             expenseCurrency,
                                           ), // Convert to cents
                                           paidFor: field.value.map(
@@ -715,10 +1026,10 @@ export function ExpenseForm({
                                                 groupId: '',
                                               },
                                               shares:
-                                                form.watch('splitMode') ===
+                                                watchedSplitMode ===
                                                 'BY_PERCENTAGE'
                                                   ? Number(shares) * 100 // Convert percentage to basis points (e.g., 50% -> 5000)
-                                                  : form.watch('splitMode') ===
+                                                  : watchedSplitMode ===
                                                       'BY_AMOUNT'
                                                     ? amountAsMinorUnits(
                                                         shares,
@@ -729,19 +1040,22 @@ export function ExpenseForm({
                                               participantId: '',
                                             }),
                                           ),
-                                          splitMode: form.watch('splitMode'),
-                                          isReimbursement:
-                                            form.watch('isReimbursement'),
+                                          splitMode: watchedSplitMode,
+                                          isReimbursement: watchedIsReimbursement,
                                         }),
                                         locale,
                                       )}
-                                      )
-                                    </span>
+                                    </p>
                                   )}
-                              </FormLabel>
+                              </div>
                             </FormItem>
-                            <div className="flex">
-                              {form.getValues().splitMode === 'BY_AMOUNT' &&
+                            {isSelected && watchedSplitMode !== 'EVENLY' && (
+                              <div className="mt-3 rounded-xl border bg-background/90 p-3">
+                                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                  {activeSplitModeLabel}
+                                </p>
+                                <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+                              {watchedSplitMode === 'BY_AMOUNT' &&
                                 !!conversionRequired && (
                                   <FormField
                                     name={`paidFor[${field.value.findIndex(
@@ -762,7 +1076,7 @@ export function ExpenseForm({
                                       )
                                       return (
                                         <div>
-                                          <div className="flex gap-1 items-center">
+                                          <div className="flex items-center gap-1">
                                             {sharesLabel}
                                             <FormControl>
                                               <Input
@@ -822,110 +1136,107 @@ export function ExpenseForm({
                                     }}
                                   />
                                 )}
-                              {form.getValues().splitMode !== 'EVENLY' && (
-                                <FormField
-                                  name={`paidFor[${field.value.findIndex(
-                                    ({ participant }) => participant === id,
-                                  )}].shares`}
-                                  render={() => {
-                                    const sharesLabel = (
-                                      <span
-                                        className={cn('text-sm', {
-                                          'text-muted': !field.value?.some(
-                                            ({ participant }) =>
-                                              participant === id,
-                                          ),
-                                        })}
-                                      >
-                                        {match(form.getValues().splitMode)
-                                          .with('BY_SHARES', () => (
-                                            <>{t('shares')}</>
-                                          ))
-                                          .with('BY_PERCENTAGE', () => <>%</>)
-                                          .with('BY_AMOUNT', () => (
-                                            <>{expenseCurrency.symbol}</>
-                                          ))
-                                          .otherwise(() => (
-                                            <></>
-                                          ))}
-                                      </span>
-                                    )
-                                    return (
-                                      <div>
-                                        <div className="flex gap-1 items-center">
-                                          {form.getValues().splitMode ===
-                                            'BY_AMOUNT' && sharesLabel}
-                                          <FormControl>
-                                            <Input
-                                              key={String(
-                                                !field.value?.some(
-                                                  ({ participant }) =>
-                                                    participant === id,
+                              <FormField
+                                name={`paidFor[${field.value.findIndex(
+                                  ({ participant }) => participant === id,
+                                )}].shares`}
+                                render={() => {
+                                  const sharesLabel = (
+                                    <span
+                                      className={cn('text-sm', {
+                                        'text-muted': !field.value?.some(
+                                          ({ participant }) =>
+                                            participant === id,
+                                        ),
+                                      })}
+                                    >
+                                      {match(watchedSplitMode)
+                                        .with('BY_SHARES', () => (
+                                          <>{t('shares')}</>
+                                        ))
+                                        .with('BY_PERCENTAGE', () => <>%</>)
+                                        .with('BY_AMOUNT', () => (
+                                          <>{expenseCurrency.symbol}</>
+                                        ))
+                                        .otherwise(() => (
+                                          <></>
+                                        ))}
+                                    </span>
+                                  )
+                                  return (
+                                    <div>
+                                      <div className="flex items-center gap-1">
+                                        {watchedSplitMode === 'BY_AMOUNT' &&
+                                          sharesLabel}
+                                        <FormControl>
+                                          <Input
+                                            key={String(
+                                              !field.value?.some(
+                                                ({ participant }) =>
+                                                  participant === id,
+                                              ),
+                                            )}
+                                            className="text-base w-[80px] -my-2"
+                                            type="text"
+                                            disabled={
+                                              !field.value?.some(
+                                                ({ participant }) =>
+                                                  participant === id,
+                                              )
+                                            }
+                                            value={
+                                              field.value?.find(
+                                                ({ participant }) =>
+                                                  participant === id,
+                                              )?.shares
+                                            }
+                                            onChange={(event) => {
+                                              field.onChange(
+                                                field.value.map((p) =>
+                                                  p.participant === id
+                                                    ? {
+                                                        participant: id,
+                                                        shares:
+                                                          enforceCurrencyPattern(
+                                                            event.target.value,
+                                                          ),
+                                                      }
+                                                    : p,
                                                 ),
-                                              )}
-                                              className="text-base w-[80px] -my-2"
-                                              type="text"
-                                              disabled={
-                                                !field.value?.some(
-                                                  ({ participant }) =>
-                                                    participant === id,
-                                                )
-                                              }
-                                              value={
-                                                field.value?.find(
-                                                  ({ participant }) =>
-                                                    participant === id,
-                                                )?.shares
-                                              }
-                                              onChange={(event) => {
-                                                field.onChange(
-                                                  field.value.map((p) =>
-                                                    p.participant === id
-                                                      ? {
-                                                          participant: id,
-                                                          shares:
-                                                            enforceCurrencyPattern(
-                                                              event.target
-                                                                .value,
-                                                            ),
-                                                        }
-                                                      : p,
-                                                  ),
-                                                )
-                                                setManuallyEditedParticipants(
-                                                  (prev) =>
-                                                    new Set(prev).add(id),
-                                                )
-                                              }}
-                                              inputMode={
-                                                form.getValues().splitMode ===
-                                                'BY_AMOUNT'
-                                                  ? 'decimal'
-                                                  : 'numeric'
-                                              }
-                                              step={
-                                                form.getValues().splitMode ===
-                                                'BY_AMOUNT'
-                                                  ? 10 **
-                                                    -expenseCurrency.decimal_digits
-                                                  : 1
-                                              }
-                                            />
-                                          </FormControl>
-                                          {[
-                                            'BY_SHARES',
-                                            'BY_PERCENTAGE',
-                                          ].includes(
-                                            form.getValues().splitMode,
-                                          ) && sharesLabel}
-                                        </div>
-                                        <FormMessage className="float-right" />
+                                              )
+                                              setManuallyEditedParticipants(
+                                                (prev) =>
+                                                  new Set(prev).add(id),
+                                              )
+                                            }}
+                                            inputMode={
+                                              watchedSplitMode === 'BY_AMOUNT'
+                                                ? 'decimal'
+                                                : 'numeric'
+                                            }
+                                            step={
+                                              watchedSplitMode === 'BY_AMOUNT'
+                                                ? 10 **
+                                                  -expenseCurrency.decimal_digits
+                                                : 1
+                                            }
+                                          />
+                                        </FormControl>
+                                        {[
+                                          'BY_SHARES',
+                                          'BY_PERCENTAGE',
+                                        ].includes(
+                                          watchedSplitMode,
+                                        ) && sharesLabel}
                                       </div>
-                                    )
-                                  }}
-                                />
-                              )}
-                            </div>
+                                      <FormMessage className="float-right" />
+                                    </div>
+                                  )
+                                }}
+                              />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )
                       }}
@@ -937,11 +1248,11 @@ export function ExpenseForm({
             />
 
             <Collapsible
-              className="mt-5"
+              className="mt-5 rounded-xl border bg-muted/20 px-3 py-2"
               defaultOpen={form.getValues().splitMode !== 'EVENLY'}
             >
               <CollapsibleTrigger asChild>
-                <Button variant="link" className="-mx-4">
+                <Button variant="link" className="justify-start px-0">
                   {t('advancedOptions')}
                 </Button>
               </CollapsibleTrigger>
@@ -1013,16 +1324,16 @@ export function ExpenseForm({
             </Collapsible>
           </CardContent>
         </Card>
+        )}
 
-        {runtimeFeatureFlags.enableExpenseDocuments && (
+        {runtimeFeatureFlags.enableExpenseDocuments && shouldShowStep('attachments') && (
           <Card className="mt-4 overflow-hidden">
             <CardHeader className="p-4 sm:p-6 border-b">
-              <CardTitle className="flex justify-between">
-                <span>{t('attachDocuments')}</span>
-              </CardTitle>
-              <CardDescription className="mt-2">
-                {t(`${sExpense}.attachDescription`)}
-              </CardDescription>
+              <SectionIntro
+                eyebrow={t('mobile.step3')}
+                title={t('attachDocuments')}
+                description={t(`${sExpense}.attachDescription`)}
+              />
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <FormField
@@ -1039,18 +1350,54 @@ export function ExpenseForm({
           </Card>
         )}
 
-        <div className="sticky bottom-3 z-20 mt-4 flex flex-wrap gap-2 rounded-lg border bg-background/95 backdrop-blur px-3 py-2 shadow-sm">
-          <SubmitButton loadingContent={t(isCreate ? 'creating' : 'saving')}>
-            <Save className="w-4 h-4 mr-2" />
-            {t(isCreate ? 'create' : 'save')}
-          </SubmitButton>
+        <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 rounded-xl border bg-background/95 px-3 py-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap">
+          {!isDesktopLayout && footerHint.length > 0 && (
+            <p
+              className={cn(
+                'w-full text-sm',
+                stepAdvanceError ? 'text-destructive' : 'text-muted-foreground',
+              )}
+            >
+              {footerHint}
+            </p>
+          )}
+          {!isDesktopLayout && !isFirstStep && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => goToStep(flowSteps[currentStepIndex - 1].id)}
+            >
+              {t('mobile.back')}
+            </Button>
+          )}
+          {(isDesktopLayout || isLastStep) && (
+            <SubmitButton
+              loadingContent={t(isCreate ? 'creating' : 'saving')}
+              className="w-full sm:w-auto"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {t(isCreate ? 'create' : 'save')}
+            </SubmitButton>
+          )}
+          {!isDesktopLayout && !isLastStep && (
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => void handleAdvanceStep()}
+            >
+              {nextStep
+                ? t('mobile.continueTo', { step: nextStep.label })
+                : t('mobile.continue')}
+            </Button>
+          )}
           {!isCreate && onDelete && (
             <DeletePopup
               onDelete={() => onDelete(activeUserId ?? undefined)}
             ></DeletePopup>
           )}
-          <Button variant="ghost" asChild>
-            <Link href={`/groups/${group.id}`}>{t('cancel')}</Link>
+          <Button variant="ghost" asChild className="w-full sm:w-auto">
+            <Link href={`/groups/${group.id}/expenses`}>{t('cancel')}</Link>
           </Button>
         </div>
       </form>

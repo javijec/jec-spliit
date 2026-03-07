@@ -11,5 +11,5 @@ export default async function TotalsPage({
   params: Promise<{ groupId: string }>
 }) {
   const { groupId } = await params
-  redirect(`/groups/${groupId}/expenses`)
+  redirect(`/groups/${groupId}/summary`)
 }

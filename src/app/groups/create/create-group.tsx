@@ -1,6 +1,7 @@
 'use client'
 
 import { GroupForm } from '@/components/group-form'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -30,6 +31,7 @@ import { getCurrency } from '@/lib/currency'
 import { amountAsMinorUnits } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { AlertTriangle, CalendarDays, FileUp, Loader2 } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -103,8 +105,8 @@ const normalizeFileName = (name: string) =>
     .replace(/[_-]/g, ' ')
     .trim()
 
-const formatDateLabel = (date: Date) =>
-  date.toLocaleDateString('es-AR', {
+const formatDateLabel = (date: Date, locale: string) =>
+  date.toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -133,21 +135,23 @@ const parseDateInputValue = (value: string) => {
 }
 
 function SplitwiseImportCard() {
+  const locale = useLocale()
+  const t = useTranslations('Groups.Import')
   const utils = trpc.useUtils()
   const router = useRouter()
   const { toast } = useToast()
   const importSplitwise = trpc.groups.importSplitwise.useMutation({
     onSuccess: async ({ groupId }) => {
       toast({
-        title: 'Importación completada',
-        description: 'El grupo y los gastos se importaron correctamente.',
+        title: t('successTitle'),
+        description: t('successDescription'),
       })
       await utils.groups.invalidate()
       router.push(`/groups/${groupId}`)
     },
     onError: (error) => {
       toast({
-        title: 'No se pudo importar el CSV',
+        title: t('importErrorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -199,10 +203,10 @@ function SplitwiseImportCard() {
         .map((line) => line.trim())
         .filter(Boolean)
       if (lines.length < 2) {
-        const message = 'El CSV no contiene datos.'
+        const message = t('csvWithoutData')
         setParseError(message)
         toast({
-          title: 'Archivo CSV inválido',
+          title: t('invalidCsvTitle'),
           description: message,
           variant: 'destructive',
         })
@@ -217,10 +221,10 @@ function SplitwiseImportCard() {
           : ','
       const headers = parseCsvLine(headerLine, delimiter)
       if (headers.length < 7) {
-        const message = 'No se detectaron columnas de participantes en el CSV.'
+        const message = t('csvWithoutParticipants')
         setParseError(message)
         toast({
-          title: 'Archivo CSV inválido',
+          title: t('invalidCsvTitle'),
           description: message,
           variant: 'destructive',
         })
@@ -265,7 +269,7 @@ function SplitwiseImportCard() {
         expenses.push({
           id: `${i}`,
           expenseDate,
-          title: description.trim() || 'Gasto importado',
+          title: description.trim() || t('importedExpenseFallback'),
           category: category.trim(),
           amountMinor,
           currencyCode: parsedCurrencyCode,
@@ -276,10 +280,10 @@ function SplitwiseImportCard() {
       }
 
       if (!expenses.length) {
-        const message = 'No se pudieron parsear gastos válidos del CSV.'
+        const message = t('csvWithoutExpenses')
         setParseError(message)
         toast({
-          title: 'Archivo CSV inválido',
+          title: t('invalidCsvTitle'),
           description: message,
           variant: 'destructive',
         })
@@ -293,18 +297,18 @@ function SplitwiseImportCard() {
         fileName: file.name,
       }
       setCsvData(parsed)
-      setGroupName(normalizeFileName(file.name) || 'Grupo importado')
+      setGroupName(normalizeFileName(file.name) || t('importedGroupName'))
       setGroupCurrencyCode(parsed.currencyCodes[0] ?? 'USD')
       toast({
-        title: 'CSV cargado',
-        description: `Se detectaron ${expenses.length} gastos para importar.`,
+        title: t('csvLoadedTitle'),
+        description: t('csvLoadedDescription', { count: expenses.length }),
       })
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Error al leer el archivo CSV.'
+        error instanceof Error ? error.message : t('readErrorDescription')
       setParseError(message)
       toast({
-        title: 'No se pudo leer el CSV',
+        title: t('readErrorTitle'),
         description: message,
         variant: 'destructive',
       })
@@ -317,10 +321,10 @@ function SplitwiseImportCard() {
       (expense) => !(expense.paidByName ?? payerOverrides[expense.id]),
     )
     if (missingPayer) {
-      const message = 'Falta definir quién pagó en uno o más gastos.'
+      const message = t('missingPayerDescription')
       setParseError(message)
       toast({
-        title: 'Faltan datos para importar',
+        title: t('missingDataTitle'),
         description: message,
         variant: 'destructive',
       })
@@ -362,8 +366,8 @@ function SplitwiseImportCard() {
 
     await importSplitwise.mutateAsync({
       groupFormValues: {
-        name: groupName || 'Grupo importado',
-        information: `Importado desde CSV de Splitwise (${csvData.fileName})`,
+        name: groupName || t('importedGroupName'),
+        information: t('importedGroupInfo', { fileName: csvData.fileName }),
         currencyCode: groupCurrencyCode,
         currency: getCurrency(groupCurrencyCode).symbol,
         participants: csvData.participants.map((name) => ({ name })),
@@ -383,8 +387,8 @@ function SplitwiseImportCard() {
     const parsedDate = parseDateInputValue(dateDialogValue)
     if (!parsedDate) {
       toast({
-        title: 'Fecha inválida',
-        description: 'Selecciona una fecha válida para continuar.',
+        title: t('invalidDateTitle'),
+        description: t('invalidDateDescription'),
         variant: 'destructive',
       })
       return
@@ -398,151 +402,197 @@ function SplitwiseImportCard() {
   }
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle>Importar desde CSV de Splitwise</CardTitle>
-        <CardDescription>
-          Crea un grupo nuevo desde un export CSV y completa lo que falte antes
-          de importar.
-        </CardDescription>
+    <Card className="mb-6 overflow-hidden border-dashed">
+      <CardHeader className="border-b bg-card/60 p-4 sm:p-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary" className="rounded-full px-3 py-1">
+            {t('badges.csv')}
+          </Badge>
+          <Badge variant="secondary" className="rounded-full px-3 py-1">
+            {t('badges.splitwise')}
+          </Badge>
+        </div>
+        <div className="mt-3 space-y-1">
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('description')}</CardDescription>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Input
-          type="file"
-          accept=".csv,text/csv"
-          onChange={(event) => {
-            const file = event.target.files?.[0]
-            if (file) void onSelectCsv(file)
-          }}
-        />
+      <CardContent className="space-y-4 p-4 sm:p-6">
+        <div className="rounded-2xl border bg-muted/20 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">{t('step1Title')}</p>
+              <p className="text-sm text-muted-foreground">{t('step1Description')}</p>
+            </div>
+            <Input
+              type="file"
+              accept=".csv,text/csv"
+              className="max-w-full sm:max-w-sm"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) void onSelectCsv(file)
+              }}
+            />
+          </div>
+        </div>
         {!csvData && !parseError && (
-          <p className="text-sm text-muted-foreground">
-            Subí el export CSV de Splitwise para pre-cargar participantes y
-            gastos, luego completás solo los datos faltantes.
-          </p>
+          <div className="rounded-xl border bg-card/40 p-4 text-sm text-muted-foreground">
+            {t('emptyState')}
+          </div>
         )}
         {parseError && (
-          <div className="text-sm text-destructive flex items-center gap-2">
+          <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             {parseError}
           </div>
         )}
         {csvData && (
           <>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Input
-                value={groupName}
-                onChange={(event) => setGroupName(event.target.value)}
-                placeholder="Nombre del grupo"
-              />
-              <Select
-                value={groupCurrencyCode}
-                onValueChange={(value) => setGroupCurrencyCode(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Moneda del grupo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {csvData.currencyCodes.map((code) => (
-                    <SelectItem key={code} value={code}>
-                      {code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="rounded-2xl border bg-card/40 p-4">
+              <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  {t('fileLabel', { fileName: csvData.fileName })}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  {t('participantsLabel', { count: csvData.participants.length })}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  {t('expensesLabel', { count: csvData.expenses.length })}
+                </span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  value={groupName}
+                  onChange={(event) => setGroupName(event.target.value)}
+                  placeholder={t('groupNamePlaceholder')}
+                />
+                <Select
+                  value={groupCurrencyCode}
+                  onValueChange={(value) => setGroupCurrencyCode(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('groupCurrencyPlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {csvData.currencyCodes.map((code) => (
+                      <SelectItem key={code} value={code}>
+                        {code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {t('participantsList', {
+                  participants: csvData.participants.join(', '),
+                })}
+              </p>
             </div>
-            <div className="text-sm text-muted-foreground">
-              Participantes: {csvData.participants.join(', ')} · Gastos
-              detectados: {csvData.expenses.length}
-            </div>
+
             {unresolvedExpenses.length > 0 && (
-              <div className="space-y-2">
-                <div className="text-sm font-medium">
-                  Completa quién pagó en {unresolvedExpenses.length} gasto(s):
+              <div className="rounded-2xl border bg-card/40 p-4">
+                <div className="mb-3">
+                  <p className="text-sm font-medium">
+                    {t('step2Title', { count: unresolvedExpenses.length })}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('step2Description')}</p>
                 </div>
-                {unresolvedExpenses.slice(0, 20).map((expense) => (
-                  <div
-                    key={expense.id}
-                    className="grid sm:grid-cols-[1fr_220px] gap-2 items-center"
-                  >
-                    <div className="text-sm">
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-1 text-primary hover:underline mr-2"
-                        onClick={() => openDateDialog(expense)}
-                      >
-                        <CalendarDays className="w-3.5 h-3.5" />
-                        {formatDateLabel(getExpenseDate(expense))}
-                      </button>
-                      · {expense.title}
-                    </div>
-                    <Select
-                      value={payerOverrides[expense.id] ?? ''}
-                      onValueChange={(value) =>
-                        setPayerOverrides((prev) => ({
-                          ...prev,
-                          [expense.id]: value,
-                        }))
-                      }
+                <div className="space-y-2">
+                  {unresolvedExpenses.slice(0, 20).map((expense) => (
+                    <div
+                      key={expense.id}
+                      className="grid gap-2 rounded-xl border bg-background/70 p-3 sm:grid-cols-[1fr_220px] sm:items-center"
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar pagador" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {csvData.participants.map((participant) => (
-                          <SelectItem key={participant} value={participant}>
-                            {participant}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <div className="text-sm">
+                        <button
+                          type="button"
+                          className="mr-2 inline-flex items-center gap-1 text-primary hover:underline"
+                          onClick={() => openDateDialog(expense)}
+                        >
+                          <CalendarDays className="h-3.5 w-3.5" />
+                          {formatDateLabel(getExpenseDate(expense), locale)}
+                        </button>
+                        · {expense.title}
+                      </div>
+                      <Select
+                        value={payerOverrides[expense.id] ?? ''}
+                        onValueChange={(value) =>
+                          setPayerOverrides((prev) => ({
+                            ...prev,
+                            [expense.id]: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('payerPlaceholder')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {csvData.participants.map((participant) => (
+                            <SelectItem key={participant} value={participant}>
+                              {participant}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-2xl border bg-card/40 p-4">
+              <div className="mb-3">
+                <p className="text-sm font-medium">{t('step3Title')}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t('step3Description')}</p>
+              </div>
+              <div className="space-y-2">
+                {csvData.expenses.slice(0, 12).map((expense) => (
+                  <div
+                    key={`date-${expense.id}`}
+                    className="flex items-center justify-between gap-2 rounded-xl border bg-background/70 p-3"
+                  >
+                    <div className="truncate text-sm">{expense.title}</div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openDateDialog(expense)}
+                      className="shrink-0"
+                    >
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      {formatDateLabel(getExpenseDate(expense), locale)}
+                    </Button>
                   </div>
                 ))}
               </div>
-            )}
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Fecha de gastos (opcional):</div>
-              {csvData.expenses.slice(0, 12).map((expense) => (
-                <div
-                  key={`date-${expense.id}`}
-                  className="flex items-center justify-between gap-2 rounded-md border p-2"
-                >
-                  <div className="text-sm truncate">{expense.title}</div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openDateDialog(expense)}
-                    className="shrink-0"
-                  >
-                    <CalendarDays className="w-4 h-4 mr-2" />
-                    {formatDateLabel(getExpenseDate(expense))}
-                  </Button>
-                </div>
-              ))}
               {csvData.expenses.length > 12 && (
-                <p className="text-xs text-muted-foreground">
-                  Mostrando 12 gastos. El resto mantiene la fecha original del CSV.
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {t('showingLimit')}
                 </p>
               )}
             </div>
-            <Button
-              onClick={() => void importData()}
-              type="button"
-              disabled={importSplitwise.isPending}
-            >
-              {importSplitwise.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Importando...
-                </>
-              ) : (
-                <>
-                  <FileUp className="w-4 h-4 mr-2" />
-                  Crear grupo e importar gastos
-                </>
-              )}
-            </Button>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">{t('finalDescription')}</p>
+              <Button
+                onClick={() => void importData()}
+                type="button"
+                disabled={importSplitwise.isPending}
+                className="w-full sm:w-auto"
+              >
+                {importSplitwise.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t('submitting')}
+                  </>
+                ) : (
+                  <>
+                    <FileUp className="w-4 h-4 mr-2" />
+                    {t('submit')}
+                  </>
+                )}
+              </Button>
+            </div>
           </>
         )}
       </CardContent>
@@ -557,9 +607,9 @@ function SplitwiseImportCard() {
       >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Seleccionar fecha del gasto</DialogTitle>
+            <DialogTitle>{t('dateDialogTitle')}</DialogTitle>
             <DialogDescription>
-              {dateDialogExpense?.title ?? 'Gasto importado'}
+              {dateDialogExpense?.title ?? t('importedExpenseFallback')}
             </DialogDescription>
           </DialogHeader>
           <Input
@@ -576,10 +626,10 @@ function SplitwiseImportCard() {
                 setDateDialogValue('')
               }}
             >
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button type="button" onClick={saveDateDialog}>
-              Guardar fecha
+              {t('saveDate')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -589,13 +639,22 @@ function SplitwiseImportCard() {
 }
 
 export const CreateGroup = () => {
+  const t = useTranslations('Groups')
   const createGroup = trpc.groups.create.useMutation()
   const utils = trpc.useUtils()
   const router = useRouter()
   const { toast } = useToast()
 
   return (
-    <>
+    <div className="space-y-4">
+      <section className="rounded-2xl border bg-card/70 px-4 py-5 shadow-sm backdrop-blur-sm sm:px-6 sm:py-6">
+        <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+          {t('createPageTitle')}
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
+          {t('createPageDescription')}
+        </p>
+      </section>
       <SplitwiseImportCard />
       <GroupForm
         onSubmit={async (groupFormValues) => {
@@ -604,23 +663,23 @@ export const CreateGroup = () => {
               groupFormValues,
             })
             toast({
-              title: 'Grupo creado',
-              description: 'El grupo se creó correctamente.',
+              title: t('createSuccessTitle'),
+              description: t('createSuccessDescription'),
             })
             await utils.groups.invalidate()
             router.push(`/groups/${groupId}`)
           } catch (error) {
             toast({
-              title: 'No se pudo crear el grupo',
+              title: t('createErrorTitle'),
               description:
                 error instanceof Error
                   ? error.message
-                  : 'Ocurrió un error al crear el grupo.',
+                  : t('createErrorDescription'),
               variant: 'destructive',
             })
           }
         }}
       />
-    </>
+    </div>
   )
 }
