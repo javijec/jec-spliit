@@ -75,7 +75,7 @@ export function BalancesList({
                     <span
                       className={cn(
                         'font-semibold tabular-nums',
-                        total > 0 && 'text-emerald-600 dark:text-emerald-400',
+                        total > 0 && 'text-primary',
                         total < 0 && 'text-red-600 dark:text-red-400',
                       )}
                     >

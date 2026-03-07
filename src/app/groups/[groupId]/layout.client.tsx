@@ -118,7 +118,7 @@ export function GroupLayoutClient({
           )}
           <nav className="fixed inset-x-0 z-40 bottom-[env(safe-area-inset-bottom)] px-3 pb-3 sm:hidden">
             <div
-              className={`grid items-center gap-1 rounded-2xl border bg-background/95 px-2 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.35)] backdrop-blur ${
+              className={`grid items-center gap-1 rounded-[1.35rem] border border-border/95 bg-card/98 px-2 py-2 shadow-[0_10px_24px_hsl(var(--foreground)/0.12),0_2px_8px_hsl(var(--foreground)/0.08)] backdrop-blur ${
                 canInstall ? 'grid-cols-5' : 'grid-cols-4'
               }`}
             >
@@ -128,7 +128,11 @@ export function GroupLayoutClient({
                   asChild
                   variant={tab.active ? 'secondary' : 'ghost'}
                   size="sm"
-                  className="h-11 flex-col gap-1"
+                  className={`h-11 flex-col gap-1 rounded-xl ${
+                    tab.active
+                      ? 'border border-primary/15 bg-primary/12 text-primary shadow-sm'
+                      : 'text-muted-foreground'
+                  }`}
                 >
                   <Link href={tab.href}>
                     <tab.icon className="h-4 w-4" />
@@ -143,7 +147,7 @@ export function GroupLayoutClient({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-11 flex-col gap-1"
+                  className="h-11 flex-col gap-1 rounded-xl text-muted-foreground"
                   onClick={() => void install()}
                 >
                   <Download className="h-4 w-4" />
