@@ -72,6 +72,26 @@ const enforceCurrencyPattern = (value: string) =>
     .replace(/#/, '.') // change back # to dot
     .replace(/[^-\d.]/g, '') // remove all non-numeric characters
 
+function SectionIntro({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string
+  title: string
+  description: string
+}) {
+  return (
+    <div className="mb-4 space-y-1">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {eyebrow}
+      </p>
+      <h2 className="text-lg font-semibold leading-none">{title}</h2>
+      <p className="text-sm text-muted-foreground">{description}</p>
+    </div>
+  )
+}
+
 const getDefaultSplittingOptions = (
   group: NonNullable<AppRouterOutput['groups']['get']['group']>,
 ) => {
@@ -311,6 +331,11 @@ export function ExpenseForm({
     originalCurrency.code.length &&
     originalCurrency.code !== group.currencyCode
   const expenseCurrency = conversionRequired ? originalCurrency : groupCurrency
+  const selectedPayerName =
+    group.participants.find(({ id }) => id === form.watch('paidBy'))?.name ??
+    'Sin asignar'
+  const selectedParticipantsCount = form.watch('paidFor')?.length ?? 0
+  const enteredAmount = Number(form.watch('amount')) || 0
 
   useEffect(() => {
     setManuallyEditedParticipants(new Set())
@@ -480,11 +505,40 @@ export function ExpenseForm({
             </AlertDescription>
           </Alert>
         )}
+        <div className="mb-4 rounded-2xl border bg-card/60 p-4 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {isIncome ? 'Ingreso' : 'Gasto'}
+            </span>
+            <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+              {formatDateForDisplay(form.watch('expenseDate'))}
+            </span>
+          </div>
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm text-muted-foreground">Monto actual</p>
+              <p className="text-2xl font-semibold leading-none">
+                {expenseCurrency.symbol || group.currency}
+                {enteredAmount || 0}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                Paga: {selectedPayerName}
+              </span>
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                {selectedParticipantsCount} participante(s)
+              </span>
+            </div>
+          </div>
+        </div>
         <Card className="overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
-            <CardTitle className="text-xl leading-none">
-              {t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
-            </CardTitle>
+            <SectionIntro
+              eyebrow="Paso 1"
+              title={t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
+              description="Define el concepto, la fecha, la moneda y quién hizo el pago."
+            />
           </CardHeader>
           <CardContent className="grid sm:grid-cols-2 gap-6 p-4 sm:p-6">
             <FormField
@@ -635,9 +689,11 @@ export function ExpenseForm({
 
         <Card className="mt-4 overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
-            <CardDescription className="mt-2">
-              {t(`${sExpense}.paidFor.description`)}
-            </CardDescription>
+            <SectionIntro
+              eyebrow="Paso 2"
+              title={t(`${sExpense}.paidFor.title`)}
+              description={t(`${sExpense}.paidFor.description`)}
+            />
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
             <FormField
@@ -937,11 +993,11 @@ export function ExpenseForm({
             />
 
             <Collapsible
-              className="mt-5"
+              className="mt-5 rounded-xl border bg-muted/20 px-3 py-2"
               defaultOpen={form.getValues().splitMode !== 'EVENLY'}
             >
               <CollapsibleTrigger asChild>
-                <Button variant="link" className="-mx-4">
+                <Button variant="link" className="justify-start px-0">
                   {t('advancedOptions')}
                 </Button>
               </CollapsibleTrigger>
@@ -1017,12 +1073,11 @@ export function ExpenseForm({
         {runtimeFeatureFlags.enableExpenseDocuments && (
           <Card className="mt-4 overflow-hidden">
             <CardHeader className="p-4 sm:p-6 border-b">
-              <CardTitle className="flex justify-between">
-                <span>{t('attachDocuments')}</span>
-              </CardTitle>
-              <CardDescription className="mt-2">
-                {t(`${sExpense}.attachDescription`)}
-              </CardDescription>
+              <SectionIntro
+                eyebrow="Paso 3"
+                title={t('attachDocuments')}
+                description={t(`${sExpense}.attachDescription`)}
+              />
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <FormField
@@ -1039,8 +1094,11 @@ export function ExpenseForm({
           </Card>
         )}
 
-        <div className="sticky bottom-3 z-20 mt-4 flex flex-wrap gap-2 rounded-lg border bg-background/95 backdrop-blur px-3 py-2 shadow-sm">
-          <SubmitButton loadingContent={t(isCreate ? 'creating' : 'saving')}>
+        <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 rounded-xl border bg-background/95 px-3 py-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap">
+          <SubmitButton
+            loadingContent={t(isCreate ? 'creating' : 'saving')}
+            className="w-full sm:w-auto"
+          >
             <Save className="w-4 h-4 mr-2" />
             {t(isCreate ? 'create' : 'save')}
           </SubmitButton>
@@ -1049,7 +1107,7 @@ export function ExpenseForm({
               onDelete={() => onDelete(activeUserId ?? undefined)}
             ></DeletePopup>
           )}
-          <Button variant="ghost" asChild>
+          <Button variant="ghost" asChild className="w-full sm:w-auto">
             <Link href={`/groups/${group.id}/expenses`}>{t('cancel')}</Link>
           </Button>
         </div>
