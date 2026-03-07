@@ -219,8 +219,8 @@ export function SettingsPageClient() {
             onChange={(event) => setPassword(event.target.value)}
             placeholder={
               data.hasAccessPassword
-                ? 'Cambiar contraseña (mínimo 4 caracteres)'
-                : 'Definir contraseña (mínimo 4 caracteres)'
+                ? t('passwordPlaceholderChange')
+                : t('passwordPlaceholderSet')
             }
             minLength={4}
           />
@@ -238,15 +238,15 @@ export function SettingsPageClient() {
                 await utils.groups.getDetails.invalidate({ groupId })
                 toast({
                   title: data.hasAccessPassword
-                    ? 'Contraseña actualizada'
-                    : 'Contraseña activada',
+                    ? t('passwordUpdated')
+                    : t('passwordEnabled'),
                 })
               }}
               disabled={isSettingPassword || password.trim().length < 4}
               className="h-11 w-full"
             >
               <Lock className="mr-2 h-4 w-4" />
-              {data.hasAccessPassword ? 'Actualizar' : 'Activar'}
+              {data.hasAccessPassword ? t('updatePassword') : t('enablePassword')}
             </Button>
             <Button
               type="button"
@@ -259,20 +259,19 @@ export function SettingsPageClient() {
                 setPassword('')
                 await utils.groups.getDetails.invalidate({ groupId })
                 toast({
-                  title: 'Contraseña eliminada',
+                  title: t('passwordRemoved'),
                 })
               }}
               disabled={!data.hasAccessPassword || isClearingPassword}
               className="h-11 w-full"
             >
               <LockOpen className="mr-2 h-4 w-4" />
-              Quitar
+              {t('removePassword')}
             </Button>
           </div>
 
           <div className="rounded-xl border bg-muted/30 p-3 text-sm text-muted-foreground">
-            Con contraseña activa, compartir la URL ya no alcanza para entrar al
-            grupo. Si la cambias, quienes ya entraron deberán validarse otra vez.
+            {t('linkAccessDescription1')} {t('linkAccessDescription2')}
           </div>
         </GroupSectionContent>
       </GroupSectionCard>
@@ -300,15 +299,12 @@ export function SettingsPageClient() {
             <DialogTrigger asChild>
               <Button variant="destructive" className="h-11 w-full">
                 <Trash2 className="mr-2 h-4 w-4" />
-                Eliminar grupo
+                {t('deleteGroup')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
-              <DialogTitle>¿Eliminar grupo?</DialogTitle>
-              <DialogDescription>
-                Se eliminarán participantes, gastos, deudas y actividad. Esta
-                acción no se puede deshacer.
-              </DialogDescription>
+              <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
+              <DialogDescription>{t('deleteDialogDescription')}</DialogDescription>
               <div className="space-y-3 py-2">
                 <div className="flex items-start gap-2 rounded-md border bg-muted/30 p-3">
                   <Checkbox
@@ -322,13 +318,11 @@ export function SettingsPageClient() {
                     htmlFor="confirm-delete-group"
                     className="cursor-pointer text-sm leading-snug"
                   >
-                    Entiendo que esta eliminación es definitiva.
+                    {t('deleteConfirmCheckbox')}
                   </label>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">
-                    Escribe el nombre del grupo para confirmar:
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t('deleteConfirmLabel')}</p>
                   <Input
                     value={deleteConfirmName}
                     onChange={(event) => setDeleteConfirmName(event.target.value)}
@@ -349,17 +343,17 @@ export function SettingsPageClient() {
                     })
                     await utils.groups.invalidate()
                     toast({
-                      title: 'Grupo eliminado',
+                      title: t('groupDeleted'),
                     })
                     router.push('/groups')
                   }}
                   className="w-full"
                 >
-                  Eliminar para siempre
+                  {t('deleteForever')}
                 </Button>
                 <DialogClose asChild>
                   <Button variant="secondary" className="w-full">
-                    Cancelar
+                    {t('cancel')}
                   </Button>
                 </DialogClose>
               </DialogFooter>

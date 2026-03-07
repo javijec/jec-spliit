@@ -416,7 +416,31 @@
     "securityTitle": "Seguridad",
     "securityDescription": "Protege el acceso al grupo cuando se comparte por enlace.",
     "dangerZoneTitle": "Zona peligrosa",
-    "dangerZoneDescription": "Eliminar el grupo borra gastos, balances y actividad."
+    "dangerZoneDescription": "Eliminar el grupo borra gastos, balances y actividad.",
+    "protected": "Protegido",
+    "open": "Abierto",
+    "passwordPlaceholderSet": "Definir contraseña (mínimo 4 caracteres)",
+    "passwordPlaceholderChange": "Cambiar contraseña (mínimo 4 caracteres)",
+    "updatePassword": "Actualizar",
+    "enablePassword": "Activar",
+    "removePassword": "Quitar",
+    "passwordUpdated": "Contraseña actualizada",
+    "passwordEnabled": "Contraseña activada",
+    "passwordRemoved": "Contraseña eliminada",
+    "linkAccessTitle": "Acceso por enlace",
+    "linkAccessDescription1": "Con contraseña activa, compartir solo la URL no alcanza para entrar al grupo.",
+    "linkAccessDescription2": "Si la cambias, quienes ya entraron deberán validarse otra vez.",
+    "deleteGroup": "Eliminar grupo",
+    "deleteDialogTitle": "¿Eliminar grupo?",
+    "deleteDialogDescription": "Se eliminarán participantes, gastos, deudas y actividad. Esta acción no se puede deshacer.",
+    "deleteConfirmCheckbox": "Entiendo que esta eliminación es definitiva.",
+    "deleteConfirmLabel": "Escribe el nombre del grupo para confirmar:",
+    "deleteForever": "Eliminar para siempre",
+    "groupDeleted": "Grupo eliminado",
+    "editPageTitle": "Ajustes del grupo",
+    "editPageDescription": "Administra participantes, moneda por defecto y seguridad de acceso.",
+    "defaultCurrencyLabel": "Moneda por defecto: {currencyCode}",
+    "participantsBadge": "{count} participantes"
   },
   "Summary": {
     "title": "Resumen",
@@ -432,6 +456,12 @@
     "createTitle": "Crear gasto",
     "editTitle": "Editar gasto",
     "description": "Completa los datos y guarda el movimiento."
+  },
+  "GroupTabs": {
+    "summary": "Resumen",
+    "expenses": "Gastos",
+    "balances": "Balances",
+    "settings": "Ajustes"
   },
   "Share": {
     "title": "Compartir",

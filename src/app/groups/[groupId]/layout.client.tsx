@@ -10,7 +10,7 @@ import {
   ReceiptText,
   Settings,
 } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { PropsWithChildren, useEffect } from 'react'
@@ -18,28 +18,15 @@ import { CurrentGroupProvider } from './current-group-context'
 import { GroupHeader } from './group-header'
 import { SaveGroupLocally } from './save-recent-group'
 
-function getTabLabel(tab: 'summary' | 'expenses' | 'balances' | 'settings', locale: string) {
-  if (locale.startsWith('es')) {
-    if (tab === 'summary') return 'Resumen'
-    if (tab === 'expenses') return 'Gastos'
-    if (tab === 'balances') return 'Balances'
-    return 'Ajustes'
-  }
-
-  if (tab === 'summary') return 'Summary'
-  if (tab === 'expenses') return 'Expenses'
-  if (tab === 'balances') return 'Balances'
-  return 'Settings'
-}
-
 export function GroupLayoutClient({
   groupId,
   children,
 }: PropsWithChildren<{ groupId: string }>) {
   const { data, isLoading } = trpc.groups.get.useQuery({ groupId })
   const t = useTranslations('Groups.NotFound')
+  const tTabs = useTranslations('GroupTabs')
+  const tFlow = useTranslations('ExpenseFlow')
   const pathname = usePathname()
-  const locale = useLocale()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -120,7 +107,7 @@ export function GroupLayoutClient({
             >
               <Link
                 href={`/groups/${groupId}/expenses/create`}
-                title={locale.startsWith('es') ? 'Crear gasto' : 'Create expense'}
+                title={tFlow('createTitle')}
               >
                 <Plus className="h-5 w-5" />
               </Link>
@@ -139,7 +126,7 @@ export function GroupLayoutClient({
                   <Link href={tab.href}>
                     <tab.icon className="h-4 w-4" />
                     <span className="text-[10px] leading-none">
-                      {getTabLabel(tab.key, locale)}
+                      {tTabs(tab.key)}
                     </span>
                   </Link>
                 </Button>

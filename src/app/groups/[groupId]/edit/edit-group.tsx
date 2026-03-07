@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
 import { Lock, LockOpen, ShieldCheck, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
@@ -31,6 +32,7 @@ import { ShareButton } from '../share-button'
 
 export const EditGroup = () => {
   const { groupId } = useCurrentGroup()
+  const t = useTranslations('Settings')
   const [password, setPassword] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmChecked, setDeleteConfirmChecked] = useState(false)
@@ -67,18 +69,22 @@ export const EditGroup = () => {
     <div className="space-y-3 sm:space-y-4">
       <section className="rounded-lg border bg-card/80 backdrop-blur-sm px-4 py-3 sm:px-6 sm:py-4">
         <h2 className="text-base sm:text-lg font-semibold leading-tight">
-          Ajustes del grupo
+          {t('editPageTitle')}
         </h2>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Administra participantes, moneda por defecto y seguridad de acceso.
+          {t('editPageDescription')}
         </p>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           <Badge variant="secondary" className="text-[11px] sm:text-xs">
-            {data?.group?.participants.length ?? 0} participantes
+            {t('participantsBadge', {
+              count: data?.group?.participants.length ?? 0,
+            })}
           </Badge>
           {data?.group?.currencyCode && (
             <Badge variant="secondary" className="text-[11px] sm:text-xs">
-              Moneda por defecto: {data.group.currencyCode}
+              {t('defaultCurrencyLabel', {
+                currencyCode: data.group.currencyCode,
+              })}
             </Badge>
           )}
         </div>
@@ -116,16 +122,16 @@ export const EditGroup = () => {
               <CardTitle className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4" />
-                  Seguridad
+                  {t('securityTitle')}
                 </span>
                 <Badge
                   variant={data?.hasAccessPassword ? 'default' : 'outline'}
                 >
-                  {data?.hasAccessPassword ? 'Protegido' : 'Abierto'}
+                  {data?.hasAccessPassword ? t('protected') : t('open')}
                 </Badge>
               </CardTitle>
               <CardDescription>
-                Exige contraseña cuando acceden con la URL del grupo.
+                {t('securityDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
@@ -135,8 +141,8 @@ export const EditGroup = () => {
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder={
                   data?.hasAccessPassword
-                    ? 'Cambiar contraseña (mínimo 4 caracteres)'
-                    : 'Definir contraseña (mínimo 4 caracteres)'
+                    ? t('passwordPlaceholderChange')
+                    : t('passwordPlaceholderSet')
                 }
                 minLength={4}
               />
@@ -154,15 +160,17 @@ export const EditGroup = () => {
                     await utils.groups.getDetails.invalidate({ groupId })
                     toast({
                       title: data?.hasAccessPassword
-                        ? 'Contraseña actualizada'
-                        : 'Contraseña activada',
+                        ? t('passwordUpdated')
+                        : t('passwordEnabled'),
                     })
                   }}
                   disabled={isSettingPassword || password.trim().length < 4}
                   className="w-full h-11"
                 >
                   <Lock className="w-4 h-4 mr-2" />
-                  {data?.hasAccessPassword ? 'Actualizar' : 'Activar'}
+                  {data?.hasAccessPassword
+                    ? t('updatePassword')
+                    : t('enablePassword')}
                 </Button>
                 <Button
                   type="button"
@@ -175,35 +183,28 @@ export const EditGroup = () => {
                     setPassword('')
                     await utils.groups.getDetails.invalidate({ groupId })
                     toast({
-                      title: 'Contraseña eliminada',
+                      title: t('passwordRemoved'),
                     })
                   }}
                   disabled={!data?.hasAccessPassword || isClearingPassword}
                   className="w-full h-11"
                 >
                   <LockOpen className="w-4 h-4 mr-2" />
-                  Quitar
+                  {t('removePassword')}
                 </Button>
               </div>
               <div className="rounded-md border bg-muted/30 p-3 text-xs sm:text-sm text-muted-foreground space-y-1">
-                <p className="font-medium text-foreground">Acceso por enlace</p>
-                <p>
-                  Con contraseña activa, compartir solo la URL no alcanza para
-                  entrar al grupo.
-                </p>
-                <p>
-                  Si la cambias, quienes ya entraron deberán validarse otra vez.
-                </p>
+                <p className="font-medium text-foreground">{t('linkAccessTitle')}</p>
+                <p>{t('linkAccessDescription1')}</p>
+                <p>{t('linkAccessDescription2')}</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="overflow-hidden border-destructive/30">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Zona peligrosa</CardTitle>
-              <CardDescription>
-                Esta acción elimina el grupo y todos sus datos.
-              </CardDescription>
+              <CardTitle className="text-base">{t('dangerZoneTitle')}</CardTitle>
+              <CardDescription>{t('dangerZoneDescription')}</CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
               <Dialog
@@ -219,15 +220,12 @@ export const EditGroup = () => {
                 <DialogTrigger asChild>
                   <Button variant="destructive" className="w-full h-11">
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar grupo
+                    {t('deleteGroup')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
-                  <DialogTitle>¿Eliminar grupo?</DialogTitle>
-                  <DialogDescription>
-                    Se eliminarán participantes, gastos, deudas y actividad.
-                    Esta acción no se puede deshacer.
-                  </DialogDescription>
+                  <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
+                  <DialogDescription>{t('deleteDialogDescription')}</DialogDescription>
                   <div className="space-y-3 py-2">
                     <div className="flex items-start gap-2 rounded-md border p-3 bg-muted/30">
                       <Checkbox
@@ -241,13 +239,11 @@ export const EditGroup = () => {
                         htmlFor="confirm-delete-group"
                         className="text-sm leading-snug cursor-pointer"
                       >
-                        Entiendo que esta eliminación es definitiva.
+                        {t('deleteConfirmCheckbox')}
                       </label>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">
-                        Escribe el nombre del grupo para confirmar:
-                      </p>
+                      <p className="text-sm text-muted-foreground">{t('deleteConfirmLabel')}</p>
                       <Input
                         value={deleteConfirmName}
                         onChange={(event) =>
@@ -270,17 +266,17 @@ export const EditGroup = () => {
                         })
                         await utils.groups.invalidate()
                         toast({
-                          title: 'Grupo eliminado',
+                          title: t('groupDeleted'),
                         })
                         router.push('/groups')
                       }}
                       className="w-full"
                     >
-                      Eliminar para siempre
+                      {t('deleteForever')}
                     </Button>
                     <DialogClose asChild>
                       <Button variant="secondary" className="w-full">
-                        Cancelar
+                        {t('cancel')}
                       </Button>
                     </DialogClose>
                   </DialogFooter>

@@ -416,7 +416,31 @@
     "securityTitle": "Security",
     "securityDescription": "Protect group access when sharing by link.",
     "dangerZoneTitle": "Danger zone",
-    "dangerZoneDescription": "Deleting the group removes expenses, balances, and activity."
+    "dangerZoneDescription": "Deleting the group removes expenses, balances, and activity.",
+    "protected": "Protected",
+    "open": "Open",
+    "passwordPlaceholderSet": "Set password (minimum 4 characters)",
+    "passwordPlaceholderChange": "Change password (minimum 4 characters)",
+    "updatePassword": "Update",
+    "enablePassword": "Enable",
+    "removePassword": "Remove",
+    "passwordUpdated": "Password updated",
+    "passwordEnabled": "Password enabled",
+    "passwordRemoved": "Password removed",
+    "linkAccessTitle": "Link access",
+    "linkAccessDescription1": "With an active password, sharing only the URL is not enough to access the group.",
+    "linkAccessDescription2": "If you change it, anyone who already entered will need to validate again.",
+    "deleteGroup": "Delete group",
+    "deleteDialogTitle": "Delete group?",
+    "deleteDialogDescription": "Participants, expenses, debts, and activity will be removed. This action cannot be undone.",
+    "deleteConfirmCheckbox": "I understand this deletion is permanent.",
+    "deleteConfirmLabel": "Type the group name to confirm:",
+    "deleteForever": "Delete forever",
+    "groupDeleted": "Group deleted",
+    "editPageTitle": "Group settings",
+    "editPageDescription": "Manage participants, default currency, and access security.",
+    "defaultCurrencyLabel": "Default currency: {currencyCode}",
+    "participantsBadge": "{count} participants"
   },
   "Summary": {
     "title": "Summary",
@@ -432,6 +456,12 @@
     "createTitle": "Create expense",
     "editTitle": "Edit expense",
     "description": "Complete the details and save the transaction."
+  },
+  "GroupTabs": {
+    "summary": "Summary",
+    "expenses": "Expenses",
+    "balances": "Balances",
+    "settings": "Settings"
   },
   "Share": {
     "title": "Share",
