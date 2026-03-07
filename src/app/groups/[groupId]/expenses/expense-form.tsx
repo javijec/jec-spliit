@@ -526,6 +526,7 @@ export function ExpenseForm({
     [runtimeFeatureFlags.enableExpenseDocuments, t],
   )
   const [currentStep, setCurrentStep] = useState<FlowStepId>('details')
+  const [stepAdvanceError, setStepAdvanceError] = useState(false)
   const currentStepIndex = flowSteps.findIndex((step) => step.id === currentStep)
   const isLastStep = currentStepIndex === flowSteps.length - 1
   const isFirstStep = currentStepIndex <= 0
@@ -545,6 +546,7 @@ export function ExpenseForm({
   }, [currentStep, flowSteps])
 
   const goToStep = (stepId: FlowStepId) => {
+    setStepAdvanceError(false)
     setCurrentStep(stepId)
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -571,9 +573,11 @@ export function ExpenseForm({
   const handleAdvanceStep = async () => {
     const isValid = await validateCurrentStep()
     if (!isValid) {
+      setStepAdvanceError(true)
       focusFirstInvalidField()
       return
     }
+    setStepAdvanceError(false)
     if (!isLastStep) {
       goToStep(flowSteps[currentStepIndex + 1].id)
     }
@@ -591,6 +595,28 @@ export function ExpenseForm({
   ) => {
     form.setValue('paidFor', nextPaidFor as any, options)
   }
+  const fieldPathsByStep: Record<FlowStepId, string[]> = {
+    details: ['title', 'expenseDate', 'originalCurrency', 'amount', 'paidBy'],
+    split: ['paidFor', 'paidFor[].shares', 'splitMode'],
+    attachments: [],
+  }
+  const currentStepInvalidLabels = Array.from(
+    new Set(
+      normalizedErrorPaths
+        .filter((path) => fieldPathsByStep[currentStep].includes(path))
+        .map((path) => labelByPath[path])
+        .filter(Boolean),
+    ),
+  )
+  const footerHint = stepAdvanceError && currentStepInvalidLabels.length > 0
+    ? t('mobile.completeFields', {
+        fields: currentStepInvalidLabels.slice(0, 3).join(', '),
+      })
+    : isLastStep
+      ? t('mobile.reviewBeforeSave')
+      : nextStep
+        ? t('mobile.nextStepHint', { step: nextStep.label })
+        : ''
 
   return (
     <Form {...form}>
@@ -1325,6 +1351,16 @@ export function ExpenseForm({
         )}
 
         <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 rounded-xl border bg-background/95 px-3 py-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap">
+          {!isDesktopLayout && footerHint.length > 0 && (
+            <p
+              className={cn(
+                'w-full text-sm',
+                stepAdvanceError ? 'text-destructive' : 'text-muted-foreground',
+              )}
+            >
+              {footerHint}
+            </p>
+          )}
           {!isDesktopLayout && !isFirstStep && (
             <Button
               type="button"
