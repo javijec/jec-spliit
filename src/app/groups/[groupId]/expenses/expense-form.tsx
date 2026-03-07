@@ -530,6 +530,13 @@ export function ExpenseForm({
   const isLastStep = currentStepIndex === flowSteps.length - 1
   const isFirstStep = currentStepIndex <= 0
   const stepProgress = ((currentStepIndex + 1) / flowSteps.length) * 100
+  const nextStep = !isLastStep ? flowSteps[currentStepIndex + 1] : null
+  const formattedEnteredAmount = formatCurrency(
+    expenseCurrency,
+    enteredAmount || 0,
+    locale,
+    true,
+  )
 
   useEffect(() => {
     if (!flowSteps.some((step) => step.id === currentStep)) {
@@ -623,8 +630,10 @@ export function ExpenseForm({
             <div>
               <p className="text-sm text-muted-foreground">{t('mobile.currentAmount')}</p>
               <p className="text-2xl font-semibold leading-none">
-                {expenseCurrency.symbol || group.currency}
-                {enteredAmount || 0}
+                {formattedEnteredAmount}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {flowSteps[currentStepIndex]?.label}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -1336,8 +1345,14 @@ export function ExpenseForm({
             </SubmitButton>
           )}
           {!isDesktopLayout && !isLastStep && (
-            <Button type="button" className="w-full" onClick={() => void handleAdvanceStep()}>
-              {t('mobile.continue')}
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => void handleAdvanceStep()}
+            >
+              {nextStep
+                ? t('mobile.continueTo', { step: nextStep.label })
+                : t('mobile.continue')}
             </Button>
           )}
           {!isCreate && onDelete && (

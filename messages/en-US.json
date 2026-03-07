@@ -350,6 +350,7 @@
       "stepCounter": "Step {current} of {total}",
       "back": "Back",
       "continue": "Continue",
+      "continueTo": "Continue to {step}",
       "included": "Included",
       "excluded": "Excluded",
       "tapToInclude": "Tap to include in the split",

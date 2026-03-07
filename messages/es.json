@@ -329,6 +329,7 @@
       "stepCounter": "Paso {current} de {total}",
       "back": "Volver",
       "continue": "Continuar",
+      "continueTo": "Continuar a {step}",
       "included": "Incluido",
       "excluded": "Fuera",
       "tapToInclude": "Toca para incluirlo en el reparto",
