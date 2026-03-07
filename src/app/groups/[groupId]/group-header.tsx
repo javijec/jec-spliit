@@ -1,8 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useCurrentGroup } from './current-group-context'
@@ -36,18 +34,6 @@ export const GroupHeader = () => {
             </p>
           )}
         </div>
-        <Button
-          asChild
-          size="default"
-          variant="outline"
-          className="h-9 shrink-0 px-2 sm:px-3"
-          title={t('Settings.title')}
-        >
-          <Link href={`/groups/${groupId}/settings`}>
-            <Settings className="w-4 h-4" />
-            <span className="ml-2 hidden sm:inline">{t('Settings.title')}</span>
-          </Link>
-        </Button>
       </div>
     </div>
   )
