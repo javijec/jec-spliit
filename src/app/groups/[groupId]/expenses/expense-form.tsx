@@ -696,6 +696,18 @@ export function ExpenseForm({
             />
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
+            <div className="mb-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                Seleccionados: {selectedParticipantsCount}
+              </span>
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                División: {t(`SplitModeField.${match(form.getValues().splitMode)
+                  .with('EVENLY', () => 'evenly')
+                  .with('BY_SHARES', () => 'byShares')
+                  .with('BY_PERCENTAGE', () => 'byPercentage')
+                  .otherwise(() => 'byAmount')}`)}
+              </span>
+            </div>
             <FormField
               control={form.control}
               name="paidFor"
@@ -707,19 +719,26 @@ export function ExpenseForm({
                       control={form.control}
                       name="paidFor"
                       render={({ field }) => {
+                        const isSelected = field.value?.some(
+                          ({ participant }) => participant === id,
+                        )
+
                         return (
                           <div
                             data-id={`${id}/${form.getValues().splitMode}/${
                               expenseCurrency.code || expenseCurrency.symbol
                             }`}
-                            className="flex flex-wrap gap-y-4 items-center border-t last-of-type:border-b last-of-type:!mb-4 -mx-6 px-6 py-3"
+                            className={cn(
+                              '-mx-2 mb-2 rounded-xl border px-3 py-3 transition-colors sm:-mx-0',
+                              isSelected
+                                ? 'border-primary/30 bg-primary/5'
+                                : 'border-border/70 bg-card/40',
+                            )}
                           >
-                            <FormItem className="flex-1 flex flex-row items-start space-x-3 space-y-0">
+                            <FormItem className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:space-x-3 sm:space-y-0">
                               <FormControl>
                                 <Checkbox
-                                  checked={field.value?.some(
-                                    ({ participant }) => participant === id,
-                                  )}
+                                  checked={isSelected}
                                   onCheckedChange={(checked) => {
                                     const options = {
                                       shouldDirty: true,
@@ -748,14 +767,14 @@ export function ExpenseForm({
                                   }}
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm font-normal flex-1">
-                                {name}
-                                {field.value?.some(
-                                  ({ participant }) => participant === id,
-                                ) &&
+                              <div className="min-w-0 flex-1">
+                                <FormLabel className="flex-1 text-sm font-medium">
+                                  {name}
+                                </FormLabel>
+                                {isSelected &&
                                   !form.watch('isReimbursement') && (
-                                    <span className="text-muted-foreground ml-2">
-                                      (
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                      Parte estimada:{' '}
                                       {formatCurrency(
                                         expenseCurrency,
                                         calculateShare(id, {
@@ -791,12 +810,11 @@ export function ExpenseForm({
                                         }),
                                         locale,
                                       )}
-                                      )
-                                    </span>
+                                    </p>
                                   )}
-                              </FormLabel>
+                              </div>
                             </FormItem>
-                            <div className="flex">
+                            <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
                               {form.getValues().splitMode === 'BY_AMOUNT' &&
                                 !!conversionRequired && (
                                   <FormField
@@ -818,7 +836,7 @@ export function ExpenseForm({
                                       )
                                       return (
                                         <div>
-                                          <div className="flex gap-1 items-center">
+                                          <div className="flex items-center gap-1">
                                             {sharesLabel}
                                             <FormControl>
                                               <Input
@@ -908,7 +926,7 @@ export function ExpenseForm({
                                     )
                                     return (
                                       <div>
-                                        <div className="flex gap-1 items-center">
+                                        <div className="flex items-center gap-1">
                                           {form.getValues().splitMode ===
                                             'BY_AMOUNT' && sharesLabel}
                                           <FormControl>
