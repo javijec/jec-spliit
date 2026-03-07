@@ -65,16 +65,6 @@ export default function BalancesAndReimbursements() {
           </div>
           <GroupSectionTitle className="mt-3 flex items-center gap-2 text-xl leading-none">
             <CheckCircle2 className="h-5 w-5 text-primary" />
-            {t('title')}
-          </GroupSectionTitle>
-          <GroupSectionDescription className="mt-2">
-            {t('description')}
-          </GroupSectionDescription>
-        </GroupSectionHeader>
-      </GroupSectionCard>
-      <GroupSectionCard>
-        <GroupSectionHeader>
-          <GroupSectionTitle className="text-xl leading-none">
             {t('Reimbursements.settlementsTitle')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
