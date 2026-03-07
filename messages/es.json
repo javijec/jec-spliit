@@ -481,6 +481,7 @@
     "title": "Ajustes",
     "summaryDescription": "Administra participantes, moneda, acceso y exportaciones.",
     "hubDescription": "Elige una sección y administra el grupo sin cargar todo en una sola pantalla.",
+    "backToSettings": "Volver a ajustes",
     "overviewBadge": "Resumen",
     "quickActionsTitle": "Accesos rápidos",
     "quickActionsDescription": "Entra a las tareas más comunes del grupo sin pasar por formularios largos.",

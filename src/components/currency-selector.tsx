@@ -47,8 +47,7 @@ export function CurrencySelector({
   // allow overwriting currently selected currency from outside
   useEffect(() => {
     setValue(defaultValue)
-    onValueChange(defaultValue)
-  }, [defaultValue, onValueChange])
+  }, [defaultValue])
 
   const selectedCurrency =
     currencies.find((currency) => (currency.code ?? '') === value) ??
@@ -201,7 +200,13 @@ function CurrencyLabel({ currency }: { currency: Currency }) {
   }.png`
   return (
     <div className="flex items-center gap-3">
-      <Image src={flagUrl} className="w-4" alt="" width={16} height={12} />
+      <Image
+        src={flagUrl}
+        className="h-auto w-4"
+        alt=""
+        width={16}
+        height={12}
+      />
       {currency.name}
       {currency.code ? ` (${currency.code})` : ''}
     </div>

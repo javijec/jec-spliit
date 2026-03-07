@@ -481,6 +481,7 @@
     "title": "Settings",
     "summaryDescription": "Manage participants, currency, access, and exports.",
     "hubDescription": "Choose a section and manage the group without loading everything on one screen.",
+    "backToSettings": "Back to settings",
     "overviewBadge": "Overview",
     "quickActionsTitle": "Quick actions",
     "quickActionsDescription": "Jump to the most common group tasks without going through long forms.",

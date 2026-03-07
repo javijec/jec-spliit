@@ -26,6 +26,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
 import {
+  ArrowLeft,
   FileOutput,
   Info,
   Lock,
@@ -38,8 +39,9 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
+import { EditGroup } from '../edit/edit-group'
 
-type SettingsView = 'hub' | 'share' | 'security' | 'danger'
+type SettingsView = 'hub' | 'edit' | 'share' | 'security' | 'danger'
 
 function SettingsOptionCard({
   onClick,
@@ -148,60 +150,76 @@ export function SettingsPageClient() {
 
   return (
     <div className="space-y-4">
-      <GroupSectionCard>
-        <GroupSectionHeader>
-          <div className="flex flex-wrap gap-1.5">
-            <Badge variant="secondary">
-              {t('participantsBadge', {
-                count: data.group.participants.length,
-              })}
-            </Badge>
-            {data.group.currencyCode && (
-              <Badge variant="secondary">{data.group.currencyCode}</Badge>
-            )}
-            <Badge variant={data.hasAccessPassword ? 'default' : 'outline'}>
-              {data.hasAccessPassword ? t('protected') : t('open')}
-            </Badge>
-          </div>
-          <GroupSectionTitle className="mt-3 text-xl leading-none">
-            {t('title')}
-          </GroupSectionTitle>
-          <GroupSectionDescription className="mt-2">
-            {t('hubDescription')}
-          </GroupSectionDescription>
-        </GroupSectionHeader>
-      </GroupSectionCard>
+      {view === 'hub' && (
+        <GroupSectionCard>
+          <GroupSectionHeader>
+            <div className="flex flex-wrap gap-1.5">
+              <Badge variant="secondary">
+                {t('participantsBadge', {
+                  count: data.group.participants.length,
+                })}
+              </Badge>
+              {data.group.currencyCode && (
+                <Badge variant="secondary">{data.group.currencyCode}</Badge>
+              )}
+              <Badge variant={data.hasAccessPassword ? 'default' : 'outline'}>
+                {data.hasAccessPassword ? t('protected') : t('open')}
+              </Badge>
+            </div>
+            <GroupSectionTitle className="mt-3 text-xl leading-none">
+              {t('title')}
+            </GroupSectionTitle>
+            <GroupSectionDescription className="mt-2">
+              {t('hubDescription')}
+            </GroupSectionDescription>
+          </GroupSectionHeader>
+        </GroupSectionCard>
+      )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <SettingsOptionCard
-          onClick={() => router.push(`/groups/${groupId}/edit`)}
-          icon={Pencil}
-          title={t('editGroup')}
-          description={t('editGroupShort')}
-        />
-        <SettingsOptionCard
-          onClick={() => setView('share')}
-          icon={FileOutput}
-          title={t('shareAndExport')}
-          description={t('shareAndExportShort')}
-          selected={view === 'share'}
-        />
-        <SettingsOptionCard
-          onClick={() => setView('security')}
-          icon={ShieldCheck}
-          title={t('securityTitle')}
-          description={t('securityShort')}
-          selected={view === 'security'}
-        />
-        <SettingsOptionCard
-          onClick={() => setView('danger')}
-          icon={Trash2}
-          title={t('dangerZoneTitle')}
-          description={t('dangerZoneShort')}
-          selected={view === 'danger'}
-          destructive
-        />
-      </div>
+      {view === 'hub' ? (
+        <div className="grid grid-cols-2 gap-3">
+          <SettingsOptionCard
+            onClick={() => setView('edit')}
+            icon={Pencil}
+            title={t('editGroup')}
+            description={t('editGroupShort')}
+          />
+          <SettingsOptionCard
+            onClick={() => setView('share')}
+            icon={FileOutput}
+            title={t('shareAndExport')}
+            description={t('shareAndExportShort')}
+          />
+          <SettingsOptionCard
+            onClick={() => setView('security')}
+            icon={ShieldCheck}
+            title={t('securityTitle')}
+            description={t('securityShort')}
+          />
+          <SettingsOptionCard
+            onClick={() => setView('danger')}
+            icon={Trash2}
+            title={t('dangerZoneTitle')}
+            description={t('dangerZoneShort')}
+            destructive
+          />
+        </div>
+      ) : (
+        <div className="flex">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9 px-3"
+            onClick={() => setView('hub')}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t('backToSettings')}
+          </Button>
+        </div>
+      )}
+
+      {view === 'edit' && <EditGroup />}
 
       {view === 'share' && (
         <GroupSectionCard>

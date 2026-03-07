@@ -303,7 +303,7 @@ export function GroupForm({
                         form.getFieldState('currency').isTouched
                       )
                         form.setValue('currency', currency.symbol, {
-                          shouldValidate: true,
+                          shouldValidate: form.getFieldState('currency').isTouched,
                           shouldTouch: true,
                           shouldDirty: true,
                         })
