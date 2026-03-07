@@ -110,6 +110,8 @@ function QuickLink({
 export function SummaryPageClient() {
   const tExpenses = useTranslations('Expenses')
   const tBalances = useTranslations('Balances')
+  const tSettings = useTranslations('Settings')
+  const tSummary = useTranslations('Summary')
   const locale = useLocale()
   const { groupId, group } = useCurrentGroup()
   const { groupedDebtSummary, isLoading } = useGroupedDebtSummary(groupId)
@@ -127,12 +129,10 @@ export function SummaryPageClient() {
       <GroupSectionCard>
         <GroupSectionHeader>
           <GroupSectionTitle className="text-xl leading-none">
-            {locale.startsWith('es') ? 'Resumen' : 'Summary'}
+            {tSummary('title')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
-            {locale.startsWith('es')
-              ? 'Estado general del grupo y accesos principales.'
-              : 'Group status and the main entry points.'}
+            {tSummary('description')}
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent className="grid gap-3">
@@ -151,12 +151,8 @@ export function SummaryPageClient() {
           <QuickLink
             href={`/groups/${groupId}/settings`}
             icon={Settings}
-            title={locale.startsWith('es') ? 'Ajustes' : 'Settings'}
-            description={
-              locale.startsWith('es')
-                ? 'Editar participantes, moneda, seguridad y exportaciones.'
-                : 'Edit participants, currency, access security, and exports.'
-            }
+            title={tSettings('title')}
+            description={tSummary('settingsDescription')}
           />
         </GroupSectionContent>
       </GroupSectionCard>

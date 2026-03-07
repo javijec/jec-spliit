@@ -2,6 +2,27 @@
   "Homepage": {
     "title": "Comparte <strong>Gastos</strong> con <strong>Amigos y Familia</strong>",
     "description": "¡Bienvenido a <strong>NexoGastos</strong>!",
+    "badges": {
+      "mobileFirst": "Mobile-first",
+      "multiCurrency": "Multi-moneda",
+      "partialPayments": "Pagos parciales",
+      "csvImport": "Importación CSV"
+    },
+    "secondaryCta": "Crear grupo",
+    "features": {
+      "simpleFlow": {
+        "title": "Flujo simple",
+        "description": "Entra al grupo, agrega gastos y liquida sin perderte en pantallas."
+      },
+      "clearExpenses": {
+        "title": "Gastos claros",
+        "description": "Carga importes, participantes y comprobantes desde el celular."
+      },
+      "fastBalances": {
+        "title": "Balances rápidos",
+        "description": "Ve quién le debe a quién y registra pagos parciales cuando haga falta."
+      }
+    },
     "button": {
       "groups": "Ir a grupos",
       "github": "GitHub"
@@ -239,6 +260,19 @@
     "saving": "Guardando…",
     "cancel": "Cancelar",
     "reimbursement": "Reembolso",
+    "mobile": {
+      "unassignedPayer": "Sin asignar",
+      "currentAmount": "Monto actual",
+      "payer": "Paga",
+      "participantsCount": "{count} participante(s)",
+      "step1": "Paso 1",
+      "step1Description": "Define el concepto, la fecha, la moneda y quién hizo el pago.",
+      "step2": "Paso 2",
+      "step3": "Paso 3",
+      "selectedCount": "Seleccionados: {count}",
+      "splitMode": "División: {mode}",
+      "estimatedShare": "Parte estimada:"
+    },
     "conversionUnavailable": "Para establecer una moneda diferente por gasto y convertir los importes, seleccione una moneda no personalizada para el grupo.",
     "originalAmountField": {
       "label": "Monto a convertir"
@@ -370,7 +404,34 @@
     "empty": "Aún no hay información sobre el grupo."
   },
   "Settings": {
-    "title": "Ajustes"
+    "title": "Ajustes",
+    "summaryDescription": "Administra participantes, moneda, acceso y exportaciones.",
+    "editGroup": "Editar grupo",
+    "editGroupDescription": "Nombre, participantes, moneda e información general.",
+    "shareAndExport": "Compartir y exportar",
+    "shareAndExportDescription": "Comparte el acceso al grupo o descarga sus movimientos.",
+    "emptyInformation": "No hay información cargada todavía.",
+    "exportInfoTitle": "Exportación",
+    "exportInfoDescription": "JSON y CSV exportan los gastos del grupo con su información actual.",
+    "securityTitle": "Seguridad",
+    "securityDescription": "Protege el acceso al grupo cuando se comparte por enlace.",
+    "dangerZoneTitle": "Zona peligrosa",
+    "dangerZoneDescription": "Eliminar el grupo borra gastos, balances y actividad."
+  },
+  "Summary": {
+    "title": "Resumen",
+    "description": "Estado general del grupo y accesos principales.",
+    "settingsDescription": "Editar participantes, moneda, seguridad y exportaciones."
+  },
+  "Layout": {
+    "tagline": "Controla gastos compartidos",
+    "footerDescription": "Gestión de gastos compartidos con enfoque móvil.",
+    "groupsCta": "Grupos"
+  },
+  "ExpenseFlow": {
+    "createTitle": "Crear gasto",
+    "editTitle": "Editar gasto",
+    "description": "Completa los datos y guarda el movimiento."
   },
   "Share": {
     "title": "Compartir",

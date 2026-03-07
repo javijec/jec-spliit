@@ -3,6 +3,7 @@
 import { CreateExpenseForm } from '@/app/groups/[groupId]/expenses/create-expense-form'
 import { ExpenseFlowShell } from '@/app/groups/[groupId]/expenses/expense-flow-shell'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
+import { useTranslations } from 'next-intl'
 
 export function CreateExpenseModal({
   groupId,
@@ -11,8 +12,9 @@ export function CreateExpenseModal({
   groupId: string
   runtimeFeatureFlags: RuntimeFeatureFlags
 }) {
+  const t = useTranslations('ExpenseFlow')
   return (
-    <ExpenseFlowShell groupId={groupId} title="Crear gasto">
+    <ExpenseFlowShell groupId={groupId} title={t('createTitle')}>
       <CreateExpenseForm
         groupId={groupId}
         runtimeFeatureFlags={runtimeFeatureFlags}

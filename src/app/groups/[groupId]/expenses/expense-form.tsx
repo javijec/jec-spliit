@@ -333,7 +333,7 @@ export function ExpenseForm({
   const expenseCurrency = conversionRequired ? originalCurrency : groupCurrency
   const selectedPayerName =
     group.participants.find(({ id }) => id === form.watch('paidBy'))?.name ??
-    'Sin asignar'
+    t('mobile.unassignedPayer')
   const selectedParticipantsCount = form.watch('paidFor')?.length ?? 0
   const enteredAmount = Number(form.watch('amount')) || 0
 
@@ -516,7 +516,7 @@ export function ExpenseForm({
           </div>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-sm text-muted-foreground">Monto actual</p>
+              <p className="text-sm text-muted-foreground">{t('mobile.currentAmount')}</p>
               <p className="text-2xl font-semibold leading-none">
                 {expenseCurrency.symbol || group.currency}
                 {enteredAmount || 0}
@@ -524,10 +524,12 @@ export function ExpenseForm({
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
               <span className="rounded-full bg-muted px-2.5 py-1">
-                Paga: {selectedPayerName}
+                {t('mobile.payer')}: {selectedPayerName}
               </span>
               <span className="rounded-full bg-muted px-2.5 py-1">
-                {selectedParticipantsCount} participante(s)
+                {t('mobile.participantsCount', {
+                  count: selectedParticipantsCount,
+                })}
               </span>
             </div>
           </div>
@@ -535,9 +537,9 @@ export function ExpenseForm({
         <Card className="overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
             <SectionIntro
-              eyebrow="Paso 1"
+              eyebrow={t('mobile.step1')}
               title={t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
-              description="Define el concepto, la fecha, la moneda y quién hizo el pago."
+              description={t('mobile.step1Description')}
             />
           </CardHeader>
           <CardContent className="grid sm:grid-cols-2 gap-6 p-4 sm:p-6">
@@ -690,7 +692,7 @@ export function ExpenseForm({
         <Card className="mt-4 overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
             <SectionIntro
-              eyebrow="Paso 2"
+              eyebrow={t('mobile.step2')}
               title={t(`${sExpense}.paidFor.title`)}
               description={t(`${sExpense}.paidFor.description`)}
             />
@@ -698,14 +700,16 @@ export function ExpenseForm({
           <CardContent className="p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
               <span className="rounded-full bg-muted px-2.5 py-1">
-                Seleccionados: {selectedParticipantsCount}
+                {t('mobile.selectedCount', { count: selectedParticipantsCount })}
               </span>
               <span className="rounded-full bg-muted px-2.5 py-1">
-                División: {t(`SplitModeField.${match(form.getValues().splitMode)
-                  .with('EVENLY', () => 'evenly')
-                  .with('BY_SHARES', () => 'byShares')
-                  .with('BY_PERCENTAGE', () => 'byPercentage')
-                  .otherwise(() => 'byAmount')}`)}
+                {t('mobile.splitMode', {
+                  mode: t(`SplitModeField.${match(form.getValues().splitMode)
+                    .with('EVENLY', () => 'evenly')
+                    .with('BY_SHARES', () => 'byShares')
+                    .with('BY_PERCENTAGE', () => 'byPercentage')
+                    .otherwise(() => 'byAmount')}`),
+                })}
               </span>
             </div>
             <FormField
@@ -774,7 +778,7 @@ export function ExpenseForm({
                                 {isSelected &&
                                   !form.watch('isReimbursement') && (
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                      Parte estimada:{' '}
+                                      {t('mobile.estimatedShare')}{' '}
                                       {formatCurrency(
                                         expenseCurrency,
                                         calculateShare(id, {
@@ -1092,7 +1096,7 @@ export function ExpenseForm({
           <Card className="mt-4 overflow-hidden">
             <CardHeader className="p-4 sm:p-6 border-b">
               <SectionIntro
-                eyebrow="Paso 3"
+                eyebrow={t('mobile.step3')}
                 title={t('attachDocuments')}
                 description={t(`${sExpense}.attachDescription`)}
               />

@@ -71,6 +71,7 @@ function SettingsActionCard({
 
 export function SettingsPageClient() {
   const { groupId } = useCurrentGroup()
+  const t = useTranslations('Settings')
   const [password, setPassword] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmChecked, setDeleteConfirmChecked] = useState(false)
@@ -117,10 +118,10 @@ export function SettingsPageClient() {
       <GroupSectionCard>
         <GroupSectionHeader>
           <GroupSectionTitle className="text-xl leading-none">
-            Ajustes
+            {t('title')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
-            Administra participantes, moneda, acceso y exportaciones.
+            {t('summaryDescription')}
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent className="space-y-3">
@@ -140,8 +141,8 @@ export function SettingsPageClient() {
             <SettingsActionCard
               href={`/groups/${groupId}/edit`}
               icon={Pencil}
-              title="Editar grupo"
-              description="Nombre, participantes, moneda e información general."
+              title={t('editGroup')}
+              description={t('editGroupDescription')}
             />
             <SettingsActionCard
               href={`/groups/${groupId}/balances`}
@@ -156,10 +157,10 @@ export function SettingsPageClient() {
       <GroupSectionCard>
         <GroupSectionHeader>
           <GroupSectionTitle className="text-xl leading-none">
-            Compartir y exportar
+            {t('shareAndExport')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
-            Comparte el acceso al grupo o descarga sus movimientos.
+            {t('shareAndExportDescription')}
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent className="space-y-3">
@@ -185,17 +186,17 @@ export function SettingsPageClient() {
               Información del grupo
             </div>
             <p className="mt-2 whitespace-pre-wrap text-muted-foreground">
-              {data.group.information?.trim() || 'No hay información cargada todavía.'}
+              {data.group.information?.trim() || t('emptyInformation')}
             </p>
           </div>
 
           <div className="rounded-xl border bg-muted/30 p-3 text-sm">
             <div className="flex items-center gap-2 font-medium">
               <FileOutput className="h-4 w-4" />
-              Exportación
+              {t('exportInfoTitle')}
             </div>
             <p className="mt-2 text-muted-foreground">
-              JSON y CSV exportan los gastos del grupo con su información actual.
+              {t('exportInfoDescription')}
             </p>
           </div>
         </GroupSectionContent>
@@ -205,10 +206,10 @@ export function SettingsPageClient() {
         <GroupSectionHeader>
           <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
             <ShieldCheck className="h-5 w-5" />
-            Seguridad
+            {t('securityTitle')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
-            Protege el acceso al grupo cuando se comparte por enlace.
+            {t('securityDescription')}
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent className="space-y-3">
@@ -279,10 +280,10 @@ export function SettingsPageClient() {
       <GroupSectionCard className="border-destructive/30">
         <GroupSectionHeader>
           <GroupSectionTitle className="text-xl leading-none">
-            Zona peligrosa
+            {t('dangerZoneTitle')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
-            Eliminar el grupo borra gastos, balances y actividad.
+            {t('dangerZoneDescription')}
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent>

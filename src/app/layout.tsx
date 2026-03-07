@@ -9,7 +9,7 @@ import { env } from '@/lib/env'
 import { TRPCProvider } from '@/trpc/client'
 import { ExternalLink, FolderKanban } from 'lucide-react'
 import type { Metadata, Viewport } from 'next'
-import { NextIntlClientProvider } from 'next-intl'
+import { NextIntlClientProvider, useTranslations } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -65,6 +65,7 @@ export const viewport: Viewport = {
 }
 
 function Content({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('Layout')
   return (
     <TRPCProvider>
       <header className="fixed left-0 right-0 top-0 z-50 border-b bg-background/88 backdrop-blur-md">
@@ -87,12 +88,12 @@ function Content({ children }: { children: React.ReactNode }) {
                 NexoGastos
               </p>
               <p className="hidden text-xs text-muted-foreground sm:block">
-                Controla gastos compartidos
+                {t('tagline')}
               </p>
             </div>
           </Link>
           <div role="navigation" aria-label="Menu" className="flex items-center gap-1">
-            <ButtonLink href="/groups" label="Grupos" />
+            <ButtonLink href="/groups" label={t('groupsCta')} />
             <ul className="flex items-center text-sm gap-0.5 sm:gap-1">
               <li>
                 <LocaleSwitcher />
@@ -127,7 +128,7 @@ function Content({ children }: { children: React.ReactNode }) {
                   NexoGastos
                 </Link>
                 <p className="text-xs text-muted-foreground sm:text-sm">
-                  Gestión de gastos compartidos con enfoque móvil.
+                  {t('footerDescription')}
                 </p>
               </div>
             </div>

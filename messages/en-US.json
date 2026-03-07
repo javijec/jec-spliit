@@ -2,6 +2,27 @@
   "Homepage": {
     "title": "Share <strong>Expenses</strong> with <strong>Friends & Family</strong>",
     "description": "Welcome to <strong>NexoGastos</strong>!",
+    "badges": {
+      "mobileFirst": "Mobile-first",
+      "multiCurrency": "Multi-currency",
+      "partialPayments": "Partial payments",
+      "csvImport": "CSV import"
+    },
+    "secondaryCta": "Create group",
+    "features": {
+      "simpleFlow": {
+        "title": "Simple flow",
+        "description": "Open a group, add expenses, and settle up without getting lost in screens."
+      },
+      "clearExpenses": {
+        "title": "Clear expenses",
+        "description": "Add amounts, participants, and receipts directly from your phone."
+      },
+      "fastBalances": {
+        "title": "Fast balances",
+        "description": "See who owes whom and record partial payments when needed."
+      }
+    },
     "button": {
       "groups": "Go to groups",
       "github": "GitHub"
@@ -259,7 +280,20 @@
     "save": "Save",
     "saving": "Saving…",
     "cancel": "Cancel",
-    "reimbursement": "Reimbursement"
+    "reimbursement": "Reimbursement",
+    "mobile": {
+      "unassignedPayer": "Unassigned",
+      "currentAmount": "Current amount",
+      "payer": "Paid by",
+      "participantsCount": "{count} participant(s)",
+      "step1": "Step 1",
+      "step1Description": "Define the concept, date, currency, and who made the payment.",
+      "step2": "Step 2",
+      "step3": "Step 3",
+      "selectedCount": "Selected: {count}",
+      "splitMode": "Split: {mode}",
+      "estimatedShare": "Estimated share:"
+    }
   },
   "ExpenseDocumentsInput": {
     "TooBigToast": {
@@ -370,7 +404,34 @@
     "empty": "No group information yet."
   },
   "Settings": {
-    "title": "Settings"
+    "title": "Settings",
+    "summaryDescription": "Manage participants, currency, access, and exports.",
+    "editGroup": "Edit group",
+    "editGroupDescription": "Name, participants, currency, and general information.",
+    "shareAndExport": "Share and export",
+    "shareAndExportDescription": "Share group access or download its records.",
+    "emptyInformation": "There is no information yet.",
+    "exportInfoTitle": "Export",
+    "exportInfoDescription": "JSON and CSV export the group expenses with their current information.",
+    "securityTitle": "Security",
+    "securityDescription": "Protect group access when sharing by link.",
+    "dangerZoneTitle": "Danger zone",
+    "dangerZoneDescription": "Deleting the group removes expenses, balances, and activity."
+  },
+  "Summary": {
+    "title": "Summary",
+    "description": "General group status and main entry points.",
+    "settingsDescription": "Edit participants, currency, access security, and exports."
+  },
+  "Layout": {
+    "tagline": "Track shared expenses",
+    "footerDescription": "Shared expense management with a mobile-first approach.",
+    "groupsCta": "Groups"
+  },
+  "ExpenseFlow": {
+    "createTitle": "Create expense",
+    "editTitle": "Edit expense",
+    "description": "Complete the details and save the transaction."
   },
   "Share": {
     "title": "Share",

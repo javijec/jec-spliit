@@ -20,16 +20,16 @@ export default function HomePage() {
         <div className="rounded-[1.75rem] border bg-card/75 p-5 shadow-sm backdrop-blur-sm sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Mobile-first
+              {t('Homepage.badges.mobileFirst')}
             </Badge>
             <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Multi-moneda
+              {t('Homepage.badges.multiCurrency')}
             </Badge>
             <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Pagos parciales
+              {t('Homepage.badges.partialPayments')}
             </Badge>
             <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Importación CSV
+              {t('Homepage.badges.csvImport')}
             </Badge>
           </div>
 
@@ -60,30 +60,36 @@ export default function HomePage() {
                 variant="outline"
                 className="w-full sm:w-auto"
               >
-                <Link href="/groups/create">Crear grupo</Link>
+                <Link href="/groups/create">{t('Homepage.secondaryCta')}</Link>
               </Button>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border bg-background/70 p-4">
                 <Smartphone className="h-5 w-5 text-primary" />
-                <p className="mt-3 font-medium">Flujo simple</p>
+                <p className="mt-3 font-medium">
+                  {t('Homepage.features.simpleFlow.title')}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Entra al grupo, agrega gastos y liquida sin perderte en pantallas.
+                  {t('Homepage.features.simpleFlow.description')}
                 </p>
               </div>
               <div className="rounded-2xl border bg-background/70 p-4">
                 <ReceiptText className="h-5 w-5 text-primary" />
-                <p className="mt-3 font-medium">Gastos claros</p>
+                <p className="mt-3 font-medium">
+                  {t('Homepage.features.clearExpenses.title')}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Carga importes, participantes y comprobantes desde el celular.
+                  {t('Homepage.features.clearExpenses.description')}
                 </p>
               </div>
               <div className="rounded-2xl border bg-background/70 p-4">
                 <HandCoins className="h-5 w-5 text-primary" />
-                <p className="mt-3 font-medium">Balances rápidos</p>
+                <p className="mt-3 font-medium">
+                  {t('Homepage.features.fastBalances.title')}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Ve quién le debe a quién y registra pagos parciales cuando haga falta.
+                  {t('Homepage.features.fastBalances.description')}
                 </p>
               </div>
             </div>
