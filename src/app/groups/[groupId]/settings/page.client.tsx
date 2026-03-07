@@ -36,6 +36,7 @@ import {
   Trash2,
   Users,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -147,8 +148,8 @@ export function SettingsPageClient() {
             <SettingsActionCard
               href={`/groups/${groupId}/balances`}
               icon={Users}
-              title="Ver balances"
-              description="Revisa liquidaciones y pagos pendientes del grupo."
+              title={t('viewBalances')}
+              description={t('viewBalancesDescription')}
             />
           </div>
         </GroupSectionContent>
@@ -183,7 +184,7 @@ export function SettingsPageClient() {
           <div className="rounded-xl border bg-muted/30 p-3 text-sm">
             <div className="flex items-center gap-2 font-medium">
               <Info className="h-4 w-4" />
-              Información del grupo
+              {t('groupInformationTitle')}
             </div>
             <p className="mt-2 whitespace-pre-wrap text-muted-foreground">
               {data.group.information?.trim() || t('emptyInformation')}
