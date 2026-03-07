@@ -331,6 +331,7 @@
       "continue": "Continuar",
       "included": "Incluido",
       "excluded": "Fuera",
+      "tapToInclude": "Toca para incluirlo en el reparto",
       "selectedCount": "Seleccionados: {count}",
       "splitMode": "División: {mode}",
       "estimatedShare": "Parte estimada:"

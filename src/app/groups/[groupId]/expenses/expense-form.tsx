@@ -529,6 +529,7 @@ export function ExpenseForm({
   const currentStepIndex = flowSteps.findIndex((step) => step.id === currentStep)
   const isLastStep = currentStepIndex === flowSteps.length - 1
   const isFirstStep = currentStepIndex <= 0
+  const stepProgress = ((currentStepIndex + 1) / flowSteps.length) * 100
 
   useEffect(() => {
     if (!flowSteps.some((step) => step.id === currentStep)) {
@@ -651,6 +652,12 @@ export function ExpenseForm({
                 {flowSteps[currentStepIndex]?.label}
               </p>
             </div>
+            <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+                style={{ width: `${stepProgress}%` }}
+              />
+            </div>
             <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${flowSteps.length}, minmax(0, 1fr))` }}>
               {flowSteps.map((step, index) => {
                 const isActive = step.id === currentStep
@@ -661,9 +668,9 @@ export function ExpenseForm({
                     type="button"
                     onClick={() => goToStep(step.id)}
                     className={cn(
-                      'rounded-xl border px-3 py-2 text-left transition-colors',
+                      'rounded-xl border px-3 py-2 text-left transition-all duration-200',
                       isActive
-                        ? 'border-primary bg-primary/10'
+                        ? 'border-primary bg-primary/10 shadow-sm'
                         : isPast
                           ? 'border-primary/20 bg-primary/5'
                           : 'border-border bg-background',
@@ -904,9 +911,9 @@ export function ExpenseForm({
                               expenseCurrency.code || expenseCurrency.symbol
                             }`}
                             className={cn(
-                              '-mx-2 mb-2 rounded-xl border px-3 py-3 transition-colors sm:-mx-0',
+                              '-mx-2 mb-2 rounded-2xl border px-3 py-3 transition-all duration-200 sm:-mx-0',
                               isSelected
-                                ? 'border-primary/30 bg-primary/5'
+                                ? 'border-primary/30 bg-primary/5 shadow-sm'
                                 : 'border-border/70 bg-card/40',
                             )}
                           >
@@ -944,9 +951,16 @@ export function ExpenseForm({
                               </FormControl>
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center justify-between gap-2">
-                                  <FormLabel className="flex-1 text-sm font-medium">
-                                    {name}
-                                  </FormLabel>
+                                  <div className="min-w-0 flex-1">
+                                    <FormLabel className="block truncate text-sm font-medium">
+                                      {name}
+                                    </FormLabel>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                      {isSelected
+                                        ? activeSplitModeLabel
+                                        : t('mobile.tapToInclude')}
+                                    </p>
+                                  </div>
                                   <span
                                     className={cn(
                                       'rounded-full px-2 py-0.5 text-[11px]',
@@ -960,7 +974,7 @@ export function ExpenseForm({
                                 </div>
                                 {isSelected &&
                                   !watchedIsReimbursement && (
-                                    <p className="mt-1 text-xs text-muted-foreground">
+                                    <p className="mt-2 text-xs text-muted-foreground">
                                       {t('mobile.estimatedShare')}{' '}
                                       {formatCurrency(
                                         expenseCurrency,
@@ -1001,7 +1015,7 @@ export function ExpenseForm({
                               </div>
                             </FormItem>
                             {isSelected && watchedSplitMode !== 'EVENLY' && (
-                              <div className="mt-3 rounded-xl border bg-background/80 p-3">
+                              <div className="mt-3 rounded-xl border bg-background/90 p-3">
                                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                                   {activeSplitModeLabel}
                                 </p>

@@ -352,6 +352,7 @@
       "continue": "Continue",
       "included": "Included",
       "excluded": "Excluded",
+      "tapToInclude": "Tap to include in the split",
       "selectedCount": "Selected: {count}",
       "splitMode": "Split: {mode}",
       "estimatedShare": "Estimated share:"
