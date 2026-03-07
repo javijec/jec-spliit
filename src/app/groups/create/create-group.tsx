@@ -1,6 +1,7 @@
 'use client'
 
 import { GroupForm } from '@/components/group-form'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -399,151 +400,207 @@ function SplitwiseImportCard() {
   }
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle>Importar desde CSV de Splitwise</CardTitle>
-        <CardDescription>
-          Crea un grupo nuevo desde un export CSV y completa lo que falte antes
-          de importar.
-        </CardDescription>
+    <Card className="mb-6 overflow-hidden border-dashed">
+      <CardHeader className="border-b bg-card/60 p-4 sm:p-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary" className="rounded-full px-3 py-1">
+            CSV
+          </Badge>
+          <Badge variant="secondary" className="rounded-full px-3 py-1">
+            Splitwise
+          </Badge>
+        </div>
+        <div className="mt-3 space-y-1">
+          <CardTitle>Importar desde CSV de Splitwise</CardTitle>
+          <CardDescription>
+            Crea un grupo nuevo desde un export CSV y completa lo que falte antes
+            de importar.
+          </CardDescription>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Input
-          type="file"
-          accept=".csv,text/csv"
-          onChange={(event) => {
-            const file = event.target.files?.[0]
-            if (file) void onSelectCsv(file)
-          }}
-        />
+      <CardContent className="space-y-4 p-4 sm:p-6">
+        <div className="rounded-2xl border bg-muted/20 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">1. Sube el archivo CSV</p>
+              <p className="text-sm text-muted-foreground">
+                Usa el export de Splitwise para precargar participantes y gastos.
+              </p>
+            </div>
+            <Input
+              type="file"
+              accept=".csv,text/csv"
+              className="max-w-full sm:max-w-sm"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) void onSelectCsv(file)
+              }}
+            />
+          </div>
+        </div>
         {!csvData && !parseError && (
-          <p className="text-sm text-muted-foreground">
+          <div className="rounded-xl border bg-card/40 p-4 text-sm text-muted-foreground">
             Subí el export CSV de Splitwise para pre-cargar participantes y
             gastos, luego completás solo los datos faltantes.
-          </p>
+          </div>
         )}
         {parseError && (
-          <div className="text-sm text-destructive flex items-center gap-2">
+          <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             {parseError}
           </div>
         )}
         {csvData && (
           <>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Input
-                value={groupName}
-                onChange={(event) => setGroupName(event.target.value)}
-                placeholder="Nombre del grupo"
-              />
-              <Select
-                value={groupCurrencyCode}
-                onValueChange={(value) => setGroupCurrencyCode(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Moneda del grupo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {csvData.currencyCodes.map((code) => (
-                    <SelectItem key={code} value={code}>
-                      {code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="rounded-2xl border bg-card/40 p-4">
+              <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  Archivo: {csvData.fileName}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  Participantes: {csvData.participants.length}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1">
+                  Gastos: {csvData.expenses.length}
+                </span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  value={groupName}
+                  onChange={(event) => setGroupName(event.target.value)}
+                  placeholder="Nombre del grupo"
+                />
+                <Select
+                  value={groupCurrencyCode}
+                  onValueChange={(value) => setGroupCurrencyCode(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Moneda del grupo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {csvData.currencyCodes.map((code) => (
+                      <SelectItem key={code} value={code}>
+                        {code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Participantes: {csvData.participants.join(', ')}
+              </p>
             </div>
-            <div className="text-sm text-muted-foreground">
-              Participantes: {csvData.participants.join(', ')} · Gastos
-              detectados: {csvData.expenses.length}
-            </div>
+
             {unresolvedExpenses.length > 0 && (
-              <div className="space-y-2">
-                <div className="text-sm font-medium">
-                  Completa quién pagó en {unresolvedExpenses.length} gasto(s):
+              <div className="rounded-2xl border bg-card/40 p-4">
+                <div className="mb-3">
+                  <p className="text-sm font-medium">
+                    2. Completa quién pagó en {unresolvedExpenses.length} gasto(s)
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Solo necesitas resolver los gastos donde no se pudo detectar el pagador.
+                  </p>
                 </div>
-                {unresolvedExpenses.slice(0, 20).map((expense) => (
-                  <div
-                    key={expense.id}
-                    className="grid sm:grid-cols-[1fr_220px] gap-2 items-center"
-                  >
-                    <div className="text-sm">
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-1 text-primary hover:underline mr-2"
-                        onClick={() => openDateDialog(expense)}
-                      >
-                        <CalendarDays className="w-3.5 h-3.5" />
-                        {formatDateLabel(getExpenseDate(expense))}
-                      </button>
-                      · {expense.title}
-                    </div>
-                    <Select
-                      value={payerOverrides[expense.id] ?? ''}
-                      onValueChange={(value) =>
-                        setPayerOverrides((prev) => ({
-                          ...prev,
-                          [expense.id]: value,
-                        }))
-                      }
+                <div className="space-y-2">
+                  {unresolvedExpenses.slice(0, 20).map((expense) => (
+                    <div
+                      key={expense.id}
+                      className="grid gap-2 rounded-xl border bg-background/70 p-3 sm:grid-cols-[1fr_220px] sm:items-center"
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar pagador" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {csvData.participants.map((participant) => (
-                          <SelectItem key={participant} value={participant}>
-                            {participant}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <div className="text-sm">
+                        <button
+                          type="button"
+                          className="mr-2 inline-flex items-center gap-1 text-primary hover:underline"
+                          onClick={() => openDateDialog(expense)}
+                        >
+                          <CalendarDays className="h-3.5 w-3.5" />
+                          {formatDateLabel(getExpenseDate(expense))}
+                        </button>
+                        · {expense.title}
+                      </div>
+                      <Select
+                        value={payerOverrides[expense.id] ?? ''}
+                        onValueChange={(value) =>
+                          setPayerOverrides((prev) => ({
+                            ...prev,
+                            [expense.id]: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar pagador" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {csvData.participants.map((participant) => (
+                            <SelectItem key={participant} value={participant}>
+                              {participant}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-2xl border bg-card/40 p-4">
+              <div className="mb-3">
+                <p className="text-sm font-medium">3. Revisa las fechas</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Opcional. Puedes corregir fechas antes de importar.
+                </p>
+              </div>
+              <div className="space-y-2">
+                {csvData.expenses.slice(0, 12).map((expense) => (
+                  <div
+                    key={`date-${expense.id}`}
+                    className="flex items-center justify-between gap-2 rounded-xl border bg-background/70 p-3"
+                  >
+                    <div className="truncate text-sm">{expense.title}</div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openDateDialog(expense)}
+                      className="shrink-0"
+                    >
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      {formatDateLabel(getExpenseDate(expense))}
+                    </Button>
                   </div>
                 ))}
               </div>
-            )}
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Fecha de gastos (opcional):</div>
-              {csvData.expenses.slice(0, 12).map((expense) => (
-                <div
-                  key={`date-${expense.id}`}
-                  className="flex items-center justify-between gap-2 rounded-md border p-2"
-                >
-                  <div className="text-sm truncate">{expense.title}</div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openDateDialog(expense)}
-                    className="shrink-0"
-                  >
-                    <CalendarDays className="w-4 h-4 mr-2" />
-                    {formatDateLabel(getExpenseDate(expense))}
-                  </Button>
-                </div>
-              ))}
               {csvData.expenses.length > 12 && (
-                <p className="text-xs text-muted-foreground">
+                <p className="mt-3 text-xs text-muted-foreground">
                   Mostrando 12 gastos. El resto mantiene la fecha original del CSV.
                 </p>
               )}
             </div>
-            <Button
-              onClick={() => void importData()}
-              type="button"
-              disabled={importSplitwise.isPending}
-            >
-              {importSplitwise.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Importando...
-                </>
-              ) : (
-                <>
-                  <FileUp className="w-4 h-4 mr-2" />
-                  Crear grupo e importar gastos
-                </>
-              )}
-            </Button>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                Cuando confirmes, se creará el grupo y se importarán todos los gastos válidos.
+              </p>
+              <Button
+                onClick={() => void importData()}
+                type="button"
+                disabled={importSplitwise.isPending}
+                className="w-full sm:w-auto"
+              >
+                {importSplitwise.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Importando...
+                  </>
+                ) : (
+                  <>
+                    <FileUp className="w-4 h-4 mr-2" />
+                    Crear grupo e importar gastos
+                  </>
+                )}
+              </Button>
+            </div>
           </>
         )}
       </CardContent>
