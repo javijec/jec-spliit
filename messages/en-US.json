@@ -344,6 +344,12 @@
       "step1Description": "Define the concept, date, currency, and who made the payment.",
       "step2": "Step 2",
       "step3": "Step 3",
+      "detailsStep": "Details",
+      "splitStep": "Split",
+      "attachmentsStep": "Attachments",
+      "stepCounter": "Step {current} of {total}",
+      "back": "Back",
+      "continue": "Continue",
       "selectedCount": "Selected: {count}",
       "splitMode": "Split: {mode}",
       "estimatedShare": "Estimated share:"

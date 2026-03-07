@@ -323,6 +323,12 @@
       "step1Description": "Define el concepto, la fecha, la moneda y quién hizo el pago.",
       "step2": "Paso 2",
       "step3": "Paso 3",
+      "detailsStep": "Detalles",
+      "splitStep": "Reparto",
+      "attachmentsStep": "Adjuntos",
+      "stepCounter": "Paso {current} de {total}",
+      "back": "Volver",
+      "continue": "Continuar",
       "selectedCount": "Seleccionados: {count}",
       "splitMode": "División: {mode}",
       "estimatedShare": "Parte estimada:"

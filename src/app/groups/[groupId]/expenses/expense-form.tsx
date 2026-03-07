@@ -37,7 +37,7 @@ import { Locale } from '@/i18n/request'
 import { randomId } from '@/lib/api'
 import { defaultCurrencyList, getCurrency } from '@/lib/currency'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
-import { useActiveUser } from '@/lib/hooks'
+import { useActiveUser, useMediaQuery } from '@/lib/hooks'
 import {
   ExpenseFormValues,
   SplittingOptions,
@@ -58,7 +58,7 @@ import { AlertTriangle, ChevronRight, Save } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import { DeletePopup } from '../../../../components/delete-popup'
@@ -91,6 +91,8 @@ function SectionIntro({
     </div>
   )
 }
+
+type FlowStepId = 'details' | 'split' | 'attachments'
 
 const getDefaultSplittingOptions = (
   group: NonNullable<AppRouterOutput['groups']['get']['group']>,
@@ -278,6 +280,7 @@ export function ExpenseForm({
           },
   })
   const activeUserId = useActiveUser(group.id)
+  const isDesktopLayout = useMediaQuery('(min-width: 640px)')
   const watchedPaidBy = useWatch({ control: form.control, name: 'paidBy' })
   const watchedPaidFor = useWatch({ control: form.control, name: 'paidFor' })
   const watchedAmount = useWatch({ control: form.control, name: 'amount' })
@@ -502,6 +505,64 @@ export function ExpenseForm({
     .filter(Boolean)
   const uniqueInvalidFieldLabels = Array.from(new Set(invalidFieldLabels))
   const topInvalidFields = uniqueInvalidFieldLabels.slice(0, 5)
+  const flowSteps = useMemo<Array<{ id: FlowStepId; label: string }>>(
+    () => [
+      { id: 'details', label: t('mobile.detailsStep') },
+      { id: 'split', label: t('mobile.splitStep') },
+      ...(runtimeFeatureFlags.enableExpenseDocuments
+        ? [{ id: 'attachments' as const, label: t('mobile.attachmentsStep') }]
+        : []),
+    ],
+    [runtimeFeatureFlags.enableExpenseDocuments, t],
+  )
+  const [currentStep, setCurrentStep] = useState<FlowStepId>('details')
+  const currentStepIndex = flowSteps.findIndex((step) => step.id === currentStep)
+  const isLastStep = currentStepIndex === flowSteps.length - 1
+  const isFirstStep = currentStepIndex <= 0
+
+  useEffect(() => {
+    if (!flowSteps.some((step) => step.id === currentStep)) {
+      setCurrentStep(flowSteps[flowSteps.length - 1].id)
+    }
+  }, [currentStep, flowSteps])
+
+  const goToStep = (stepId: FlowStepId) => {
+    setCurrentStep(stepId)
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const validateCurrentStep = async () => {
+    switch (currentStep) {
+      case 'details':
+        return form.trigger([
+          'title',
+          'expenseDate',
+          'originalCurrency',
+          'amount',
+          'paidBy',
+        ])
+      case 'split':
+        return form.trigger(['paidFor', 'splitMode'])
+      case 'attachments':
+        return true
+    }
+  }
+
+  const handleAdvanceStep = async () => {
+    const isValid = await validateCurrentStep()
+    if (!isValid) {
+      focusFirstInvalidField()
+      return
+    }
+    if (!isLastStep) {
+      goToStep(flowSteps[currentStepIndex + 1].id)
+    }
+  }
+
+  const shouldShowStep = (stepId: FlowStepId) =>
+    isDesktopLayout || currentStep === stepId
 
   return (
     <Form {...form}>
@@ -557,6 +618,50 @@ export function ExpenseForm({
             </div>
           </div>
         </div>
+        {!isDesktopLayout && (
+          <div className="mb-4 rounded-2xl border bg-card/60 p-3 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm font-medium">
+                {t('mobile.stepCounter', {
+                  current: currentStepIndex + 1,
+                  total: flowSteps.length,
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {flowSteps[currentStepIndex]?.label}
+              </p>
+            </div>
+            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${flowSteps.length}, minmax(0, 1fr))` }}>
+              {flowSteps.map((step, index) => {
+                const isActive = step.id === currentStep
+                const isPast = index < currentStepIndex
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => goToStep(step.id)}
+                    className={cn(
+                      'rounded-xl border px-3 py-2 text-left transition-colors',
+                      isActive
+                        ? 'border-primary bg-primary/10'
+                        : isPast
+                          ? 'border-primary/20 bg-primary/5'
+                          : 'border-border bg-background',
+                    )}
+                  >
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {index + 1}
+                    </p>
+                    <p className="mt-1 text-sm font-medium leading-tight">
+                      {step.label}
+                    </p>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+        {shouldShowStep('details') && (
         <Card className="overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
             <SectionIntro
@@ -711,7 +816,9 @@ export function ExpenseForm({
             />
           </CardContent>
         </Card>
+        )}
 
+        {shouldShowStep('split') && (
         <Card className="mt-4 overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
             <SectionIntro
@@ -1113,8 +1220,9 @@ export function ExpenseForm({
             </Collapsible>
           </CardContent>
         </Card>
+        )}
 
-        {runtimeFeatureFlags.enableExpenseDocuments && (
+        {runtimeFeatureFlags.enableExpenseDocuments && shouldShowStep('attachments') && (
           <Card className="mt-4 overflow-hidden">
             <CardHeader className="p-4 sm:p-6 border-b">
               <SectionIntro
@@ -1139,13 +1247,30 @@ export function ExpenseForm({
         )}
 
         <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 rounded-xl border bg-background/95 px-3 py-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap">
-          <SubmitButton
-            loadingContent={t(isCreate ? 'creating' : 'saving')}
-            className="w-full sm:w-auto"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {t(isCreate ? 'create' : 'save')}
-          </SubmitButton>
+          {!isDesktopLayout && !isFirstStep && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => goToStep(flowSteps[currentStepIndex - 1].id)}
+            >
+              {t('mobile.back')}
+            </Button>
+          )}
+          {(isDesktopLayout || isLastStep) && (
+            <SubmitButton
+              loadingContent={t(isCreate ? 'creating' : 'saving')}
+              className="w-full sm:w-auto"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {t(isCreate ? 'create' : 'save')}
+            </SubmitButton>
+          )}
+          {!isDesktopLayout && !isLastStep && (
+            <Button type="button" className="w-full" onClick={() => void handleAdvanceStep()}>
+              {t('mobile.continue')}
+            </Button>
+          )}
           {!isCreate && onDelete && (
             <DeletePopup
               onDelete={() => onDelete(activeUserId ?? undefined)}
