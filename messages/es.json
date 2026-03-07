@@ -79,6 +79,8 @@
   "Groups": {
     "myGroups": "Mis grupos",
     "create": "Crear",
+    "createPageTitle": "Nuevo grupo",
+    "createPageDescription": "Crea un grupo desde cero o importa gastos existentes para empezar más rápido.",
     "loadingRecent": "Cargando grupos recientes…",
     "NoRecent": {
       "description": "No has visitado ningun grupo recientemente.",
@@ -334,6 +336,8 @@
   "Balances": {
     "title": "Balances",
     "description": "Se trata del importe que ha pagado o ha recibido cada participante.",
+    "emptyTitle": "No hay saldos pendientes",
+    "emptyDescription": "Todos los participantes están al día en todas las monedas.",
     "Reimbursements": {
       "settlementsTitle": "Liquidaciones",
       "noPendingDebtsDescription": "No hay deudas pendientes para saldar en este grupo.",

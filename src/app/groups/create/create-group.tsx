@@ -30,6 +30,7 @@ import { getCurrency } from '@/lib/currency'
 import { amountAsMinorUnits } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { AlertTriangle, CalendarDays, FileUp, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -589,13 +590,22 @@ function SplitwiseImportCard() {
 }
 
 export const CreateGroup = () => {
+  const t = useTranslations('Groups')
   const createGroup = trpc.groups.create.useMutation()
   const utils = trpc.useUtils()
   const router = useRouter()
   const { toast } = useToast()
 
   return (
-    <>
+    <div className="space-y-4">
+      <section className="rounded-2xl border bg-card/70 px-4 py-5 shadow-sm backdrop-blur-sm sm:px-6 sm:py-6">
+        <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+          {t('createPageTitle')}
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
+          {t('createPageDescription')}
+        </p>
+      </section>
       <SplitwiseImportCard />
       <GroupForm
         onSubmit={async (groupFormValues) => {
@@ -621,6 +631,6 @@ export const CreateGroup = () => {
           }
         }}
       />
-    </>
+    </div>
   )
 }
