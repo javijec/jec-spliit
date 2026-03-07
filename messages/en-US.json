@@ -133,6 +133,7 @@
       "importedGroupInfo": "Imported from Splitwise CSV ({fileName})"
     },
     "loadingRecent": "Loading recent groups…",
+    "groupsHeroDescription": "Open a recent group, create a new one, or add one from a link.",
     "NoRecent": {
       "description": "You have not visited any group recently.",
       "create": "Create one",
@@ -535,6 +536,7 @@
   "Share": {
     "title": "Share",
     "description": "For other participants to see the group and add expenses, share its URL with them.",
+    "shareMessage": "Join my group {groupName} on NexoGastos",
     "warning": "Warning!",
     "warningHelp": "Every person with the group URL will be able to see and edit expenses. Share with caution!"
   },

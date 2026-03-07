@@ -128,13 +128,15 @@ export function SettingsPageClient() {
         <GroupSectionContent className="space-y-3">
           <div className="flex flex-wrap gap-1.5">
             <Badge variant="secondary">
-              {data.group.participants.length} participantes
+              {t('participantsBadge', {
+                count: data.group.participants.length,
+              })}
             </Badge>
             {data.group.currencyCode && (
               <Badge variant="secondary">{data.group.currencyCode}</Badge>
             )}
             <Badge variant={data.hasAccessPassword ? 'default' : 'outline'}>
-              {data.hasAccessPassword ? 'Protegido' : 'Abierto'}
+              {data.hasAccessPassword ? t('protected') : t('open')}
             </Badge>
           </div>
 

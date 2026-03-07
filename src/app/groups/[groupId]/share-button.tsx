@@ -34,7 +34,7 @@ export function ShareButton({
 }: Props) {
   const t = useTranslations('Share')
   const baseUrl = useBaseUrl()
-  const url = baseUrl && `${baseUrl}/groups/${group.id}/expenses?ref=share`
+  const url = baseUrl && `${baseUrl}/groups/${group.id}/summary?ref=share`
 
   return (
     <Popover>
@@ -56,7 +56,7 @@ export function ShareButton({
             <Input className="flex-1" defaultValue={url} readOnly />
             <CopyButton text={url} />
             <ShareUrlButton
-              text={`Join my group ${group.name} on NexoGastos`}
+              text={t('shareMessage', { groupName: group.name })}
               url={url}
             />
           </div>

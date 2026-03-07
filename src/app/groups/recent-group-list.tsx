@@ -251,7 +251,7 @@ function GroupsPage({
               <Link href="/groups">{t('myGroups')}</Link>
             </h1>
             <p className="text-sm text-muted-foreground">
-              Abre un grupo reciente, crea uno nuevo o suma uno desde un enlace.
+              {t('groupsHeroDescription')}
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
