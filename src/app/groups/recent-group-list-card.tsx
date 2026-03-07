@@ -17,10 +17,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { StarFilledIcon } from '@radix-ui/react-icons'
-import { Calendar, MoreHorizontal, Star, Users } from 'lucide-react'
+import { ArrowRight, Calendar, MoreHorizontal, Star, Users } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 export function RecentGroupListCard({
   group,
@@ -35,125 +34,120 @@ export function RecentGroupListCard({
   isArchived: boolean
   refreshGroupsFromStorage: () => void
 }) {
-  const router = useRouter()
   const locale = useLocale()
   const toast = useToast()
   const t = useTranslations('Groups')
 
   return (
     <li key={group.id}>
-      <Button
-        variant="secondary"
-        className="group h-fit w-full py-3 rounded-lg border bg-card/70 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5"
-        asChild
-      >
-        <div
-          className="text-base focus-visible:outline-none"
-          onClick={() => router.push(`/groups/${group.id}`)}
-        >
-          <div className="w-full flex flex-col gap-1">
-            <div className="text-base flex gap-2 justify-between">
-              <Link
-                href={`/groups/${group.id}`}
-                className="flex-1 overflow-hidden text-ellipsis"
-              >
-                {group.name}
-              </Link>
-              <span className="flex-shrink-0">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="-my-3 -ml-3 -mr-1.5 hover:scale-105"
+      <div className="rounded-xl border bg-card/70 p-4 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+        <div className="flex items-start gap-3">
+          <Link href={`/groups/${group.id}`} className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-base font-semibold">{group.name}</p>
+                <div className="mt-2 text-muted-foreground text-xs">
+                  {groupDetail ? (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <div className="flex items-center">
+                        <Users className="mr-1 inline h-3 w-3" />
+                        <span>{groupDetail._count.participants}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="mr-1 inline h-3 w-3" />
+                        <span>
+                          {new Date(groupDetail.createdAt).toLocaleDateString(
+                            locale,
+                            {
+                              dateStyle: 'medium',
+                            },
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-3">
+                      <Skeleton className="h-4 w-10 rounded-full" />
+                      <Skeleton className="h-4 w-24 rounded-full" />
+                    </div>
+                  )}
+                </div>
+              </div>
+              <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            </div>
+          </Link>
+
+          <div className="flex shrink-0 items-center">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="-my-2 -ml-2 -mr-1 h-9 w-9"
+              onClick={(event) => {
+                event.stopPropagation()
+                if (isStarred) {
+                  unstarGroup(group.id)
+                } else {
+                  starGroup(group.id)
+                  unarchiveGroup(group.id)
+                }
+                refreshGroupsFromStorage()
+              }}
+            >
+              {isStarred ? (
+                <StarFilledIcon className="h-4 w-4 text-orange-400" />
+              ) : (
+                <Star className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost" className="-my-2 -mr-2 h-9 w-9">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  className="text-destructive"
                   onClick={(event) => {
                     event.stopPropagation()
-                    if (isStarred) {
-                      unstarGroup(group.id)
-                    } else {
-                      starGroup(group.id)
+                    deleteRecentGroup(group)
+                    refreshGroupsFromStorage()
+
+                    toast.toast({
+                      title: t('RecentRemovedToast.title'),
+                      description: t('RecentRemovedToast.description'),
+                    })
+                  }}
+                >
+                  {t('removeRecent')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    if (isArchived) {
                       unarchiveGroup(group.id)
+                    } else {
+                      archiveGroup(group.id)
+                      unstarGroup(group.id)
                     }
                     refreshGroupsFromStorage()
                   }}
                 >
-                  {isStarred ? (
-                    <StarFilledIcon className="w-4 h-4 text-orange-400" />
-                  ) : (
-                    <Star className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="-my-3 -mr-3 -ml-1.5 hover:scale-105"
-                    >
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        deleteRecentGroup(group)
-                        refreshGroupsFromStorage()
-
-                        toast.toast({
-                          title: t('RecentRemovedToast.title'),
-                          description: t('RecentRemovedToast.description'),
-                        })
-                      }}
-                    >
-                      {t('removeRecent')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        if (isArchived) {
-                          unarchiveGroup(group.id)
-                        } else {
-                          archiveGroup(group.id)
-                          unstarGroup(group.id)
-                        }
-                        refreshGroupsFromStorage()
-                      }}
-                    >
-                      {t(isArchived ? 'unarchive' : 'archive')}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </span>
-            </div>
-            <div className="text-muted-foreground font-normal text-xs">
-              {groupDetail ? (
-                <div className="w-full flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Users className="w-3 h-3 inline mr-1" />
-                    <span>{groupDetail._count.participants}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="w-3 h-3 inline mx-1" />
-                    <span>
-                      {new Date(groupDetail.createdAt).toLocaleDateString(
-                        locale,
-                        {
-                          dateStyle: 'medium',
-                        },
-                      )}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex justify-between">
-                  <Skeleton className="h-4 w-6 rounded-full" />
-                  <Skeleton className="h-4 w-24 rounded-full" />
-                </div>
-              )}
-            </div>
+                  {t(isArchived ? 'unarchive' : 'archive')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-      </Button>
+
+        {isArchived && (
+          <div className="mt-3">
+            <span className="inline-flex rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
+              {t('archived')}
+            </span>
+          </div>
+        )}
+      </div>
     </li>
   )
 }
