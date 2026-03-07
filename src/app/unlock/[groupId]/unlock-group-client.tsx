@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 import { Loader2, Lock } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { FormEvent, useState } from 'react'
 
@@ -21,6 +22,7 @@ type Props = {
 }
 
 export function UnlockGroupClient({ groupId, groupName }: Props) {
+  const t = useTranslations('Unlock')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -38,17 +40,17 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
         body: JSON.stringify({ password }),
       })
       if (!response.ok) {
-        throw new Error('Clave incorrecta.')
+        throw new Error(t('invalidPassword'))
       }
       router.replace(`/groups/${groupId}/expenses`)
       router.refresh()
     } catch (error) {
       toast({
-        title: 'No se pudo desbloquear el grupo',
+        title: t('errorTitle'),
         description:
           error instanceof Error
             ? error.message
-            : 'Ocurrió un error al validar la contraseña.',
+            : t('errorDescription'),
         variant: 'destructive',
       })
     } finally {
@@ -62,10 +64,13 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="w-4 h-4" />
-            Grupo protegido
+            {t('title')}
           </CardTitle>
           <CardDescription>
-            Ingresa la contraseña para acceder a <strong>{groupName}</strong>.
+            {t.rich('description', {
+              groupName,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </CardDescription>
         </CardHeader>
         <form onSubmit={onSubmit}>
@@ -74,7 +79,7 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Contraseña del grupo"
+              placeholder={t('placeholder')}
               autoComplete="current-password"
               required
               minLength={4}
@@ -85,10 +90,10 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verificando...
+                  {t('submitting')}
                 </>
               ) : (
-                'Desbloquear'
+                t('submit')
               )}
             </Button>
           </CardFooter>

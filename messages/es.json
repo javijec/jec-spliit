@@ -457,6 +457,16 @@
     "editTitle": "Editar gasto",
     "description": "Completa los datos y guarda el movimiento."
   },
+  "Unlock": {
+    "title": "Grupo protegido",
+    "description": "Ingresa la contraseña para acceder a <strong>{groupName}</strong>.",
+    "placeholder": "Contraseña del grupo",
+    "submit": "Desbloquear",
+    "submitting": "Verificando...",
+    "invalidPassword": "Clave incorrecta.",
+    "errorTitle": "No se pudo desbloquear el grupo",
+    "errorDescription": "Ocurrió un error al validar la contraseña."
+  },
   "GroupTabs": {
     "summary": "Resumen",
     "expenses": "Gastos",

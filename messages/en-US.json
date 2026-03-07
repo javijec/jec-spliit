@@ -457,6 +457,16 @@
     "editTitle": "Edit expense",
     "description": "Complete the details and save the transaction."
   },
+  "Unlock": {
+    "title": "Protected group",
+    "description": "Enter the password to access <strong>{groupName}</strong>.",
+    "placeholder": "Group password",
+    "submit": "Unlock",
+    "submitting": "Checking...",
+    "invalidPassword": "Incorrect password.",
+    "errorTitle": "Could not unlock the group",
+    "errorDescription": "An error occurred while validating the password."
+  },
   "GroupTabs": {
     "summary": "Summary",
     "expenses": "Expenses",
