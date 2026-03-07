@@ -167,10 +167,10 @@ export function SummaryPageClient() {
       <GroupSectionCard>
         <GroupSectionHeader>
           <GroupSectionTitle className="text-xl leading-none">
-            {tSummary('title')}
+            {tSummary('quickActionsTitle')}
           </GroupSectionTitle>
           <GroupSectionDescription className="mt-2">
-            {tSummary('description')}
+            {tSummary('quickActionsDescription')}
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent className="grid gap-3">

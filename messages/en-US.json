@@ -480,6 +480,7 @@
   "Settings": {
     "title": "Settings",
     "summaryDescription": "Manage participants, currency, access, and exports.",
+    "overviewBadge": "Overview",
     "editGroup": "Edit group",
     "editGroupDescription": "Name, participants, currency, and general information.",
     "viewBalances": "View balances",
@@ -523,6 +524,8 @@
   "Summary": {
     "title": "Summary",
     "description": "General group status and main entry points.",
+    "quickActionsTitle": "Quick actions",
+    "quickActionsDescription": "Jump into the group based on what you need to do next.",
     "settingsDescription": "Edit participants, currency, access security, and exports.",
     "participantsBadge": "{count} participant(s)",
     "defaultCurrencyBadge": "Base currency: {currencyCode}",

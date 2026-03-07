@@ -29,6 +29,7 @@ import {
   ArrowRight,
   FileOutput,
   Info,
+  Layers3,
   Lock,
   LockOpen,
   Pencil,
@@ -118,14 +119,6 @@ export function SettingsPageClient() {
     <div className="space-y-4">
       <GroupSectionCard>
         <GroupSectionHeader>
-          <GroupSectionTitle className="text-xl leading-none">
-            {t('title')}
-          </GroupSectionTitle>
-          <GroupSectionDescription className="mt-2">
-            {t('summaryDescription')}
-          </GroupSectionDescription>
-        </GroupSectionHeader>
-        <GroupSectionContent className="space-y-3">
           <div className="flex flex-wrap gap-1.5">
             <Badge variant="secondary">
               {t('participantsBadge', {
@@ -138,8 +131,32 @@ export function SettingsPageClient() {
             <Badge variant={data.hasAccessPassword ? 'default' : 'outline'}>
               {data.hasAccessPassword ? t('protected') : t('open')}
             </Badge>
+            <Badge variant="secondary">
+              <span className="inline-flex items-center gap-1">
+                <Layers3 className="h-3.5 w-3.5" />
+                {t('overviewBadge')}
+              </span>
+            </Badge>
           </div>
+          <GroupSectionTitle className="mt-3 text-xl leading-none">
+            {t('title')}
+          </GroupSectionTitle>
+          <GroupSectionDescription className="mt-2">
+            {t('summaryDescription')}
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+      </GroupSectionCard>
 
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <GroupSectionTitle className="text-xl leading-none">
+            {t('title')}
+          </GroupSectionTitle>
+          <GroupSectionDescription className="mt-2">
+            {t('summaryDescription')}
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+        <GroupSectionContent className="space-y-3">
           <div className="grid gap-3">
             <SettingsActionCard
               href={`/groups/${groupId}/edit`}
