@@ -44,7 +44,7 @@ export function CreateExpenseForm({
             description: 'El gasto se guardó correctamente.',
           })
           utils.groups.expenses.invalidate()
-          router.push(`/groups/${group.id}`)
+          router.push(`/groups/${group.id}/expenses`)
         } catch (error) {
           toast({
             title: 'No se pudo crear el gasto',

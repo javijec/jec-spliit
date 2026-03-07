@@ -1,4 +1,5 @@
 import { EditExpenseForm } from '@/app/groups/[groupId]/expenses/edit-expense-form'
+import { ExpenseFlowShell } from '@/app/groups/[groupId]/expenses/expense-flow-shell'
 import { getRuntimeFeatureFlags } from '@/lib/featureFlags'
 import { Metadata } from 'next'
 
@@ -13,10 +14,12 @@ export default async function EditExpensePage({
 }) {
   const { groupId, expenseId } = await params
   return (
-    <EditExpenseForm
-      groupId={groupId}
-      expenseId={expenseId}
-      runtimeFeatureFlags={await getRuntimeFeatureFlags()}
-    />
+    <ExpenseFlowShell groupId={groupId} title="Editar gasto">
+      <EditExpenseForm
+        groupId={groupId}
+        expenseId={expenseId}
+        runtimeFeatureFlags={await getRuntimeFeatureFlags()}
+      />
+    </ExpenseFlowShell>
   )
 }

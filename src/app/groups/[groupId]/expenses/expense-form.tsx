@@ -1050,7 +1050,7 @@ export function ExpenseForm({
             ></DeletePopup>
           )}
           <Button variant="ghost" asChild>
-            <Link href={`/groups/${group.id}`}>{t('cancel')}</Link>
+            <Link href={`/groups/${group.id}/expenses`}>{t('cancel')}</Link>
           </Button>
         </div>
       </form>

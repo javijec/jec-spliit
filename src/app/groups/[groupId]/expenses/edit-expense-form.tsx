@@ -55,7 +55,7 @@ export function EditExpenseForm({
             description: 'Los cambios se guardaron correctamente.',
           })
           utils.groups.expenses.invalidate()
-          router.push(`/groups/${group.id}`)
+          router.push(`/groups/${group.id}/expenses`)
         } catch (error) {
           toast({
             title: 'No se pudo actualizar el gasto',
@@ -79,7 +79,7 @@ export function EditExpenseForm({
             description: 'El gasto se eliminó correctamente.',
           })
           utils.groups.expenses.invalidate()
-          router.push(`/groups/${group.id}`)
+          router.push(`/groups/${group.id}/expenses`)
         } catch (error) {
           toast({
             title: 'No se pudo eliminar el gasto',
