@@ -73,19 +73,14 @@ const enforceCurrencyPattern = (value: string) =>
     .replace(/[^-\d.]/g, '') // remove all non-numeric characters
 
 function SectionIntro({
-  eyebrow,
   title,
   description,
 }: {
-  eyebrow: string
   title: string
   description: string
 }) {
   return (
     <div className="mb-4 space-y-1">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        {eyebrow}
-      </p>
       <h2 className="text-lg font-semibold leading-none">{title}</h2>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
@@ -645,9 +640,9 @@ export function ExpenseForm({
         )}
         <div className="mb-4 rounded-2xl border bg-card/60 p-4 shadow-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              {isIncome ? 'Ingreso' : 'Gasto'}
-            </span>
+              <span className="inline-flex border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                {isIncome ? 'Ingreso' : 'Gasto'}
+              </span>
             <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
               {formatDateForDisplay(watchedExpenseDate)}
             </span>
@@ -662,14 +657,14 @@ export function ExpenseForm({
                 {flowSteps[currentStepIndex]?.label}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <span className="rounded-full bg-muted px-2.5 py-1">
-                {t('mobile.payer')}: {selectedPayerName}
-              </span>
-              <span className="rounded-full bg-muted px-2.5 py-1">
-                {t('mobile.participantsCount', {
-                  count: selectedParticipantsCount,
-                })}
+              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span className="border bg-muted/30 px-2.5 py-1">
+                  {t('mobile.payer')}: {selectedPayerName}
+                </span>
+              <span className="border bg-muted/30 px-2.5 py-1">
+                  {t('mobile.participantsCount', {
+                    count: selectedParticipantsCount,
+                  })}
               </span>
             </div>
           </div>
@@ -687,10 +682,10 @@ export function ExpenseForm({
                 {flowSteps[currentStepIndex]?.label}
               </p>
             </div>
-            <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
+            <div className="mb-3 h-2 overflow-hidden bg-muted">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
-                style={{ width: `${stepProgress}%` }}
+                  className="h-full bg-primary transition-all duration-300 ease-out"
+                  style={{ width: `${stepProgress}%` }}
               />
             </div>
             <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${flowSteps.length}, minmax(0, 1fr))` }}>
@@ -698,22 +693,22 @@ export function ExpenseForm({
                 const isActive = step.id === currentStep
                 const isPast = index < currentStepIndex
                 return (
-                  <button
-                    key={step.id}
-                    type="button"
-                    onClick={() => goToStep(step.id)}
-                    className={cn(
-                      'rounded-xl border px-3 py-2 text-left transition-all duration-200',
-                      isActive
-                        ? 'border-primary bg-primary/10 shadow-sm'
-                        : isPast
-                          ? 'border-primary/20 bg-primary/5'
-                          : 'border-border bg-background',
-                    )}
-                  >
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                      {index + 1}
-                    </p>
+                    <button
+                      key={step.id}
+                      type="button"
+                      onClick={() => goToStep(step.id)}
+                      className={cn(
+                        'border px-3 py-2 text-left transition-colors duration-150',
+                        isActive
+                          ? 'border-primary/25 bg-primary/8'
+                          : isPast
+                            ? 'border-primary/20 bg-primary/5'
+                            : 'border-border bg-background hover:bg-muted/30',
+                      )}
+                    >
+                      <p className="text-[11px] text-muted-foreground">
+                        {index + 1}
+                      </p>
                     <p className="mt-1 text-sm font-medium leading-tight">
                       {step.label}
                     </p>
@@ -726,11 +721,10 @@ export function ExpenseForm({
         {shouldShowStep('details') && (
         <Card className="overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
-            <SectionIntro
-              eyebrow={t('mobile.step1')}
-              title={t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
-              description={t('mobile.step1Description')}
-            />
+              <SectionIntro
+                title={t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
+                description={t('mobile.step1Description')}
+              />
           </CardHeader>
           <CardContent className="grid sm:grid-cols-2 gap-6 p-4 sm:p-6">
             <FormField
@@ -883,22 +877,21 @@ export function ExpenseForm({
         {shouldShowStep('split') && (
         <Card className="mt-4 overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b">
-            <SectionIntro
-              eyebrow={t('mobile.step2')}
-              title={t(`${sExpense}.paidFor.title`)}
-              description={t(`${sExpense}.paidFor.description`)}
-            />
+              <SectionIntro
+                title={t(`${sExpense}.paidFor.title`)}
+                description={t(`${sExpense}.paidFor.description`)}
+              />
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
-            <div className="sticky top-[4.5rem] z-10 -mx-4 mb-4 border-b bg-background/95 px-4 pb-4 pt-1 backdrop-blur sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
-              <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="rounded-full bg-muted px-2.5 py-1">
-                {t('mobile.selectedCount', { count: selectedParticipantsCount })}
-                </span>
-                <span className="rounded-full bg-muted px-2.5 py-1">
-                  {t('mobile.splitMode', {
-                    mode: activeSplitModeLabel,
-                  })}
+              <div className="sticky top-[4.5rem] z-10 -mx-4 mb-4 border-b bg-background px-4 pb-4 pt-1 sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
+                <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  <span className="border bg-muted/30 px-2.5 py-1">
+                  {t('mobile.selectedCount', { count: selectedParticipantsCount })}
+                  </span>
+                  <span className="border bg-muted/30 px-2.5 py-1">
+                    {t('mobile.splitMode', {
+                      mode: activeSplitModeLabel,
+                    })}
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -945,12 +938,12 @@ export function ExpenseForm({
                             data-id={`${id}/${watchedSplitMode}/${
                               expenseCurrency.code || expenseCurrency.symbol
                             }`}
-                            className={cn(
-                              '-mx-2 mb-2 rounded-2xl border px-3 py-3 transition-all duration-200 sm:-mx-0',
-                              isSelected
-                                ? 'border-primary/30 bg-primary/5 shadow-sm'
-                                : 'border-border/70 bg-card/40',
-                            )}
+                              className={cn(
+                                '-mx-2 mb-2 border px-3 py-3 transition-colors duration-150 sm:-mx-0',
+                                isSelected
+                                  ? 'border-primary/25 bg-primary/5'
+                                  : 'border-border/70 bg-card/40 hover:bg-muted/20',
+                              )}
                           >
                             <FormItem className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:space-x-3 sm:space-y-0">
                               <FormControl>
@@ -1050,8 +1043,8 @@ export function ExpenseForm({
                               </div>
                             </FormItem>
                             {isSelected && watchedSplitMode !== 'EVENLY' && (
-                              <div className="mt-3 rounded-xl border bg-background/90 p-3">
-                                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                              <div className="mt-3 border bg-background p-3">
+                                <p className="mb-2 text-[11px] font-medium text-muted-foreground">
                                   {activeSplitModeLabel}
                                 </p>
                                 <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
@@ -1248,7 +1241,7 @@ export function ExpenseForm({
             />
 
             <Collapsible
-              className="mt-5 rounded-xl border bg-muted/20 px-3 py-2"
+              className="mt-5 border bg-muted/15 px-3 py-2"
               defaultOpen={form.getValues().splitMode !== 'EVENLY'}
             >
               <CollapsibleTrigger asChild>
@@ -1329,11 +1322,10 @@ export function ExpenseForm({
         {runtimeFeatureFlags.enableExpenseDocuments && shouldShowStep('attachments') && (
           <Card className="mt-4 overflow-hidden">
             <CardHeader className="p-4 sm:p-6 border-b">
-              <SectionIntro
-                eyebrow={t('mobile.step3')}
-                title={t('attachDocuments')}
-                description={t(`${sExpense}.attachDescription`)}
-              />
+                <SectionIntro
+                  title={t('attachDocuments')}
+                  description={t(`${sExpense}.attachDescription`)}
+                />
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <FormField
@@ -1350,7 +1342,7 @@ export function ExpenseForm({
           </Card>
         )}
 
-        <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 rounded-xl border bg-background/95 px-3 py-3 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap">
+        <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 border bg-background px-3 py-3 sm:flex-row sm:flex-wrap">
           {!isDesktopLayout && footerHint.length > 0 && (
             <p
               className={cn(
