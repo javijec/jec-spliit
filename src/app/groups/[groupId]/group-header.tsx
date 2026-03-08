@@ -10,23 +10,23 @@ export const GroupHeader = () => {
   const t = useTranslations()
 
   return (
-    <div className="sticky top-0 z-30 -mx-4 mb-3 border-b bg-background/90 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:mb-1 sm:border-b-0 sm:bg-transparent sm:px-0 sm:py-0">
+    <div className="-mx-3 mb-4 border-b bg-background px-3 py-4 sm:mx-0 sm:mb-5 sm:px-0 sm:py-0">
       <div className="min-w-0 flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h1 className="min-w-0 font-semibold text-xl sm:text-3xl leading-tight tracking-tight">
+          <h1 className="min-w-0 text-xl font-semibold leading-tight tracking-tight sm:text-3xl">
             <Link
               href={`/groups/${groupId}/summary`}
               className="inline-block max-w-full"
             >
               {isLoading ? (
-                <Skeleton className="mt-1.5 mb-1.5 h-7 w-48" />
+                <Skeleton className="mb-1.5 mt-1.5 h-7 w-48" />
               ) : (
                 <span className="block truncate">{group.name}</span>
               )}
             </Link>
           </h1>
           {!isLoading && group && (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-sm">
+            <p className="mt-1 truncate text-xs text-muted-foreground sm:text-sm">
               {t('Settings.participantsBadge', {
                 count: group.participants.length,
               })}

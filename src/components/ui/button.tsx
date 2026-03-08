@@ -5,18 +5,18 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium ring-offset-background motion-safe:transition-[transform,colors,box-shadow,border-color] motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "border border-transparent bg-primary text-primary-foreground shadow-[0_1px_2px_hsl(var(--primary)/0.22),0_3px_8px_hsl(var(--primary)/0.16)] hover:bg-primary/95 hover:shadow-[0_2px_6px_hsl(var(--primary)/0.24),0_8px_18px_hsl(var(--primary)/0.18)]",
+          "border border-transparent bg-primary text-primary-foreground hover:bg-primary/92",
         destructive:
-          "border border-transparent bg-destructive text-destructive-foreground shadow-[0_1px_2px_hsl(var(--destructive)/0.24),0_4px_10px_hsl(var(--destructive)/0.15)] hover:bg-destructive/92 hover:shadow-[0_2px_6px_hsl(var(--destructive)/0.28),0_8px_18px_hsl(var(--destructive)/0.18)]",
+          "border border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/92",
         outline:
-          "border border-border/90 bg-card/80 text-foreground shadow-sm hover:border-primary/20 hover:bg-secondary hover:text-secondary-foreground hover:shadow-md",
+          "border border-border bg-card text-foreground hover:bg-secondary hover:text-secondary-foreground",
         secondary:
-          "border border-transparent bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/88 hover:shadow-md",
+          "border border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/88",
         ghost:
           "text-muted-foreground hover:bg-secondary/75 hover:text-secondary-foreground",
         link: "text-primary underline-offset-4 hover:underline",

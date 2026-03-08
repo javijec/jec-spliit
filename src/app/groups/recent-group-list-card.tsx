@@ -40,13 +40,13 @@ export function RecentGroupListCard({
 
   return (
     <li key={group.id}>
-      <div className="rounded-xl border bg-card/70 p-4 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+      <div className="border bg-card p-4 transition-colors hover:bg-secondary/35">
         <div className="flex items-start gap-3">
           <Link href={`/groups/${group.id}`} className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate text-base font-semibold">{group.name}</p>
-                <div className="mt-2 text-muted-foreground text-xs">
+                <div className="mt-2 text-xs text-muted-foreground">
                   {groupDetail ? (
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <div className="flex items-center">
@@ -67,8 +67,8 @@ export function RecentGroupListCard({
                     </div>
                   ) : (
                     <div className="flex gap-3">
-                      <Skeleton className="h-4 w-10 rounded-full" />
-                      <Skeleton className="h-4 w-24 rounded-full" />
+                      <Skeleton className="h-4 w-10 rounded-sm" />
+                      <Skeleton className="h-4 w-24 rounded-sm" />
                     </div>
                   )}
                 </div>
@@ -142,7 +142,7 @@ export function RecentGroupListCard({
 
         {isArchived && (
           <div className="mt-3">
-            <span className="inline-flex rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
+            <span className="inline-flex rounded-md border px-2 py-0.5 text-[11px] text-muted-foreground">
               {t('archived')}
             </span>
           </div>

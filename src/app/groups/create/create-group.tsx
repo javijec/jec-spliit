@@ -1,7 +1,6 @@
 'use client'
 
 import { GroupForm } from '@/components/group-form'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -402,23 +401,15 @@ function SplitwiseImportCard() {
   }
 
   return (
-    <Card className="mb-6 overflow-hidden border-dashed">
-      <CardHeader className="border-b bg-card/60 p-4 sm:p-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="rounded-full px-3 py-1">
-            {t('badges.csv')}
-          </Badge>
-          <Badge variant="secondary" className="rounded-full px-3 py-1">
-            {t('badges.splitwise')}
-          </Badge>
-        </div>
-        <div className="mt-3 space-y-1">
+    <Card className="mb-6 overflow-hidden border-dashed shadow-none">
+      <CardHeader className="border-b bg-muted/30 p-4 sm:p-5">
+        <div className="space-y-1">
           <CardTitle>{t('title')}</CardTitle>
           <CardDescription>{t('description')}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="space-y-4 p-4 sm:p-6">
-        <div className="rounded-2xl border bg-muted/20 p-4">
+        <div className="border bg-background p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="text-sm font-medium">{t('step1Title')}</p>
@@ -436,27 +427,27 @@ function SplitwiseImportCard() {
           </div>
         </div>
         {!csvData && !parseError && (
-          <div className="rounded-xl border bg-card/40 p-4 text-sm text-muted-foreground">
+          <div className="border bg-background p-4 text-sm text-muted-foreground">
             {t('emptyState')}
           </div>
         )}
         {parseError && (
-          <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          <div className="flex items-center gap-2 border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             {parseError}
           </div>
         )}
         {csvData && (
           <>
-            <div className="rounded-2xl border bg-card/40 p-4">
+            <div className="border bg-background p-4">
               <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="rounded-full bg-muted px-2.5 py-1">
+                <span className="border bg-muted/50 px-2.5 py-1">
                   {t('fileLabel', { fileName: csvData.fileName })}
                 </span>
-                <span className="rounded-full bg-muted px-2.5 py-1">
+                <span className="border bg-muted/50 px-2.5 py-1">
                   {t('participantsLabel', { count: csvData.participants.length })}
                 </span>
-                <span className="rounded-full bg-muted px-2.5 py-1">
+                <span className="border bg-muted/50 px-2.5 py-1">
                   {t('expensesLabel', { count: csvData.expenses.length })}
                 </span>
               </div>
@@ -490,7 +481,7 @@ function SplitwiseImportCard() {
             </div>
 
             {unresolvedExpenses.length > 0 && (
-              <div className="rounded-2xl border bg-card/40 p-4">
+              <div className="border bg-background p-4">
                 <div className="mb-3">
                   <p className="text-sm font-medium">
                     {t('step2Title', { count: unresolvedExpenses.length })}
@@ -501,7 +492,7 @@ function SplitwiseImportCard() {
                   {unresolvedExpenses.slice(0, 20).map((expense) => (
                     <div
                       key={expense.id}
-                      className="grid gap-2 rounded-xl border bg-background/70 p-3 sm:grid-cols-[1fr_220px] sm:items-center"
+                      className="grid gap-2 border bg-card p-3 sm:grid-cols-[1fr_220px] sm:items-center"
                     >
                       <div className="text-sm">
                         <button
@@ -540,7 +531,7 @@ function SplitwiseImportCard() {
               </div>
             )}
 
-            <div className="rounded-2xl border bg-card/40 p-4">
+            <div className="border bg-background p-4">
               <div className="mb-3">
                 <p className="text-sm font-medium">{t('step3Title')}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{t('step3Description')}</p>
@@ -549,7 +540,7 @@ function SplitwiseImportCard() {
                 {csvData.expenses.slice(0, 12).map((expense) => (
                   <div
                     key={`date-${expense.id}`}
-                    className="flex items-center justify-between gap-2 rounded-xl border bg-background/70 p-3"
+                    className="flex items-center justify-between gap-2 border bg-card p-3"
                   >
                     <div className="truncate text-sm">{expense.title}</div>
                     <Button
@@ -582,12 +573,12 @@ function SplitwiseImportCard() {
               >
                 {importSplitwise.isPending ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {t('submitting')}
                   </>
                 ) : (
                   <>
-                    <FileUp className="w-4 h-4 mr-2" />
+                    <FileUp className="mr-2 h-4 w-4" />
                     {t('submit')}
                   </>
                 )}
@@ -646,8 +637,8 @@ export const CreateGroup = () => {
   const { toast } = useToast()
 
   return (
-    <div className="space-y-4">
-      <section className="rounded-2xl border bg-card/70 px-4 py-5 shadow-sm backdrop-blur-sm sm:px-6 sm:py-6">
+    <div className="space-y-5">
+      <section className="border-b pb-5 sm:pb-6">
         <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
           {t('createPageTitle')}
         </h1>

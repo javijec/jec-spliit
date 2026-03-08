@@ -250,7 +250,7 @@ export function GroupForm({
           </Alert>
         )}
 
-        <Card className="mb-4">
+        <Card className="mb-4 shadow-none">
           <CardHeader>
             <CardTitle>{t('title')}</CardTitle>
           </CardHeader>
@@ -340,7 +340,7 @@ export function GroupForm({
         </Card>
 
         <div className="mb-4 grid gap-4 lg:grid-cols-2">
-          <Card className="h-full">
+          <Card className="h-full shadow-none">
             <CardHeader>
               <CardTitle>{t('Participants.title')}</CardTitle>
               <CardDescription className="hidden sm:block">
@@ -421,7 +421,7 @@ export function GroupForm({
             </CardFooter>
           </Card>
 
-          <Card className="h-full">
+          <Card className="h-full shadow-none">
             <CardHeader>
               <CardTitle>{t('Settings.title')}</CardTitle>
               <CardDescription>{t('Settings.description')}</CardDescription>
@@ -488,3 +488,4 @@ export function GroupForm({
     </Form>
   )
 }
+

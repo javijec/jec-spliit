@@ -12,12 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrency, type Currency } from '@/lib/currency'
 import { formatCurrency } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import {
-  HandCoins,
-  Layers3,
-  Users,
-  Wallet,
-} from 'lucide-react'
+import { HandCoins, Layers3, Users, Wallet } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
@@ -100,22 +95,22 @@ export function SummaryPageClient() {
     <div className="space-y-5">
       <GroupSectionCard>
         <GroupSectionHeader>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
               <Users className="h-3.5 w-3.5" />
               {tSummary('participantsBadge', {
                 count: group?.participants.length ?? 0,
               })}
             </span>
             {group?.currencyCode && (
-              <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
                 <Wallet className="h-3.5 w-3.5" />
                 {tSummary('defaultCurrencyBadge', {
                   currencyCode: group.currencyCode,
                 })}
               </span>
             )}
-            <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
               <Layers3 className="h-3.5 w-3.5" />
               {groupedDebtSummary.length > 0
                 ? tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })
@@ -144,8 +139,8 @@ export function SummaryPageClient() {
           {isLoading ? (
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
-                <Skeleton className="h-6 w-36 rounded-full" />
-                <Skeleton className="h-6 w-32 rounded-full" />
+                <Skeleton className="h-6 w-36 rounded-sm" />
+                <Skeleton className="h-6 w-32 rounded-sm" />
               </div>
               <Skeleton className="h-14 w-full rounded-lg" />
               <Skeleton className="h-14 w-full rounded-lg" />
@@ -159,26 +154,26 @@ export function SummaryPageClient() {
           ) : (
             <div className="space-y-2.5">
               <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="rounded-full bg-muted px-2.5 py-1">
+                <span className="border bg-muted/50 px-2.5 py-1">
                   {tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })}
                 </span>
-                <span className="rounded-full bg-muted px-2.5 py-1">
+                <span className="border bg-muted/50 px-2.5 py-1">
                   {tSummary('currenciesBadge', { count: debtCurrencyCount })}
                 </span>
               </div>
               {groupedDebtSummary.map((pair) => (
                 <div
                   key={`${pair.from}-${pair.to}`}
-                  className="rounded-lg border bg-card/60 p-3 text-sm"
+                  className="border bg-background p-3 text-sm"
                 >
                   <div className="leading-snug">
-                    <span className="font-semibold break-words">
+                    <span className="break-words font-semibold">
                       {getParticipantName(pair.from)}
                     </span>{' '}
                     <span className="text-muted-foreground">
                       {tExpenses('Debts.owesTo')}
                     </span>{' '}
-                    <span className="font-semibold break-words">
+                    <span className="break-words font-semibold">
                       {getParticipantName(pair.to)}
                     </span>
                   </div>
@@ -186,7 +181,7 @@ export function SummaryPageClient() {
                     {pair.items.map((item) => (
                       <span
                         key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                        className="inline-flex items-center rounded-full border bg-muted/60 px-2 py-0.5 text-xs tabular-nums"
+                        className="inline-flex items-center rounded-md border bg-muted/40 px-2 py-0.5 text-xs tabular-nums"
                       >
                         {formatCurrency(
                           resolveCurrency(item.currencyCode),

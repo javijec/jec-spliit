@@ -11,7 +11,7 @@ function FooterLink({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener"
-      className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-card hover:text-foreground sm:text-sm"
+      className="inline-flex items-center gap-1 rounded-md border px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:text-sm"
     >
       <span>{label}</span>
       <ExternalLink className="h-3.5 w-3.5" />
@@ -31,11 +31,11 @@ export function ConditionalFooter({
   }
 
   return (
-    <footer id="app-footer" className="mt-8 border-t bg-background/80 sm:mt-16">
-      <div className="mx-auto grid w-full max-w-screen-xl gap-6 px-4 py-6 sm:px-4 sm:py-8 lg:px-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <footer id="app-footer" className="mt-8 border-t bg-background sm:mt-14">
+      <div className="mx-auto grid w-full max-w-screen-xl gap-6 px-4 py-6 sm:py-8 lg:px-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border bg-card/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md border bg-card">
               <Image
                 src="/logo.svg"
                 className="h-5 w-5 object-contain"

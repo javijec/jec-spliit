@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
   manifest: '/manifest.webmanifest',
   title: {
-    default: 'NexoGastos · Gestión de Gastos',
+    default: 'NexoGastos · Gestion de Gastos',
     template: '%s · NexoGastos',
   },
   description:
     'NexoGastos es una app para compartir y gestionar gastos, basada en Spliit.',
   openGraph: {
-    title: 'NexoGastos · Gestión de Gastos',
+    title: 'NexoGastos · Gestion de Gastos',
     description:
       'NexoGastos es una app para compartir y gestionar gastos, basada en Spliit.',
     images: `/banner.png`,
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     creator: '@scastiel',
     site: '@scastiel',
     images: `/banner.png`,
-    title: 'NexoGastos · Gestión de Gastos',
+    title: 'NexoGastos · Gestion de Gastos',
     description:
       'NexoGastos es una app para compartir y gestionar gastos, basada en Spliit.',
   },
@@ -70,13 +70,13 @@ function Content({ children }: { children: React.ReactNode }) {
   const t = useTranslations('Layout')
   return (
     <TRPCProvider>
-      <header className="fixed left-0 right-0 top-0 z-50 border-b bg-background/88 backdrop-blur-md">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b bg-background">
         <div className="mx-auto flex h-16 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:px-4 lg:px-8">
           <Link
-            className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-primary/10"
+            className="flex items-center gap-3 rounded-md px-1 py-1 transition-colors hover:bg-secondary"
             href="/"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border bg-card/80">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md border bg-card">
               <Image
                 src="/logo.svg"
                 className="h-5 w-5 object-contain sm:h-6 sm:w-6"
@@ -94,9 +94,9 @@ function Content({ children }: { children: React.ReactNode }) {
               </p>
             </div>
           </Link>
-          <div role="navigation" aria-label="Menu" className="flex items-center gap-1">
+          <div role="navigation" aria-label="Menu" className="flex items-center gap-2">
             <ButtonLink href="/groups" label={t('groupsCta')} />
-            <ul className="flex items-center text-sm gap-0.5 sm:gap-1">
+            <ul className="flex items-center gap-0.5 text-sm sm:gap-1">
               <li>
                 <LocaleSwitcher />
               </li>
@@ -108,8 +108,8 @@ function Content({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="pt-16 flex-1 flex flex-col app-shell">
-        <div className="relative z-10 flex-1 flex flex-col">{children}</div>
+      <div className="app-shell flex flex-1 flex-col pt-16">
+        <div className="relative z-10 flex flex-1 flex-col">{children}</div>
       </div>
 
       <ConditionalFooter footerDescription={t('footerDescription')} />
@@ -122,7 +122,7 @@ function ButtonLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="hidden items-center gap-2 rounded-xl border bg-card/70 px-3 py-2 text-sm text-foreground/90 transition-colors hover:bg-card sm:inline-flex"
+      className="hidden items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm text-foreground transition-colors hover:bg-secondary sm:inline-flex"
     >
       <FolderKanban className="h-4 w-4 text-primary" />
       <span>{label}</span>
@@ -140,7 +140,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <ApplePwaSplash icon="/logo.svg" color="#027756" />
-      <body className="min-h-[100dvh] flex flex-col items-stretch bg-slate-50 bg-opacity-30 dark:bg-background">
+      <body className="flex min-h-[100dvh] flex-col items-stretch">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider
             attribute="class"

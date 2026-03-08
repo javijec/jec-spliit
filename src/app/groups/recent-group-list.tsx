@@ -17,7 +17,7 @@ import {
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
-import { FolderOpen, Loader2, Sparkles } from 'lucide-react'
+import { FolderOpen, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { PropsWithChildren, useEffect, useState } from 'react'
@@ -117,7 +117,7 @@ function RecentGroupList_({
   if (isLoading || !data) {
     return (
       <GroupsPage reload={refreshGroupsFromStorage}>
-        <div className="rounded-xl border bg-card/60 px-4 py-5 text-sm text-muted-foreground">
+        <div className="border bg-card px-4 py-5 text-sm text-muted-foreground">
           <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
           {t('loadingRecent')}
         </div>
@@ -159,7 +159,7 @@ function RecentGroupList_({
     <GroupsPage reload={refreshGroupsFromStorage}>
       {starredGroupInfo.length > 0 && (
         <>
-          <h2 className="mb-2">{t('starred')}</h2>
+          <h2 className="mb-2 text-lg sm:text-xl">{t('starred')}</h2>
           <GroupList
             groups={starredGroupInfo}
             groupDetails={data.groups}
@@ -172,7 +172,7 @@ function RecentGroupList_({
 
       {groupInfo.length > 0 && (
         <>
-          <h2 className="mt-6 mb-2">{t('recent')}</h2>
+          <h2 className="mb-2 mt-6 text-lg sm:text-xl">{t('recent')}</h2>
           <GroupList
             groups={groupInfo}
             groupDetails={data.groups}
@@ -185,7 +185,7 @@ function RecentGroupList_({
 
       {archivedGroupInfo.length > 0 && (
         <>
-          <h2 className="mt-6 mb-2 opacity-50">{t('archived')}</h2>
+          <h2 className="mb-2 mt-6 text-lg opacity-50 sm:text-xl">{t('archived')}</h2>
           <div className="opacity-50">
             <GroupList
               groups={archivedGroupInfo}
@@ -238,19 +238,14 @@ function GroupsPage({
 }: PropsWithChildren<{ reload: () => void }>) {
   const t = useTranslations('Groups')
   return (
-    <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-2xl border bg-card/70 px-4 py-5 shadow-sm backdrop-blur-sm sm:px-6 sm:py-6">
-        <div className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
-        <div className="relative space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5" />
-            {t('myGroups')}
-          </div>
+    <div className="space-y-5">
+      <section className="border-b pb-5 sm:pb-6">
+        <div className="space-y-3">
           <div className="space-y-1">
-            <h1 className="font-semibold text-2xl leading-tight tracking-tight sm:text-3xl">
+            <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
               <Link href="/groups">{t('myGroups')}</Link>
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
               {t('groupsHeroDescription')}
             </p>
           </div>
@@ -263,9 +258,7 @@ function GroupsPage({
         </div>
       </section>
 
-      <div className="space-y-5">
-        {children}
-      </div>
+      <div className="space-y-5">{children}</div>
     </div>
   )
 }

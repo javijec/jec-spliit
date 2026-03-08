@@ -106,7 +106,7 @@ export function GroupLayoutClient({
             <Button
               asChild
               size="icon"
-              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 z-40 h-12 w-12 rounded-full shadow-[0_10px_24px_rgba(0,0,0,0.28)] sm:hidden"
+              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] right-4 z-40 h-12 w-12 rounded-md border border-primary/10 sm:hidden"
             >
               <Link
                 href={`/groups/${groupId}/expenses/create`}
@@ -116,9 +116,9 @@ export function GroupLayoutClient({
               </Link>
             </Button>
           )}
-          <nav className="fixed inset-x-0 z-40 bottom-[env(safe-area-inset-bottom)] px-3 pb-3 sm:hidden">
+          <nav className="fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-40 px-3 pb-3 sm:hidden">
             <div
-              className={`grid items-center gap-1 rounded-[1.35rem] border border-border/95 bg-card/98 px-2 py-2 shadow-[0_10px_24px_hsl(var(--foreground)/0.12),0_2px_8px_hsl(var(--foreground)/0.08)] backdrop-blur ${
+              className={`grid items-center gap-1 border border-border bg-card px-2 py-2 ${
                 canInstall ? 'grid-cols-5' : 'grid-cols-4'
               }`}
             >
@@ -128,9 +128,9 @@ export function GroupLayoutClient({
                   asChild
                   variant={tab.active ? 'secondary' : 'ghost'}
                   size="sm"
-                  className={`h-11 flex-col gap-1 rounded-xl ${
+                  className={`h-11 flex-col gap-1 rounded-md ${
                     tab.active
-                      ? 'border border-primary/15 bg-primary/12 text-primary shadow-sm'
+                      ? 'border border-border bg-secondary text-foreground'
                       : 'text-muted-foreground'
                   }`}
                 >
@@ -147,7 +147,7 @@ export function GroupLayoutClient({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-11 flex-col gap-1 rounded-xl text-muted-foreground"
+                  className="h-11 flex-col gap-1 rounded-md text-muted-foreground"
                   onClick={() => void install()}
                 >
                   <Download className="h-4 w-4" />
