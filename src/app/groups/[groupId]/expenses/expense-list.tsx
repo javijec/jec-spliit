@@ -42,7 +42,7 @@ function getExpenseGroup(date: Dayjs, today: Dayjs): ExpenseGroupKey {
 
 function groupExpensesByDate(expenses: ExpensesType): GroupedExpenses {
   const today = dayjs()
-  return expenses.reduce<GroupedExpenses>((result, expense) => {
+  return expenses.reduce((result: GroupedExpenses, expense: ExpensesType[number]) => {
     const groupKey = getExpenseGroup(dayjs(expense.expenseDate), today)
     result[groupKey] = result[groupKey] ?? []
     result[groupKey]!.push(expense)
@@ -78,7 +78,7 @@ function EmptyExpenses({ groupId }: { groupId: string }) {
   const t = useTranslations('Expenses')
 
   return (
-    <div className="px-4 sm:px-6 py-6">
+    <div className="px-4 py-6 sm:px-6">
       <EmptyState
         icon={Wallet}
         title={t('noExpenses')}
@@ -115,10 +115,10 @@ function ExpensesByGroup({
 
         return (
           <div key={expenseGroup}>
-            <div className="text-muted-foreground text-[11px] sm:text-xs pl-4 sm:pl-6 py-1.5 font-semibold uppercase tracking-wide bg-card border-b">
+            <div className="border-b bg-muted/20 px-4 py-2 text-[11px] font-medium text-muted-foreground sm:px-5 sm:text-xs">
               {t(`Groups.${expenseGroup}`)}
             </div>
-            {expensesInGroup.map((expense, index) => (
+            {expensesInGroup.map((expense: ExpensesType[number], index: number) => (
               <ExpenseCard
                 key={`${expenseGroup}-${expense.id}-${index}`}
                 expense={expense}
@@ -179,34 +179,34 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
   if (expenses.length === 0) return <EmptyExpenses groupId={groupId} />
 
   return (
-    <>
+    <div className="border-t">
       <ExpensesByGroup groupedExpenses={groupedExpenses} groupId={groupId} />
       {hasMore && <ExpensesLoading ref={loadingRef} />}
-    </>
+    </div>
   )
 }
 
 const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className="space-y-4 px-4 sm:px-6">
+    <div ref={ref} className="space-y-4 px-4 py-4 sm:px-5">
       {[0, 1].map((groupIndex) => (
         <div key={groupIndex} className="space-y-2">
-          <Skeleton className="h-3 w-32 rounded-full" />
+          <Skeleton className="h-3 w-32 rounded-sm" />
           {[0, 1].map((index) => (
             <div
               key={`${groupIndex}-${index}`}
-              className="flex items-start justify-between gap-3 rounded-xl border bg-card/60 px-4 py-4 text-sm"
+              className="flex items-start justify-between gap-3 border bg-card px-4 py-4 text-sm"
             >
               <div className="pt-0.5">
-                <Skeleton className="h-4 w-4 rounded-full" />
+                <Skeleton className="h-4 w-4 rounded-sm" />
               </div>
               <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-20 rounded-full" />
-                <Skeleton className="h-4 w-36 rounded-full" />
+                <Skeleton className="h-4 w-20 rounded-sm" />
+                <Skeleton className="h-4 w-36 rounded-sm" />
               </div>
               <div className="flex flex-col items-end gap-2">
-                <Skeleton className="h-4 w-16 rounded-full" />
-                <Skeleton className="h-4 w-20 rounded-full" />
+                <Skeleton className="h-4 w-16 rounded-sm" />
+                <Skeleton className="h-4 w-20 rounded-sm" />
               </div>
             </div>
           ))}

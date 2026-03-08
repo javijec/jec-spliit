@@ -2,9 +2,11 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { BalancesByCurrency } from '@/lib/balances'
 import { Currency, getCurrency } from '@/lib/currency'
 import { cn, formatCurrency } from '@/lib/utils'
-import { Participant } from '@prisma/client'
+import { AppRouterOutput } from '@/trpc/routers/_app'
 import { Scale } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
+
+type Participant = NonNullable<AppRouterOutput['groups']['get']['group']>['participants'][number]
 
 type Props = {
   balancesByCurrency: BalancesByCurrency
@@ -53,7 +55,7 @@ export function BalancesList({
         return (
           <div
             key={participant.id}
-            className="rounded-lg border bg-card/60 p-3 sm:p-4"
+            className="border bg-card p-3 sm:p-4"
           >
             <div className="text-sm font-semibold truncate">
               {participant.name}
@@ -67,9 +69,9 @@ export function BalancesList({
                 return (
                   <div
                     key={`${participant.id}-${currencyCode}-${index}`}
-                    className="flex items-center justify-between gap-2 rounded-md bg-muted/50 px-2.5 py-2"
+                    className="flex items-center justify-between gap-2 border bg-muted/30 px-2.5 py-2"
                   >
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    <span className="text-[11px] font-medium text-muted-foreground">
                       {currencyCode}
                     </span>
                     <span

@@ -45,18 +45,18 @@ export default function BalancesAndReimbursements() {
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
             {isLoading ? (
               <>
-                <Skeleton className="h-7 w-44 rounded-full" />
-                <Skeleton className="h-7 w-36 rounded-full" />
+                <Skeleton className="h-7 w-44 rounded-sm" />
+                <Skeleton className="h-7 w-36 rounded-sm" />
               </>
             ) : (
               <>
-                <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1">
+                <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
                   <Wallet className="h-3.5 w-3.5" />
                   {reimbursementCount > 0
                     ? tSummary('pendingPayments', { count: reimbursementCount })
                     : tSummary('allClear')}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-3 py-1">
+                <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
                   <Layers3 className="h-3.5 w-3.5" />
                   {tSummary('currenciesInPlay', { count: currencyCount })}
                 </span>
@@ -102,7 +102,7 @@ const ReimbursementsLoading = ({
         .map((_, index) => (
           <div
             key={index}
-            className="flex items-start justify-between rounded-xl border bg-card/50 px-4 py-4 not-last:mb-3"
+            className="mb-3 flex items-start justify-between border bg-card px-4 py-4"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Skeleton className="h-3 w-32" />

@@ -19,10 +19,12 @@ import {
   formatCurrency,
 } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { Participant } from '@prisma/client'
+import { AppRouterOutput } from '@/trpc/routers/_app'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
+
+type Participant = NonNullable<AppRouterOutput['groups']['get']['group']>['participants'][number]
 
 type Props = {
   reimbursements: ReimbursementByCurrency[]
@@ -195,7 +197,7 @@ export function ReimbursementList({
       <div className="space-y-2">
         {groupedReimbursements.map((pair) => (
           <div
-            className="rounded-lg border bg-card p-2.5"
+            className="border bg-card p-3"
             key={`${pair.from}-${pair.to}`}
           >
             <div className="mb-2 flex items-center gap-1.5 text-sm leading-tight">
@@ -218,10 +220,10 @@ export function ReimbursementList({
                 return (
                   <div
                     key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                    className="rounded-md border bg-muted/30 px-2 py-2"
+                    className="border bg-muted/25 px-2.5 py-2.5"
                   >
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                      <span className="text-[10px] font-medium text-muted-foreground">
                         {reimbursementCurrency.code}
                       </span>
                       <div
@@ -320,7 +322,7 @@ export function ReimbursementList({
                 </div>
               )}
 
-              <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1.5">
+              <div className="space-y-1.5 border bg-muted/25 p-3 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-muted-foreground">
                     {t('summary.currentDebt')}

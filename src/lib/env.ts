@@ -5,6 +5,21 @@ const interpretEnvVarAsBool = (val: unknown): boolean => {
   return ['true', 'yes', '1', 'on'].includes(val.toLowerCase())
 }
 
+const defaultDevDatabaseUrl = 'postgresql://postgres:postgres@localhost:5432/spliit'
+
+const normalizedEnv = {
+  ...process.env,
+  POSTGRES_PRISMA_URL:
+    process.env.POSTGRES_PRISMA_URL ??
+    process.env.DATABASE_URL ??
+    defaultDevDatabaseUrl,
+  POSTGRES_URL_NON_POOLING:
+    process.env.POSTGRES_URL_NON_POOLING ??
+    process.env.DIRECT_URL ??
+    process.env.DATABASE_URL ??
+    defaultDevDatabaseUrl,
+}
+
 const envSchema = z
   .object({
     POSTGRES_URL_NON_POOLING: z.string().url(),
@@ -49,4 +64,4 @@ const envSchema = z
     }
   })
 
-export const env = envSchema.parse(process.env)
+export const env = envSchema.parse(normalizedEnv)

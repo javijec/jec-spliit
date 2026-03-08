@@ -25,6 +25,8 @@ type LocaleLabels = {
   nobody: string
 }
 
+type PaidForItem = Expense['paidFor'][number]
+
 type Debtor = {
   name: string
   amount: number
@@ -83,12 +85,15 @@ function getDebtorsSummary({
   locale: string
   nobodyLabel: string
 }) {
-  const totalShares = expense.paidFor.reduce((sum, item) => sum + item.shares, 0)
+  const totalShares = expense.paidFor.reduce(
+    (sum: number, item: PaidForItem) => sum + item.shares,
+    0,
+  )
   if (totalShares <= 0) return nobodyLabel
 
   const debtors: Debtor[] = expense.paidFor
-    .filter((item) => item.participant.id !== expense.paidBy.id)
-    .map((item) => ({
+    .filter((item: PaidForItem) => item.participant.id !== expense.paidBy.id)
+    .map((item: PaidForItem) => ({
       name: formatShortParticipantName(item.participant.name),
       amount: Math.round((amount * item.shares) / totalShares),
     }))
@@ -97,7 +102,7 @@ function getDebtorsSummary({
   if (debtors.length === 0) return nobodyLabel
 
   const totalDebtors = expense.paidFor.filter(
-    (item) => item.participant.id !== expense.paidBy.id,
+    (item: PaidForItem) => item.participant.id !== expense.paidBy.id,
   ).length
   const hiddenCount = Math.max(0, totalDebtors - debtors.length)
 
@@ -112,7 +117,7 @@ function getDebtorsSummary({
 function LeadingIcon({ expense }: { expense: Expense }) {
   if (expense.isReimbursement) {
     return (
-      <div className="mt-0.5 shrink-0 rounded-full bg-primary/12 p-1 text-primary dark:bg-primary/18">
+      <div className="mt-0.5 shrink-0 border bg-primary/8 p-1 text-primary dark:bg-primary/12">
         <ArrowRightLeft className="w-3.5 h-3.5" />
       </div>
     )
@@ -228,9 +233,9 @@ export function ExpenseCard({ expense, currency, groupId }: Props) {
   return (
     <div
       className={cn(
-        'group flex justify-between mx-2 sm:mx-6 px-3 sm:px-4 py-2 rounded-xl text-sm cursor-pointer gap-2 items-start border bg-card/60 border-border/70 hover:border-border hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-safe:transition-all motion-safe:duration-150',
+        'group mx-2 flex cursor-pointer items-start justify-between gap-3 border-x-0 border-t-0 bg-card px-3 py-3 text-sm transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mx-0 sm:px-5',
         expense.isReimbursement &&
-          'border-primary/25 bg-primary/[0.08] hover:bg-primary/[0.12] dark:border-primary/20 dark:bg-primary/[0.10] dark:hover:bg-primary/[0.14]',
+          'border-primary/20 bg-primary/[0.05] hover:bg-primary/[0.08] dark:bg-primary/[0.08] dark:hover:bg-primary/[0.12]',
       )}
       role="button"
       tabIndex={0}
@@ -243,7 +248,7 @@ export function ExpenseCard({ expense, currency, groupId }: Props) {
       }}
     >
       <LeadingIcon expense={expense} />
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <ExpenseBody
           expense={expense}
           labels={labels}
@@ -261,7 +266,7 @@ export function ExpenseCard({ expense, currency, groupId }: Props) {
       <Button
         size="icon"
         variant="link"
-        className="self-center hidden sm:flex opacity-50 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
+        className="hidden self-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:flex"
         asChild
       >
         <Link href={href}>

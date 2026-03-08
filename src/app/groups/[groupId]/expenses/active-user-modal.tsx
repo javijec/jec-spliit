@@ -123,7 +123,7 @@ function ActiveUserForm({
               {t('nobody')}
             </Label>
           </div>
-          {group?.participants.map((participant) => (
+          {group?.participants.map((participant: NonNullable<typeof group>['participants'][number]) => (
             <div key={participant.id} className="flex items-center space-x-2">
               <RadioGroupItem value={participant.id} id={participant.id} />
               <Label htmlFor={participant.id} className="flex-1">

@@ -31,8 +31,8 @@ export default function GroupExpensesPageClient() {
     <>
       <GroupSectionCard>
         <GroupSectionHeader>
-          <div className="space-y-1 sm:space-y-2">
-            <div className="flex items-center justify-between gap-2">
+          <div className="space-y-2">
+            <div className="flex items-start justify-between gap-3">
               <GroupSectionTitle className="text-xl leading-none">
                 {t('title')}
               </GroupSectionTitle>
@@ -65,7 +65,7 @@ export default function GroupExpensesPageClient() {
           </div>
         </GroupSectionHeader>
 
-        <GroupSectionContent className="relative flex flex-col gap-4 p-0 pb-4 sm:pb-6">
+        <GroupSectionContent className="relative flex flex-col gap-4 p-0 pb-0">
           <ExpenseList />
         </GroupSectionContent>
       </GroupSectionCard>
