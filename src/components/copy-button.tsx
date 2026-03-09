@@ -21,7 +21,7 @@ export function CopyButton({ text }: Props) {
   return (
     <Button
       size="icon"
-      variant="secondary"
+      variant="outline"
       type="button"
       onClick={() => {
         navigator.clipboard.writeText(text)

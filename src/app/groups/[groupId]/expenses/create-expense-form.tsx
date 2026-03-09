@@ -1,4 +1,6 @@
 'use client'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
 import { trpc } from '@/trpc/client'
 import { useToast } from '@/components/ui/use-toast'
@@ -26,7 +28,7 @@ export function CreateExpenseForm({
   const router = useRouter()
   const { toast } = useToast()
 
-  if (!group || !categories) return null
+  if (!group || !categories) return <ExpenseFormLoading />
 
   return (
     <ExpenseForm
@@ -58,5 +60,39 @@ export function CreateExpenseForm({
       }}
       runtimeFeatureFlags={runtimeFeatureFlags}
     />
+  )
+}
+
+function ExpenseFormLoading() {
+  return (
+    <div className="space-y-4">
+      <Card className="overflow-hidden shadow-none">
+        <CardHeader className="border-b p-4 sm:p-6">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-40 rounded-sm" />
+            <Skeleton className="h-4 w-64 rounded-sm" />
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 sm:p-6">
+          <Skeleton className="h-10 rounded-sm" />
+          <Skeleton className="h-10 rounded-sm" />
+          <Skeleton className="h-10 rounded-sm" />
+          <Skeleton className="h-10 rounded-sm" />
+        </CardContent>
+      </Card>
+      <Card className="overflow-hidden shadow-none">
+        <CardHeader className="border-b p-4 sm:p-6">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-32 rounded-sm" />
+            <Skeleton className="h-4 w-56 rounded-sm" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3 p-4 sm:p-6">
+          <Skeleton className="h-16 rounded-sm" />
+          <Skeleton className="h-16 rounded-sm" />
+          <Skeleton className="h-16 rounded-sm" />
+        </CardContent>
+      </Card>
+    </div>
   )
 }

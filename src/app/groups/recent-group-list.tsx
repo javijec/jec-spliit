@@ -14,10 +14,11 @@ import {
   GroupSectionHeader,
   GroupSectionTitle,
 } from '@/components/ui/group-section-card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
-import { FolderOpen, Loader2 } from 'lucide-react'
+import { FolderOpen } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { PropsWithChildren, useEffect, useState } from 'react'
@@ -86,7 +87,13 @@ export function RecentGroupList() {
     loadGroups()
   }, [])
 
-  if (state.status === 'pending') return null
+  if (state.status === 'pending') {
+    return (
+      <GroupsPage reload={() => undefined}>
+        <GroupListSkeleton />
+      </GroupsPage>
+    )
+  }
 
   return (
     <RecentGroupList_
@@ -110,17 +117,43 @@ function RecentGroupList_({
   refreshGroupsFromStorage: () => void
 }) {
   const t = useTranslations('Groups')
-  const { data, isLoading } = trpc.groups.list.useQuery({
-    groupIds: groups.map((group) => group.id),
-  })
+  const { data, isLoading } = trpc.groups.list.useQuery(
+    {
+      groupIds: groups.map((group) => group.id),
+    },
+    {
+      enabled: groups.length > 0,
+    },
+  )
+
+  if (groups.length === 0) {
+    return (
+      <GroupsPage reload={refreshGroupsFromStorage}>
+        <GroupSectionCard>
+          <GroupSectionHeader>
+            <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
+              <FolderOpen className="h-5 w-5" />
+              {t('myGroups')}
+            </GroupSectionTitle>
+            <GroupSectionDescription className="mt-2">
+              {t('NoRecent.description')}
+            </GroupSectionDescription>
+          </GroupSectionHeader>
+          <GroupSectionContent className="space-y-3 text-sm text-muted-foreground">
+            <p>{t('NoRecent.orAsk')}</p>
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={`/groups/create`}>{t('NoRecent.create')}</Link>
+            </Button>
+          </GroupSectionContent>
+        </GroupSectionCard>
+      </GroupsPage>
+    )
+  }
 
   if (isLoading || !data) {
     return (
       <GroupsPage reload={refreshGroupsFromStorage}>
-        <div className="border bg-card px-4 py-5 text-sm text-muted-foreground">
-          <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-          {t('loadingRecent')}
-        </div>
+        <GroupListSkeleton />
       </GroupsPage>
     )
   }
@@ -259,6 +292,46 @@ function GroupsPage({
       </section>
 
       <div className="space-y-5">{children}</div>
+    </div>
+  )
+}
+
+function GroupListSkeleton() {
+  return (
+    <div className="space-y-5">
+      <div>
+        <Skeleton className="h-6 w-28 rounded-sm" />
+        <div className="mt-3 grid gap-3">
+          <GroupCardSkeleton />
+          <GroupCardSkeleton />
+        </div>
+      </div>
+
+      <div>
+        <Skeleton className="h-6 w-32 rounded-sm" />
+        <div className="mt-3 grid gap-3">
+          <GroupCardSkeleton />
+          <GroupCardSkeleton />
+          <GroupCardSkeleton />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function GroupCardSkeleton() {
+  return (
+    <div className="border bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-3">
+          <Skeleton className="h-5 w-40 rounded-sm" />
+          <div className="flex flex-wrap gap-3">
+            <Skeleton className="h-4 w-12 rounded-sm" />
+            <Skeleton className="h-4 w-28 rounded-sm" />
+          </div>
+        </div>
+        <Skeleton className="h-9 w-9 rounded-sm" />
+      </div>
     </div>
   )
 }

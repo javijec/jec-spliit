@@ -638,12 +638,12 @@ export function ExpenseForm({
             </AlertDescription>
           </Alert>
         )}
-        <div className="mb-4 rounded-2xl border bg-card/60 p-4 shadow-sm">
+        <div className="mb-4 border bg-card p-4">
           <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                 {isIncome ? 'Ingreso' : 'Gasto'}
               </span>
-            <span className="inline-flex rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+            <span className="inline-flex border px-2.5 py-1 text-[11px] text-muted-foreground">
               {formatDateForDisplay(watchedExpenseDate)}
             </span>
           </div>
@@ -670,7 +670,7 @@ export function ExpenseForm({
           </div>
         </div>
         {!isDesktopLayout && (
-          <div className="mb-4 rounded-2xl border bg-card/60 p-3 shadow-sm">
+          <div className="mb-4 border bg-card p-3">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-sm font-medium">
                 {t('mobile.stepCounter', {
@@ -991,10 +991,10 @@ export function ExpenseForm({
                                   </div>
                                   <span
                                     className={cn(
-                                      'rounded-full px-2 py-0.5 text-[11px]',
+                                      'border px-2 py-0.5 text-[11px]',
                                       isSelected
-                                        ? 'bg-primary/10 text-primary'
-                                        : 'bg-muted text-muted-foreground',
+                                        ? 'border-primary/20 bg-primary/10 text-primary'
+                                        : 'bg-muted/30 text-muted-foreground',
                                     )}
                                   >
                                     {isSelected ? t('mobile.included') : t('mobile.excluded')}

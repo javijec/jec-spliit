@@ -96,21 +96,21 @@ export function SummaryPageClient() {
       <GroupSectionCard>
         <GroupSectionHeader>
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
+            <span className="inline-flex items-center gap-1 border px-2.5 py-1">
               <Users className="h-3.5 w-3.5" />
               {tSummary('participantsBadge', {
                 count: group?.participants.length ?? 0,
               })}
             </span>
             {group?.currencyCode && (
-              <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
+              <span className="inline-flex items-center gap-1 border px-2.5 py-1">
                 <Wallet className="h-3.5 w-3.5" />
                 {tSummary('defaultCurrencyBadge', {
                   currencyCode: group.currencyCode,
                 })}
               </span>
             )}
-            <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
+            <span className="inline-flex items-center gap-1 border px-2.5 py-1">
               <Layers3 className="h-3.5 w-3.5" />
               {groupedDebtSummary.length > 0
                 ? tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })
@@ -137,13 +137,13 @@ export function SummaryPageClient() {
         </GroupSectionHeader>
         <GroupSectionContent>
           {isLoading ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
                 <Skeleton className="h-6 w-36 rounded-sm" />
                 <Skeleton className="h-6 w-32 rounded-sm" />
               </div>
-              <Skeleton className="h-14 w-full rounded-lg" />
-              <Skeleton className="h-14 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-sm" />
+              <Skeleton className="h-16 w-full rounded-sm" />
             </div>
           ) : groupedDebtSummary.length === 0 ? (
             <EmptyState
@@ -154,17 +154,17 @@ export function SummaryPageClient() {
           ) : (
             <div className="space-y-2.5">
               <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="border bg-muted/50 px-2.5 py-1">
+                <span className="border px-2.5 py-1">
                   {tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })}
                 </span>
-                <span className="border bg-muted/50 px-2.5 py-1">
+                <span className="border px-2.5 py-1">
                   {tSummary('currenciesBadge', { count: debtCurrencyCount })}
                 </span>
               </div>
               {groupedDebtSummary.map((pair) => (
                 <div
                   key={`${pair.from}-${pair.to}`}
-                  className="border bg-background p-3 text-sm"
+                  className="border bg-background px-3 py-3 text-sm"
                 >
                   <div className="leading-snug">
                     <span className="break-words font-semibold">
@@ -181,7 +181,7 @@ export function SummaryPageClient() {
                     {pair.items.map((item) => (
                       <span
                         key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                        className="inline-flex items-center rounded-md border bg-muted/40 px-2 py-0.5 text-xs tabular-nums"
+                        className="inline-flex items-center border px-2 py-0.5 text-xs tabular-nums"
                       >
                         {formatCurrency(
                           resolveCurrency(item.currencyCode),

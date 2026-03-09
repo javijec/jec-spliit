@@ -22,7 +22,7 @@ export function DeletePopup({ onDelete }: { onDelete: () => Promise<void> }) {
           {t('label')}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogTitle>{t('title')}</DialogTitle>
         <DialogDescription>{t('description')}</DialogDescription>
         <DialogFooter className="flex flex-col gap-2">
@@ -35,7 +35,7 @@ export function DeletePopup({ onDelete }: { onDelete: () => Promise<void> }) {
             {t('yes')}
           </AsyncButton>
           <DialogClose asChild>
-            <Button variant={'secondary'}>{t('cancel')}</Button>
+            <Button variant="secondary">{t('cancel')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

@@ -156,7 +156,7 @@ const CategoryButton = forwardRef<HTMLButtonElement, CategoryButtonProps>(
         variant="outline"
         role="combobox"
         aria-expanded={open}
-        className="flex w-full justify-between"
+        className="flex w-full justify-between border bg-background"
         ref={ref}
         {...props}
       >
@@ -176,7 +176,9 @@ function CategoryLabel({ category }: { category: Category }) {
   const t = useTranslations('Categories')
   return (
     <div className="flex items-center gap-3">
-      <CategoryIcon category={category} className="w-4 h-4" />
+      <div className="flex h-8 w-8 items-center justify-center border bg-muted/20">
+        <CategoryIcon category={category} className="h-4 w-4" />
+      </div>
       {t(`${category.grouping}.${category.name}`)}
     </div>
   )

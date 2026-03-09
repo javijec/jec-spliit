@@ -188,14 +188,14 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
 
 const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className="space-y-4 px-4 py-4 sm:px-5">
+    <div ref={ref} className="space-y-4 px-4 py-3 sm:px-5">
       {[0, 1].map((groupIndex) => (
         <div key={groupIndex} className="space-y-2">
           <Skeleton className="h-3 w-32 rounded-sm" />
           {[0, 1].map((index) => (
             <div
               key={`${groupIndex}-${index}`}
-              className="flex items-start justify-between gap-3 border bg-card px-4 py-4 text-sm"
+              className="flex items-start justify-between gap-3 border bg-card px-4 py-3 text-sm"
             >
               <div className="pt-0.5">
                 <Skeleton className="h-4 w-4 rounded-sm" />

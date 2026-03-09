@@ -178,7 +178,7 @@ const CurrencyButton = forwardRef<HTMLButtonElement, CurrencyButtonProps>(
         variant="outline"
         role="combobox"
         aria-expanded={open}
-        className="flex w-full justify-between"
+        className="flex w-full justify-between border bg-background"
         ref={ref}
         {...props}
       >
@@ -200,15 +200,19 @@ function CurrencyLabel({ currency }: { currency: Currency }) {
   }.png`
   return (
     <div className="flex items-center gap-3">
-      <Image
-        src={flagUrl}
-        className="h-auto w-4"
-        alt=""
-        width={16}
-        height={12}
-      />
-      {currency.name}
-      {currency.code ? ` (${currency.code})` : ''}
+      <div className="flex h-8 w-8 items-center justify-center border bg-muted/20">
+        <Image
+          src={flagUrl}
+          className="h-auto w-4"
+          alt=""
+          width={16}
+          height={12}
+        />
+      </div>
+      <span className="truncate">
+        {currency.name}
+        {currency.code ? ` (${currency.code})` : ''}
+      </span>
     </div>
   )
 }

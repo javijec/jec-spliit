@@ -86,7 +86,7 @@ export function ExpenseDocumentsInput({ documents, updateDocuments }: Props) {
     <div>
       <FileInput onChange={handleFileChange} accept="image/jpeg,image/png" />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 [&_*]:aspect-square">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 [&_*]:aspect-square">
         {documents.map((doc) => (
           <DocumentThumbnail
             key={doc.id}
@@ -100,10 +100,10 @@ export function ExpenseDocumentsInput({ documents, updateDocuments }: Props) {
 
         <div>
           <Button
-            variant="secondary"
+            variant="outline"
             type="button"
             onClick={openFileDialog}
-            className="w-full h-full"
+            className="h-full w-full border-dashed bg-background"
             disabled={pending}
           >
             {pending ? (
@@ -146,8 +146,8 @@ export function DocumentThumbnail({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="secondary"
-          className="w-full h-full border overflow-hidden rounded shadow-inner"
+          variant="outline"
+          className="h-full w-full overflow-hidden border bg-background p-0"
         >
           <Image
             width={300}
@@ -158,7 +158,7 @@ export function DocumentThumbnail({
           />
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-4 w-[100vw] max-w-[100vw] h-[100dvh] max-h-[100dvh] sm:max-w-[calc(100vw-32px)] sm:max-h-[calc(100dvh-32px)] [&>:last-child]:hidden">
+      <DialogContent className="h-[100dvh] max-h-[100dvh] w-[100vw] max-w-[100vw] p-4 sm:max-h-[calc(100dvh-32px)] sm:max-w-[calc(100vw-32px)] [&>:last-child]:hidden">
         <DialogTitle className="sr-only">Document</DialogTitle>
         <DialogDescription className="sr-only"></DialogDescription>
         <div className="flex flex-col gap-4">

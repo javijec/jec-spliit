@@ -24,7 +24,7 @@ export function LocaleSwitcher() {
         <Button
           variant="ghost"
           size="icon"
-          className="-my-3 text-primary"
+          className="-my-3 text-foreground"
           aria-label={`Idioma actual: ${localeLabels[visibleLocale]}`}
           title="Cambiar idioma"
         >

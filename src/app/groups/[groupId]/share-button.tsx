@@ -45,25 +45,37 @@ export function ShareButton({
           variant={variant}
           className={cn('flex-shrink-0', className)}
         >
-          <Share className="w-4 h-4" />
+          <Share className="h-4 w-4" />
           {showLabel && <span className="ml-2">{t('title')}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="[&_p]:text-sm flex flex-col gap-3">
-        <p>{t('description')}</p>
+      <PopoverContent align="end" className="w-[min(28rem,calc(100vw-2rem))] space-y-4">
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-foreground">{t('title')}</p>
+          <p className="text-sm text-muted-foreground">{t('description')}</p>
+        </div>
         {url && (
-          <div className="flex gap-2">
-            <Input className="flex-1" defaultValue={url} readOnly />
-            <CopyButton text={url} />
-            <ShareUrlButton
-              text={t('shareMessage', { groupName: group.name })}
-              url={url}
-            />
+          <div className="space-y-2">
+            <div className="border border-border bg-muted/20 p-2">
+              <Input
+                className="h-10 border-0 bg-transparent px-1 py-0 text-sm shadow-none focus-visible:ring-0"
+                defaultValue={url}
+                readOnly
+              />
+            </div>
+            <div className="flex gap-2">
+              <CopyButton text={url} />
+              <ShareUrlButton
+                text={t('shareMessage', { groupName: group.name })}
+                url={url}
+              />
+            </div>
           </div>
         )}
-        <p>
-          <strong>{t('warning')}</strong> {t('warningHelp')}
-        </p>
+        <div className="border-t border-border pt-3 text-sm text-muted-foreground">
+          <strong className="font-medium text-foreground">{t('warning')}</strong>{' '}
+          {t('warningHelp')}
+        </div>
       </PopoverContent>
     </Popover>
   )

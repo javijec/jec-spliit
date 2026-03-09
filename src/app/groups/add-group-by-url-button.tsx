@@ -32,9 +32,9 @@ export function AddGroupByUrlButton({ reload }: Props) {
       </PopoverTrigger>
       <PopoverContent
         align={isDesktop ? 'end' : 'start'}
-        className="[&_p]:text-sm flex flex-col gap-3"
+        className="flex flex-col gap-3 [&_p]:text-sm"
       >
-        <h3 className="font-bold">{t('title')}</h3>
+        <h3 className="text-sm font-semibold">{t('title')}</h3>
         <p>{t('description')}</p>
         <form
           className="flex gap-2"
@@ -79,7 +79,7 @@ export function AddGroupByUrlButton({ reload }: Props) {
             )}
           </Button>
         </form>
-        {error && <p className="text-destructive">{t('error')}</p>}
+        {error && <p className="text-sm text-destructive">{t('error')}</p>}
       </PopoverContent>
     </Popover>
   )

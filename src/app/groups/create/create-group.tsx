@@ -401,8 +401,8 @@ function SplitwiseImportCard() {
   }
 
   return (
-    <Card className="mb-6 overflow-hidden border-dashed shadow-none">
-      <CardHeader className="border-b bg-muted/30 p-4 sm:p-5">
+    <Card className="mb-6 overflow-hidden shadow-none">
+      <CardHeader className="p-4 sm:p-5">
         <div className="space-y-1">
           <CardTitle>{t('title')}</CardTitle>
           <CardDescription>{t('description')}</CardDescription>
@@ -441,13 +441,13 @@ function SplitwiseImportCard() {
           <>
             <div className="border bg-background p-4">
               <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="border bg-muted/50 px-2.5 py-1">
+                <span className="border px-2.5 py-1">
                   {t('fileLabel', { fileName: csvData.fileName })}
                 </span>
-                <span className="border bg-muted/50 px-2.5 py-1">
+                <span className="border px-2.5 py-1">
                   {t('participantsLabel', { count: csvData.participants.length })}
                 </span>
-                <span className="border bg-muted/50 px-2.5 py-1">
+                <span className="border px-2.5 py-1">
                   {t('expensesLabel', { count: csvData.expenses.length })}
                 </span>
               </div>

@@ -21,7 +21,7 @@ export function PwaInstallButton() {
     <Button
       type="button"
       onClick={() => void install()}
-      className="fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-4 z-[70] shadow-lg sm:bottom-4 sm:right-4"
+      className="fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-4 z-[70] border border-primary/10 sm:bottom-4 sm:right-4"
     >
       Instalar app
     </Button>

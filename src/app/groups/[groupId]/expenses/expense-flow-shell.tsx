@@ -18,7 +18,7 @@ export function ExpenseFlowShell({
   const t = useTranslations('ExpenseFlow')
   return (
     <div className="-mx-4 sm:mx-0">
-      <div className="sticky top-0 z-30 border-b bg-background/95 px-4 py-3 backdrop-blur sm:rounded-t-xl sm:border sm:border-b-0">
+      <div className="sticky top-0 z-30 border-b bg-background px-4 py-3 sm:border sm:border-b-0">
         <div className="mx-auto flex w-full max-w-5xl items-center gap-3">
           <Button asChild variant="ghost" size="icon" className="h-9 w-9 shrink-0">
             <Link href={`/groups/${groupId}/expenses`} title={title}>

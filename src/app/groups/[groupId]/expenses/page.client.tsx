@@ -32,10 +32,15 @@ export default function GroupExpensesPageClient() {
       <GroupSectionCard>
         <GroupSectionHeader>
           <div className="space-y-2">
-            <div className="flex items-start justify-between gap-3">
-              <GroupSectionTitle className="text-xl leading-none">
-                {t('title')}
-              </GroupSectionTitle>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-2">
+                <GroupSectionTitle className="text-xl leading-none">
+                  {t('title')}
+                </GroupSectionTitle>
+                <GroupSectionDescription className="max-w-2xl">
+                  {t('description')}
+                </GroupSectionDescription>
+              </div>
               <div className="flex items-center gap-2">
                 <div className="sm:hidden">
                   <ExportButton groupId={groupId} size="icon" variant="outline" />
@@ -59,13 +64,10 @@ export default function GroupExpensesPageClient() {
                 </Button>
               </div>
             </div>
-            <GroupSectionDescription className="mt-2">
-              {t('description')}
-            </GroupSectionDescription>
           </div>
         </GroupSectionHeader>
 
-        <GroupSectionContent className="relative flex flex-col gap-4 p-0 pb-0">
+        <GroupSectionContent className="relative flex flex-col gap-4 p-0">
           <ExpenseList />
         </GroupSectionContent>
       </GroupSectionCard>

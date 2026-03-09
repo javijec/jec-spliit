@@ -16,7 +16,7 @@ export function ShareUrlButton({ url, text }: Props) {
   return (
     <Button
       size="icon"
-      variant="secondary"
+      variant="outline"
       type="button"
       onClick={() => {
         if (navigator.share) {

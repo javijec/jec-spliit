@@ -28,22 +28,21 @@ export default function ExportButton({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button title={t('export')} variant={variant} size={size}>
-          <Download className="w-4 h-4" />
+          <Download className="h-4 w-4" />
           {showLabel && <span className="ml-2">{t('export')}</span>}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent align="end" className="min-w-44">
         <DropdownMenuItem asChild>
           <Link
             prefetch={false}
             href={`/groups/${groupId}/expenses/export/json`}
             target="_blank"
             title={t('exportJson')}
+            className="flex items-center gap-2"
           >
-            <div className="flex items-center gap-2">
-              <FileJson className="w-4 h-4" />
-              <p>{t('exportJson')}</p>
-            </div>
+            <FileJson className="h-4 w-4" />
+            <span>{t('exportJson')}</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -52,11 +51,10 @@ export default function ExportButton({
             href={`/groups/${groupId}/expenses/export/csv`}
             target="_blank"
             title={t('exportCsv')}
+            className="flex items-center gap-2"
           >
-            <div className="flex items-center gap-2">
-              <FileDown className="w-4 h-4" />
-              <p>{t('exportCsv')}</p>
-            </div>
+            <FileDown className="h-4 w-4" />
+            <span>{t('exportCsv')}</span>
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
