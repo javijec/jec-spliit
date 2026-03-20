@@ -27,12 +27,21 @@ export function RecentGroupListCard({
   isStarred,
   isArchived,
   refreshGroupsFromStorage,
+  onToggleStar,
+  onToggleArchive,
+  onRemove,
 }: {
   group: RecentGroup
   groupDetail?: AppRouterOutput['groups']['list']['groups'][number]
   isStarred: boolean
   isArchived: boolean
   refreshGroupsFromStorage: () => void
+  onToggleStar?: (groupId: string, isStarred: boolean) => Promise<void> | void
+  onToggleArchive?: (
+    groupId: string,
+    isArchived: boolean,
+  ) => Promise<void> | void
+  onRemove?: (group: RecentGroup) => Promise<void> | void
 }) {
   const locale = useLocale()
   const toast = useToast()
@@ -84,13 +93,17 @@ export function RecentGroupListCard({
               className="-my-2 -ml-2 -mr-1 h-9 w-9"
               onClick={(event) => {
                 event.stopPropagation()
-                if (isStarred) {
-                  unstarGroup(group.id)
+                if (onToggleStar) {
+                  void onToggleStar(group.id, isStarred)
                 } else {
-                  starGroup(group.id)
-                  unarchiveGroup(group.id)
+                  if (isStarred) {
+                    unstarGroup(group.id)
+                  } else {
+                    starGroup(group.id)
+                    unarchiveGroup(group.id)
+                  }
+                  refreshGroupsFromStorage()
                 }
-                refreshGroupsFromStorage()
               }}
             >
               {isStarred ? (
@@ -110,8 +123,12 @@ export function RecentGroupListCard({
                   className="text-destructive"
                   onClick={(event) => {
                     event.stopPropagation()
-                    deleteRecentGroup(group)
-                    refreshGroupsFromStorage()
+                    if (onRemove) {
+                      void onRemove(group)
+                    } else {
+                      deleteRecentGroup(group)
+                      refreshGroupsFromStorage()
+                    }
 
                     toast.toast({
                       title: t('RecentRemovedToast.title'),
@@ -124,13 +141,17 @@ export function RecentGroupListCard({
                 <DropdownMenuItem
                   onClick={(event) => {
                     event.stopPropagation()
-                    if (isArchived) {
-                      unarchiveGroup(group.id)
+                    if (onToggleArchive) {
+                      void onToggleArchive(group.id, isArchived)
                     } else {
-                      archiveGroup(group.id)
-                      unstarGroup(group.id)
+                      if (isArchived) {
+                        unarchiveGroup(group.id)
+                      } else {
+                        archiveGroup(group.id)
+                        unstarGroup(group.id)
+                      }
+                      refreshGroupsFromStorage()
                     }
-                    refreshGroupsFromStorage()
                   }}
                 >
                   {t(isArchived ? 'unarchive' : 'archive')}

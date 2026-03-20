@@ -1,4 +1,4 @@
-import { getExpense } from '@/lib/api'
+import { getExpense } from '@/lib/expenses'
 import { baseProcedure } from '@/trpc/init'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'

@@ -1,4 +1,4 @@
-import { randomId } from '@/lib/api'
+import { randomId } from '@/lib/ids'
 import { env } from '@/lib/env'
 import { POST as route } from 'next-s3-upload/route'
 

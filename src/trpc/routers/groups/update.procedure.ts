@@ -1,4 +1,4 @@
-import { updateGroup } from '@/lib/api'
+import { updateGroup } from '@/lib/groups'
 import { groupFormSchema } from '@/lib/schemas'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'

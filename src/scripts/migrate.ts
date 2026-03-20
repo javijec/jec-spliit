@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { randomId } from '@/lib/api'
+import { randomId } from '@/lib/ids'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { Client } from 'pg'

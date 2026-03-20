@@ -1,4 +1,5 @@
-import { getGroup, getGroupExpenses } from '@/lib/api'
+import { getGroup } from '@/lib/groups'
+import { getGroupExpenses } from '@/lib/expenses'
 import {
   getTotalActiveUserPaidFor,
   getTotalActiveUserShare,

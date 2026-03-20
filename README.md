@@ -68,6 +68,62 @@ Here is the current state of translation:
 4. Run `npm install` to install dependencies. This will also apply database migrations and update Prisma Client.
 5. Run `npm run dev` to start the development server
 
+## Auth0 + Google login
+
+This fork now supports authenticated users with Auth0. Group memberships, favorites, archived groups and recent groups can be persisted for signed-in users instead of relying only on browser `localStorage`.
+
+### Required environment variables
+
+Add these values to `.env` locally and to your Vercel project in production:
+
+```.env
+AUTH0_DOMAIN=your-tenant.us.auth0.com
+AUTH0_CLIENT_ID=your-auth0-app-client-id
+AUTH0_CLIENT_SECRET=your-auth0-app-client-secret
+AUTH0_SECRET=generate-a-32-byte-hex-secret
+APP_BASE_URL=http://localhost:3000
+```
+
+You can generate `AUTH0_SECRET` with:
+
+```bash
+openssl rand -hex 32
+```
+
+### Auth0 dashboard setup
+
+Create an Auth0 application of type `Regular Web Application`.
+
+Configure these URLs:
+
+- Allowed Callback URLs:
+  `http://localhost:3000/auth/callback`
+- Allowed Logout URLs:
+  `http://localhost:3000`
+- Allowed Web Origins:
+  `http://localhost:3000`
+
+For production, replace those URLs with your public domain. If you deploy on Vercel with a stable production domain, use that same domain in `APP_BASE_URL`.
+
+### Google social login
+
+In Auth0:
+
+1. Go to `Authentication > Social`
+2. Enable `Google`
+3. Configure the Google OAuth credentials in the Auth0 connection
+4. Make sure the connection name remains `google-oauth2`, since the app links to `/auth/login?connection=google-oauth2`
+
+### Local verification
+
+Once the variables are set:
+
+1. Run `npm run dev`
+2. Open `http://localhost:3000`
+3. Click `Ingresar con Google`
+4. Complete the Auth0 + Google flow
+5. Open `/groups`, create a group, and verify that it appears in `Mis grupos` even after clearing browser storage
+
 ## Health check
 
 The application has a health check endpoint that can be used to check if the application is running and if the database is accessible.

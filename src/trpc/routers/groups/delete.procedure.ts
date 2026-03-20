@@ -1,4 +1,4 @@
-import { deleteGroup } from '@/lib/api'
+import { deleteGroup } from '@/lib/groups'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'
 

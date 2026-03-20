@@ -1,4 +1,4 @@
-import { getGroup, getGroupAccessControl } from '@/lib/api'
+import { getGroup, getGroupAccessControl } from '@/lib/groups'
 import { cache } from 'react'
 
 function logAndCache<P extends any[], R>(fn: (...args: P) => R) {

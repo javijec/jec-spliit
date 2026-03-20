@@ -74,6 +74,35 @@ function syncActiveUser(groupId: string, participants?: { id: string; name: stri
   }
 }
 
+async function syncPersistedActiveUser(
+  groupId: string,
+  participants: { id: string; name: string }[],
+  setActiveParticipant: (input: {
+    groupId: string
+    participantId: string | null
+  }) => Promise<unknown>,
+) {
+  const activeUser = localStorage.getItem('newGroup-activeUser')
+  const newUser = localStorage.getItem(`${groupId}-newUser`)
+  if (!activeUser && !newUser) return
+
+  localStorage.removeItem('newGroup-activeUser')
+  localStorage.removeItem(`${groupId}-newUser`)
+
+  if (activeUser === 'None') {
+    await setActiveParticipant({ groupId, participantId: null })
+    return
+  }
+
+  const selectedName = activeUser || newUser
+  const selectedParticipantId = participants.find(
+    (participant) => participant.name === selectedName,
+  )?.id
+  if (selectedParticipantId) {
+    await setActiveParticipant({ groupId, participantId: selectedParticipantId })
+  }
+}
+
 function EmptyExpenses({ groupId }: { groupId: string }) {
   const t = useTranslations('Expenses')
 
@@ -135,10 +164,32 @@ function ExpensesByGroup({
 
 export function ExpenseList() {
   const { groupId, group } = useCurrentGroup()
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const utils = trpc.useUtils()
+  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation({
+    onSuccess: async () => {
+      await Promise.all([
+        utils.groups.get.invalidate({ groupId }),
+        utils.groups.getDetails.invalidate({ groupId }),
+      ])
+    },
+  })
 
   useEffect(() => {
-    syncActiveUser(groupId, group?.participants)
-  }, [groupId, group?.participants])
+    if (!group?.participants) return
+
+    if (viewerData?.user) {
+      void syncPersistedActiveUser(
+        groupId,
+        group.participants,
+        async ({ groupId, participantId }) =>
+          setActiveParticipant.mutateAsync({ groupId, participantId }),
+      )
+      return
+    }
+
+    syncActiveUser(groupId, group.participants)
+  }, [groupId, group?.participants, setActiveParticipant, viewerData?.user])
 
   return <ExpenseListContent groupId={groupId} />
 }

@@ -21,7 +21,7 @@ import { AppRouterOutput } from '@/trpc/routers/_app'
 import { FolderOpen } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { PropsWithChildren, useEffect, useState } from 'react'
+import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { RecentGroupListCard } from './recent-group-list-card'
 
 export type RecentGroupsState =
@@ -70,6 +70,30 @@ function sortGroups({
 
 export function RecentGroupList() {
   const [state, setState] = useState<RecentGroupsState>({ status: 'pending' })
+  const hasSyncedLegacyGroups = useRef(false)
+  const utils = trpc.useUtils()
+  const { data: viewerData, isLoading: isViewerLoading } =
+    trpc.viewer.getCurrent.useQuery()
+  const isAuthenticated = !!viewerData?.user
+  const { data: myGroupsData, isLoading: isMyGroupsLoading } =
+    trpc.groups.mine.useQuery(undefined, {
+      enabled: isAuthenticated,
+    })
+  const syncLegacyGroups = trpc.groups.syncLegacy.useMutation({
+    onSuccess: async () => {
+      await utils.groups.mine.invalidate()
+    },
+  })
+  const updateMembership = trpc.groups.updateMembership.useMutation({
+    onSuccess: async () => {
+      await utils.groups.mine.invalidate()
+    },
+  })
+  const removeMembership = trpc.groups.removeMembership.useMutation({
+    onSuccess: async () => {
+      await utils.groups.mine.invalidate()
+    },
+  })
 
   function loadGroups() {
     const groupsInStorage = getRecentGroups()
@@ -87,11 +111,77 @@ export function RecentGroupList() {
     loadGroups()
   }, [])
 
-  if (state.status === 'pending') {
+  useEffect(() => {
+    if (!isAuthenticated || state.status === 'pending' || hasSyncedLegacyGroups.current) {
+      return
+    }
+
+    hasSyncedLegacyGroups.current = true
+    const legacyState = state
+    if (
+      legacyState.groups.length === 0 &&
+      legacyState.starredGroups.length === 0 &&
+      legacyState.archivedGroups.length === 0
+    ) {
+      return
+    }
+
+    syncLegacyGroups.mutate({
+      recentGroups: legacyState.groups,
+      starredGroupIds: legacyState.starredGroups,
+      archivedGroupIds: legacyState.archivedGroups,
+    })
+  }, [isAuthenticated, state, syncLegacyGroups])
+
+  if (state.status === 'pending' || isViewerLoading) {
     return (
       <GroupsPage reload={() => undefined}>
         <GroupListSkeleton />
       </GroupsPage>
+    )
+  }
+
+  if (isAuthenticated) {
+    const persistedGroups = myGroupsData?.groups ?? []
+    const groups = persistedGroups.map((group) => ({
+      id: group.id,
+      name: group.name,
+    }))
+    const starredGroups = persistedGroups
+      .filter((group) => group.isStarred)
+      .map((group) => group.id)
+    const archivedGroups = persistedGroups
+      .filter((group) => group.isArchived)
+      .map((group) => group.id)
+
+    return (
+      <RecentGroupList_
+        groups={groups}
+        groupsDetails={persistedGroups}
+        starredGroups={starredGroups}
+        archivedGroups={archivedGroups}
+        refreshGroupsFromStorage={() => {
+          void utils.groups.mine.invalidate()
+        }}
+        loading={isMyGroupsLoading}
+        onToggleStar={async (groupId, currentlyStarred) => {
+          await updateMembership.mutateAsync({
+            groupId,
+            isStarred: !currentlyStarred,
+            ...(currentlyStarred ? {} : { isArchived: false }),
+          })
+        }}
+        onToggleArchive={async (groupId, currentlyArchived) => {
+          await updateMembership.mutateAsync({
+            groupId,
+            isArchived: !currentlyArchived,
+            ...(currentlyArchived ? {} : { isStarred: false }),
+          })
+        }}
+        onRemove={async (group) => {
+          await removeMembership.mutateAsync({ groupId: group.id })
+        }}
+      />
     )
   }
 
@@ -107,14 +197,27 @@ export function RecentGroupList() {
 
 function RecentGroupList_({
   groups,
+  groupsDetails,
   starredGroups,
   archivedGroups,
   refreshGroupsFromStorage,
+  loading = false,
+  onToggleStar,
+  onToggleArchive,
+  onRemove,
 }: {
   groups: RecentGroups
+  groupsDetails?: AppRouterOutput['groups']['mine']['groups']
   starredGroups: string[]
   archivedGroups: string[]
   refreshGroupsFromStorage: () => void
+  loading?: boolean
+  onToggleStar?: (groupId: string, isStarred: boolean) => Promise<void> | void
+  onToggleArchive?: (
+    groupId: string,
+    isArchived: boolean,
+  ) => Promise<void> | void
+  onRemove?: (group: RecentGroups[number]) => Promise<void> | void
 }) {
   const t = useTranslations('Groups')
   const { data, isLoading } = trpc.groups.list.useQuery(
@@ -122,9 +225,10 @@ function RecentGroupList_({
       groupIds: groups.map((group) => group.id),
     },
     {
-      enabled: groups.length > 0,
+      enabled: groups.length > 0 && !groupsDetails,
     },
   )
+  const resolvedGroupDetails = groupsDetails ?? data?.groups ?? []
 
   if (groups.length === 0) {
     return (
@@ -150,7 +254,7 @@ function RecentGroupList_({
     )
   }
 
-  if (isLoading || !data) {
+  if (loading || (groups.length > 0 && !groupsDetails && (isLoading || !data))) {
     return (
       <GroupsPage reload={refreshGroupsFromStorage}>
         <GroupListSkeleton />
@@ -158,7 +262,7 @@ function RecentGroupList_({
     )
   }
 
-  if (data.groups.length === 0) {
+  if (!groupsDetails && resolvedGroupDetails.length === 0) {
     return (
       <GroupsPage reload={refreshGroupsFromStorage}>
         <GroupSectionCard>
@@ -195,10 +299,13 @@ function RecentGroupList_({
           <h2 className="mb-2 text-lg sm:text-xl">{t('starred')}</h2>
           <GroupList
             groups={starredGroupInfo}
-            groupDetails={data.groups}
+            groupDetails={resolvedGroupDetails}
             archivedGroups={archivedGroups}
             starredGroups={starredGroups}
             refreshGroupsFromStorage={refreshGroupsFromStorage}
+            onToggleStar={onToggleStar}
+            onToggleArchive={onToggleArchive}
+            onRemove={onRemove}
           />
         </>
       )}
@@ -208,10 +315,13 @@ function RecentGroupList_({
           <h2 className="mb-2 mt-6 text-lg sm:text-xl">{t('recent')}</h2>
           <GroupList
             groups={groupInfo}
-            groupDetails={data.groups}
+            groupDetails={resolvedGroupDetails}
             archivedGroups={archivedGroups}
             starredGroups={starredGroups}
             refreshGroupsFromStorage={refreshGroupsFromStorage}
+            onToggleStar={onToggleStar}
+            onToggleArchive={onToggleArchive}
+            onRemove={onRemove}
           />
         </>
       )}
@@ -222,10 +332,13 @@ function RecentGroupList_({
           <div className="opacity-50">
             <GroupList
               groups={archivedGroupInfo}
-              groupDetails={data.groups}
+              groupDetails={resolvedGroupDetails}
               archivedGroups={archivedGroups}
               starredGroups={starredGroups}
               refreshGroupsFromStorage={refreshGroupsFromStorage}
+              onToggleStar={onToggleStar}
+              onToggleArchive={onToggleArchive}
+              onRemove={onRemove}
             />
           </div>
         </>
@@ -240,12 +353,23 @@ function GroupList({
   starredGroups,
   archivedGroups,
   refreshGroupsFromStorage,
+  onToggleStar,
+  onToggleArchive,
+  onRemove,
 }: {
   groups: RecentGroups
-  groupDetails?: AppRouterOutput['groups']['list']['groups']
+  groupDetails?:
+    | AppRouterOutput['groups']['list']['groups']
+    | AppRouterOutput['groups']['mine']['groups']
   starredGroups: string[]
   archivedGroups: string[]
   refreshGroupsFromStorage: () => void
+  onToggleStar?: (groupId: string, isStarred: boolean) => Promise<void> | void
+  onToggleArchive?: (
+    groupId: string,
+    isArchived: boolean,
+  ) => Promise<void> | void
+  onRemove?: (group: RecentGroups[number]) => Promise<void> | void
 }) {
   return (
     <ul className="grid gap-3">
@@ -259,6 +383,9 @@ function GroupList({
           isStarred={starredGroups.includes(group.id)}
           isArchived={archivedGroups.includes(group.id)}
           refreshGroupsFromStorage={refreshGroupsFromStorage}
+          onToggleStar={onToggleStar}
+          onToggleArchive={onToggleArchive}
+          onRemove={onRemove}
         />
       ))}
     </ul>

@@ -648,10 +648,11 @@ export const CreateGroup = () => {
       </section>
       <SplitwiseImportCard />
       <GroupForm
-        onSubmit={async (groupFormValues) => {
+        onSubmit={async (groupFormValues, options) => {
           try {
             const { groupId } = await createGroup.mutateAsync({
               groupFormValues,
+              activeParticipantName: options?.activeParticipantName,
             })
             toast({
               title: t('createSuccessTitle'),

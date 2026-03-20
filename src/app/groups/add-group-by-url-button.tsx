@@ -24,6 +24,12 @@ export function AddGroupByUrlButton({ reload }: Props) {
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
   const utils = trpc.useUtils()
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const recordVisit = trpc.groups.recordVisit.useMutation({
+    onSuccess: async () => {
+      await utils.groups.mine.invalidate()
+    },
+  })
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -49,10 +55,15 @@ export function AddGroupByUrlButton({ reload }: Props) {
               groupId: groupId,
             })
             if (group) {
-              saveRecentGroup({ id: group.id, name: group.name })
+              if (viewerData?.user) {
+                await recordVisit.mutateAsync({ groupId: group.id })
+              } else {
+                saveRecentGroup({ id: group.id, name: group.name })
+              }
               reload()
               setUrl('')
               setOpen(false)
+              setPending(false)
             } else {
               setError(true)
               setPending(false)
@@ -65,14 +76,14 @@ export function AddGroupByUrlButton({ reload }: Props) {
             placeholder="https://spliit.app/..."
             className="flex-1 text-base"
             value={url}
-            disabled={pending}
+            disabled={pending || recordVisit.isPending}
             onChange={(event) => {
               setUrl(event.target.value)
               setError(false)
             }}
           />
-          <Button size="icon" type="submit" disabled={pending}>
-            {pending ? (
+          <Button size="icon" type="submit" disabled={pending || recordVisit.isPending}>
+            {pending || recordVisit.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Plus className="w-4 h-4" />

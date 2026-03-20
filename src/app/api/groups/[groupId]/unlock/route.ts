@@ -1,4 +1,4 @@
-import { getGroupAccessControl, verifyGroupAccessPassword } from '@/lib/api'
+import { getGroupAccessControl, verifyGroupAccessPassword } from '@/lib/groups'
 import {
   createGroupAccessCookieValue,
   getGroupAccessCookieName,

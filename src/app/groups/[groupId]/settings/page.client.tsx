@@ -128,8 +128,13 @@ export function SettingsPageClient() {
   const { mutateAsync: deleteGroupAsync, isPending: isDeletingGroup } =
     trpc.groups.delete.useMutation()
   const utils = trpc.useUtils()
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
 
   const getActiveParticipantId = () => {
+    if (viewerData?.user) {
+      return data?.currentActiveParticipantId ?? undefined
+    }
+
     const rawActiveUser = localStorage.getItem(`${groupId}-activeUser`)
     if (!rawActiveUser || !data?.group) return undefined
 

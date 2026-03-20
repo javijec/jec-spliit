@@ -1,4 +1,4 @@
-import { clearGroupAccessPassword } from '@/lib/api'
+import { clearGroupAccessPassword } from '@/lib/groups'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'
 

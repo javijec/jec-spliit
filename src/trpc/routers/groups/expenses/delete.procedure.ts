@@ -1,4 +1,4 @@
-import { deleteExpense } from '@/lib/api'
+import { deleteExpense } from '@/lib/expenses'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'
 

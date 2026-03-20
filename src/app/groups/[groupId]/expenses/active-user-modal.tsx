@@ -30,21 +30,46 @@ export function ActiveUserModal({ groupId }: { groupId: string }) {
   const [open, setOpen] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const { data: groupData } = trpc.groups.get.useQuery({ groupId })
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const utils = trpc.useUtils()
+  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation({
+    onSuccess: async () => {
+      await Promise.all([
+        utils.groups.get.invalidate({ groupId }),
+        utils.groups.getDetails.invalidate({ groupId }),
+      ])
+    },
+  })
 
   const group = groupData?.group
 
   useEffect(() => {
     if (!group) return
 
+    if (viewerData?.user) {
+      if (!groupData?.currentActiveParticipantId) {
+        setOpen(true)
+      }
+      return
+    }
+
     const tempUser = localStorage.getItem(`newGroup-activeUser`)
     const activeUser = localStorage.getItem(`${group.id}-activeUser`)
     if (!tempUser && !activeUser) {
       setOpen(true)
     }
-  }, [group])
+  }, [group, groupData?.currentActiveParticipantId, viewerData?.user])
 
   function updateOpen(open: boolean) {
     if (!group) return
+
+    if (viewerData?.user) {
+      if (!open && !groupData?.currentActiveParticipantId) {
+        void setActiveParticipant.mutateAsync({ groupId: group.id, participantId: null })
+      }
+      setOpen(open)
+      return
+    }
 
     if (!open && !localStorage.getItem(`${group.id}-activeUser`)) {
       localStorage.setItem(`${group.id}-activeUser`, 'None')
@@ -60,7 +85,12 @@ export function ActiveUserModal({ groupId }: { groupId: string }) {
             <DialogTitle>{t('title')}</DialogTitle>
             <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
-          <ActiveUserForm group={group} close={() => setOpen(false)} />
+          <ActiveUserForm
+            group={group}
+            currentActiveParticipantId={groupData?.currentActiveParticipantId}
+            isAuthenticated={!!viewerData?.user}
+            close={() => setOpen(false)}
+          />
           <DialogFooter className="sm:justify-center">
             <p className="text-sm text-center text-muted-foreground">
               {t('footer')}
@@ -81,6 +111,8 @@ export function ActiveUserModal({ groupId }: { groupId: string }) {
         <ActiveUserForm
           className="px-4"
           group={group}
+          currentActiveParticipantId={groupData?.currentActiveParticipantId}
+          isAuthenticated={!!viewerData?.user}
           close={() => setOpen(false)}
         />
         <DrawerFooter className="pt-2">
@@ -93,32 +125,53 @@ export function ActiveUserModal({ groupId }: { groupId: string }) {
   )
 }
 
-function ActiveUserForm({
+export function ActiveUserForm({
   group,
+  currentActiveParticipantId,
+  isAuthenticated,
   close,
   className,
 }: ComponentProps<'form'> & {
   group?: AppRouterOutput['groups']['get']['group']
+  currentActiveParticipantId?: string | null
+  isAuthenticated?: boolean
   close: () => void
 }) {
   const t = useTranslations('Expenses.ActiveUserModal')
+  const utils = trpc.useUtils()
+  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation()
   const [selected, setSelected] = useState('None')
+
+  useEffect(() => {
+    setSelected(currentActiveParticipantId ?? 'None')
+  }, [currentActiveParticipantId])
 
   return (
     <form
       className={cn('grid items-start gap-4', className)}
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         if (!group) return
 
         event.preventDefault()
-        localStorage.setItem(`${group.id}-activeUser`, selected)
+        if (isAuthenticated) {
+          await setActiveParticipant.mutateAsync({
+            groupId: group.id,
+            participantId: selected === 'None' ? null : selected,
+          })
+          await Promise.all([
+            utils.groups.get.invalidate({ groupId: group.id }),
+            utils.groups.getDetails.invalidate({ groupId: group.id }),
+          ])
+        } else {
+          localStorage.setItem(`${group.id}-activeUser`, selected)
+        }
         close()
       }}
     >
-      <RadioGroup defaultValue="none" onValueChange={setSelected}>
+      <RadioGroup value={selected} onValueChange={setSelected}>
         <div className="flex flex-col gap-4 my-4">
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="none" id="none" />
+            <RadioGroupItem value="None" id="none" />
             <Label htmlFor="none" className="italic font-normal flex-1">
               {t('nobody')}
             </Label>
@@ -133,7 +186,9 @@ function ActiveUserForm({
           ))}
         </div>
       </RadioGroup>
-      <Button type="submit">{t('save')}</Button>
+      <Button type="submit" disabled={setActiveParticipant.isPending}>
+        {t('save')}
+      </Button>
     </form>
   )
 }
