@@ -1,4 +1,7 @@
-import { ImportedExpense, createGroupFromImportedExpenses } from '@/lib/api'
+import {
+  ImportedExpense,
+  createGroupFromImportedExpenses,
+} from '@/lib/groups'
 import { groupFormSchema } from '@/lib/schemas'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'
@@ -25,12 +28,22 @@ export const importSplitwiseProcedure = baseProcedure
     z.object({
       groupFormValues: groupFormSchema,
       importedExpenses: z.array(importedExpenseSchema).min(1),
+      activeParticipantName: z.string().min(1).optional(),
     }),
   )
-  .mutation(async ({ input: { groupFormValues, importedExpenses } }) => {
+  .mutation(
+    async ({
+      ctx,
+      input: { groupFormValues, importedExpenses, activeParticipantName },
+    }) => {
     const group = await createGroupFromImportedExpenses(
       groupFormValues,
       importedExpenses as ImportedExpense[],
+      {
+        userId: ctx.auth.user?.id,
+        activeParticipantName,
+      },
     )
     return { groupId: group.groupId }
-  })
+    },
+  )

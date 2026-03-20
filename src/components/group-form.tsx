@@ -33,6 +33,7 @@ import { Locale } from '@/i18n/request'
 import { getGroup } from '@/lib/api'
 import { defaultCurrencyList, getCurrency } from '@/lib/currency'
 import { GroupFormValues, groupFormSchema } from '@/lib/schemas'
+import { trpc } from '@/trpc/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertTriangle, Info, Save, Trash2 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
@@ -47,9 +48,13 @@ export type Props = {
   group?: NonNullable<Awaited<ReturnType<typeof getGroup>>>
   onSubmit: (
     groupFormValues: GroupFormValues,
-    participantId?: string,
+    options?: {
+      participantId?: string
+      activeParticipantName?: string
+    },
   ) => Promise<void>
   protectedParticipantIds?: string[]
+  currentActiveParticipantId?: string | null
 }
 
 function LabelWithInfo({
@@ -88,6 +93,7 @@ export function GroupForm({
   group,
   onSubmit,
   protectedParticipantIds = [],
+  currentActiveParticipantId = null,
 }: Props) {
   const locale = useLocale()
   const t = useTranslations('GroupForm')
@@ -102,10 +108,14 @@ export function GroupForm({
           participants: group.participants,
         }
       : {
+          currencyCode:
+            process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE || 'USD', // TODO: If NEXT_PUBLIC_DEFAULT_CURRENCY_CODE, is not set, determine the default currency code based on locale
           name: '',
           information: '',
-          currency: '',
-          currencyCode: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE || 'USD', // TODO: If NEXT_PUBLIC_DEFAULT_CURRENCY_CODE, is not set, determine the default currency code based on locale
+          currency: getCurrency(
+            process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE || 'USD',
+            locale as Locale,
+          ).symbol,
           participants: [
             { name: t('Participants.John') },
             { name: t('Participants.Jane') },
@@ -126,20 +136,32 @@ export function GroupForm({
     control: form.control,
     name: 'participants',
   })
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
 
   const [activeUser, setActiveUser] = useState<string | null>(null)
   useEffect(() => {
     if (activeUser === null) {
-      const currentActiveUser =
+      const persistedActiveUser =
+        currentActiveParticipantId && group
+          ? group.participants.find((participant) => participant.id === currentActiveParticipantId)?.name
+          : null
+      const localActiveUser =
         fields.find(
           (f) => f.id === localStorage.getItem(`${group?.id}-activeUser`),
-        )?.name || t('Settings.ActiveUserField.none')
+        )?.name
+      const currentActiveUser =
+        persistedActiveUser ||
+        localActiveUser ||
+        t('Settings.ActiveUserField.none')
       setActiveUser(currentActiveUser)
     }
-  }, [t, activeUser, fields, group?.id])
+  }, [t, activeUser, fields, group, currentActiveParticipantId])
 
   const updateActiveUser = () => {
     if (!activeUser) return
+    if (viewerData?.user) {
+      return
+    }
     if (group?.id) {
       const participant = group.participants.find((p) => p.name === activeUser)
       if (participant?.id) {
@@ -222,8 +244,15 @@ export function GroupForm({
           async (values) => {
             await onSubmit(
               values,
-              group?.participants.find((p) => p.name === activeUser)?.id ??
-                undefined,
+              {
+                participantId:
+                  group?.participants.find((p) => p.name === activeUser)?.id ??
+                  undefined,
+                activeParticipantName:
+                  activeUser !== t('Settings.ActiveUserField.none')
+                    ? (activeUser ?? undefined)
+                    : undefined,
+              },
             )
           },
           () => {

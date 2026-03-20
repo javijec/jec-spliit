@@ -1,4 +1,4 @@
-import { createExpense } from '@/lib/api'
+import { createExpense } from '@/lib/expenses'
 import { expenseFormSchema } from '@/lib/schemas'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'

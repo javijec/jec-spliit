@@ -9,6 +9,8 @@ export const EditGroup = () => {
   const { groupId } = useCurrentGroup()
   const { data, isLoading } = trpc.groups.getDetails.useQuery({ groupId })
   const { mutateAsync: mutateGroupAsync } = trpc.groups.update.useMutation()
+  const { mutateAsync: setActiveParticipantAsync } =
+    trpc.groups.setActiveParticipant.useMutation()
   const utils = trpc.useUtils()
 
   if (isLoading) {
@@ -19,11 +21,16 @@ export const EditGroup = () => {
     <div>
       <GroupForm
         group={data?.group}
-        onSubmit={async (groupFormValues, participantId) => {
+        currentActiveParticipantId={data?.currentActiveParticipantId}
+        onSubmit={async (groupFormValues, options) => {
           await mutateGroupAsync({
             groupId,
-            participantId,
+            participantId: options?.participantId,
             groupFormValues,
+          })
+          await setActiveParticipantAsync({
+            groupId,
+            participantId: options?.participantId ?? null,
           })
           await utils.groups.invalidate()
         }}

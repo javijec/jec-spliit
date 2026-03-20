@@ -46,6 +46,18 @@ const envSchema = z
       .string()
       .optional()
       .default('dev-group-access-secret'),
+    AUTH0_DOMAIN: z.string().optional(),
+    AUTH0_CLIENT_ID: z.string().optional(),
+    AUTH0_CLIENT_SECRET: z.string().optional(),
+    AUTH0_SECRET: z.string().optional(),
+    APP_BASE_URL: z
+      .string()
+      .optional()
+      .default(
+        process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : 'http://localhost:3000',
+      ),
   })
   .superRefine((env, ctx) => {
     if (
@@ -62,6 +74,28 @@ const envSchema = z
           'If NEXT_PUBLIC_ENABLE_EXPENSE_DOCUMENTS is specified, then S3_* must be specified too',
       })
     }
+
+    const auth0Keys = [
+      env.AUTH0_DOMAIN,
+      env.AUTH0_CLIENT_ID,
+      env.AUTH0_CLIENT_SECRET,
+      env.AUTH0_SECRET,
+    ]
+    const hasAnyAuth0Key = auth0Keys.some(Boolean)
+    const hasAllAuth0Keys = auth0Keys.every(Boolean)
+
+    if (hasAnyAuth0Key && !hasAllAuth0Keys) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message:
+          'If any AUTH0_* variable is specified, then AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET and AUTH0_SECRET must all be specified',
+      })
+    }
   })
 
 export const env = envSchema.parse(normalizedEnv)
+export const auth0Enabled =
+  !!env.AUTH0_DOMAIN &&
+  !!env.AUTH0_CLIENT_ID &&
+  !!env.AUTH0_CLIENT_SECRET &&
+  !!env.AUTH0_SECRET

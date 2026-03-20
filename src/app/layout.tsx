@@ -1,4 +1,5 @@
 import { ApplePwaSplash } from '@/app/apple-pwa-splash'
+import { AuthNav } from '@/components/auth-nav'
 import { ConditionalFooter } from '@/components/conditional-footer'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { PwaInstallButton } from '@/components/pwa-install-button'
@@ -96,6 +97,7 @@ function Content({ children }: { children: React.ReactNode }) {
           </Link>
           <div role="navigation" aria-label="Menu" className="flex items-center gap-2">
             <ButtonLink href="/groups" label={t('groupsCta')} />
+            <AuthNav />
             <ul className="flex items-center gap-0.5 text-sm sm:gap-1">
               <li>
                 <LocaleSwitcher />

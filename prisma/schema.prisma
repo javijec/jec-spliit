@@ -9,25 +9,61 @@ datasource db {
 }
 
 model Group {
-  id           String        @id
-  name         String
-  currency     String        @default("$")
-  createdAt    DateTime      @default(now())
-  information  String?
+  id                 String                @id
+  name               String
+  currency           String                @default("$")
+  createdAt          DateTime              @default(now())
+  information        String?
   currencyCode String?
   accessPasswordHash String?
-  activities   Activity[]
-  expenses     Expense[]
-  participants Participant[]
+  activities         Activity[]
+  expenses           Expense[]
+  memberships        UserGroupMembership[]
+  participants       Participant[]
+}
+
+model AppUser {
+  id             String                @id
+  auth0UserId    String                @unique
+  email          String?               @unique
+  displayName    String?
+  avatarUrl      String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  lastLoginAt    DateTime?
+  memberships    UserGroupMembership[]
+  participants   Participant[]
 }
 
 model Participant {
   id              String           @id
   name            String
   groupId         String
+  appUserId       String?
+  activeMemberships UserGroupMembership[] @relation("ActiveMembershipParticipant")
   expensesPaidBy  Expense[]
   expensesPaidFor ExpensePaidFor[]
+  appUser         AppUser?         @relation(fields: [appUserId], references: [id], onDelete: SetNull)
   group           Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model UserGroupMembership {
+  id             String   @id
+  userId         String
+  groupId        String
+  activeParticipantId String?
+  role           GroupRole @default(OWNER)
+  isStarred      Boolean  @default(false)
+  isArchived     Boolean  @default(false)
+  lastAccessedAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  activeParticipant Participant? @relation("ActiveMembershipParticipant", fields: [activeParticipantId], references: [id], onDelete: SetNull)
+  group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user           AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([userId, lastAccessedAt(sort: Desc)])
 }
 
 model Category {
@@ -123,4 +159,9 @@ enum ActivityType {
   CREATE_EXPENSE
   UPDATE_EXPENSE
   DELETE_EXPENSE
+}
+
+enum GroupRole {
+  OWNER
+  MEMBER
 }

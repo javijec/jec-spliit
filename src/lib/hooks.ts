@@ -1,3 +1,4 @@
+import { trpc } from '@/trpc/client'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import useSWR, { Fetcher } from 'swr'
@@ -52,17 +53,34 @@ export function useBaseUrl() {
 }
 
 /**
- * @returns The active user, or `null` until it is fetched from local storage
+ * @returns The active user, preferring persisted membership state for authenticated users.
  */
 export function useActiveUser(groupId?: string) {
   const [activeUser, setActiveUser] = useState<string | null>(null)
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const { data: groupDetails } = trpc.groups.getDetails.useQuery(
+    { groupId: groupId ?? '' },
+    {
+      enabled: !!groupId,
+    },
+  )
 
   useEffect(() => {
-    if (groupId) {
-      const activeUser = localStorage.getItem(`${groupId}-activeUser`)
-      if (activeUser) setActiveUser(activeUser)
+    if (!groupId) return
+
+    if (viewerData?.user) {
+      setActiveUser(groupDetails?.currentActiveParticipantId ?? null)
+      return
     }
-  }, [groupId])
+
+    const activeUser = localStorage.getItem(`${groupId}-activeUser`)
+    if (activeUser) {
+      setActiveUser(activeUser)
+      return
+    }
+
+    setActiveUser(null)
+  }, [groupDetails?.currentActiveParticipantId, groupId, viewerData?.user])
 
   return activeUser
 }

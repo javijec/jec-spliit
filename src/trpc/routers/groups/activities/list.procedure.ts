@@ -1,4 +1,4 @@
-import { getActivities } from '@/lib/api'
+import { getActivities } from '@/lib/groups'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'
 

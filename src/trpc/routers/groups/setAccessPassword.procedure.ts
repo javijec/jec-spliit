@@ -1,4 +1,4 @@
-import { setGroupAccessPassword } from '@/lib/api'
+import { setGroupAccessPassword } from '@/lib/groups'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'
 
