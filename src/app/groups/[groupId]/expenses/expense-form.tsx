@@ -55,7 +55,7 @@ import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RecurrenceRule } from '@prisma/client'
-import { AlertTriangle, ChevronRight, Save } from 'lucide-react'
+import { AlertTriangle, ChevronRight, Save, ShieldCheck, UserRound } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -868,10 +868,24 @@ export function ExpenseForm({
                             <span className="flex min-w-0 items-center justify-between gap-2">
                               <span className="truncate">{name}</span>
                               {appUserId && (
-                                <span className="inline-flex items-center gap-1 border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                                  {isCurrentViewer
-                                    ? tGroupForm('Participants.youLinked')
-                                    : tGroupForm('Participants.linkedAccount')}
+                                <span
+                                  className="inline-flex items-center border bg-background px-1.5 py-0.5 text-muted-foreground"
+                                  title={
+                                    isCurrentViewer
+                                      ? tGroupForm('Participants.youLinked')
+                                      : tGroupForm('Participants.linkedAccount')
+                                  }
+                                  aria-label={
+                                    isCurrentViewer
+                                      ? tGroupForm('Participants.youLinked')
+                                      : tGroupForm('Participants.linkedAccount')
+                                  }
+                                >
+                                  {isCurrentViewer ? (
+                                    <UserRound className="h-3 w-3" />
+                                  ) : (
+                                    <ShieldCheck className="h-3 w-3" />
+                                  )}
                                 </span>
                               )}
                             </span>

@@ -11,6 +11,7 @@ import { getCurrentAppUser, getCurrentAuthSession } from '@/lib/auth'
 import { FolderKanban, LogOut, Mail, ShieldCheck, UserRound } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
+import { AccountProfileForm } from './account-profile-form'
 
 const getInitials = (value: string) =>
   value
@@ -127,6 +128,20 @@ export default async function AccountPage() {
                 : t('accountValue')}
             </p>
           </div>
+        </GroupSectionContent>
+      </GroupSectionCard>
+
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <GroupSectionTitle className="text-xl leading-none">
+            {t('editNameTitle')}
+          </GroupSectionTitle>
+          <GroupSectionDescription className="mt-2">
+            {t('editNameCardDescription')}
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+        <GroupSectionContent>
+          <AccountProfileForm initialDisplayName={displayName} />
         </GroupSectionContent>
       </GroupSectionCard>
 
