@@ -23,11 +23,19 @@ import { cn } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { useTranslations } from 'next-intl'
-import { ComponentProps, useEffect, useState } from 'react'
+import { ComponentProps, useEffect, useMemo, useState } from 'react'
 
-export function ActiveUserModal({ groupId }: { groupId: string }) {
+export function ActiveUserModal({
+  groupId,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  groupId: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}) {
   const t = useTranslations('Expenses.ActiveUserModal')
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const { data: groupData } = trpc.groups.get.useQuery({ groupId })
   const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
@@ -42,6 +50,17 @@ export function ActiveUserModal({ groupId }: { groupId: string }) {
   })
 
   const group = groupData?.group
+  const isControlled = controlledOpen !== undefined
+  const open = controlledOpen ?? internalOpen
+  const setOpen = useMemo(
+    () => (nextOpen: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(nextOpen)
+      }
+      onOpenChange?.(nextOpen)
+    },
+    [isControlled, onOpenChange],
+  )
 
   useEffect(() => {
     if (!group) return

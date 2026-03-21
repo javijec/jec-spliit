@@ -1,5 +1,6 @@
 'use client'
 
+import { ActiveUserModal } from '@/app/groups/[groupId]/expenses/active-user-modal'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
 import { Button } from '@/components/ui/button'
@@ -15,7 +16,7 @@ import {
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { PropsWithChildren, useEffect } from 'react'
+import { PropsWithChildren, useEffect, useState } from 'react'
 import { CurrentGroupProvider } from './current-group-context'
 import { GroupHeader } from './group-header'
 import { SaveGroupLocally } from './save-recent-group'
@@ -24,6 +25,7 @@ export function GroupLayoutClient({
   groupId,
   children,
 }: PropsWithChildren<{ groupId: string }>) {
+  const [activeUserModalOpen, setActiveUserModalOpen] = useState(false)
   const { data, isLoading } = trpc.groups.get.useQuery({ groupId })
   const t = useTranslations('Groups.NotFound')
   const tTabs = useTranslations('GroupTabs')
@@ -91,6 +93,11 @@ export function GroupLayoutClient({
       <CurrentGroupProvider {...props}>
         <GroupHeader />
         <div className="pb-24 sm:pb-0">{children}</div>
+        <ActiveUserModal
+          groupId={groupId}
+          open={activeUserModalOpen}
+          onOpenChange={setActiveUserModalOpen}
+        />
       </CurrentGroupProvider>
     )
   }
@@ -159,6 +166,11 @@ export function GroupLayoutClient({
         </>
       )}
       <SaveGroupLocally />
+      <ActiveUserModal
+        groupId={groupId}
+        open={activeUserModalOpen}
+        onOpenChange={setActiveUserModalOpen}
+      />
     </CurrentGroupProvider>
   )
 }

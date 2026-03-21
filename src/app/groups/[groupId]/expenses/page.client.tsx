@@ -1,6 +1,5 @@
 'use client'
 
-import { ActiveUserModal } from '@/app/groups/[groupId]/expenses/active-user-modal'
 import { ExpenseList } from '@/app/groups/[groupId]/expenses/expense-list'
 import ExportButton from '@/app/groups/[groupId]/export-button'
 import { Button } from '@/components/ui/button'
@@ -28,51 +27,47 @@ export default function GroupExpensesPageClient() {
   const { groupId } = useCurrentGroup()
 
   return (
-    <>
-      <GroupSectionCard>
-        <GroupSectionHeader>
-          <div className="space-y-2">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-2">
-                <GroupSectionTitle className="text-xl leading-none">
-                  {t('title')}
-                </GroupSectionTitle>
-                <GroupSectionDescription className="max-w-2xl">
-                  {t('description')}
-                </GroupSectionDescription>
+    <GroupSectionCard>
+      <GroupSectionHeader>
+        <div className="space-y-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-2">
+              <GroupSectionTitle className="text-xl leading-none">
+                {t('title')}
+              </GroupSectionTitle>
+              <GroupSectionDescription className="max-w-2xl">
+                {t('description')}
+              </GroupSectionDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="sm:hidden">
+                <ExportButton groupId={groupId} size="icon" variant="outline" />
               </div>
-              <div className="flex items-center gap-2">
-                <div className="sm:hidden">
-                  <ExportButton groupId={groupId} size="icon" variant="outline" />
-                </div>
-                <div className="hidden sm:block">
-                  <ExportButton
-                    groupId={groupId}
-                    showLabel
-                    size="default"
-                    variant="outline"
-                  />
-                </div>
-                <Button asChild size="default" className="hidden sm:inline-flex sm:px-3">
-                  <Link
-                    href={`/groups/${groupId}/expenses/create`}
-                    title={t('create')}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span className="ml-2">{t('create')}</span>
-                  </Link>
-                </Button>
+              <div className="hidden sm:block">
+                <ExportButton
+                  groupId={groupId}
+                  showLabel
+                  size="default"
+                  variant="outline"
+                />
               </div>
+              <Button asChild size="default" className="hidden sm:inline-flex sm:px-3">
+                <Link
+                  href={`/groups/${groupId}/expenses/create`}
+                  title={t('create')}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="ml-2">{t('create')}</span>
+                </Link>
+              </Button>
             </div>
           </div>
-        </GroupSectionHeader>
+        </div>
+      </GroupSectionHeader>
 
-        <GroupSectionContent className="relative flex flex-col gap-4 p-0">
-          <ExpenseList />
-        </GroupSectionContent>
-      </GroupSectionCard>
-
-      <ActiveUserModal groupId={groupId} />
-    </>
+      <GroupSectionContent className="relative flex flex-col gap-4 p-0">
+        <ExpenseList />
+      </GroupSectionContent>
+    </GroupSectionCard>
   )
 }

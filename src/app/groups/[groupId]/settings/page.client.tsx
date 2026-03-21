@@ -437,11 +437,14 @@ export function SettingsPageClient() {
                         groupId,
                         participantId: getActiveParticipantId(),
                       })
-                      await utils.groups.invalidate()
+                      setDeleteDialogOpen(false)
+                      setDeleteConfirmChecked(false)
+                      setDeleteConfirmName('')
                       toast({
                         title: t('groupDeleted'),
                       })
-                      router.push('/groups')
+                      router.replace('/groups')
+                      void utils.groups.invalidate()
                     }}
                     className="w-full"
                   >
