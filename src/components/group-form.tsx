@@ -441,16 +441,23 @@ export function GroupForm({
 
                                 return (
                                   <div className="flex flex-wrap gap-2">
-                                    {isCurrentViewer && (
-                                      <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1 text-xs text-foreground">
+                                    {isCurrentViewer ? (
+                                      <span
+                                        className="inline-flex items-center border bg-background px-2 py-1 text-foreground"
+                                        title={t('Participants.youLinked')}
+                                        aria-label={t('Participants.youLinked')}
+                                      >
                                         <UserRound className="h-3.5 w-3.5" />
-                                        {t('Participants.youLinked')}
+                                      </span>
+                                    ) : (
+                                      <span
+                                        className="inline-flex items-center border bg-background px-2 py-1 text-muted-foreground"
+                                        title={t('Participants.linkedAccount')}
+                                        aria-label={t('Participants.linkedAccount')}
+                                      >
+                                        <ShieldCheck className="h-3.5 w-3.5" />
                                       </span>
                                     )}
-                                    <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1 text-xs text-muted-foreground">
-                                      <ShieldCheck className="h-3.5 w-3.5" />
-                                      {t('Participants.linkedAccount')}
-                                    </span>
                                   </div>
                                 )
                               })()}

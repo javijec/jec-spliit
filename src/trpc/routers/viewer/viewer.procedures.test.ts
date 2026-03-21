@@ -1,9 +1,12 @@
 const getCurrentAuthSessionMock = jest.fn()
 const getCurrentAppUserMock = jest.fn()
+const updateAppUserDisplayNameMock = jest.fn()
 
 jest.mock('@/lib/auth', () => ({
   getCurrentAuthSession: (...args: unknown[]) => getCurrentAuthSessionMock(...args),
   getCurrentAppUser: (...args: unknown[]) => getCurrentAppUserMock(...args),
+  updateAppUserDisplayName: (...args: unknown[]) =>
+    updateAppUserDisplayNameMock(...args),
 }))
 
 jest.mock('superjson', () => ({
@@ -39,5 +42,23 @@ describe('viewer tRPC procedures', () => {
     await expect(caller.getCurrent()).resolves.toEqual({
       user: null,
     })
+  })
+
+  it('updates the authenticated user display name', async () => {
+    const caller = createCaller('user-1')
+    updateAppUserDisplayNameMock.mockResolvedValue({
+      id: 'user-1',
+      displayName: 'Javi',
+    })
+
+    await expect(
+      caller.updateProfile({
+        displayName: 'Javi',
+      }),
+    ).resolves.toEqual({
+      user: { id: 'user-1', displayName: 'Javi' },
+    })
+
+    expect(updateAppUserDisplayNameMock).toHaveBeenCalledWith('user-1', 'Javi')
   })
 })

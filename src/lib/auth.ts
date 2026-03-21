@@ -32,19 +32,29 @@ export async function getCurrentAuthUser(): Promise<AuthenticatedUser | null> {
 }
 
 export async function upsertAppUser(authUser: AuthenticatedUser) {
-  return prisma.appUser.upsert({
+  const existingUser = await prisma.appUser.findUnique({
     where: { auth0UserId: authUser.auth0UserId },
-    create: {
-      id: randomId(),
-      auth0UserId: authUser.auth0UserId,
+    select: { id: true, displayName: true },
+  })
+
+  if (!existingUser) {
+    return prisma.appUser.create({
+      data: {
+        id: randomId(),
+        auth0UserId: authUser.auth0UserId,
+        email: authUser.email,
+        displayName: authUser.displayName,
+        avatarUrl: authUser.avatarUrl,
+        lastLoginAt: new Date(),
+      },
+    })
+  }
+
+  return prisma.appUser.update({
+    where: { id: existingUser.id },
+    data: {
       email: authUser.email,
-      displayName: authUser.displayName,
-      avatarUrl: authUser.avatarUrl,
-      lastLoginAt: new Date(),
-    },
-    update: {
-      email: authUser.email,
-      displayName: authUser.displayName,
+      displayName: existingUser.displayName ?? authUser.displayName,
       avatarUrl: authUser.avatarUrl,
       lastLoginAt: new Date(),
     },
@@ -55,4 +65,22 @@ export async function getCurrentAppUser() {
   const authUser = await getCurrentAuthUser()
   if (!authUser) return null
   return upsertAppUser(authUser)
+}
+
+export async function updateAppUserDisplayName(
+  userId: string,
+  displayName: string,
+) {
+  const [user] = await prisma.$transaction([
+    prisma.appUser.update({
+      where: { id: userId },
+      data: { displayName },
+    }),
+    prisma.participant.updateMany({
+      where: { appUserId: userId },
+      data: { name: displayName },
+    }),
+  ])
+
+  return user
 }

@@ -237,10 +237,13 @@ export async function setUserActiveParticipant(
       id: participantId,
       groupId,
     },
-    select: { id: true },
+    select: { id: true, appUserId: true },
   })
   if (!participant) {
     throw new Error(`Invalid participant ID: ${participantId}`)
+  }
+  if (participant.appUserId && participant.appUserId !== userId) {
+    throw new Error(`Participant already linked to another user: ${participantId}`)
   }
 
   await prisma.$transaction([
