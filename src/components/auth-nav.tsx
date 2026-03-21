@@ -1,5 +1,6 @@
 import { auth0Enabled } from '@/lib/env'
 import { getCurrentAuthSession } from '@/lib/auth'
+import Link from 'next/link'
 
 const getInitials = (value: string) =>
   value
@@ -36,11 +37,11 @@ export async function AuthNav() {
   return (
     <>
       <div className="sm:hidden">
-        <a
-          href="/auth/logout"
+        <Link
+          href="/account"
           className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-card transition-colors hover:bg-secondary"
-          aria-label={displayName ? `Salir de ${displayName}` : 'Salir'}
-          title={displayName ?? 'Salir'}
+          aria-label={displayName ? `Perfil de ${displayName}` : 'Perfil'}
+          title={displayName ?? 'Perfil'}
         >
           {avatarUrl ? (
             <img
@@ -54,10 +55,15 @@ export async function AuthNav() {
               {getInitials(displayName ?? 'U')}
             </span>
           )}
-        </a>
+        </Link>
       </div>
       <div className="hidden items-center gap-2 sm:flex">
-        <span className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-card">
+        <Link
+          href="/account"
+          className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-card transition-colors hover:bg-secondary"
+          aria-label={displayName ? `Perfil de ${displayName}` : 'Perfil'}
+          title={displayName ?? 'Perfil'}
+        >
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -70,11 +76,14 @@ export async function AuthNav() {
               {getInitials(displayName ?? 'U')}
             </span>
           )}
-        </span>
+        </Link>
         {displayName && (
-          <span className="max-w-40 truncate text-sm text-muted-foreground">
+          <Link
+            href="/account"
+            className="max-w-40 truncate text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
             {displayName}
-          </span>
+          </Link>
         )}
         <a
           href="/auth/logout"

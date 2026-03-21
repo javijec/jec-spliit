@@ -194,6 +194,7 @@ export async function setUserActiveParticipant(
   userId: string,
   groupId: string,
   participantId: string | null,
+  linkedUserName?: string,
 ) {
   if (participantId === null) {
     await prisma.$transaction([
@@ -255,7 +256,10 @@ export async function setUserActiveParticipant(
     }),
     prisma.participant.update({
       where: { id: participantId },
-      data: { appUserId: userId },
+      data: {
+        appUserId: userId,
+        ...(linkedUserName ? { name: linkedUserName } : {}),
+      },
     }),
     prisma.userGroupMembership.upsert({
       where: {

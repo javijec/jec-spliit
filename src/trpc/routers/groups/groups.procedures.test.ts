@@ -41,7 +41,7 @@ function createCaller(userId?: string) {
   return groupsRouter.createCaller({
     auth: {
       session: userId ? ({ user: { sub: userId } } as never) : null,
-      user: userId ? ({ id: userId } as never) : null,
+      user: userId ? ({ id: userId, displayName: 'Javier' } as never) : null,
     },
   } as never)
 }
@@ -77,6 +77,7 @@ describe('groups tRPC procedures', () => {
       {
         userId: 'user-1',
         activeParticipantName: 'Juan',
+        linkedUserName: 'Javier',
       },
     )
     expect(result).toEqual({ groupId: 'group-1' })
@@ -155,6 +156,7 @@ describe('groups tRPC procedures', () => {
       'user-1',
       'group-1',
       'participant-1',
+      'Javier',
     )
     expect(updateMembershipMock).toHaveBeenCalledWith('user-1', 'group-1', {
       isArchived: false,

@@ -172,6 +172,46 @@ describe('createGroup', () => {
       }),
     )
   })
+
+  it('renames the linked participant to the authenticated user name when provided', async () => {
+    nanoidMock
+      .mockReturnValueOnce('group-id')
+      .mockReturnValueOnce('participant-juan')
+      .mockReturnValueOnce('participant-maria')
+      .mockReturnValueOnce('participant-sergio')
+      .mockReturnValueOnce('membership-id')
+
+    mockTx.group.create.mockResolvedValue(undefined)
+    mockTx.userGroupMembership.create.mockResolvedValue(undefined)
+    mockTx.group.findUnique.mockResolvedValue({
+      id: 'group-id',
+      participants: [{ id: 'participant-juan', name: 'Javier' }],
+    })
+
+    await createGroup(baseGroupFormValues, {
+      userId: 'user-1',
+      activeParticipantName: 'Juan',
+      linkedUserName: 'Javier',
+    })
+
+    expect(mockTx.group.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          participants: {
+            createMany: {
+              data: expect.arrayContaining([
+                expect.objectContaining({
+                  id: 'participant-juan',
+                  name: 'Javier',
+                  appUserId: 'user-1',
+                }),
+              ]),
+            },
+          },
+        }),
+      }),
+    )
+  })
 })
 
 describe('setUserActiveParticipant', () => {
@@ -234,6 +274,23 @@ describe('setUserActiveParticipant', () => {
         activeParticipantId: 'participant-juan',
         lastAccessedAt: expect.any(Date),
       },
+    })
+  })
+
+  it('renames the selected participant to the authenticated user name when provided', async () => {
+    nanoidMock.mockReturnValueOnce('membership-id')
+    participantFindFirstMock.mockResolvedValue({ id: 'participant-juan' } as never)
+
+    await setUserActiveParticipant(
+      'user-1',
+      'group-1',
+      'participant-juan',
+      'Javier',
+    )
+
+    expect(participantUpdateMock).toHaveBeenCalledWith({
+      where: { id: 'participant-juan' },
+      data: { appUserId: 'user-1', name: 'Javier' },
     })
   })
 

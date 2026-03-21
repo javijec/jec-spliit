@@ -1,19 +1,12 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { usePathname } from 'next/navigation'
 import { usePwaInstallPrompt } from '@/components/use-pwa-install-prompt'
+import { Download } from 'lucide-react'
 
 export function PwaInstallButton() {
-  const pathname = usePathname()
   const { canInstall, install } = usePwaInstallPrompt()
-
-  const isGroupMobileChromeRoute =
-    /^\/groups\/[^/]+\/(summary|expenses|balances|settings)(\/.*)?$/.test(
-      pathname ?? '',
-    )
-
-  if (!canInstall || isGroupMobileChromeRoute) {
+  if (!canInstall) {
     return null
   }
 
@@ -21,9 +14,14 @@ export function PwaInstallButton() {
     <Button
       type="button"
       onClick={() => void install()}
-      className="fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-4 z-[70] border border-primary/10 sm:bottom-4 sm:right-4"
+      variant="ghost"
+      size="icon"
+      className="-my-3 text-muted-foreground hover:text-foreground"
+      aria-label="Instalar app"
+      title="Instalar app"
     >
-      Instalar app
+      <Download className="h-4 w-4" />
+      <span className="sr-only">Instalar app</span>
     </Button>
   )
 }

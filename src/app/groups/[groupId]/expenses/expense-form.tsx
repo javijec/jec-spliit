@@ -51,6 +51,7 @@ import {
   formatCurrency,
   getCurrencyFromGroup,
 } from '@/lib/utils'
+import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RecurrenceRule } from '@prisma/client'
@@ -179,6 +180,7 @@ export function ExpenseForm({
   runtimeFeatureFlags: RuntimeFeatureFlags
 }) {
   const t = useTranslations('ExpenseForm')
+  const tGroupForm = useTranslations('GroupForm')
   const locale = useLocale() as Locale
   const isCreate = expense === undefined
   const searchParams = useSearchParams()
@@ -275,6 +277,7 @@ export function ExpenseForm({
           },
   })
   const activeUserId = useActiveUser(group.id)
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
   const isDesktopLayout = useMediaQuery('(min-width: 640px)')
   const watchedPaidBy = useWatch({ control: form.control, name: 'paidBy' })
   const watchedPaidFor = useWatch({ control: form.control, name: 'paidFor' })
@@ -855,14 +858,28 @@ export function ExpenseForm({
                         placeholder={t(`${sExpense}.paidByField.placeholder`)}
                       />
                     </SelectTrigger>
-                    <SelectContent>
-                      {group.participants.map(({ id, name }) => (
-                        <SelectItem key={id} value={id}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                     <SelectContent>
+                      {group.participants.map(({ id, name, appUserId }) => {
+                        const isCurrentViewer =
+                          !!appUserId && viewerData?.user?.id === appUserId
+
+                        return (
+                          <SelectItem key={id} value={id}>
+                            <span className="flex min-w-0 items-center justify-between gap-2">
+                              <span className="truncate">{name}</span>
+                              {appUserId && (
+                                <span className="inline-flex items-center gap-1 border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                                  {isCurrentViewer
+                                    ? tGroupForm('Participants.youLinked')
+                                    : tGroupForm('Participants.linkedAccount')}
+                                </span>
+                              )}
+                            </span>
+                          </SelectItem>
+                        )
+                      })}
+                     </SelectContent>
+                   </Select>
                   <FormDescription>
                     {t(`${sExpense}.paidByField.description`)}
                   </FormDescription>

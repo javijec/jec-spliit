@@ -100,6 +100,9 @@ function Content({ children }: { children: React.ReactNode }) {
             <AuthNav />
             <ul className="flex items-center gap-0.5 text-sm sm:gap-1">
               <li>
+                <PwaInstallButton />
+              </li>
+              <li>
                 <LocaleSwitcher />
               </li>
               <li>
@@ -153,7 +156,6 @@ export default async function RootLayout({
             <Suspense>
               <ProgressBar />
             </Suspense>
-            <PwaInstallButton />
             <Content>{children}</Content>
           </ThemeProvider>
         </NextIntlClientProvider>

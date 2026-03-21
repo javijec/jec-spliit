@@ -31,6 +31,28 @@
   "Header": {
     "groups": "Grupos"
   },
+  "Account": {
+    "signInTitle": "Perfil",
+    "signInDescription": "Inicia sesión para ver tu cuenta y los datos vinculados a tu acceso.",
+    "signInAction": "Ingresar con Google",
+    "groupsAction": "Ir a grupos",
+    "fallbackName": "Usuario",
+    "description": "Aquí tienes la información básica de tu cuenta en NexoGastos.",
+    "cards": {
+      "profile": "Perfil",
+      "email": "Correo",
+      "access": "Acceso",
+      "account": "Cuenta"
+    },
+    "profileValue": "Sesión activa como {name}.",
+    "emailMissing": "No hay un correo disponible.",
+    "accessValue": "Tu sesión está vinculada a Google mediante Auth0.",
+    "accountValue": "Tu cuenta ya está activa en la aplicación.",
+    "accountValueWithDate": "Cuenta creada el {date}.",
+    "actionsTitle": "Acciones",
+    "actionsDescription": "Accede rápido a tus grupos o cierra la sesión actual.",
+    "logoutAction": "Cerrar sesión"
+  },
   "Footer": {
     "madeIn": "Hecho en Montréal, Québec 🇨🇦",
     "builtBy": "Construido por <author>Sebastien Castiel</author> y <source>colaboradores</source>"
@@ -182,6 +204,8 @@
       "title": "Participantes",
       "description": "Ingresa el nombre de cada participante.",
       "protectedParticipant": "Estos participantes forman parte de gastos y no pueden ser eliminados.",
+      "linkedAccount": "Cuenta vinculada",
+      "youLinked": "Tú",
       "new": "Nuevo",
       "add": "Añadir participante",
       "John": "Juan",
@@ -534,9 +558,12 @@
     "description": "Estado general del grupo y accesos principales.",
     "quickActionsTitle": "Accesos rápidos",
     "quickActionsDescription": "Entra al detalle del grupo según lo que necesites hacer ahora.",
+    "participantLinksDescription": "Aquí puedes ver qué participantes ya están vinculados con una cuenta registrada.",
     "settingsDescription": "Editar participantes, moneda, seguridad y exportaciones.",
     "noPendingDescription": "Cuando aparezcan deudas entre participantes, las verás resumidas aquí por persona y moneda.",
     "participantsBadge": "{count} participante(s)",
+    "linkedBadge": "Cuenta vinculada",
+    "linkedYouBadge": "Tú",
     "defaultCurrencyBadge": "Moneda base: {currencyCode}",
     "pendingPairsBadge": "{count} deuda(s) activas",
     "currenciesBadge": "{count} moneda(s) en juego",

@@ -31,6 +31,28 @@
   "Header": {
     "groups": "Groups"
   },
+  "Account": {
+    "signInTitle": "Profile",
+    "signInDescription": "Sign in to view your account and the details linked to your access.",
+    "signInAction": "Sign in with Google",
+    "groupsAction": "Go to groups",
+    "fallbackName": "User",
+    "description": "Here is the basic information for your NexoGastos account.",
+    "cards": {
+      "profile": "Profile",
+      "email": "Email",
+      "access": "Access",
+      "account": "Account"
+    },
+    "profileValue": "Signed in as {name}.",
+    "emailMissing": "There is no email available.",
+    "accessValue": "Your session is linked to Google through Auth0.",
+    "accountValue": "Your account is already active in the app.",
+    "accountValueWithDate": "Account created on {date}.",
+    "actionsTitle": "Actions",
+    "actionsDescription": "Jump back to your groups or end the current session.",
+    "logoutAction": "Log out"
+  },
   "Footer": {
     "madeIn": "Made in Montréal, Québec 🇨🇦",
     "builtBy": "Built by <author>Sebastien Castiel</author> and <source>contributors</source>"
@@ -188,6 +210,8 @@
       "title": "Participants",
       "description": "Enter the name for each participant.",
       "protectedParticipant": "This participant is part of expenses, and can not be removed.",
+      "linkedAccount": "Linked account",
+      "youLinked": "You",
       "new": "New",
       "add": "Add participant",
       "John": "John",
@@ -534,9 +558,12 @@
     "description": "General group status and main entry points.",
     "quickActionsTitle": "Quick actions",
     "quickActionsDescription": "Jump into the group based on what you need to do next.",
+    "participantLinksDescription": "Here you can see which participants are already linked to a registered account.",
     "settingsDescription": "Edit participants, currency, access security, and exports.",
     "noPendingDescription": "When debts appear between participants, you will see them summarized here by person and currency.",
     "participantsBadge": "{count} participant(s)",
+    "linkedBadge": "Linked account",
+    "linkedYouBadge": "You",
     "defaultCurrencyBadge": "Base currency: {currencyCode}",
     "pendingPairsBadge": "{count} active debt pair(s)",
     "currenciesBadge": "{count} currencies in play",

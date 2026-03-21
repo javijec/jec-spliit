@@ -9,6 +9,7 @@ export async function createGroup(
   options?: {
     userId?: string
     activeParticipantName?: string
+    linkedUserName?: string
   },
 ) {
   const groupId = randomId()
@@ -34,7 +35,12 @@ export async function createGroup(
           createMany: {
             data: groupFormValues.participants.map(({ name }) => ({
               id: participantIdsByName.get(name) ?? randomId(),
-              name,
+              name:
+                options?.userId &&
+                options.activeParticipantName === name &&
+                options.linkedUserName
+                  ? options.linkedUserName
+                  : name,
               appUserId:
                 options?.userId && options.activeParticipantName === name
                   ? options.userId
@@ -159,6 +165,7 @@ export async function createGroupFromImportedExpenses(
   options?: {
     userId?: string
     activeParticipantName?: string
+    linkedUserName?: string
   },
 ) {
   const group = await createGroup(groupFormValues, options)

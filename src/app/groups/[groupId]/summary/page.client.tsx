@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrency, type Currency } from '@/lib/currency'
 import { formatCurrency } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { HandCoins, Layers3, Users, Wallet } from 'lucide-react'
+import { HandCoins, Layers3, ShieldCheck, Users, UserRound, Wallet } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
@@ -78,6 +78,7 @@ export function SummaryPageClient() {
   const tSummary = useTranslations('Summary')
   const locale = useLocale()
   const { groupId, group } = useCurrentGroup()
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
   const { groupedDebtSummary, isLoading } = useGroupedDebtSummary(groupId)
   const debtCurrencyCount = new Set(
     groupedDebtSummary.flatMap((pair) => pair.items.map((item) => item.currencyCode)),
@@ -124,6 +125,52 @@ export function SummaryPageClient() {
             {tSummary('description')}
           </GroupSectionDescription>
         </GroupSectionHeader>
+      </GroupSectionCard>
+
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <GroupSectionTitle className="text-xl leading-none">
+            {tSummary('participantsBadge', {
+              count: group?.participants.length ?? 0,
+            })}
+          </GroupSectionTitle>
+          <GroupSectionDescription className="mt-2">
+            {tSummary('participantLinksDescription')}
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+        <GroupSectionContent>
+          <div className="flex flex-wrap gap-2">
+            {group?.participants.map((participant) => {
+              const isLinked = !!participant.appUserId
+              const isCurrentViewer =
+                !!participant.appUserId &&
+                participant.appUserId === viewerData?.user?.id
+
+              return (
+                <div
+                  key={participant.id}
+                  className="border bg-background px-3 py-2 text-sm"
+                >
+                  <div className="font-medium">{participant.name}</div>
+                  {isLinked && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {isCurrentViewer && (
+                        <span className="inline-flex items-center gap-1 border px-2 py-0.5 text-xs">
+                          <UserRound className="h-3.5 w-3.5" />
+                          {tSummary('linkedYouBadge')}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1 border px-2 py-0.5 text-xs text-muted-foreground">
+                        <ShieldCheck className="h-3.5 w-3.5" />
+                        {tSummary('linkedBadge')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </GroupSectionContent>
       </GroupSectionCard>
 
       <GroupSectionCard>

@@ -42,6 +42,7 @@ export const importSplitwiseProcedure = baseProcedure
       {
         userId: ctx.auth.user?.id,
         activeParticipantName,
+        linkedUserName: ctx.auth.user?.displayName ?? ctx.auth.user?.email ?? undefined,
       },
     )
     return { groupId: group.groupId }

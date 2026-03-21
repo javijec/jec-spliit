@@ -35,7 +35,7 @@ import { defaultCurrencyList, getCurrency } from '@/lib/currency'
 import { GroupFormValues, groupFormSchema } from '@/lib/schemas'
 import { trpc } from '@/trpc/client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertTriangle, Info, Save, Trash2 } from 'lucide-react'
+import { AlertTriangle, Info, Save, ShieldCheck, Trash2, UserRound } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ReactNode, useEffect, useState } from 'react'
@@ -389,44 +389,71 @@ export function GroupForm({
                             Participant #{index + 1}
                           </FormLabel>
                           <FormControl>
-                            <div className="flex gap-2">
-                              <Input
-                                className="text-base"
-                                {...field}
-                                placeholder={t('Participants.new')}
-                              />
-                              {item.id &&
-                              protectedParticipantIds.includes(item.id) ? (
-                                <HoverCard>
-                                  <HoverCardTrigger>
-                                    <Button
-                                      variant="ghost"
-                                      className="text-destructive-"
-                                      type="button"
-                                      size="icon"
-                                      disabled
+                            <div className="space-y-2">
+                              <div className="flex gap-2">
+                                <Input
+                                  className="text-base"
+                                  {...field}
+                                  placeholder={t('Participants.new')}
+                                />
+                                {item.id &&
+                                protectedParticipantIds.includes(item.id) ? (
+                                  <HoverCard>
+                                    <HoverCardTrigger>
+                                      <Button
+                                        variant="ghost"
+                                        className="text-destructive-"
+                                        type="button"
+                                        size="icon"
+                                        disabled
+                                      >
+                                        <Trash2 className="w-4 h-4 text-destructive opacity-50" />
+                                      </Button>
+                                    </HoverCardTrigger>
+                                    <HoverCardContent
+                                      align="end"
+                                      className="text-sm"
                                     >
-                                      <Trash2 className="w-4 h-4 text-destructive opacity-50" />
-                                    </Button>
-                                  </HoverCardTrigger>
-                                  <HoverCardContent
-                                    align="end"
-                                    className="text-sm"
+                                      {t('Participants.protectedParticipant')}
+                                    </HoverCardContent>
+                                  </HoverCard>
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    className="text-destructive"
+                                    onClick={() => remove(index)}
+                                    type="button"
+                                    size="icon"
                                   >
-                                    {t('Participants.protectedParticipant')}
-                                  </HoverCardContent>
-                                </HoverCard>
-                              ) : (
-                                <Button
-                                  variant="ghost"
-                                  className="text-destructive"
-                                  onClick={() => remove(index)}
-                                  type="button"
-                                  size="icon"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              )}
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                              {(() => {
+                                const linkedParticipant = group?.participants.find(
+                                  (participant) => participant.id === item.id,
+                                )
+                                const linkedUserId = linkedParticipant?.appUserId
+                                if (!linkedUserId) return null
+
+                                const isCurrentViewer =
+                                  viewerData?.user?.id === linkedUserId
+
+                                return (
+                                  <div className="flex flex-wrap gap-2">
+                                    {isCurrentViewer && (
+                                      <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1 text-xs text-foreground">
+                                        <UserRound className="h-3.5 w-3.5" />
+                                        {t('Participants.youLinked')}
+                                      </span>
+                                    )}
+                                    <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1 text-xs text-muted-foreground">
+                                      <ShieldCheck className="h-3.5 w-3.5" />
+                                      {t('Participants.linkedAccount')}
+                                    </span>
+                                  </div>
+                                )
+                              })()}
                             </div>
                           </FormControl>
                           <FormMessage />
