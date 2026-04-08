@@ -45,6 +45,8 @@ model Participant {
   expensesPaidFor ExpensePaidFor[]
   appUser         AppUser?         @relation(fields: [appUserId], references: [id], onDelete: SetNull)
   group           Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, appUserId])
 }
 
 model UserGroupMembership {
@@ -64,6 +66,7 @@ model UserGroupMembership {
 
   @@unique([userId, groupId])
   @@index([userId, lastAccessedAt(sort: Desc)])
+  @@index([userId, isStarred, isArchived, lastAccessedAt(sort: Desc)])
 }
 
 model Category {
@@ -96,6 +99,10 @@ model Expense {
   documents              ExpenseDocument[]
   paidFor                ExpensePaidFor[]
   recurringExpenseLink   RecurringExpenseLink?
+
+  @@index([groupId, expenseDate(sort: Desc), createdAt(sort: Desc)])
+  @@index([groupId, isReimbursement])
+  @@index([groupId, paidById])
 }
 
 model ExpenseDocument {
@@ -105,6 +112,8 @@ model ExpenseDocument {
   height    Int
   width     Int
   Expense   Expense? @relation(fields: [expenseId], references: [id])
+
+  @@index([expenseId])
 }
 
 model RecurringExpenseLink {
@@ -127,6 +136,7 @@ model ExpensePaidFor {
   participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@id([expenseId, participantId])
+  @@index([participantId, expenseId])
 }
 
 model Activity {
@@ -138,6 +148,8 @@ model Activity {
   expenseId     String?
   data          String?
   group         Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, time(sort: Desc)])
 }
 
 enum SplitMode {

@@ -339,13 +339,29 @@ export async function getActivities(
       groupId,
       id: { in: expenseIds },
     },
+    select: {
+      id: true,
+      title: true,
+      amount: true,
+      originalAmount: true,
+      originalCurrency: true,
+      expenseDate: true,
+      isReimbursement: true,
+      createdAt: true,
+      paidById: true,
+      splitMode: true,
+      categoryId: true,
+      notes: true,
+      recurrenceRule: true,
+    },
   })
+  const expensesById = new Map(expenses.map((expense) => [expense.id, expense]))
 
   return activities.map((activity) => ({
     ...activity,
     expense:
       activity.expenseId !== null
-        ? expenses.find((expense) => expense.id === activity.expenseId)
+        ? expensesById.get(activity.expenseId)
         : undefined,
   }))
 }

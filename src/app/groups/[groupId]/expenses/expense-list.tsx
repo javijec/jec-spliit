@@ -133,8 +133,12 @@ function ExpensesByGroup({
 }) {
   const t = useTranslations('Expenses')
   const { group } = useCurrentGroup()
+  const groupCurrency = useMemo(
+    () => (group ? getCurrencyFromGroup(group) : null),
+    [group],
+  )
 
-  if (!group) return null
+  if (!group || !groupCurrency) return null
 
   return (
     <>
@@ -147,11 +151,11 @@ function ExpensesByGroup({
             <div className="border-b bg-muted/20 px-4 py-2 text-[11px] font-medium text-muted-foreground sm:px-5 sm:text-xs">
               {t(`Groups.${expenseGroup}`)}
             </div>
-            {expensesInGroup.map((expense: ExpensesType[number], index: number) => (
+            {expensesInGroup.map((expense: ExpensesType[number]) => (
               <ExpenseCard
-                key={`${expenseGroup}-${expense.id}-${index}`}
+                key={expense.id}
                 expense={expense}
-                currency={getCurrencyFromGroup(group)}
+                currency={groupCurrency}
                 groupId={groupId}
               />
             ))}

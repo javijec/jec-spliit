@@ -177,15 +177,20 @@ export async function deleteExpense(
 }
 
 export async function getGroupExpensesParticipants(groupId: string) {
-  const expenses = await getGroupBalanceExpenses(groupId)
-  return Array.from(
-    new Set(
-      expenses.flatMap((expense) => [
-        expense.paidBy.id,
-        ...expense.paidFor.map((paidFor) => paidFor.participant.id),
-      ]),
-    ),
-  )
+  const participants = await prisma.participant.findMany({
+    where: {
+      groupId,
+      OR: [
+        { expensesPaidBy: { some: { groupId } } },
+        { expensesPaidFor: { some: { expense: { groupId } } } },
+      ],
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  return participants.map((participant) => participant.id)
 }
 
 export async function updateExpense(

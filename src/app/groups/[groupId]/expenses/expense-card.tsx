@@ -10,6 +10,7 @@ import { ArrowRightLeft, ChevronRight } from 'lucide-react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { memo, useMemo } from 'react'
 
 type Expense = Awaited<ReturnType<typeof getGroupExpenses>>[number]
 
@@ -222,12 +223,15 @@ function AmountMetaColumn({
   )
 }
 
-export function ExpenseCard({ expense, currency, groupId }: Props) {
+function ExpenseCardComponent({ expense, currency, groupId }: Props) {
   const router = useRouter()
   const locale = useLocale()
-  const labels = getLabels(locale)
-  const displayCurrency = resolveDisplayCurrency(expense, currency)
-  const displayAmount = resolveDisplayAmount(expense)
+  const labels = useMemo(() => getLabels(locale), [locale])
+  const displayCurrency = useMemo(
+    () => resolveDisplayCurrency(expense, currency),
+    [currency, expense],
+  )
+  const displayAmount = useMemo(() => resolveDisplayAmount(expense), [expense])
   const href = `/groups/${groupId}/expenses/${expense.id}/edit`
 
   return (
@@ -276,3 +280,5 @@ export function ExpenseCard({ expense, currency, groupId }: Props) {
     </div>
   )
 }
+
+export const ExpenseCard = memo(ExpenseCardComponent)
