@@ -1,5 +1,5 @@
 import { auth0Enabled } from '@/lib/env'
-import { getCurrentAuthSession } from '@/lib/auth'
+import { getCurrentAppUser, getCurrentAuthSession } from '@/lib/auth'
 import Link from 'next/link'
 
 const getInitials = (value: string) =>
@@ -14,14 +14,18 @@ export async function AuthNav() {
   if (!auth0Enabled) return null
 
   const session = await getCurrentAuthSession()
+  const appUser = session ? await getCurrentAppUser() : null
   const displayName =
-    typeof session?.user.name === 'string'
+    appUser?.displayName ||
+    appUser?.email ||
+    (typeof session?.user.name === 'string'
       ? session.user.name
       : typeof session?.user.email === 'string'
         ? session.user.email
-        : null
+        : null)
   const avatarUrl =
-    typeof session?.user.picture === 'string' ? session.user.picture : null
+    appUser?.avatarUrl ||
+    (typeof session?.user.picture === 'string' ? session.user.picture : null)
 
   if (!session) {
     return (

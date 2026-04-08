@@ -53,13 +53,22 @@ jest.mock('@/components/ui/radio-group', () => ({
     id,
     checked,
     onChange,
+    disabled,
   }: {
     value: string
     id: string
     checked?: boolean
     onChange?: React.ChangeEventHandler<HTMLInputElement>
+    disabled?: boolean
   }) => (
-    <input type="radio" id={id} value={value} checked={checked} onChange={onChange} />
+    <input
+      type="radio"
+      id={id}
+      value={value}
+      checked={checked}
+      onChange={onChange}
+      disabled={disabled}
+    />
   ),
 }))
 
@@ -95,12 +104,13 @@ describe('ActiveUserForm', () => {
           id: 'group-1',
           name: 'Viaje',
           participants: [
-            { id: 'participant-1', name: 'Juan' },
-            { id: 'participant-2', name: 'Maria' },
+            { id: 'participant-1', name: 'Juan', appUserId: null },
+            { id: 'participant-2', name: 'Maria', appUserId: null },
           ],
         } as never}
         currentActiveParticipantId="participant-2"
         isAuthenticated
+        currentUserId="user-1"
         close={close}
       />,
     )
@@ -125,7 +135,7 @@ describe('ActiveUserForm', () => {
         group={{
           id: 'group-1',
           name: 'Viaje',
-          participants: [{ id: 'participant-1', name: 'Juan' }],
+          participants: [{ id: 'participant-1', name: 'Juan', appUserId: null }],
         } as never}
         isAuthenticated={false}
         close={close}
@@ -140,5 +150,27 @@ describe('ActiveUserForm', () => {
     )
     expect(mutateAsyncMock).not.toHaveBeenCalled()
     expect(close).toHaveBeenCalled()
+  })
+
+  it('disables participants already linked to another authenticated user', () => {
+    render(
+      <ActiveUserForm
+        group={{
+          id: 'group-1',
+          name: 'Viaje',
+          participants: [
+            { id: 'participant-1', name: 'Juan', appUserId: 'user-2' },
+            { id: 'participant-2', name: 'Maria', appUserId: 'user-1' },
+          ],
+        } as never}
+        isAuthenticated
+        currentUserId="user-1"
+        close={jest.fn()}
+      />,
+    )
+
+    expect(screen.getByLabelText(/Juan/i).getAttribute('disabled')).not.toBeNull()
+    expect(screen.getByLabelText(/Maria/i).getAttribute('disabled')).toBeNull()
+    expect(screen.getByText(/ya vinculado/i)).toBeTruthy()
   })
 })

@@ -239,7 +239,7 @@ describe('setUserActiveParticipant', () => {
         id: 'participant-juan',
         groupId: 'group-1',
       },
-      select: { id: true },
+      select: { id: true, appUserId: true },
     })
     expect(participantUpdateManyMock).toHaveBeenCalledWith({
       where: {
@@ -339,6 +339,23 @@ describe('setUserActiveParticipant', () => {
     ).rejects.toThrow('Invalid participant ID: participant-juan')
 
     expect(participantUpdateManyMock).not.toHaveBeenCalled()
+    expect(membershipUpsertMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects participants already linked to a different authenticated user', async () => {
+    participantFindFirstMock.mockResolvedValue({
+      id: 'participant-juan',
+      appUserId: 'user-2',
+    } as never)
+
+    await expect(
+      setUserActiveParticipant('user-1', 'group-1', 'participant-juan'),
+    ).rejects.toThrow(
+      'Participant already linked to another user: participant-juan',
+    )
+
+    expect(participantUpdateManyMock).not.toHaveBeenCalled()
+    expect(participantUpdateMock).not.toHaveBeenCalled()
     expect(membershipUpsertMock).not.toHaveBeenCalled()
   })
 })

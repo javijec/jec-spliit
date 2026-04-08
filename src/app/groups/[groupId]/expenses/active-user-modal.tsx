@@ -106,12 +106,22 @@ export function ActiveUserModal({
             <DialogTitle>{t('title')}</DialogTitle>
             <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
+<<<<<<< HEAD
           <ActiveUserForm
             group={group}
             currentActiveParticipantId={currentActiveParticipantId}
             isAuthenticated={!!viewer}
             close={() => setOpen(false)}
           />
+=======
+        <ActiveUserForm
+          group={group}
+          currentActiveParticipantId={groupData?.currentActiveParticipantId}
+          isAuthenticated={!!viewerData?.user}
+          currentUserId={viewerData?.user?.id}
+          close={() => setOpen(false)}
+        />
+>>>>>>> f64b87e1a9113c7ea5fc670042048ce7a76e0f5c
           <DialogFooter className="sm:justify-center">
             <p className="text-sm text-center text-muted-foreground">
               {t('footer')}
@@ -132,8 +142,14 @@ export function ActiveUserModal({
         <ActiveUserForm
           className="px-4"
           group={group}
+<<<<<<< HEAD
           currentActiveParticipantId={currentActiveParticipantId}
           isAuthenticated={!!viewer}
+=======
+          currentActiveParticipantId={groupData?.currentActiveParticipantId}
+          isAuthenticated={!!viewerData?.user}
+          currentUserId={viewerData?.user?.id}
+>>>>>>> f64b87e1a9113c7ea5fc670042048ce7a76e0f5c
           close={() => setOpen(false)}
         />
         <DrawerFooter className="pt-2">
@@ -150,12 +166,14 @@ export function ActiveUserForm({
   group,
   currentActiveParticipantId,
   isAuthenticated,
+  currentUserId,
   close,
   className,
 }: ComponentProps<'form'> & {
   group?: AppRouterOutput['groups']['get']['group']
   currentActiveParticipantId?: string | null
   isAuthenticated?: boolean
+  currentUserId?: string
   close: () => void
 }) {
   const t = useTranslations('Expenses.ActiveUserModal')
@@ -197,14 +215,35 @@ export function ActiveUserForm({
               {t('nobody')}
             </Label>
           </div>
-          {group?.participants.map((participant: NonNullable<typeof group>['participants'][number]) => (
-            <div key={participant.id} className="flex items-center space-x-2">
-              <RadioGroupItem value={participant.id} id={participant.id} />
-              <Label htmlFor={participant.id} className="flex-1">
-                {participant.name}
-              </Label>
-            </div>
-          ))}
+          {group?.participants.map((participant: NonNullable<typeof group>['participants'][number]) => {
+            const isLinkedToAnotherUser =
+              !!isAuthenticated &&
+              !!participant.appUserId &&
+              participant.appUserId !== currentUserId
+
+            return (
+              <div key={participant.id} className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={participant.id}
+                  id={participant.id}
+                  disabled={isLinkedToAnotherUser}
+                />
+                <Label
+                  htmlFor={participant.id}
+                  className={cn('flex-1', {
+                    'cursor-not-allowed opacity-50': isLinkedToAnotherUser,
+                  })}
+                >
+                  {participant.name}
+                  {isLinkedToAnotherUser && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {t('linkedUnavailable')}
+                    </span>
+                  )}
+                </Label>
+              </div>
+            )
+          })}
         </div>
       </RadioGroup>
       <Button type="submit" disabled={setActiveParticipant.isPending}>

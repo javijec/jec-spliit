@@ -153,16 +153,23 @@ export function SummaryPageClient() {
                   <div className="font-medium">{participant.name}</div>
                   {isLinked && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {isCurrentViewer && (
-                        <span className="inline-flex items-center gap-1 border px-2 py-0.5 text-xs">
+                      {isCurrentViewer ? (
+                        <span
+                          className="inline-flex items-center border px-2 py-1 text-foreground"
+                          title={tSummary('linkedYouBadge')}
+                          aria-label={tSummary('linkedYouBadge')}
+                        >
                           <UserRound className="h-3.5 w-3.5" />
-                          {tSummary('linkedYouBadge')}
+                        </span>
+                      ) : (
+                        <span
+                          className="inline-flex items-center border px-2 py-1 text-muted-foreground"
+                          title={tSummary('linkedBadge')}
+                          aria-label={tSummary('linkedBadge')}
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5" />
                         </span>
                       )}
-                      <span className="inline-flex items-center gap-1 border px-2 py-0.5 text-xs text-muted-foreground">
-                        <ShieldCheck className="h-3.5 w-3.5" />
-                        {tSummary('linkedBadge')}
-                      </span>
                     </div>
                   )}
                 </div>
