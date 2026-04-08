@@ -82,6 +82,7 @@ AUTH0_CLIENT_ID=your-auth0-app-client-id
 AUTH0_CLIENT_SECRET=your-auth0-app-client-secret
 AUTH0_SECRET=generate-a-32-byte-hex-secret
 APP_BASE_URL=http://localhost:3000
+CRON_SECRET=replace-with-a-long-random-secret
 ```
 
 You can generate `AUTH0_SECRET` with:
@@ -130,6 +131,14 @@ The application has a health check endpoint that can be used to check if the app
 
 - `GET /api/health/readiness` or `GET /api/health` - Check if the application is ready to serve requests, including database connectivity.
 - `GET /api/health/liveness` - Check if the application is running, but not necessarily ready to serve requests.
+
+## Recurring expenses processing
+
+Recurring expenses are generated outside of the regular read path through the cron route at `/api/cron/recurring-expenses`.
+
+- On Vercel, the schedule is configured in `vercel.json` to run hourly.
+- Protect the route in production with `CRON_SECRET`.
+- In local development, if `CRON_SECRET` is empty, you can call the route manually to test it.
 
 ## Opt-in features
 

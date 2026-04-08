@@ -284,8 +284,6 @@ export async function getGroupExpenses(
   groupId: string,
   options?: { offset?: number; length?: number; filter?: string },
 ) {
-  await createRecurringExpenses()
-
   return prisma.expense.findMany({
     select: {
       amount: true,
@@ -338,7 +336,7 @@ export async function getExpense(groupId: string, expenseId: string) {
   })
 }
 
-async function createRecurringExpenses() {
+export async function createRecurringExpenses() {
   const localDate = new Date()
   const utcDateFromLocal = new Date(
     Date.UTC(
@@ -369,6 +367,8 @@ async function createRecurringExpenses() {
         },
       },
     })
+
+  let createdExpensesCount = 0
 
   for (const recurringExpenseLink of recurringExpenseLinksWithExpensesToCreate) {
     let newExpenseDate = recurringExpenseLink.nextExpenseDate
@@ -454,10 +454,16 @@ async function createRecurringExpenses() {
         break
       }
 
+      createdExpensesCount += 1
       currentExpenseRecord = newExpense
       currentRecurringExpenseLinkId = newRecurringExpenseLinkId
       newExpenseDate = newRecurringExpenseNextExpenseDate
     }
+  }
+
+  return {
+    processedLinks: recurringExpenseLinksWithExpensesToCreate.length,
+    createdExpensesCount,
   }
 }
 
