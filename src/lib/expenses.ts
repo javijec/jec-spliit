@@ -421,7 +421,35 @@ export async function getExpense(groupId: string, expenseId: string) {
   })
 }
 
-export async function createRecurringExpenses() {
+export async function syncRecurringExpensesForGroupIfDue(groupId: string) {
+  const now = new Date()
+  const syncThreshold = new Date(now.getTime() - 60 * 60 * 1000)
+
+  const syncWindowClaim = await prisma.group.updateMany({
+    where: {
+      id: groupId,
+      OR: [
+        { recurringSyncAt: null },
+        { recurringSyncAt: { lt: syncThreshold } },
+      ],
+    },
+    data: {
+      recurringSyncAt: now,
+    },
+  })
+
+  if (syncWindowClaim.count === 0) {
+    return {
+      skipped: true,
+      processedLinks: 0,
+      createdExpensesCount: 0,
+    }
+  }
+
+  return createRecurringExpenses({ groupId })
+}
+
+export async function createRecurringExpenses(options?: { groupId?: string }) {
   const localDate = new Date()
   const utcDateFromLocal = new Date(
     Date.UTC(
@@ -436,6 +464,7 @@ export async function createRecurringExpenses() {
   const recurringExpenseLinksWithExpensesToCreate =
     await prisma.recurringExpenseLink.findMany({
       where: {
+        ...(options?.groupId ? { groupId: options.groupId } : {}),
         nextExpenseCreatedAt: null,
         nextExpenseDate: {
           lte: utcDateFromLocal,
@@ -547,6 +576,7 @@ export async function createRecurringExpenses() {
   }
 
   return {
+    skipped: false,
     processedLinks: recurringExpenseLinksWithExpensesToCreate.length,
     createdExpensesCount,
   }

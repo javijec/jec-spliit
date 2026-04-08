@@ -82,7 +82,6 @@ AUTH0_CLIENT_ID=your-auth0-app-client-id
 AUTH0_CLIENT_SECRET=your-auth0-app-client-secret
 AUTH0_SECRET=generate-a-32-byte-hex-secret
 APP_BASE_URL=http://localhost:3000
-CRON_SECRET=replace-with-a-long-random-secret
 ```
 
 You can generate `AUTH0_SECRET` with:
@@ -134,11 +133,11 @@ The application has a health check endpoint that can be used to check if the app
 
 ## Recurring expenses processing
 
-Recurring expenses are generated outside of the regular read path through the cron route at `/api/cron/recurring-expenses`.
+Recurring expenses are generated on demand when a user enters a group, but only if that group has not been synced recently.
 
-- On Vercel, the schedule is configured in `vercel.json` to run hourly.
-- Protect the route in production with `CRON_SECRET`.
-- In local development, if `CRON_SECRET` is empty, you can call the route manually to test it.
+- This keeps recurring creation out of the hot read path for every expense query.
+- It does not require Vercel Cron Jobs.
+- The sync is throttled per group so repeated navigation does not regenerate work on each request.
 
 ## Opt-in features
 

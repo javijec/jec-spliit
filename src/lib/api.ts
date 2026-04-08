@@ -1,7 +1,7 @@
 export { randomId } from '@/lib/ids'
 export {
-  createExpense,
   createRecurringExpenses,
+  createExpense,
   deleteExpense,
   getExpense,
   getGroupBalanceExpenses,
@@ -10,6 +10,7 @@ export {
   getGroupExpensesParticipants,
   getGroupStatsExpenses,
   getTotalGroupSpendingAmount,
+  syncRecurringExpensesForGroupIfDue,
   updateExpense,
 } from '@/lib/expenses'
 export {

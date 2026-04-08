@@ -14,8 +14,9 @@ model Group {
   currency           String                @default("$")
   createdAt          DateTime              @default(now())
   information        String?
-  currencyCode String?
+  currencyCode       String?
   accessPasswordHash String?
+  recurringSyncAt    DateTime?
   activities         Activity[]
   expenses           Expense[]
   memberships        UserGroupMembership[]

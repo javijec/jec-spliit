@@ -106,22 +106,13 @@ export function ActiveUserModal({
             <DialogTitle>{t('title')}</DialogTitle>
             <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
-<<<<<<< HEAD
           <ActiveUserForm
             group={group}
             currentActiveParticipantId={currentActiveParticipantId}
             isAuthenticated={!!viewer}
+            currentUserId={viewer?.id}
             close={() => setOpen(false)}
           />
-=======
-        <ActiveUserForm
-          group={group}
-          currentActiveParticipantId={groupData?.currentActiveParticipantId}
-          isAuthenticated={!!viewerData?.user}
-          currentUserId={viewerData?.user?.id}
-          close={() => setOpen(false)}
-        />
->>>>>>> f64b87e1a9113c7ea5fc670042048ce7a76e0f5c
           <DialogFooter className="sm:justify-center">
             <p className="text-sm text-center text-muted-foreground">
               {t('footer')}
@@ -142,14 +133,9 @@ export function ActiveUserModal({
         <ActiveUserForm
           className="px-4"
           group={group}
-<<<<<<< HEAD
           currentActiveParticipantId={currentActiveParticipantId}
           isAuthenticated={!!viewer}
-=======
-          currentActiveParticipantId={groupData?.currentActiveParticipantId}
-          isAuthenticated={!!viewerData?.user}
-          currentUserId={viewerData?.user?.id}
->>>>>>> f64b87e1a9113c7ea5fc670042048ce7a76e0f5c
+          currentUserId={viewer?.id}
           close={() => setOpen(false)}
         />
         <DrawerFooter className="pt-2">
@@ -180,6 +166,10 @@ export function ActiveUserForm({
   const utils = trpc.useUtils()
   const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation()
   const [selected, setSelected] = useState('None')
+  const linkedUnavailableLabel = (() => {
+    const translated = t('linkedUnavailable')
+    return translated === 'linkedUnavailable' ? 'Ya vinculado' : translated
+  })()
 
   useEffect(() => {
     setSelected(currentActiveParticipantId ?? 'None')
@@ -237,7 +227,7 @@ export function ActiveUserForm({
                   {participant.name}
                   {isLinkedToAnotherUser && (
                     <span className="ml-2 text-xs text-muted-foreground">
-                      {t('linkedUnavailable')}
+                      {linkedUnavailableLabel}
                     </span>
                   )}
                 </Label>

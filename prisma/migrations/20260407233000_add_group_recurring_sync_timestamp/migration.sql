@@ -1,0 +1,2 @@
+ALTER TABLE "Group"
+ADD COLUMN "recurringSyncAt" TIMESTAMP(3);
