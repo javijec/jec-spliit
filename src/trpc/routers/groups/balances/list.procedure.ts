@@ -1,5 +1,5 @@
 import { getGroup } from '@/lib/groups'
-import { getGroupExpenses } from '@/lib/expenses'
+import { getGroupBalanceExpenses } from '@/lib/expenses'
 import {
   ReimbursementByCurrency,
   getBalancesByCurrency,
@@ -13,7 +13,7 @@ export const listGroupBalancesProcedure = baseProcedure
   .input(z.object({ groupId: z.string().min(1) }))
   .query(async ({ input: { groupId } }) => {
     const [expenses, group] = await Promise.all([
-      getGroupExpenses(groupId),
+      getGroupBalanceExpenses(groupId),
       getGroup(groupId),
     ])
     const balancesByCurrency = getBalancesByCurrency(

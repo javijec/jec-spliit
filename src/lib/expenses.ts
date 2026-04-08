@@ -9,6 +9,44 @@ import {
   RecurringExpenseLink,
 } from '@prisma/client'
 
+const balanceExpenseSelect = {
+  amount: true,
+  originalAmount: true,
+  originalCurrency: true,
+  paidBy: { select: { id: true } },
+  paidFor: {
+    select: {
+      participant: { select: { id: true } },
+      shares: true,
+    },
+  },
+  splitMode: true,
+} satisfies Prisma.ExpenseSelect
+
+const statsExpenseSelect = {
+  amount: true,
+  originalAmount: true,
+  originalCurrency: true,
+  expenseDate: true,
+  isReimbursement: true,
+  paidById: true,
+  paidFor: {
+    select: {
+      participantId: true,
+      shares: true,
+    },
+  },
+  splitMode: true,
+} satisfies Prisma.ExpenseSelect
+
+export type BalanceExpense = Prisma.ExpenseGetPayload<{
+  select: typeof balanceExpenseSelect
+}>
+
+export type StatsExpense = Prisma.ExpenseGetPayload<{
+  select: typeof statsExpenseSelect
+}>
+
 async function getGroupParticipants(groupId: string) {
   const group = await prisma.group.findUnique({
     where: { id: groupId },
@@ -139,7 +177,7 @@ export async function deleteExpense(
 }
 
 export async function getGroupExpensesParticipants(groupId: string) {
-  const expenses = await getGroupExpenses(groupId)
+  const expenses = await getGroupBalanceExpenses(groupId)
   return Array.from(
     new Set(
       expenses.flatMap((expense) => [
@@ -317,6 +355,48 @@ export async function getGroupExpenses(
     skip: options?.offset,
     take: options?.length,
   })
+}
+
+export async function getGroupBalanceExpenses(groupId: string) {
+  return prisma.expense.findMany({
+    select: balanceExpenseSelect,
+    where: {
+      groupId,
+    },
+  })
+}
+
+export async function getGroupStatsExpenses(
+  groupId: string,
+  options?: { participantId?: string; since?: Date },
+) {
+  return prisma.expense.findMany({
+    select: statsExpenseSelect,
+    where: {
+      groupId,
+      ...(options?.since ? { expenseDate: { gte: options.since } } : {}),
+      ...(options?.participantId
+        ? {
+            OR: [
+              { paidById: options.participantId },
+              { paidFor: { some: { participantId: options.participantId } } },
+            ],
+          }
+        : {}),
+    },
+  })
+}
+
+export async function getTotalGroupSpendingAmount(groupId: string) {
+  const result = await prisma.expense.aggregate({
+    _sum: { amount: true },
+    where: {
+      groupId,
+      isReimbursement: false,
+    },
+  })
+
+  return result._sum.amount ?? 0
 }
 
 export async function getGroupExpenseCount(groupId: string) {

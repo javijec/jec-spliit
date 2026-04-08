@@ -1,7 +1,7 @@
-import { getGroupExpenses } from '@/lib/api'
+import { StatsExpense } from '@/lib/expenses'
 
 export function getTotalGroupSpending(
-  expenses: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>,
+  expenses: StatsExpense[],
 ): number {
   return expenses.reduce(
     (total, expense) =>
@@ -12,18 +12,18 @@ export function getTotalGroupSpending(
 
 export function getTotalActiveUserPaidFor(
   activeUserId: string | null,
-  expenses: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>,
+  expenses: StatsExpense[],
 ): number {
   return expenses.reduce(
     (total, expense) =>
-      expense.paidBy.id === activeUserId && !expense.isReimbursement
+      expense.paidById === activeUserId && !expense.isReimbursement
         ? total + expense.amount
         : total,
     0,
   )
 }
 
-type Expense = NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>[number]
+type Expense = StatsExpense
 
 export function calculateShare(
   participantId: string | null,
@@ -36,7 +36,7 @@ export function calculateShare(
 
   const paidFors = expense.paidFor
   const userPaidFor = paidFors.find(
-    (paidFor) => paidFor.participant.id === participantId,
+    (paidFor) => paidFor.participantId === participantId,
   )
 
   if (!userPaidFor) return 0
@@ -67,7 +67,7 @@ export function calculateShare(
 
 export function getTotalActiveUserShare(
   activeUserId: string | null,
-  expenses: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>,
+  expenses: StatsExpense[],
 ): number {
   const total = expenses.reduce(
     (sum, expense) => sum + calculateShare(activeUserId, expense),

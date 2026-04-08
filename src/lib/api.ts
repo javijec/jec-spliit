@@ -1,11 +1,15 @@
 export { randomId } from '@/lib/ids'
 export {
   createExpense,
+  createRecurringExpenses,
   deleteExpense,
   getExpense,
+  getGroupBalanceExpenses,
   getGroupExpenseCount,
   getGroupExpenses,
   getGroupExpensesParticipants,
+  getGroupStatsExpenses,
+  getTotalGroupSpendingAmount,
   updateExpense,
 } from '@/lib/expenses'
 export {

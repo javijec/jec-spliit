@@ -1,4 +1,4 @@
-import { getGroupExpenses } from '@/lib/api'
+import { BalanceExpense } from '@/lib/expenses'
 import { Participant } from '@prisma/client'
 import { match } from 'ts-pattern'
 
@@ -31,7 +31,7 @@ function getOrCreateBalance(
 
 function addExpenseToBalances(
   balances: Balances,
-  expense: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>[number],
+  expense: BalanceExpense,
   amount: number,
 ) {
   const paidBy = expense.paidBy.id
@@ -72,7 +72,7 @@ function finalizeBalances(balances: Balances) {
 }
 
 export function getBalances(
-  expenses: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>,
+  expenses: BalanceExpense[],
 ): Balances {
   const balances: Balances = {}
 
@@ -85,7 +85,7 @@ export function getBalances(
 }
 
 export function getBalancesByCurrency(
-  expenses: NonNullable<Awaited<ReturnType<typeof getGroupExpenses>>>,
+  expenses: BalanceExpense[],
   groupCurrencyCode: string | null,
 ): BalancesByCurrency {
   const balancesByCurrency: BalancesByCurrency = {}
