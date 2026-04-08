@@ -13,11 +13,9 @@ import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { CheckCircle2, Layers3, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 
 export default function BalancesAndReimbursements() {
-  const utils = trpc.useUtils()
   const { groupId, group } = useCurrentGroup()
   const { data: balancesData, isLoading: balancesAreLoading } =
     trpc.groups.balances.list.useQuery({
@@ -25,12 +23,6 @@ export default function BalancesAndReimbursements() {
     })
   const t = useTranslations('Balances')
   const tSummary = useTranslations('Balances.summary')
-
-  useEffect(() => {
-    // Until we use tRPC more widely and can invalidate the cache on expense
-    // update, it's easier and safer to invalidate the cache on page load.
-    utils.groups.balances.invalidate()
-  }, [utils])
 
   const isLoading = balancesAreLoading || !balancesData || !group
   const reimbursementCount = balancesData?.reimbursements.length ?? 0

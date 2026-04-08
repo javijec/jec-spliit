@@ -8,6 +8,20 @@ import { useRouter } from 'next/navigation'
 import { useCurrentGroup } from '../current-group-context'
 import { ExpenseForm } from './expense-form'
 
+async function invalidateExpenseData(
+  utils: ReturnType<typeof trpc.useUtils>,
+  groupId: string,
+  expenseId: string,
+) {
+  await Promise.all([
+    utils.groups.expenses.list.invalidate({ groupId }),
+    utils.groups.expenses.get.invalidate({ groupId, expenseId }),
+    utils.groups.balances.list.invalidate({ groupId }),
+    utils.groups.stats.get.invalidate({ groupId }),
+    utils.groups.activities.list.invalidate({ groupId }),
+  ])
+}
+
 export function EditExpenseForm({
   groupId,
   expenseId,
@@ -56,7 +70,7 @@ export function EditExpenseForm({
             title: 'Gasto actualizado',
             description: 'Los cambios se guardaron correctamente.',
           })
-          utils.groups.expenses.invalidate()
+          await invalidateExpenseData(utils, groupId, expenseId)
           router.push(`/groups/${group.id}/expenses`)
         } catch (error) {
           toast({
@@ -80,7 +94,7 @@ export function EditExpenseForm({
             title: 'Gasto eliminado',
             description: 'El gasto se eliminó correctamente.',
           })
-          utils.groups.expenses.invalidate()
+          await invalidateExpenseData(utils, groupId, expenseId)
           router.push(`/groups/${group.id}/expenses`)
         } catch (error) {
           toast({

@@ -58,8 +58,10 @@ export function ReimbursementList({
         description: t('paymentRegistered.description'),
       })
       await Promise.all([
-        utils.groups.balances.invalidate(),
-        utils.groups.expenses.invalidate(),
+        utils.groups.balances.list.invalidate({ groupId }),
+        utils.groups.expenses.list.invalidate({ groupId }),
+        utils.groups.stats.get.invalidate({ groupId }),
+        utils.groups.activities.list.invalidate({ groupId }),
       ])
     },
     onError: (error) => {

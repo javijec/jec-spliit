@@ -194,15 +194,8 @@ export function ExpenseList() {
 }
 
 function ExpenseListContent({ groupId }: { groupId: string }) {
-  const utils = trpc.useUtils()
   const { group } = useCurrentGroup()
   const { ref: loadingRef, inView } = useInView()
-
-  useEffect(() => {
-    // Until we use tRPC more widely and can invalidate the cache on expense
-    // update, it's easier and safer to invalidate the cache on page load.
-    utils.groups.expenses.invalidate()
-  }, [utils])
 
   const { data, isLoading: expensesAreLoading, fetchNextPage } =
     trpc.groups.expenses.list.useInfiniteQuery(
