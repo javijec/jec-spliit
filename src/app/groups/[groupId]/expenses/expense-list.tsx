@@ -163,8 +163,7 @@ function ExpensesByGroup({
 }
 
 export function ExpenseList() {
-  const { groupId, group } = useCurrentGroup()
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const { groupId, group, viewer } = useCurrentGroup()
   const utils = trpc.useUtils()
   const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation({
     onSuccess: async () => {
@@ -178,7 +177,7 @@ export function ExpenseList() {
   useEffect(() => {
     if (!group?.participants) return
 
-    if (viewerData?.user) {
+    if (viewer) {
       void syncPersistedActiveUser(
         groupId,
         group.participants,
@@ -189,7 +188,7 @@ export function ExpenseList() {
     }
 
     syncActiveUser(groupId, group.participants)
-  }, [groupId, group?.participants, setActiveParticipant, viewerData?.user])
+  }, [groupId, group?.participants, setActiveParticipant, viewer])
 
   return <ExpenseListContent groupId={groupId} />
 }

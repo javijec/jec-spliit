@@ -77,8 +77,7 @@ export function SummaryPageClient() {
   const tExpenses = useTranslations('Expenses')
   const tSummary = useTranslations('Summary')
   const locale = useLocale()
-  const { groupId, group } = useCurrentGroup()
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const { groupId, group, viewer } = useCurrentGroup()
   const { groupedDebtSummary, isLoading } = useGroupedDebtSummary(groupId)
   const debtCurrencyCount = new Set(
     groupedDebtSummary.flatMap((pair) => pair.items.map((item) => item.currencyCode)),
@@ -144,7 +143,7 @@ export function SummaryPageClient() {
               const isLinked = !!participant.appUserId
               const isCurrentViewer =
                 !!participant.appUserId &&
-                participant.appUserId === viewerData?.user?.id
+                participant.appUserId === viewer?.id
 
               return (
                 <div

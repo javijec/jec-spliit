@@ -1,3 +1,4 @@
+import { useOptionalCurrentGroup } from '@/app/groups/[groupId]/current-group-context'
 import { trpc } from '@/trpc/client'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
@@ -57,16 +58,36 @@ export function useBaseUrl() {
  */
 export function useActiveUser(groupId?: string) {
   const [activeUser, setActiveUser] = useState<string | null>(null)
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const currentGroup = useOptionalCurrentGroup()
+  const canUseGroupContext = !!groupId && currentGroup?.groupId === groupId
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery(undefined, {
+    enabled: !canUseGroupContext,
+  })
   const { data: groupDetails } = trpc.groups.getDetails.useQuery(
     { groupId: groupId ?? '' },
     {
-      enabled: !!groupId,
+      enabled: !!groupId && !canUseGroupContext,
     },
   )
 
   useEffect(() => {
     if (!groupId) return
+
+    if (canUseGroupContext) {
+      if (currentGroup.viewer) {
+        setActiveUser(currentGroup.currentActiveParticipantId ?? null)
+        return
+      }
+
+      const activeUser = localStorage.getItem(`${groupId}-activeUser`)
+      if (activeUser) {
+        setActiveUser(activeUser)
+        return
+      }
+
+      setActiveUser(null)
+      return
+    }
 
     if (viewerData?.user) {
       setActiveUser(groupDetails?.currentActiveParticipantId ?? null)
@@ -80,7 +101,14 @@ export function useActiveUser(groupId?: string) {
     }
 
     setActiveUser(null)
-  }, [groupDetails?.currentActiveParticipantId, groupId, viewerData?.user])
+  }, [
+    canUseGroupContext,
+    currentGroup?.currentActiveParticipantId,
+    currentGroup?.viewer,
+    groupDetails?.currentActiveParticipantId,
+    groupId,
+    viewerData?.user,
+  ])
 
   return activeUser
 }

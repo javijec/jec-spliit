@@ -63,6 +63,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import { DeletePopup } from '../../../../components/delete-popup'
+import { useCurrentGroup } from '../current-group-context'
 
 const enforceCurrencyPattern = (value: string) =>
   value
@@ -277,7 +278,7 @@ export function ExpenseForm({
           },
   })
   const activeUserId = useActiveUser(group.id)
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const { viewer } = useCurrentGroup()
   const isDesktopLayout = useMediaQuery('(min-width: 640px)')
   const watchedPaidBy = useWatch({ control: form.control, name: 'paidBy' })
   const watchedPaidFor = useWatch({ control: form.control, name: 'paidFor' })
@@ -861,7 +862,7 @@ export function ExpenseForm({
                      <SelectContent>
                       {group.participants.map(({ id, name, appUserId }) => {
                         const isCurrentViewer =
-                          !!appUserId && viewerData?.user?.id === appUserId
+                          !!appUserId && viewer?.id === appUserId
 
                         return (
                           <SelectItem key={id} value={id}>

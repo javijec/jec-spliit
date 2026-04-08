@@ -24,6 +24,7 @@ import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { useTranslations } from 'next-intl'
 import { ComponentProps, useEffect, useMemo, useState } from 'react'
+import { useCurrentGroup } from '../current-group-context'
 
 export function ActiveUserModal({
   groupId,
@@ -37,8 +38,11 @@ export function ActiveUserModal({
   const t = useTranslations('Expenses.ActiveUserModal')
   const [internalOpen, setInternalOpen] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
-  const { data: groupData } = trpc.groups.get.useQuery({ groupId })
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const {
+    group,
+    viewer,
+    currentActiveParticipantId,
+  } = useCurrentGroup()
   const utils = trpc.useUtils()
   const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation({
     onSuccess: async () => {
@@ -48,8 +52,6 @@ export function ActiveUserModal({
       ])
     },
   })
-
-  const group = groupData?.group
   const isControlled = controlledOpen !== undefined
   const open = controlledOpen ?? internalOpen
   const setOpen = useMemo(
@@ -65,8 +67,8 @@ export function ActiveUserModal({
   useEffect(() => {
     if (!group) return
 
-    if (viewerData?.user) {
-      if (!groupData?.currentActiveParticipantId) {
+    if (viewer) {
+      if (!currentActiveParticipantId) {
         setOpen(true)
       }
       return
@@ -77,13 +79,13 @@ export function ActiveUserModal({
     if (!tempUser && !activeUser) {
       setOpen(true)
     }
-  }, [group, groupData?.currentActiveParticipantId, viewerData?.user])
+  }, [currentActiveParticipantId, group, viewer])
 
   function updateOpen(open: boolean) {
     if (!group) return
 
-    if (viewerData?.user) {
-      if (!open && !groupData?.currentActiveParticipantId) {
+    if (viewer) {
+      if (!open && !currentActiveParticipantId) {
         void setActiveParticipant.mutateAsync({ groupId: group.id, participantId: null })
       }
       setOpen(open)
@@ -106,8 +108,8 @@ export function ActiveUserModal({
           </DialogHeader>
           <ActiveUserForm
             group={group}
-            currentActiveParticipantId={groupData?.currentActiveParticipantId}
-            isAuthenticated={!!viewerData?.user}
+            currentActiveParticipantId={currentActiveParticipantId}
+            isAuthenticated={!!viewer}
             close={() => setOpen(false)}
           />
           <DialogFooter className="sm:justify-center">
@@ -130,8 +132,8 @@ export function ActiveUserModal({
         <ActiveUserForm
           className="px-4"
           group={group}
-          currentActiveParticipantId={groupData?.currentActiveParticipantId}
-          isAuthenticated={!!viewerData?.user}
+          currentActiveParticipantId={currentActiveParticipantId}
+          isAuthenticated={!!viewer}
           close={() => setOpen(false)}
         />
         <DrawerFooter className="pt-2">

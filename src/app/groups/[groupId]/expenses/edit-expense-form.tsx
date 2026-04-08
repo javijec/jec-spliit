@@ -5,6 +5,7 @@ import { RuntimeFeatureFlags } from '@/lib/featureFlags'
 import { trpc } from '@/trpc/client'
 import { useToast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
+import { useCurrentGroup } from '../current-group-context'
 import { ExpenseForm } from './expense-form'
 
 export function EditExpenseForm({
@@ -16,8 +17,7 @@ export function EditExpenseForm({
   expenseId: string
   runtimeFeatureFlags: RuntimeFeatureFlags
 }) {
-  const { data: groupData } = trpc.groups.get.useQuery({ groupId })
-  const group = groupData?.group
+  const { group } = useCurrentGroup()
 
   const { data: categoriesData } = trpc.categories.list.useQuery()
   const categories = categoriesData?.categories

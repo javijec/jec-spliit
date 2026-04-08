@@ -109,7 +109,7 @@ function SettingsMeta({
 }
 
 export function SettingsPageClient() {
-  const { groupId } = useCurrentGroup()
+  const { groupId, viewer } = useCurrentGroup()
   const t = useTranslations('Settings')
   const [view, setView] = useState<SettingsView>('hub')
   const [password, setPassword] = useState('')
@@ -128,10 +128,9 @@ export function SettingsPageClient() {
   const { mutateAsync: deleteGroupAsync, isPending: isDeletingGroup } =
     trpc.groups.delete.useMutation()
   const utils = trpc.useUtils()
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
 
   const getActiveParticipantId = () => {
-    if (viewerData?.user) {
+    if (viewer) {
       return data?.currentActiveParticipantId ?? undefined
     }
 

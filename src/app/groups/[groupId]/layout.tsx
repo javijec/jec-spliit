@@ -1,8 +1,10 @@
 import { cached } from '@/app/cached-functions'
+import { getCurrentAppUser } from '@/lib/auth'
 import {
   getGroupAccessCookieName,
   isValidGroupAccessCookieValue,
 } from '@/lib/group-access-session'
+import { getUserGroupMembership } from '@/lib/user-memberships'
 import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -32,6 +34,13 @@ export default async function GroupLayout({
   params,
 }: PropsWithChildren<Props>) {
   const { groupId } = await params
+  const [group, viewer] = await Promise.all([
+    cached.getGroup(groupId),
+    getCurrentAppUser(),
+  ])
+  const membership = viewer
+    ? await getUserGroupMembership(viewer.id, groupId)
+    : null
 
   const accessControl = await cached.getGroupAccessControl(groupId)
   if (accessControl?.hasAccessPassword) {
@@ -51,5 +60,14 @@ export default async function GroupLayout({
     }
   }
 
-  return <GroupLayoutClient groupId={groupId}>{children}</GroupLayoutClient>
+  return (
+    <GroupLayoutClient
+      groupId={groupId}
+      initialGroup={group}
+      initialCurrentActiveParticipantId={membership?.activeParticipantId ?? null}
+      viewer={viewer}
+    >
+      {children}
+    </GroupLayoutClient>
+  )
 }

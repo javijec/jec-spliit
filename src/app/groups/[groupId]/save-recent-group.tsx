@@ -5,15 +5,14 @@ import { useEffect, useRef } from 'react'
 import { useCurrentGroup } from './current-group-context'
 
 export function SaveGroupLocally() {
-  const { group } = useCurrentGroup()
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const { group, viewer } = useCurrentGroup()
   const recordVisit = trpc.groups.recordVisit.useMutation()
   const lastSavedVisitKeyRef = useRef<string | null>(null)
   const { mutateAsync: recordVisitAsync } = recordVisit
 
   const groupId = group?.id
   const groupName = group?.name
-  const viewerId = viewerData?.user?.id ?? null
+  const viewerId = viewer?.id ?? null
 
   useEffect(() => {
     if (!groupId || !groupName) return

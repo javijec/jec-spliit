@@ -2,10 +2,23 @@ import { AppRouterOutput } from '@/trpc/routers/_app'
 import { PropsWithChildren, createContext, useContext } from 'react'
 
 type Group = NonNullable<AppRouterOutput['groups']['get']['group']>
+type Viewer = AppRouterOutput['viewer']['getCurrent']['user']
 
 type GroupContext =
-  | { isLoading: false; groupId: string; group: Group }
-  | { isLoading: true; groupId: string; group: undefined }
+  | {
+      isLoading: false
+      groupId: string
+      group: Group
+      viewer: Viewer | null
+      currentActiveParticipantId: string | null
+    }
+  | {
+      isLoading: true
+      groupId: string
+      group: undefined
+      viewer: Viewer | null
+      currentActiveParticipantId: string | null
+    }
 
 const CurrentGroupContext = createContext<GroupContext | null>(null)
 
@@ -17,6 +30,8 @@ export const useCurrentGroup = () => {
     )
   return context
 }
+
+export const useOptionalCurrentGroup = () => useContext(CurrentGroupContext)
 
 export const CurrentGroupProvider = ({
   children,

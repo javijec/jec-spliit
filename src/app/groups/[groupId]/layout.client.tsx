@@ -20,13 +20,34 @@ import { PropsWithChildren, useEffect, useState } from 'react'
 import { CurrentGroupProvider } from './current-group-context'
 import { GroupHeader } from './group-header'
 import { SaveGroupLocally } from './save-recent-group'
+import { AppRouterOutput } from '@/trpc/routers/_app'
+
+type Group = AppRouterOutput['groups']['get']['group']
+type Viewer = AppRouterOutput['viewer']['getCurrent']['user']
 
 export function GroupLayoutClient({
   groupId,
+  initialGroup,
+  initialCurrentActiveParticipantId,
+  viewer,
   children,
-}: PropsWithChildren<{ groupId: string }>) {
+}: PropsWithChildren<{
+  groupId: string
+  initialGroup: Group
+  initialCurrentActiveParticipantId: string | null
+  viewer: Viewer | null
+}>) {
   const [activeUserModalOpen, setActiveUserModalOpen] = useState(false)
-  const { data, isLoading } = trpc.groups.get.useQuery({ groupId })
+  const { data, isLoading } = trpc.groups.get.useQuery(
+    { groupId },
+    {
+      initialData: {
+        group: initialGroup,
+        currentActiveParticipantId: initialCurrentActiveParticipantId,
+      },
+      refetchOnMount: false,
+    },
+  )
   const t = useTranslations('Groups.NotFound')
   const tTabs = useTranslations('GroupTabs')
   const tFlow = useTranslations('ExpenseFlow')
@@ -45,8 +66,20 @@ export function GroupLayoutClient({
 
   const props =
     isLoading || !data?.group
-      ? { isLoading: true as const, groupId, group: undefined }
-      : { isLoading: false as const, groupId, group: data.group }
+      ? {
+          isLoading: true as const,
+          groupId,
+          group: undefined,
+          viewer,
+          currentActiveParticipantId: data?.currentActiveParticipantId ?? null,
+        }
+      : {
+          isLoading: false as const,
+          groupId,
+          group: data.group,
+          viewer,
+          currentActiveParticipantId: data.currentActiveParticipantId ?? null,
+        }
   const showMobileChrome =
     !isLoading &&
     !!data?.group &&
