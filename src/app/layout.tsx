@@ -65,13 +65,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#047857',
+  viewportFit: 'cover',
 }
 
 function Content({ children }: { children: React.ReactNode }) {
   const t = useTranslations('Layout')
   return (
     <TRPCProvider>
-      <header className="fixed left-0 right-0 top-0 z-50 border-b bg-background">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b bg-background pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex h-16 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:px-4 lg:px-8">
           <Link
             className="flex items-center gap-3 rounded-md px-1 py-1 transition-colors hover:bg-secondary"
@@ -113,7 +114,7 @@ function Content({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="app-shell flex flex-1 flex-col pt-16">
+      <div className="app-shell flex flex-1 flex-col pt-[calc(4rem+env(safe-area-inset-top))]">
         <div className="relative z-10 flex flex-1 flex-col">{children}</div>
       </div>
 

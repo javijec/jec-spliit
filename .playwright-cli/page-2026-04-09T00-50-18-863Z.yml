@@ -1,0 +1,113 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NexoGastos NexoGastos" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "NexoGastos" [ref=e6]
+        - paragraph [ref=e8]: NexoGastos
+      - navigation "Menu" [ref=e9]:
+        - link "Ingresar con Google" [ref=e10] [cursor=pointer]:
+          - /url: /auth/login?connection=google-oauth2
+        - list [ref=e11]:
+          - listitem
+          - listitem [ref=e12]:
+            - 'button "Idioma actual: Español" [ref=e13] [cursor=pointer]':
+              - img [ref=e14]
+              - generic [ref=e18]: Español
+          - listitem [ref=e19]:
+            - button "Toggle theme" [ref=e20] [cursor=pointer]:
+              - img [ref=e21]
+              - img
+              - generic [ref=e23]: Toggle theme
+  - main [ref=e26]:
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - heading "Nuevo grupo" [level=1] [ref=e29]
+        - paragraph [ref=e30]: Crea un grupo desde cero o importa gastos existentes para empezar más rápido.
+      - generic [ref=e31]:
+        - generic [ref=e33]:
+          - heading "Importar desde CSV de Splitwise" [level=3] [ref=e34]
+          - paragraph [ref=e35]: Crea un grupo nuevo desde un export CSV y completa lo que falte antes de importar.
+        - generic [ref=e36]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - paragraph [ref=e40]: 1. Sube el archivo CSV
+              - paragraph [ref=e41]: Usa el export de Splitwise para precargar participantes y gastos.
+            - button "Choose File" [ref=e42]
+          - generic [ref=e43]: Subí el export CSV de Splitwise para pre-cargar participantes y gastos, luego completás solo los datos faltantes.
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - heading "Información del grupo" [level=3] [ref=e47]
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: Nombre del grupo
+                - button "Información sobre Nombre del grupo" [ref=e52] [cursor=pointer]:
+                  - img [ref=e53]
+              - textbox "Nombre del grupo" [ref=e55]:
+                - /placeholder: Vacaciones de verano
+                - text: Grupo Mobile QA
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - generic [ref=e58]: Moneda por defecto
+                - button "Información sobre Moneda por defecto" [ref=e59] [cursor=pointer]:
+                  - img [ref=e60]
+              - combobox [ref=e62] [cursor=pointer]:
+                - generic [ref=e65]: dólar estadounidense (USD)
+                - img [ref=e66]
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - heading "Participantes" [level=3] [ref=e71]
+            - list [ref=e73]:
+              - listitem [ref=e74]:
+                - generic [ref=e75]:
+                  - generic [ref=e76]: "Participant #1"
+                  - generic [ref=e78]:
+                    - textbox "Nuevo" [ref=e79]: Juan
+                    - button [ref=e80] [cursor=pointer]:
+                      - img [ref=e81]
+              - listitem [ref=e84]:
+                - generic [ref=e85]:
+                  - generic [ref=e86]: "Participant #2"
+                  - generic [ref=e88]:
+                    - textbox "Nuevo" [ref=e89]: Maria
+                    - button [ref=e90] [cursor=pointer]:
+                      - img [ref=e91]
+              - listitem [ref=e94]:
+                - generic [ref=e95]:
+                  - generic [ref=e96]: "Participant #3"
+                  - generic [ref=e98]:
+                    - textbox "Nuevo" [ref=e99]: Sergio
+                    - button [ref=e100] [cursor=pointer]:
+                      - img [ref=e101]
+            - button "Añadir participante" [ref=e105] [cursor=pointer]
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - heading "Ajustes locales" [level=3] [ref=e108]
+              - paragraph [ref=e109]: Estos ajustes se establecen por dispositivo y se utilizan para personalizar su experiencia.
+            - generic [ref=e112]:
+              - generic [ref=e113]:
+                - generic [ref=e114]: Usuario activo
+                - button "Información sobre Usuario activo" [ref=e115] [cursor=pointer]:
+                  - img [ref=e116]
+              - combobox [ref=e118] [cursor=pointer]:
+                - generic: Ninguno
+                - img [ref=e119]
+              - combobox [ref=e121]
+        - generic [ref=e122]:
+          - button "Crear" [ref=e123] [cursor=pointer]:
+            - img [ref=e139]
+            - text: Crear
+          - link "Cancelar" [ref=e128] [cursor=pointer]:
+            - /url: /groups
+  - region "Notifications (F8)":
+    - list [ref=e144]:
+      - listitem [ref=e145]:
+        - generic [ref=e146]:
+          - generic [ref=e147]: No se pudo crear el grupo
+          - generic [ref=e148]: "Invalid `tx.group.create()` invocation in F:\\Programacion\\jec-spliit\\.next\\dev\\server\\chunks\\[root-of-the-server]__491221ce._.js:427:24 424 ])); 425 const activeParticipantId = options?.activeParticipantName ? participantIdsByName.get(options.activeParticipantName) ?? null : null; 426 return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].$transaction(async (tx)=>{ → 427 await tx.group.create( The column `existe` does not exist in the current database."
+        - button [ref=e149] [cursor=pointer]:
+          - img [ref=e150]
+  - button "Open Next.js Dev Tools" [ref=e134] [cursor=pointer]:
+    - img [ref=e135]
+  - alert [ref=e138]

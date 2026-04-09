@@ -1,0 +1,37 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NexoGastos NexoGastos" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "NexoGastos" [ref=e6]
+        - paragraph [ref=e8]: NexoGastos
+      - navigation "Menu" [ref=e9]:
+        - link "Ingresar con Google" [ref=e10] [cursor=pointer]:
+          - /url: /auth/login?connection=google-oauth2
+        - list [ref=e11]:
+          - listitem
+          - listitem [ref=e12]:
+            - 'button "Idioma actual: Español" [ref=e13] [cursor=pointer]':
+              - img [ref=e14]
+              - generic [ref=e18]: Español
+          - listitem [ref=e19]:
+            - button "Toggle theme" [ref=e20] [cursor=pointer]:
+              - img [ref=e21]
+              - img
+              - generic [ref=e23]: Toggle theme
+  - main [ref=e26]:
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - heading "Mis grupos" [level=1] [ref=e31]:
+          - link "Mis grupos" [ref=e32] [cursor=pointer]:
+            - /url: /groups
+        - paragraph [ref=e33]: Abre un grupo reciente, crea uno nuevo o suma uno desde un enlace.
+      - generic [ref=e34]:
+        - link "Crear" [ref=e35] [cursor=pointer]:
+          - /url: /groups/create
+        - button "Añadir mediante url" [ref=e36] [cursor=pointer]
+  - region "Notifications (F8)":
+    - list
+  - button "Open Next.js Dev Tools" [ref=e90] [cursor=pointer]:
+    - img [ref=e91]
+  - alert [ref=e94]

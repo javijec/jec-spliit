@@ -22,7 +22,6 @@ import {
 } from '@/components/ui/popover'
 import { Currency } from '@/lib/currency'
 import { useMediaQuery } from '@/lib/hooks'
-import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { forwardRef, useEffect, useState } from 'react'
 
@@ -201,12 +200,14 @@ function CurrencyLabel({ currency }: { currency: Currency }) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex h-8 w-8 items-center justify-center border bg-muted/20">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={flagUrl}
-          className="h-auto w-4"
           alt=""
           width={16}
           height={12}
+          className="h-[12px] w-auto"
+          loading="lazy"
         />
       </div>
       <span className="truncate">

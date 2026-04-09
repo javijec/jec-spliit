@@ -1,0 +1,106 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NexoGastos NexoGastos Controla gastos compartidos" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "NexoGastos" [ref=e6]
+        - generic [ref=e7]:
+          - paragraph [ref=e8]: NexoGastos
+          - paragraph [ref=e9]: Controla gastos compartidos
+      - navigation "Menu" [ref=e10]:
+        - link "Grupos" [ref=e11] [cursor=pointer]:
+          - /url: /groups
+          - img [ref=e12]
+          - generic [ref=e14]: Grupos
+        - link "Ingresar con Google" [ref=e15] [cursor=pointer]:
+          - /url: /auth/login?connection=google-oauth2
+        - list [ref=e16]:
+          - listitem
+          - listitem [ref=e17]:
+            - 'button "Idioma actual: Español" [ref=e18] [cursor=pointer]':
+              - img [ref=e19]
+              - generic [ref=e23]: Español
+          - listitem [ref=e24]:
+            - button "Toggle theme" [ref=e25] [cursor=pointer]:
+              - img [ref=e26]
+              - img
+              - generic [ref=e28]: Toggle theme
+  - main [ref=e31]:
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Grupos
+          - heading "Comparte Gastos con Amigos y Familia" [level=1] [ref=e40]:
+            - text: Comparte
+            - strong [ref=e41]: Gastos
+            - text: con
+            - strong [ref=e42]: Amigos y Familia
+          - paragraph [ref=e43]:
+            - text: ¡Bienvenido a
+            - strong [ref=e44]: NexoGastos
+            - text: "!"
+          - generic [ref=e45]:
+            - link "Ir a grupos" [ref=e46] [cursor=pointer]:
+              - /url: /groups
+              - text: Ir a grupos
+              - img [ref=e47]
+            - link "Crear grupo" [ref=e49] [cursor=pointer]:
+              - /url: /groups/create
+        - complementary [ref=e50]:
+          - paragraph [ref=e52]: Ir a grupos
+          - generic [ref=e53]:
+            - generic [ref=e55]:
+              - img [ref=e56]
+              - generic [ref=e58]:
+                - paragraph [ref=e59]: Flujo simple
+                - paragraph [ref=e60]: Entra al grupo, agrega gastos y liquida sin perderte en pantallas.
+            - generic [ref=e62]:
+              - img [ref=e63]
+              - generic [ref=e65]:
+                - paragraph [ref=e66]: Gastos claros
+                - paragraph [ref=e67]: Carga importes, participantes y comprobantes desde el celular.
+            - generic [ref=e69]:
+              - img [ref=e70]
+              - generic [ref=e76]:
+                - paragraph [ref=e77]: Balances rápidos
+                - paragraph [ref=e78]: Ve quién le debe a quién y registra pagos parciales cuando haga falta.
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - paragraph [ref=e82]: "01"
+          - paragraph [ref=e83]: Flujo simple
+          - paragraph [ref=e84]: Entra al grupo, agrega gastos y liquida sin perderte en pantallas.
+        - generic [ref=e85]:
+          - paragraph [ref=e86]: "02"
+          - paragraph [ref=e87]: Gastos claros
+          - paragraph [ref=e88]: Carga importes, participantes y comprobantes desde el celular.
+        - generic [ref=e89]:
+          - paragraph [ref=e90]: "03"
+          - paragraph [ref=e91]: Balances rápidos
+          - paragraph [ref=e92]: Ve quién le debe a quién y registra pagos parciales cuando haga falta.
+  - contentinfo [ref=e93]:
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - img "NexoGastos" [ref=e98]
+        - generic [ref=e99]:
+          - link "NexoGastos" [ref=e100] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e101]: Gestión de gastos compartidos con enfoque móvil.
+      - generic [ref=e102]:
+        - link "Javijec" [ref=e103] [cursor=pointer]:
+          - /url: https://github.com/javijec
+          - generic [ref=e104]: Javijec
+          - img [ref=e105]
+        - link "Spliit" [ref=e109] [cursor=pointer]:
+          - /url: https://github.com/spliit-app/spliit/
+          - generic [ref=e110]: Spliit
+          - img [ref=e111]
+        - link "GitHub" [ref=e115] [cursor=pointer]:
+          - /url: https://github.com/javijec/jec-spliit
+          - generic [ref=e116]: GitHub
+          - img [ref=e117]
+  - region "Notifications (F8)":
+    - list
+  - button "Open Next.js Dev Tools" [ref=e126] [cursor=pointer]:
+    - img [ref=e127]
