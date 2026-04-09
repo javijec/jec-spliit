@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
-import { FolderOpen } from 'lucide-react'
+import { FolderOpen, Sparkles } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
@@ -237,14 +237,13 @@ function RecentGroupList_({
           <GroupSectionHeader>
             <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
               <FolderOpen className="h-5 w-5" />
-              {t('myGroups')}
+              {t('NoRecent.description')}
             </GroupSectionTitle>
             <GroupSectionDescription className="mt-2">
-              {t('NoRecent.description')}
+              {t('NoRecent.orAsk')}
             </GroupSectionDescription>
           </GroupSectionHeader>
-          <GroupSectionContent className="space-y-3 text-sm text-muted-foreground">
-            <p>{t('NoRecent.orAsk')}</p>
+          <GroupSectionContent className="space-y-3">
             <Button asChild className="w-full sm:w-auto">
               <Link href={`/groups/create`}>{t('NoRecent.create')}</Link>
             </Button>
@@ -269,14 +268,13 @@ function RecentGroupList_({
           <GroupSectionHeader>
             <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
               <FolderOpen className="h-5 w-5" />
-              {t('myGroups')}
+              {t('NoRecent.description')}
             </GroupSectionTitle>
             <GroupSectionDescription className="mt-2">
-              {t('NoRecent.description')}
+              {t('NoRecent.orAsk')}
             </GroupSectionDescription>
           </GroupSectionHeader>
-          <GroupSectionContent className="space-y-3 text-sm text-muted-foreground">
-            <p>{t('NoRecent.orAsk')}</p>
+          <GroupSectionContent className="space-y-3">
             <Button asChild className="w-full sm:w-auto">
               <Link href={`/groups/create`}>{t('NoRecent.create')}</Link>
             </Button>
@@ -296,7 +294,7 @@ function RecentGroupList_({
     <GroupsPage reload={refreshGroupsFromStorage}>
       {starredGroupInfo.length > 0 && (
         <>
-          <h2 className="mb-2 text-lg sm:text-xl">{t('starred')}</h2>
+          <SectionHeading>{t('starred')}</SectionHeading>
           <GroupList
             groups={starredGroupInfo}
             groupDetails={resolvedGroupDetails}
@@ -312,7 +310,7 @@ function RecentGroupList_({
 
       {groupInfo.length > 0 && (
         <>
-          <h2 className="mb-2 mt-6 text-lg sm:text-xl">{t('recent')}</h2>
+          <SectionHeading className="mt-6">{t('recent')}</SectionHeading>
           <GroupList
             groups={groupInfo}
             groupDetails={resolvedGroupDetails}
@@ -328,8 +326,8 @@ function RecentGroupList_({
 
       {archivedGroupInfo.length > 0 && (
         <>
-          <h2 className="mb-2 mt-6 text-lg opacity-50 sm:text-xl">{t('archived')}</h2>
-          <div className="opacity-50">
+          <SectionHeading className="mt-6 opacity-60">{t('archived')}</SectionHeading>
+          <div className="opacity-75">
             <GroupList
               groups={archivedGroupInfo}
               groupDetails={resolvedGroupDetails}
@@ -398,10 +396,15 @@ function GroupsPage({
 }: PropsWithChildren<{ reload: () => void }>) {
   const t = useTranslations('Groups')
   return (
-    <div className="space-y-5">
-      <section className="border-b pb-5 sm:pb-6">
-        <div className="space-y-3">
-          <div className="space-y-1">
+    <div className="space-y-4">
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-4 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-5">
+        <div className="absolute right-[-3rem] top-[-2rem] h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-primary">
+            <Sparkles className="h-3.5 w-3.5" />
+            {t('myGroups')}
+          </div>
+          <div className="space-y-1.5">
             <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
               <Link href="/groups">{t('myGroups')}</Link>
             </h1>
@@ -409,16 +412,33 @@ function GroupsPage({
               {t('groupsHeroDescription')}
             </p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Button asChild className="w-full sm:w-auto">
               <Link href="/groups/create">{t('create')}</Link>
             </Button>
-            <AddGroupByUrlButton reload={reload} />
+            <div className="w-full sm:w-auto">
+              <AddGroupByUrlButton reload={reload} />
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="space-y-5">{children}</div>
+      <div className="space-y-4">{children}</div>
+    </div>
+  )
+}
+
+function SectionHeading({
+  children,
+  className = '',
+}: PropsWithChildren<{ className?: string }>) {
+  return (
+    <div className={`mb-2 flex items-center gap-2 ${className}`}>
+      <div className="h-px flex-1 bg-border/80" />
+      <h2 className="text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">
+        {children}
+      </h2>
+      <div className="h-px flex-1 bg-border/80" />
     </div>
   )
 }
@@ -448,7 +468,7 @@ function GroupListSkeleton() {
 
 function GroupCardSkeleton() {
   return (
-    <div className="border bg-card p-4">
+    <div className="rounded-[1.25rem] border border-border/80 bg-card/90 p-4 shadow-[0_12px_28px_hsl(var(--foreground)/0.04)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-3">
           <Skeleton className="h-5 w-40 rounded-sm" />

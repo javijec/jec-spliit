@@ -17,7 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { StarFilledIcon } from '@radix-ui/react-icons'
-import { ArrowRight, Calendar, MoreHorizontal, Star, Users } from 'lucide-react'
+import { Calendar, MoreHorizontal, Star, Users } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 
@@ -49,22 +49,37 @@ export function RecentGroupListCard({
 
   return (
     <li key={group.id}>
-      <div className="border bg-card p-4 transition-colors hover:bg-secondary/35">
+      <div className="rounded-[1.25rem] border border-border/80 bg-card/90 p-4 shadow-[0_12px_28px_hsl(var(--foreground)/0.04)] transition-colors hover:bg-secondary/20">
         <div className="flex items-start gap-3">
-          <Link href={`/groups/${group.id}`} className="min-w-0 flex-1">
+          <Link
+            href={`/groups/${group.id}`}
+            className="min-w-0 flex-1 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-base font-semibold">{group.name}</p>
-                <div className="mt-2 text-xs text-muted-foreground">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/15 bg-primary/[0.08] text-primary">
+                    <Users className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-semibold text-foreground">
+                      {group.name}
+                    </p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      Grupo
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-muted-foreground">
                   {groupDetail ? (
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <div className="flex items-center">
-                        <Users className="mr-1 inline h-3 w-3" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center rounded-full border border-border/80 bg-background/80 px-2.5 py-1">
+                        <Users className="mr-1.5 h-3 w-3" />
                         <span>{groupDetail._count.participants}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="mr-1 inline h-3 w-3" />
-                        <span>
+                      </span>
+                      <span className="inline-flex items-center rounded-full border border-border/80 bg-background/80 px-2.5 py-1">
+                        <Calendar className="mr-1.5 h-3 w-3" />
+                        <span className="truncate">
                           {new Date(groupDetail.createdAt).toLocaleDateString(
                             locale,
                             {
@@ -72,7 +87,7 @@ export function RecentGroupListCard({
                             },
                           )}
                         </span>
-                      </div>
+                      </span>
                     </div>
                   ) : (
                     <div className="flex gap-3">
@@ -82,7 +97,6 @@ export function RecentGroupListCard({
                   )}
                 </div>
               </div>
-              <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             </div>
           </Link>
 
@@ -90,7 +104,8 @@ export function RecentGroupListCard({
             <Button
               size="icon"
               variant="ghost"
-              className="-my-2 -ml-2 -mr-1 h-9 w-9"
+              className="-my-2 -ml-2 -mr-1 h-10 w-10 rounded-xl"
+              aria-label={isStarred ? t('unarchive') : t('starred')}
               onClick={(event) => {
                 event.stopPropagation()
                 if (onToggleStar) {
@@ -114,7 +129,12 @@ export function RecentGroupListCard({
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="-my-2 -mr-2 h-9 w-9">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="-my-2 -mr-2 h-10 w-10 rounded-xl"
+                  aria-label="Más opciones"
+                >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
