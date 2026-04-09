@@ -86,7 +86,9 @@ export function GroupLayoutClient({
     !pathname.endsWith('/expenses/create') &&
     !/\/expenses\/[^/]+\/edit$/.test(pathname)
   const hideGroupHeaderOnMobile =
-    pathname === `/groups/${groupId}/expenses` ||
+    pathname === `/groups/${groupId}` ||
+    pathname === `/groups/${groupId}/summary` ||
+    pathname.startsWith(`/groups/${groupId}/expenses`) ||
     pathname === `/groups/${groupId}/balances`
 
   const tabs = [

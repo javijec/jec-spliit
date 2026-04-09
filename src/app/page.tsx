@@ -22,7 +22,7 @@ export default async function HomePage() {
       </div>
 
       <div className="relative mx-auto flex w-full max-w-screen-xl flex-col">
-        <section className="relative overflow-hidden rounded-[1.75rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] shadow-[0_24px_80px_hsl(var(--foreground)/0.08)]">
+    <section className="relative overflow-hidden rounded-[1.75rem] border border-border/80 bg-card shadow-[0_24px_80px_hsl(var(--foreground)/0.08)]">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
           <div className="px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
             <div className="relative z-10 mx-auto max-w-[42rem] text-center">

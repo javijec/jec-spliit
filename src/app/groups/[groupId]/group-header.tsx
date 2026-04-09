@@ -13,7 +13,7 @@ export const GroupHeader = () => {
 
   return (
     <div className="mb-3">
-      <div className="min-w-0 flex items-center justify-between gap-2 rounded-[1.35rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-3.5 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)] sm:px-5 sm:py-4">
+      <div className="min-w-0 flex items-center justify-between gap-2 rounded-[1.35rem] border border-border/80 bg-card px-4 py-3.5 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)] sm:px-5 sm:py-4">
         <div className="min-w-0 flex-1">
           {isLoading ? (
             <div className="mb-2.5 flex flex-wrap gap-2">
@@ -50,15 +50,6 @@ export const GroupHeader = () => {
               )}
             </Link>
           </h1>
-          {isLoading ? (
-            <Skeleton className="mt-2 h-4 w-28 rounded-sm" />
-          ) : (
-            group && (
-              <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                {group.information?.trim() || t('Summary.description')}
-              </p>
-            )
-          )}
         </div>
       </div>
     </div>

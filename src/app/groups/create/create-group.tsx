@@ -409,7 +409,7 @@ function SplitwiseImportCard() {
   }
 
   return (
-    <Card className="mb-4 overflow-hidden border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)]">
+    <Card className="mb-4 overflow-hidden border-border/70 bg-card">
       <CardHeader className="gap-3">
         <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
           <Upload className="h-3.5 w-3.5" />
@@ -656,7 +656,7 @@ export const CreateGroup = () => {
 
   return (
     <div className="space-y-3">
-      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-3.5 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-4">
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-card px-4 py-3.5 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-4">
         <div className="absolute right-[-3rem] top-[-2rem] h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative space-y-3">
           <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">

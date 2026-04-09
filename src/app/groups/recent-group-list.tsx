@@ -389,7 +389,7 @@ function GroupsPage({
   const t = useTranslations('Groups')
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-4 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-5">
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-card px-4 py-4 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-5">
         <div className="absolute right-[-3rem] top-[-2rem] h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-primary">

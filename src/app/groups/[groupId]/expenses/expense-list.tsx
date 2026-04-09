@@ -112,7 +112,7 @@ function EmptyExpenses({ groupId }: { groupId: string }) {
         icon={Wallet}
         title={t('noExpenses')}
         description={t('noEntriesYet')}
-        className="rounded-[1.35rem] border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] p-7 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]"
+        className="rounded-[1.35rem] border-border/70 bg-card p-7 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]"
         action={
           <Button asChild>
             <Link href={`/groups/${groupId}/expenses/create`}>

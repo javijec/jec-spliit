@@ -16,7 +16,7 @@ const GroupSectionCard = React.forwardRef<
   <Card
     ref={ref}
     className={cn(
-      '-mx-3 overflow-hidden rounded-none border-x-0 border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] shadow-none sm:mx-0 sm:rounded-[1.35rem] sm:border-x sm:shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]',
+      '-mx-3 overflow-hidden rounded-none border-x-0 border-border/70 bg-card shadow-none sm:mx-0 sm:rounded-[1.35rem] sm:border-x sm:shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]',
       className,
     )}
     {...props}

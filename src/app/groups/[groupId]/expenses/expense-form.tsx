@@ -20,7 +20,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -643,94 +642,29 @@ export function ExpenseForm({
             </AlertDescription>
           </Alert>
         )}
-        <div className="mb-3 rounded-[1.35rem] border border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] p-3.5 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]">
-          <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="rounded-full px-3 py-1 text-[0.7rem]">
-                {isIncome ? 'Ingreso' : 'Gasto'}
-              </Badge>
-            <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
-              {formatDateForDisplay(watchedExpenseDate)}
-            </Badge>
-          </div>
-          <div className="mt-2.5 flex flex-wrap items-end justify-between gap-2.5">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('mobile.currentAmount')}</p>
-              <p className="text-2xl font-semibold leading-none">
-                {formattedEnteredAmount}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {flowSteps[currentStepIndex]?.label}
-              </p>
-            </div>
-              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
-                  {t('mobile.payer')}: {selectedPayerName}
-                </Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
-                  {t('mobile.participantsCount', {
-                    count: selectedParticipantsCount,
-                  })}
-              </Badge>
-            </div>
-          </div>
-        </div>
         {!isDesktopLayout && (
-          <div className="mb-3 rounded-[1.25rem] border border-border/70 bg-card/90 p-3 shadow-sm shadow-black/5">
-            <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-2.5 rounded-[1.15rem] border border-border/70 bg-card/90 p-2.5 shadow-sm shadow-black/5">
+            <div className="mb-2 flex items-center justify-between gap-2">
               <p className="text-sm font-medium">
                 {t('mobile.stepCounter', {
                   current: currentStepIndex + 1,
                   total: flowSteps.length,
                 })}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {flowSteps[currentStepIndex]?.label}
               </p>
             </div>
-            <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
+            <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-muted">
               <div
                   className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
                   style={{ width: `${stepProgress}%` }}
               />
             </div>
-            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${flowSteps.length}, minmax(0, 1fr))` }}>
-              {flowSteps.map((step, index) => {
-                const isActive = step.id === currentStep
-                const isPast = index < currentStepIndex
-                return (
-                    <button
-                      key={step.id}
-                      type="button"
-                      onClick={() => goToStep(step.id)}
-                      className={cn(
-                        'rounded-xl border px-3 py-2 text-left transition-colors duration-150',
-                        isActive
-                          ? 'border-primary/25 bg-primary/8'
-                          : isPast
-                            ? 'border-primary/20 bg-primary/5'
-                            : 'border-border bg-background hover:bg-muted/30',
-                      )}
-                    >
-                      <p className="text-[11px] text-muted-foreground">
-                        {index + 1}
-                      </p>
-                    <p className="mt-1 text-sm font-medium leading-tight">
-                      {step.label}
-                    </p>
-                  </button>
-                )
-              })}
-            </div>
           </div>
         )}
         {shouldShowStep('details') && (
         <Card className="overflow-hidden border-border/70">
-          <CardHeader className="border-b border-border/70">
-              <SectionIntro
-                title={t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
-                description={t('mobile.step1Description')}
-              />
-          </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
@@ -745,39 +679,69 @@ export function ExpenseForm({
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    {t(`${sExpense}.TitleField.description`)}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="expenseDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t(`${sExpense}.DateField.label`)}</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="text-base"
-                        type="date"
-                        value={formatDateInputValue(field.value ?? new Date())}
-                        onChange={(event) => {
-                          const nextDate = parseDateFromInput(event.target.value)
-                          if (nextDate) field.onChange(nextDate)
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(`${sExpense}.DateField.description`)}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="sm:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+              <div className="grid grid-cols-2 gap-3 sm:contents">
+                <FormField
+                  control={form.control}
+                  name="expenseDate"
+                  render={({ field }) => (
+                    <FormItem className="min-w-0">
+                      <FormLabel>{t(`${sExpense}.DateField.label`)}</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="text-base"
+                          type="date"
+                          value={formatDateInputValue(field.value ?? new Date())}
+                          onChange={(event) => {
+                            const nextDate = parseDateFromInput(event.target.value)
+                            if (nextDate) field.onChange(nextDate)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field: { onChange, ...field } }) => (
+                    <FormItem className="min-w-0 sm:order-5">
+                      <FormLabel>{t('amountField.label')}</FormLabel>
+                      <div className="flex items-baseline gap-2">
+                        <span>{expenseCurrency.symbol || group.currency}</span>
+                        <FormControl>
+                          <Input
+                            className="text-base w-full"
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="0.00"
+                            onChange={(event) => {
+                              const v = enforceCurrencyPattern(event.target.value)
+                              const income = Number(v) < 0
+                              setIsIncome(income)
+                              onChange(v)
+                            }}
+                            onFocus={(e) => {
+                              // we're adding a small delay to get around safaris issue with onMouseUp deselecting things again
+                              const target = e.currentTarget
+                              setTimeout(() => target.select(), 1)
+                            }}
+                            {...field}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 name="originalCurrency"
@@ -801,49 +765,11 @@ export function ExpenseForm({
                         />
                       )}
                     </FormControl>
-                    <FormDescription>
-                      {t(`${sExpense}.currencyField.description`)}{' '}
-                      {!group.currencyCode && t('conversionUnavailable')}
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field: { onChange, ...field } }) => (
-                <FormItem className="sm:order-5">
-                  <FormLabel>{t('amountField.label')}</FormLabel>
-                  <div className="flex items-baseline gap-2">
-                    <span>{expenseCurrency.symbol || group.currency}</span>
-                    <FormControl>
-                      <Input
-                        className="text-base max-w-[120px]"
-                        type="text"
-                        inputMode="decimal"
-                        placeholder="0.00"
-                          onChange={(event) => {
-                            const v = enforceCurrencyPattern(event.target.value)
-                            const income = Number(v) < 0
-                            setIsIncome(income)
-                            onChange(v)
-                          }}
-                        onFocus={(e) => {
-                          // we're adding a small delay to get around safaris issue with onMouseUp deselecting things again
-                          const target = e.currentTarget
-                          setTimeout(() => target.select(), 1)
-                        }}
-                        {...field}
-                      />
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
@@ -894,11 +820,8 @@ export function ExpenseForm({
                           </SelectItem>
                         )
                       })}
-                     </SelectContent>
-                   </Select>
-                  <FormDescription>
-                    {t(`${sExpense}.paidByField.description`)}
-                  </FormDescription>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -917,21 +840,30 @@ export function ExpenseForm({
           </CardHeader>
           <CardContent>
               <div className="sticky top-[5rem] z-10 -mx-4 mb-3 border-b border-border/70 bg-background/95 px-4 pb-3 pt-1 backdrop-blur sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
-                <div className="mb-2.5 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
-                  {t('mobile.selectedCount', { count: selectedParticipantsCount })}
+                <div className="mb-2 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                  <Badge
+                    variant="outline"
+                    className="rounded-full px-2.5 py-0.5 text-[0.65rem]"
+                  >
+                    {t('mobile.selectedCount', {
+                      count: selectedParticipantsCount,
+                    })}
                   </Badge>
-                  <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
+                  <Badge
+                    variant="outline"
+                    className="rounded-full px-2.5 py-0.5 text-[0.65rem]"
+                  >
                     {t('mobile.splitMode', {
                       mode: activeSplitModeLabel,
                     })}
-                </Badge>
+                  </Badge>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
+                  className="h-8 rounded-lg px-2.5 text-xs"
                   onClick={() =>
                     updateSelectedParticipants(
                       group.participants.map(({ id }) => ({
@@ -947,6 +879,7 @@ export function ExpenseForm({
                   type="button"
                   size="sm"
                   variant="ghost"
+                  className="h-8 rounded-lg px-2.5 text-xs"
                   onClick={() => updateSelectedParticipants([])}
                 >
                   {t('selectNone')}
@@ -971,14 +904,14 @@ export function ExpenseForm({
                             data-id={`${id}/${watchedSplitMode}/${
                               expenseCurrency.code || expenseCurrency.symbol
                             }`}
-                              className={cn(
-                                '-mx-2 mb-2 rounded-2xl border px-3 py-2.5 transition-colors duration-150 sm:-mx-0',
-                                isSelected
-                                  ? 'border-primary/25 bg-primary/5'
-                                  : 'border-border/70 bg-card/40 hover:bg-muted/20',
-                              )}
+                            className={cn(
+                              '-mx-1.5 mb-1.5 rounded-[1.05rem] border px-2.5 py-2 transition-colors duration-150 sm:-mx-0',
+                              isSelected
+                                ? 'border-primary/20 bg-primary/5'
+                                : 'border-border/60 bg-card/30 hover:bg-muted/15',
+                            )}
                           >
-                            <FormItem className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:space-x-3 sm:space-y-0">
+                            <FormItem className="flex w-full flex-col gap-2 sm:flex-row sm:items-start sm:space-x-3 sm:space-y-0">
                               <FormControl>
                                 <Checkbox
                                   checked={isSelected}
@@ -1013,10 +946,10 @@ export function ExpenseForm({
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="min-w-0 flex-1">
-                                    <FormLabel className="block truncate text-sm font-medium">
+                                    <FormLabel className="block truncate text-[0.95rem] font-medium leading-tight">
                                       {name}
                                     </FormLabel>
-                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                    <p className="mt-0.5 text-[10px] text-muted-foreground">
                                       {isSelected
                                         ? activeSplitModeLabel
                                         : t('mobile.tapToInclude')}
@@ -1024,7 +957,7 @@ export function ExpenseForm({
                                   </div>
                                   <span
                                     className={cn(
-                                      'rounded-full border px-2.5 py-1 text-[11px]',
+                                      'rounded-full border px-2 py-0.5 text-[10px]',
                                       isSelected
                                         ? 'border-primary/20 bg-primary/10 text-primary'
                                         : 'bg-muted/30 text-muted-foreground',
@@ -1035,7 +968,7 @@ export function ExpenseForm({
                                 </div>
                                 {isSelected &&
                                   !watchedIsReimbursement && (
-                                    <p className="mt-2 text-xs text-muted-foreground">
+                                    <p className="mt-1.5 text-[11px] text-muted-foreground">
                                       {t('mobile.estimatedShare')}{' '}
                                       {formatCurrency(
                                         expenseCurrency,
@@ -1076,11 +1009,11 @@ export function ExpenseForm({
                               </div>
                             </FormItem>
                             {isSelected && watchedSplitMode !== 'EVENLY' && (
-                              <div className="mt-2.5 rounded-2xl border border-border/70 bg-background/90 p-2.5">
-                                <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+                              <div className="mt-2 rounded-xl border border-border/60 bg-background/80 p-2">
+                                <p className="mb-1.5 text-[10px] font-medium text-muted-foreground">
                                   {activeSplitModeLabel}
                                 </p>
-                                <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+                                <div className="flex w-full flex-wrap gap-1.5 sm:w-auto sm:justify-end">
                               {watchedSplitMode === 'BY_AMOUNT' &&
                                 !!conversionRequired && (
                                   <FormField
@@ -1112,7 +1045,7 @@ export function ExpenseForm({
                                                       participant === id,
                                                   ),
                                                 )}
-                                                className="text-base w-[80px] -my-2"
+                                                className="h-8 w-[72px] px-2 text-sm"
                                                 type="text"
                                                 inputMode="decimal"
                                                 disabled={
@@ -1155,7 +1088,7 @@ export function ExpenseForm({
                                                 }
                                               />
                                             </FormControl>
-                                            <ChevronRight className="h-4 w-4 mx-1 opacity-50" />
+                                            <ChevronRight className="mx-0.5 h-3.5 w-3.5 opacity-50" />
                                           </div>
                                         </div>
                                       )
@@ -1202,7 +1135,7 @@ export function ExpenseForm({
                                                   participant === id,
                                               ),
                                             )}
-                                            className="text-base w-[80px] -my-2"
+                                            className="h-8 w-[72px] px-2 text-sm"
                                             type="text"
                                             disabled={
                                               !field.value?.some(
@@ -1255,7 +1188,7 @@ export function ExpenseForm({
                                           watchedSplitMode,
                                         ) && sharesLabel}
                                       </div>
-                                      <FormMessage className="float-right" />
+                                      <FormMessage className="float-right text-[10px]" />
                                     </div>
                                   )
                                 }}
@@ -1274,16 +1207,19 @@ export function ExpenseForm({
             />
 
             <Collapsible
-              className="mt-4 rounded-2xl border border-border/70 bg-muted/15 px-3 py-2"
+              className="mt-3 rounded-xl border border-border/60 bg-muted/10 px-2.5 py-1.5"
               defaultOpen={form.getValues().splitMode !== 'EVENLY'}
             >
               <CollapsibleTrigger asChild>
-                <Button variant="link" className="justify-start px-0">
+                <Button
+                  variant="link"
+                  className="h-auto justify-start px-0 py-0 text-sm"
+                >
                   {t('advancedOptions')}
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <div className="grid sm:grid-cols-2 gap-6 pt-3">
+                <div className="grid gap-4 pt-2.5 sm:grid-cols-2 sm:gap-5">
                   <FormField
                     control={form.control}
                     name="splitMode"
@@ -1320,9 +1256,6 @@ export function ExpenseForm({
                             </SelectContent>
                           </Select>
                         </FormControl>
-                        <FormDescription>
-                          {t(`${sExpense}.splitModeDescription`)}
-                        </FormDescription>
                       </FormItem>
                     )}
                   />
@@ -1330,7 +1263,7 @@ export function ExpenseForm({
                     control={form.control}
                     name="saveDefaultSplittingOptions"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row gap-2 items-center space-y-0 pt-2">
+                      <FormItem className="flex flex-row items-center gap-2 space-y-0 pt-1">
                         <FormControl>
                           <Checkbox
                             checked={field.value}
@@ -1406,24 +1339,29 @@ export function ExpenseForm({
             </SubmitButton>
           )}
           {!isDesktopLayout && !isLastStep && (
-            <Button
-              type="button"
-              className="w-full"
-              onClick={() => void handleAdvanceStep()}
-            >
-              {nextStep
-                ? t('mobile.continueTo', { step: nextStep.label })
-                : t('mobile.continue')}
-            </Button>
+            <div className="grid w-full grid-cols-2 gap-2">
+              <Button variant="outline" asChild className="w-full">
+                <Link href={`/groups/${group.id}/expenses`}>{t('cancel')}</Link>
+              </Button>
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() => void handleAdvanceStep()}
+              >
+                {nextStep ? nextStep.label : t('mobile.continue')}
+              </Button>
+            </div>
           )}
           {!isCreate && onDelete && (
             <DeletePopup
               onDelete={() => onDelete(activeUserId ?? undefined)}
             ></DeletePopup>
           )}
-          <Button variant="ghost" asChild className="w-full sm:w-auto">
-            <Link href={`/groups/${group.id}/expenses`}>{t('cancel')}</Link>
-          </Button>
+          {(isDesktopLayout || isLastStep) && (
+            <Button variant="ghost" asChild className="w-full sm:w-auto">
+              <Link href={`/groups/${group.id}/expenses`}>{t('cancel')}</Link>
+            </Button>
+          )}
         </div>
       </form>
     </Form>
