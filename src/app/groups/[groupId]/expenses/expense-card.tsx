@@ -10,7 +10,7 @@ import { ArrowRightLeft, ChevronRight } from 'lucide-react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { memo, useMemo } from 'react'
+import { ReactNode, memo, useMemo } from 'react'
 
 type Expense = Awaited<ReturnType<typeof getGroupExpenses>>[number]
 
@@ -24,6 +24,8 @@ type LocaleLabels = {
   paidBy: string
   owes: string
   nobody: string
+  settlement: string
+  documents: string
 }
 
 type PaidForItem = Expense['paidFor'][number]
@@ -51,6 +53,8 @@ function getLabels(locale: string): LocaleLabels {
     paidBy: isSpanish ? 'Pago:' : 'Paid:',
     owes: isSpanish ? 'Debe:' : 'Owes:',
     nobody: isSpanish ? 'Nadie' : 'Nobody',
+    settlement: isSpanish ? 'Reembolso' : 'Settlement',
+    documents: isSpanish ? 'Adjuntos' : 'Docs',
   }
 }
 
@@ -118,21 +122,42 @@ function getDebtorsSummary({
 function LeadingIcon({ expense }: { expense: Expense }) {
   if (expense.isReimbursement) {
     return (
-      <div className="mt-0.5 shrink-0 border bg-primary/8 p-1 text-primary dark:bg-primary/12">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border bg-primary/8 text-primary dark:bg-primary/12">
         <ArrowRightLeft className="w-3.5 h-3.5" />
       </div>
     )
   }
 
   return (
-    <CategoryIcon
-      category={expense.category}
-      className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0"
-    />
+    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border bg-muted/25 text-muted-foreground">
+      <CategoryIcon
+        category={expense.category}
+        className="h-3.5 w-3.5"
+      />
+    </div>
   )
 }
 
-function ExpenseBody({
+function MetaBadge({
+  children,
+  accent = false,
+}: {
+  children: ReactNode
+  accent?: boolean
+}) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center border px-2 py-1 text-[10px] font-medium leading-none text-muted-foreground',
+        accent && 'border-primary/20 bg-primary/[0.06] text-primary',
+      )}
+    >
+      {children}
+    </span>
+  )
+}
+
+function ExpenseMainColumn({
   expense,
   labels,
   displayCurrency,
@@ -145,10 +170,20 @@ function ExpenseBody({
   displayAmount: number
   locale: string
 }) {
+  const formattedDate = formatDateOnly(expense.expenseDate, locale, {
+    dateStyle: 'medium',
+  })
+
   if (expense.isReimbursement) {
     return (
-      <div className="pr-2 text-sm font-semibold leading-tight whitespace-normal break-words text-primary">
-        {getSettlementLabel(expense, locale)}
+      <div className="min-w-0 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <MetaBadge accent>{labels.settlement}</MetaBadge>
+          <MetaBadge>{formattedDate}</MetaBadge>
+        </div>
+        <div className="pr-2 text-sm font-semibold leading-tight whitespace-normal break-words text-foreground">
+          {getSettlementLabel(expense, locale)}
+        </div>
       </div>
     )
   }
@@ -162,8 +197,8 @@ function ExpenseBody({
   })
 
   return (
-    <>
-      <div className="text-sm font-semibold leading-tight truncate">
+    <div className="min-w-0 space-y-2">
+      <div className="text-sm font-semibold leading-tight break-words">
         {expense.title}
       </div>
       <div className="text-[11px] text-muted-foreground leading-tight truncate">
@@ -179,11 +214,19 @@ function ExpenseBody({
         <span>{labels.owes}</span>{' '}
         <strong className="text-foreground font-medium">{debtorSummary}</strong>
       </div>
-    </>
+      <div className="flex flex-wrap items-center gap-2">
+        <MetaBadge>{formattedDate}</MetaBadge>
+        {expense._count.documents > 0 && (
+          <MetaBadge>
+            {labels.documents}: <span className="ml-1 tabular-nums">{expense._count.documents}</span>
+          </MetaBadge>
+        )}
+      </div>
+    </div>
   )
 }
 
-function AmountMetaColumn({
+function AmountColumn({
   expense,
   displayCurrency,
   displayAmount,
@@ -197,28 +240,23 @@ function AmountMetaColumn({
   return (
     <div
       className={cn(
-        'flex flex-col items-end gap-1',
-        expense.isReimbursement
-          ? 'min-w-[86px] sm:min-w-[100px]'
-          : 'min-w-[96px] sm:min-w-[108px]',
+        'flex min-w-[104px] flex-col items-end gap-1 border-l pl-3 text-right sm:min-w-[120px] sm:pl-4',
+        expense.isReimbursement && 'border-primary/20',
       )}
     >
       <div
         className={cn(
-          'tabular-nums whitespace-nowrap text-[15px] sm:text-base leading-tight',
+          'tabular-nums whitespace-nowrap text-base leading-none sm:text-lg',
           expense.isReimbursement ? 'font-semibold text-primary' : 'font-bold',
         )}
       >
         {formatCurrency(displayCurrency, displayAmount, locale)}
       </div>
-      {!expense.isReimbursement && (
-        <div className="text-[10px] text-muted-foreground hidden sm:block">
+      {!expense.isReimbursement && expense._count.documents > 0 && (
+        <div className="hidden text-[10px] text-muted-foreground sm:block">
           <DocumentsCount count={expense._count.documents} />
         </div>
       )}
-      <div className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">
-        {formatDateOnly(expense.expenseDate, locale, { dateStyle: 'medium' })}
-      </div>
     </div>
   )
 }
@@ -237,9 +275,9 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
   return (
     <div
       className={cn(
-        'group mx-2 flex cursor-pointer items-start justify-between gap-3 border-x-0 border-t-0 bg-card px-3 py-3 text-sm transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mx-0 sm:px-5',
+        'group mx-2 flex cursor-pointer items-start gap-3 border-x-0 border-t-0 bg-card px-3 py-3 text-sm transition-colors hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mx-0 sm:px-5 sm:py-4',
         expense.isReimbursement &&
-          'border-primary/20 bg-primary/[0.05] hover:bg-primary/[0.08] dark:bg-primary/[0.08] dark:hover:bg-primary/[0.12]',
+          'border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.07] dark:bg-primary/[0.08] dark:hover:bg-primary/[0.12]',
       )}
       role="button"
       tabIndex={0}
@@ -253,7 +291,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
     >
       <LeadingIcon expense={expense} />
       <div className="min-w-0 flex-1">
-        <ExpenseBody
+        <ExpenseMainColumn
           expense={expense}
           labels={labels}
           displayCurrency={displayCurrency}
@@ -261,7 +299,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
           locale={locale}
         />
       </div>
-      <AmountMetaColumn
+      <AmountColumn
         expense={expense}
         displayCurrency={displayCurrency}
         displayAmount={displayAmount}

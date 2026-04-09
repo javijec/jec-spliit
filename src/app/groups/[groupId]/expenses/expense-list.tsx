@@ -124,6 +124,27 @@ function EmptyExpenses({ groupId }: { groupId: string }) {
   )
 }
 
+function ExpenseListSummary({
+  expenseCount,
+  reimbursementCount,
+}: {
+  expenseCount: number
+  reimbursementCount: number
+}) {
+  const t = useTranslations('Expenses')
+
+  return (
+    <div className="flex flex-wrap gap-2 border-b bg-muted/15 px-4 py-3 sm:px-5">
+      <span className="inline-flex items-center border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground">
+        {expenseCount} {t('title').toLowerCase()}
+      </span>
+      <span className="inline-flex items-center border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+        {reimbursementCount} reembolsos
+      </span>
+    </div>
+  )
+}
+
 function ExpensesByGroup({
   groupedExpenses,
   groupId,
@@ -221,12 +242,20 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
     () => (expenses ? groupExpensesByDate(expenses) : {}),
     [expenses],
   )
+  const reimbursementCount = useMemo(
+    () => expenses?.filter((expense) => expense.isReimbursement).length ?? 0,
+    [expenses],
+  )
 
   if (isLoading) return <ExpensesLoading />
   if (expenses.length === 0) return <EmptyExpenses groupId={groupId} />
 
   return (
     <div className="border-t">
+      <ExpenseListSummary
+        expenseCount={expenses.length}
+        reimbursementCount={reimbursementCount}
+      />
       <ExpensesByGroup groupedExpenses={groupedExpenses} groupId={groupId} />
       {hasMore && <ExpensesLoading ref={loadingRef} />}
     </div>

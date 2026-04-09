@@ -424,19 +424,34 @@ export async function getExpense(groupId: string, expenseId: string) {
 export async function syncRecurringExpensesForGroupIfDue(groupId: string) {
   const now = new Date()
   const syncThreshold = new Date(now.getTime() - 60 * 60 * 1000)
+  let syncWindowClaim
 
-  const syncWindowClaim = await prisma.group.updateMany({
-    where: {
-      id: groupId,
-      OR: [
-        { recurringSyncAt: null },
-        { recurringSyncAt: { lt: syncThreshold } },
-      ],
-    },
-    data: {
-      recurringSyncAt: now,
-    },
-  })
+  try {
+    syncWindowClaim = await prisma.group.updateMany({
+      where: {
+        id: groupId,
+        OR: [
+          { recurringSyncAt: null },
+          { recurringSyncAt: { lt: syncThreshold } },
+        ],
+      },
+      data: {
+        recurringSyncAt: now,
+      },
+    })
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2022'
+    ) {
+      // The database schema is older than the codebase and does not have the
+      // recurringSyncAt column yet. Fall back to a direct sync so local/dev
+      // environments keep working until migrations are applied.
+      return createRecurringExpenses({ groupId })
+    }
+
+    throw error
+  }
 
   if (syncWindowClaim.count === 0) {
     return {
