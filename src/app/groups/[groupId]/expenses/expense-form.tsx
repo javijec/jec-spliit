@@ -643,7 +643,7 @@ export function ExpenseForm({
             </AlertDescription>
           </Alert>
         )}
-        <div className="mb-4 rounded-[1.35rem] border border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] p-4 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]">
+        <div className="mb-3 rounded-[1.35rem] border border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] p-3.5 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]">
           <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="rounded-full px-3 py-1 text-[0.7rem]">
                 {isIncome ? 'Ingreso' : 'Gasto'}
@@ -652,7 +652,7 @@ export function ExpenseForm({
               {formatDateForDisplay(watchedExpenseDate)}
             </Badge>
           </div>
-          <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+          <div className="mt-2.5 flex flex-wrap items-end justify-between gap-2.5">
             <div>
               <p className="text-sm text-muted-foreground">{t('mobile.currentAmount')}</p>
               <p className="text-2xl font-semibold leading-none">
@@ -675,7 +675,7 @@ export function ExpenseForm({
           </div>
         </div>
         {!isDesktopLayout && (
-          <div className="mb-4 rounded-[1.25rem] border border-border/70 bg-card/90 p-3.5 shadow-sm shadow-black/5">
+          <div className="mb-3 rounded-[1.25rem] border border-border/70 bg-card/90 p-3 shadow-sm shadow-black/5">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-sm font-medium">
                 {t('mobile.stepCounter', {
@@ -731,7 +731,7 @@ export function ExpenseForm({
                 description={t('mobile.step1Description')}
               />
           </CardHeader>
-          <CardContent className="grid gap-6 sm:grid-cols-2">
+          <CardContent className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="title"
@@ -908,7 +908,7 @@ export function ExpenseForm({
         )}
 
         {shouldShowStep('split') && (
-        <Card className="mt-4 overflow-hidden border-border/70">
+        <Card className="mt-3 overflow-hidden border-border/70">
           <CardHeader className="border-b border-border/70">
               <SectionIntro
                 title={t(`${sExpense}.paidFor.title`)}
@@ -916,8 +916,8 @@ export function ExpenseForm({
               />
           </CardHeader>
           <CardContent>
-              <div className="sticky top-[5.5rem] z-10 -mx-4 mb-4 border-b border-border/70 bg-background/95 px-4 pb-4 pt-1 backdrop-blur sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
-                <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <div className="sticky top-[5rem] z-10 -mx-4 mb-3 border-b border-border/70 bg-background/95 px-4 pb-3 pt-1 backdrop-blur sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
+                <div className="mb-2.5 flex flex-wrap gap-2 text-xs text-muted-foreground">
                   <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('mobile.selectedCount', { count: selectedParticipantsCount })}
                   </Badge>
@@ -972,7 +972,7 @@ export function ExpenseForm({
                               expenseCurrency.code || expenseCurrency.symbol
                             }`}
                               className={cn(
-                                '-mx-2 mb-2 rounded-2xl border px-3 py-3 transition-colors duration-150 sm:-mx-0',
+                                '-mx-2 mb-2 rounded-2xl border px-3 py-2.5 transition-colors duration-150 sm:-mx-0',
                                 isSelected
                                   ? 'border-primary/25 bg-primary/5'
                                   : 'border-border/70 bg-card/40 hover:bg-muted/20',
@@ -1076,7 +1076,7 @@ export function ExpenseForm({
                               </div>
                             </FormItem>
                             {isSelected && watchedSplitMode !== 'EVENLY' && (
-                              <div className="mt-3 rounded-2xl border border-border/70 bg-background/90 p-3">
+                              <div className="mt-2.5 rounded-2xl border border-border/70 bg-background/90 p-2.5">
                                 <p className="mb-2 text-[11px] font-medium text-muted-foreground">
                                   {activeSplitModeLabel}
                                 </p>
@@ -1274,7 +1274,7 @@ export function ExpenseForm({
             />
 
             <Collapsible
-              className="mt-5 rounded-2xl border border-border/70 bg-muted/15 px-3 py-2.5"
+              className="mt-4 rounded-2xl border border-border/70 bg-muted/15 px-3 py-2"
               defaultOpen={form.getValues().splitMode !== 'EVENLY'}
             >
               <CollapsibleTrigger asChild>
@@ -1353,7 +1353,7 @@ export function ExpenseForm({
         )}
 
         {runtimeFeatureFlags.enableExpenseDocuments && shouldShowStep('attachments') && (
-          <Card className="mt-4 overflow-hidden border-border/70">
+          <Card className="mt-3 overflow-hidden border-border/70">
             <CardHeader className="border-b border-border/70">
                 <SectionIntro
                   title={t('attachDocuments')}
@@ -1375,7 +1375,7 @@ export function ExpenseForm({
           </Card>
         )}
 
-        <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 rounded-[1.25rem] border border-border/80 bg-background/95 px-3 py-3 shadow-[0_12px_32px_hsl(var(--foreground)/0.14)] backdrop-blur sm:flex-row sm:flex-wrap">
+        <div className="sticky bottom-3 z-20 mt-3 flex flex-col gap-2 rounded-[1.25rem] border border-border/80 bg-background/95 px-3 py-2.5 shadow-[0_12px_32px_hsl(var(--foreground)/0.14)] backdrop-blur sm:flex-row sm:flex-wrap">
           {!isDesktopLayout && footerHint.length > 0 && (
             <p
               className={cn(

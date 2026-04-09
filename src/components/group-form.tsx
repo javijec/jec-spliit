@@ -280,7 +280,7 @@ export function GroupForm({
           </Alert>
         )}
 
-        <Card className="mb-4 border-border/70">
+        <Card className="mb-3 border-border/70">
           <CardHeader className="gap-3">
             <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
               {t('title')}
@@ -288,7 +288,7 @@ export function GroupForm({
             <CardTitle>{t('title')}</CardTitle>
             <CardDescription>{t('NameField.description')}</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="name"
@@ -373,7 +373,7 @@ export function GroupForm({
           </CardContent>
         </Card>
 
-        <div className="mb-4 grid gap-4 lg:grid-cols-2">
+        <div className="mb-3 grid gap-3 lg:grid-cols-2">
           <Card className="h-full border-border/70">
             <CardHeader>
               <CardTitle>{t('Participants.title')}</CardTitle>
@@ -394,7 +394,7 @@ export function GroupForm({
                             Participant #{index + 1}
                           </FormLabel>
                           <FormControl>
-                            <div className="space-y-2.5 rounded-2xl border border-border/70 bg-background/75 p-3">
+                            <div className="space-y-2 rounded-2xl border border-border/70 bg-background/75 p-2.5">
                               <div className="flex gap-2">
                                 <Input
                                   className="text-base"
@@ -537,7 +537,7 @@ export function GroupForm({
           </Card>
         </div>
 
-        <div className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-secondary/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-secondary/40 p-3.5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             {group ? t('Settings.description') : t('Participants.description')}
           </p>

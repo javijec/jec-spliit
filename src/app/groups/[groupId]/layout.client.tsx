@@ -85,6 +85,8 @@ export function GroupLayoutClient({
     !!data?.group &&
     !pathname.endsWith('/expenses/create') &&
     !/\/expenses\/[^/]+\/edit$/.test(pathname)
+  const hideGroupHeaderOnMobile =
+    pathname === `/groups/${groupId}/expenses`
 
   const tabs = [
     {
@@ -124,7 +126,9 @@ export function GroupLayoutClient({
   if (isLoading) {
     return (
       <CurrentGroupProvider {...props}>
-        <GroupHeader />
+        <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
+          <GroupHeader />
+        </div>
         <div className="pb-24 sm:pb-0">{children}</div>
         <ActiveUserModal
           groupId={groupId}
@@ -137,7 +141,9 @@ export function GroupLayoutClient({
 
   return (
     <CurrentGroupProvider {...props}>
-      <GroupHeader />
+      <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
+        <GroupHeader />
+      </div>
       <div className="pb-24 sm:pb-0">{children}</div>
       {showMobileChrome && (
         <>

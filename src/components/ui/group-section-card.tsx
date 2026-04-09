@@ -30,7 +30,7 @@ const GroupSectionHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CardHeader
     ref={ref}
-    className={cn('border-b border-border/70 px-4 py-4 sm:px-5 sm:py-5', className)}
+    className={cn('border-b border-border/70 px-4 py-3.5 sm:px-5 sm:py-4', className)}
     {...props}
   />
 ))
@@ -42,7 +42,7 @@ const GroupSectionContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CardContent
     ref={ref}
-    className={cn('px-4 py-4 sm:px-5 sm:py-5', className)}
+    className={cn('px-4 py-3.5 sm:px-5 sm:py-4', className)}
     {...props}
   />
 ))

@@ -136,7 +136,7 @@ function ExpenseListSummary({
   const t = useTranslations('Expenses')
 
   return (
-    <div className="flex flex-wrap gap-2 border-b border-border/70 bg-muted/15 px-4 py-3 sm:px-5">
+    <div className="hidden flex-wrap gap-2 border-b border-border/70 bg-muted/15 px-4 py-3 sm:flex sm:px-5">
       <Badge variant="secondary" className="rounded-full px-3 py-1 text-[0.7rem]">
         {expenseCount} {t('title').toLowerCase()}
       </Badge>

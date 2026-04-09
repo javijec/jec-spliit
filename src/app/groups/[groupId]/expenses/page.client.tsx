@@ -29,47 +29,61 @@ export default function GroupExpensesPageClient() {
 
   return (
     <GroupSectionCard>
-      <GroupSectionHeader>
-        <div className="space-y-2">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="rounded-full px-3 py-1">
+      <div className="flex items-start justify-between gap-3 px-4 py-3 sm:hidden">
+        <div className="min-w-0">
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary" className="rounded-full px-3 py-1">
+              {t('title')}
+            </Badge>
+          </div>
+          <h2 className="mt-2 text-lg font-semibold leading-none tracking-tight">
+            {t('title')}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t('description')}
+          </p>
+        </div>
+        <ExportButton groupId={groupId} size="icon" variant="outline" />
+      </div>
+
+      <div className="hidden sm:block">
+        <GroupSectionHeader>
+          <div className="space-y-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="rounded-full px-3 py-1">
+                    {t('title')}
+                  </Badge>
+                </div>
+                <GroupSectionTitle className="text-xl leading-none">
                   {t('title')}
-                </Badge>
+                </GroupSectionTitle>
+                <GroupSectionDescription className="max-w-2xl">
+                  {t('description')}
+                </GroupSectionDescription>
               </div>
-              <GroupSectionTitle className="text-xl leading-none">
-                {t('title')}
-              </GroupSectionTitle>
-              <GroupSectionDescription className="max-w-2xl">
-                {t('description')}
-              </GroupSectionDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="sm:hidden">
-                <ExportButton groupId={groupId} size="icon" variant="outline" />
-              </div>
-              <div className="hidden sm:block">
+              <div className="flex items-center gap-2">
                 <ExportButton
                   groupId={groupId}
                   showLabel
                   size="default"
                   variant="outline"
                 />
+                <Button asChild size="default" className="sm:px-3">
+                  <Link
+                    href={`/groups/${groupId}/expenses/create`}
+                    title={t('create')}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="ml-2">{t('create')}</span>
+                  </Link>
+                </Button>
               </div>
-              <Button asChild size="default" className="hidden sm:inline-flex sm:px-3">
-                <Link
-                  href={`/groups/${groupId}/expenses/create`}
-                  title={t('create')}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="ml-2">{t('create')}</span>
-                </Link>
-              </Button>
             </div>
           </div>
-        </div>
-      </GroupSectionHeader>
+        </GroupSectionHeader>
+      </div>
 
       <GroupSectionContent className="relative flex flex-col gap-4 p-0">
         <ExpenseList />

@@ -409,7 +409,7 @@ function SplitwiseImportCard() {
   }
 
   return (
-    <Card className="mb-5 overflow-hidden border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)]">
+    <Card className="mb-4 overflow-hidden border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)]">
       <CardHeader className="gap-3">
         <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
           <Upload className="h-3.5 w-3.5" />
@@ -420,9 +420,9 @@ function SplitwiseImportCard() {
           <CardDescription>{t('description')}</CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
-          <div className="flex flex-col gap-3">
+      <CardContent className="space-y-3">
+        <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 shadow-sm shadow-black/5">
+          <div className="flex flex-col gap-2.5">
             <div className="space-y-1">
               <p className="text-sm font-semibold tracking-tight">{t('step1Title')}</p>
               <p className="text-sm text-muted-foreground">{t('step1Description')}</p>
@@ -451,8 +451,8 @@ function SplitwiseImportCard() {
         )}
         {csvData && (
           <>
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
-              <div className="mb-4 flex flex-wrap gap-2">
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 shadow-sm shadow-black/5">
+              <div className="mb-3 flex flex-wrap gap-2">
                 <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('fileLabel', { fileName: csvData.fileName })}
                 </Badge>
@@ -493,7 +493,7 @@ function SplitwiseImportCard() {
             </div>
 
             {unresolvedExpenses.length > 0 && (
-              <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
+              <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 shadow-sm shadow-black/5">
                 <div className="mb-3 space-y-1">
                   <p className="text-sm font-semibold tracking-tight">
                     {t('step2Title', { count: unresolvedExpenses.length })}
@@ -504,7 +504,7 @@ function SplitwiseImportCard() {
                   {unresolvedExpenses.slice(0, 20).map((expense) => (
                     <div
                       key={expense.id}
-                      className="grid gap-3 rounded-2xl border border-border/70 bg-card/90 p-3.5 sm:grid-cols-[1fr_220px] sm:items-center"
+                      className="grid gap-2.5 rounded-2xl border border-border/70 bg-card/90 p-3 sm:grid-cols-[1fr_220px] sm:items-center"
                     >
                       <div className="text-sm leading-6">
                         <button
@@ -543,7 +543,7 @@ function SplitwiseImportCard() {
               </div>
             )}
 
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 shadow-sm shadow-black/5">
               <div className="mb-3 space-y-1">
                 <p className="text-sm font-semibold tracking-tight">{t('step3Title')}</p>
                 <p className="text-sm text-muted-foreground">{t('step3Description')}</p>
@@ -552,7 +552,7 @@ function SplitwiseImportCard() {
                 {csvData.expenses.slice(0, 12).map((expense) => (
                   <div
                     key={`date-${expense.id}`}
-                    className="flex items-center justify-between gap-2 rounded-2xl border border-border/70 bg-card/90 p-3.5"
+                    className="flex items-center justify-between gap-2 rounded-2xl border border-border/70 bg-card/90 p-3"
                   >
                     <div className="truncate text-sm">{expense.title}</div>
                     <Button
@@ -575,7 +575,7 @@ function SplitwiseImportCard() {
               )}
             </div>
 
-            <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-secondary/45 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2.5 rounded-2xl border border-border/70 bg-secondary/45 p-3.5 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 text-sm font-medium text-foreground">
                   <Sparkles className="h-4 w-4 text-primary" />
@@ -655,8 +655,8 @@ export const CreateGroup = () => {
   const { toast } = useToast()
 
   return (
-    <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-4 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-5">
+    <div className="space-y-3">
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-3.5 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-4">
         <div className="absolute right-[-3rem] top-[-2rem] h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative space-y-3">
           <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
@@ -671,11 +671,11 @@ export const CreateGroup = () => {
           </p>
         </div>
       </section>
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
-        <div className="space-y-4">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
+        <div className="space-y-3">
           <SplitwiseImportCard />
         </div>
-        <div className="space-y-4">
+        <div className="space-y-3">
           <GroupForm
             onSubmit={async (groupFormValues, options) => {
               try {
