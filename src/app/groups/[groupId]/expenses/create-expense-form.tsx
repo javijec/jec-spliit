@@ -1,4 +1,5 @@
 'use client'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
@@ -7,6 +8,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { useCurrentGroup } from '../current-group-context'
 import { ExpenseForm } from './expense-form'
+import { ReceiptText } from 'lucide-react'
 
 async function invalidateExpenseData(
   utils: ReturnType<typeof trpc.useUtils>,
@@ -78,28 +80,32 @@ export function CreateExpenseForm({
 function ExpenseFormLoading() {
   return (
     <div className="space-y-4">
-      <Card className="overflow-hidden shadow-none">
-        <CardHeader className="border-b p-4 sm:p-6">
+      <Card className="overflow-hidden border-border/70">
+        <CardHeader className="border-b border-border/70">
           <div className="space-y-2">
+            <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
+              <ReceiptText className="h-3.5 w-3.5" />
+              Nuevo gasto
+            </Badge>
             <Skeleton className="h-5 w-40 rounded-sm" />
             <Skeleton className="h-4 w-64 rounded-sm" />
           </div>
         </CardHeader>
-        <CardContent className="grid gap-4 p-4 sm:grid-cols-2 sm:p-6">
+        <CardContent className="grid gap-4 sm:grid-cols-2">
           <Skeleton className="h-10 rounded-sm" />
           <Skeleton className="h-10 rounded-sm" />
           <Skeleton className="h-10 rounded-sm" />
           <Skeleton className="h-10 rounded-sm" />
         </CardContent>
       </Card>
-      <Card className="overflow-hidden shadow-none">
-        <CardHeader className="border-b p-4 sm:p-6">
+      <Card className="overflow-hidden border-border/70">
+        <CardHeader className="border-b border-border/70">
           <div className="space-y-2">
             <Skeleton className="h-5 w-32 rounded-sm" />
             <Skeleton className="h-4 w-56 rounded-sm" />
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 p-4 sm:p-6">
+        <CardContent className="space-y-3">
           <Skeleton className="h-16 rounded-sm" />
           <Skeleton className="h-16 rounded-sm" />
           <Skeleton className="h-16 rounded-sm" />

@@ -2,6 +2,7 @@ import { CurrencySelector } from '@/components/currency-selector'
 import { ExpenseDocumentsInput } from '@/components/expense-documents-input'
 import { SubmitButton } from '@/components/submit-button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -82,9 +83,9 @@ function SectionIntro({
   description: string
 }) {
   return (
-    <div className="mb-4 space-y-1">
+    <div className="space-y-1.5">
       <h2 className="text-lg font-semibold leading-none">{title}</h2>
-      <p className="text-sm text-muted-foreground">{description}</p>
+      <p className="text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   )
 }
@@ -642,14 +643,14 @@ export function ExpenseForm({
             </AlertDescription>
           </Alert>
         )}
-        <div className="mb-4 border bg-card p-4">
+        <div className="mb-4 rounded-[1.35rem] border border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] p-4 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]">
           <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+              <Badge variant="secondary" className="rounded-full px-3 py-1 text-[0.7rem]">
                 {isIncome ? 'Ingreso' : 'Gasto'}
-              </span>
-            <span className="inline-flex border px-2.5 py-1 text-[11px] text-muted-foreground">
+              </Badge>
+            <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
               {formatDateForDisplay(watchedExpenseDate)}
-            </span>
+            </Badge>
           </div>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -662,19 +663,19 @@ export function ExpenseForm({
               </p>
             </div>
               <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <span className="border bg-muted/30 px-2.5 py-1">
+              <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('mobile.payer')}: {selectedPayerName}
-                </span>
-              <span className="border bg-muted/30 px-2.5 py-1">
+                </Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('mobile.participantsCount', {
                     count: selectedParticipantsCount,
                   })}
-              </span>
+              </Badge>
             </div>
           </div>
         </div>
         {!isDesktopLayout && (
-          <div className="mb-4 border bg-card p-3">
+          <div className="mb-4 rounded-[1.25rem] border border-border/70 bg-card/90 p-3.5 shadow-sm shadow-black/5">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-sm font-medium">
                 {t('mobile.stepCounter', {
@@ -686,9 +687,9 @@ export function ExpenseForm({
                 {flowSteps[currentStepIndex]?.label}
               </p>
             </div>
-            <div className="mb-3 h-2 overflow-hidden bg-muted">
+            <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
               <div
-                  className="h-full bg-primary transition-all duration-300 ease-out"
+                  className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
                   style={{ width: `${stepProgress}%` }}
               />
             </div>
@@ -702,7 +703,7 @@ export function ExpenseForm({
                       type="button"
                       onClick={() => goToStep(step.id)}
                       className={cn(
-                        'border px-3 py-2 text-left transition-colors duration-150',
+                        'rounded-xl border px-3 py-2 text-left transition-colors duration-150',
                         isActive
                           ? 'border-primary/25 bg-primary/8'
                           : isPast
@@ -723,14 +724,14 @@ export function ExpenseForm({
           </div>
         )}
         {shouldShowStep('details') && (
-        <Card className="overflow-hidden">
-          <CardHeader className="p-4 sm:p-6 border-b">
+        <Card className="overflow-hidden border-border/70">
+          <CardHeader className="border-b border-border/70">
               <SectionIntro
                 title={t(`${sExpense}.${isCreate ? 'create' : 'edit'}`)}
                 description={t('mobile.step1Description')}
               />
           </CardHeader>
-          <CardContent className="grid sm:grid-cols-2 gap-6 p-4 sm:p-6">
+          <CardContent className="grid gap-6 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="title"
@@ -907,24 +908,24 @@ export function ExpenseForm({
         )}
 
         {shouldShowStep('split') && (
-        <Card className="mt-4 overflow-hidden">
-          <CardHeader className="p-4 sm:p-6 border-b">
+        <Card className="mt-4 overflow-hidden border-border/70">
+          <CardHeader className="border-b border-border/70">
               <SectionIntro
                 title={t(`${sExpense}.paidFor.title`)}
                 description={t(`${sExpense}.paidFor.description`)}
               />
           </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-              <div className="sticky top-[4.5rem] z-10 -mx-4 mb-4 border-b bg-background px-4 pb-4 pt-1 sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
+          <CardContent>
+              <div className="sticky top-[5.5rem] z-10 -mx-4 mb-4 border-b border-border/70 bg-background/95 px-4 pb-4 pt-1 backdrop-blur sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0">
                 <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="border bg-muted/30 px-2.5 py-1">
+                  <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('mobile.selectedCount', { count: selectedParticipantsCount })}
-                  </span>
-                  <span className="border bg-muted/30 px-2.5 py-1">
+                  </Badge>
+                  <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                     {t('mobile.splitMode', {
                       mode: activeSplitModeLabel,
                     })}
-                </span>
+                </Badge>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -971,7 +972,7 @@ export function ExpenseForm({
                               expenseCurrency.code || expenseCurrency.symbol
                             }`}
                               className={cn(
-                                '-mx-2 mb-2 border px-3 py-3 transition-colors duration-150 sm:-mx-0',
+                                '-mx-2 mb-2 rounded-2xl border px-3 py-3 transition-colors duration-150 sm:-mx-0',
                                 isSelected
                                   ? 'border-primary/25 bg-primary/5'
                                   : 'border-border/70 bg-card/40 hover:bg-muted/20',
@@ -1023,7 +1024,7 @@ export function ExpenseForm({
                                   </div>
                                   <span
                                     className={cn(
-                                      'border px-2 py-0.5 text-[11px]',
+                                      'rounded-full border px-2.5 py-1 text-[11px]',
                                       isSelected
                                         ? 'border-primary/20 bg-primary/10 text-primary'
                                         : 'bg-muted/30 text-muted-foreground',
@@ -1075,7 +1076,7 @@ export function ExpenseForm({
                               </div>
                             </FormItem>
                             {isSelected && watchedSplitMode !== 'EVENLY' && (
-                              <div className="mt-3 border bg-background p-3">
+                              <div className="mt-3 rounded-2xl border border-border/70 bg-background/90 p-3">
                                 <p className="mb-2 text-[11px] font-medium text-muted-foreground">
                                   {activeSplitModeLabel}
                                 </p>
@@ -1273,7 +1274,7 @@ export function ExpenseForm({
             />
 
             <Collapsible
-              className="mt-5 border bg-muted/15 px-3 py-2"
+              className="mt-5 rounded-2xl border border-border/70 bg-muted/15 px-3 py-2.5"
               defaultOpen={form.getValues().splitMode !== 'EVENLY'}
             >
               <CollapsibleTrigger asChild>
@@ -1352,14 +1353,14 @@ export function ExpenseForm({
         )}
 
         {runtimeFeatureFlags.enableExpenseDocuments && shouldShowStep('attachments') && (
-          <Card className="mt-4 overflow-hidden">
-            <CardHeader className="p-4 sm:p-6 border-b">
+          <Card className="mt-4 overflow-hidden border-border/70">
+            <CardHeader className="border-b border-border/70">
                 <SectionIntro
                   title={t('attachDocuments')}
                   description={t(`${sExpense}.attachDescription`)}
                 />
             </CardHeader>
-            <CardContent className="p-4 sm:p-6">
+            <CardContent>
               <FormField
                 control={form.control}
                 name="documents"
@@ -1374,7 +1375,7 @@ export function ExpenseForm({
           </Card>
         )}
 
-        <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 border bg-background px-3 py-3 sm:flex-row sm:flex-wrap">
+        <div className="sticky bottom-3 z-20 mt-4 flex flex-col gap-2 rounded-[1.25rem] border border-border/80 bg-background/95 px-3 py-3 shadow-[0_12px_32px_hsl(var(--foreground)/0.14)] backdrop-blur sm:flex-row sm:flex-wrap">
           {!isDesktopLayout && footerHint.length > 0 && (
             <p
               className={cn(
