@@ -2,7 +2,6 @@
 
 import { ExpenseCard } from '@/app/groups/[groupId]/expenses/expense-card'
 import { getGroupExpensesAction } from '@/app/groups/[groupId]/expenses/expense-list-fetch-action'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -136,13 +135,13 @@ function ExpenseListSummary({
   const t = useTranslations('Expenses')
 
   return (
-    <div className="hidden flex-wrap gap-2 border-b border-border/70 bg-muted/15 px-4 py-3 sm:flex sm:px-5">
-      <Badge variant="secondary" className="rounded-full px-3 py-1 text-[0.7rem]">
+    <div className="hidden flex-wrap gap-2 px-4 py-2 sm:flex sm:px-5">
+      <span className="inline-flex items-center rounded-full border border-border/70 bg-background/80 px-3 py-1 text-[0.7rem] font-medium text-foreground">
         {expenseCount} {t('title').toLowerCase()}
-      </Badge>
-      <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
+      </span>
+      <span className="inline-flex items-center rounded-full border border-border/70 bg-background/80 px-3 py-1 text-[0.7rem] font-medium text-muted-foreground">
         {reimbursementCount} reembolsos
-      </Badge>
+      </span>
     </div>
   )
 }
@@ -170,11 +169,11 @@ function ExpensesByGroup({
         if (!expensesInGroup || expensesInGroup.length === 0) return null
 
         return (
-          <div key={expenseGroup}>
-            <div className="border-b border-border/70 bg-muted/20 px-4 py-2.5 sm:px-5">
-              <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
+          <div key={expenseGroup} className="space-y-1.5">
+            <div className="px-3 pt-1 sm:px-5">
+              <div className="text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted-foreground/90">
                 {t(`Groups.${expenseGroup}`)}
-              </Badge>
+              </div>
             </div>
             {expensesInGroup.map((expense: ExpensesType[number]) => (
               <ExpenseCard
@@ -255,7 +254,7 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
   if (expenses.length === 0) return <EmptyExpenses groupId={groupId} />
 
   return (
-    <div className="overflow-hidden rounded-[1.2rem] border border-border/70 bg-card/80 sm:rounded-[1.35rem]">
+    <div className="space-y-3 px-0 pb-1">
       <ExpenseListSummary
         expenseCount={expenses.length}
         reimbursementCount={reimbursementCount}
@@ -268,7 +267,7 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
 
 const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className="space-y-4 px-4 py-3 sm:px-5">
+    <div ref={ref} className="space-y-4 px-3 py-3 sm:px-5">
       {[0, 1].map((groupIndex) => (
         <div key={groupIndex} className="space-y-2">
           <Skeleton className="h-3 w-32 rounded-sm" />

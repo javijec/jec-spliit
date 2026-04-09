@@ -199,15 +199,17 @@ export function ReimbursementList({
       <div className="space-y-2">
         {groupedReimbursements.map((pair) => (
           <div
-            className="border bg-card p-3"
+            className="rounded-[1rem] border border-border/60 bg-card/92 p-2.5 shadow-[0_8px_20px_hsl(var(--foreground)/0.035)]"
             key={`${pair.from}-${pair.to}`}
           >
             <div className="mb-2 flex items-center gap-1.5 text-sm leading-tight">
-              <strong className="min-w-0 flex-1 truncate">
+              <strong className="min-w-0 flex-1 truncate font-semibold tracking-tight">
                 {getParticipant(pair.from)?.name ?? ''}
               </strong>
-              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <strong className="min-w-0 flex-1 truncate text-right">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-muted-foreground">
+                <ArrowRight className="h-3 w-3" />
+              </div>
+              <strong className="min-w-0 flex-1 truncate text-right font-semibold tracking-tight">
                 {getParticipant(pair.to)?.name ?? ''}
               </strong>
             </div>
@@ -222,15 +224,15 @@ export function ReimbursementList({
                 return (
                   <div
                     key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                    className="border bg-muted/25 px-2.5 py-2.5"
+                    className="rounded-lg bg-secondary/25 px-2.5 py-1.5"
                   >
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[10px] font-medium text-muted-foreground">
+                      <span className="text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                         {reimbursementCurrency.code}
                       </span>
                       <div
                         className={cn(
-                          'text-sm font-semibold tabular-nums whitespace-nowrap text-primary',
+                          'text-sm font-semibold tabular-nums whitespace-nowrap text-primary sm:text-[0.95rem]',
                         )}
                       >
                         {formatCurrency(reimbursementCurrency, item.amount, locale)}
@@ -240,7 +242,7 @@ export function ReimbursementList({
                     <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                       <Button
                         variant="secondary"
-                        className="h-8 px-2 text-[11px] font-medium"
+                        className="h-7 rounded-lg px-2 text-[10px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() =>
                           setPaymentDialog({
@@ -256,7 +258,7 @@ export function ReimbursementList({
                       </Button>
                       <Button
                         variant="outline"
-                        className="h-8 px-2 text-[11px] font-medium"
+                        className="h-7 rounded-lg px-2 text-[10px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() => {
                           setPartialAmountInput('')
@@ -324,7 +326,7 @@ export function ReimbursementList({
                 </div>
               )}
 
-              <div className="space-y-1.5 border bg-muted/25 p-3 text-sm">
+              <div className="space-y-1 rounded-xl border border-border/70 bg-secondary/20 p-2.5 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-muted-foreground">
                     {t('summary.currentDebt')}

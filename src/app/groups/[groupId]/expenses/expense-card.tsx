@@ -2,7 +2,6 @@
 
 import { ActiveUserBalance } from '@/app/groups/[groupId]/expenses/active-user-balance'
 import { CategoryIcon } from '@/app/groups/[groupId]/expenses/category-icon'
-import { DocumentsCount } from '@/app/groups/[groupId]/expenses/documents-count'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getGroupExpenses } from '@/lib/api'
@@ -125,14 +124,14 @@ function getDebtorsSummary({
 function LeadingIcon({ expense }: { expense: Expense }) {
   if (expense.isReimbursement) {
     return (
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border bg-primary/8 text-primary dark:bg-primary/12">
-        <ArrowRightLeft className="w-3.5 h-3.5" />
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/12">
+        <ArrowRightLeft className="h-3.5 w-3.5" />
       </div>
     )
   }
 
   return (
-    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border bg-muted/25 text-muted-foreground">
+    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-muted-foreground">
       <CategoryIcon
         category={expense.category}
         className="h-3.5 w-3.5"
@@ -203,7 +202,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
   return (
     <div
       className={cn(
-        'mx-2 my-2 overflow-hidden rounded-2xl border border-border/70 bg-card/90 shadow-sm shadow-black/5 sm:mx-3',
+        'mx-2 my-2 overflow-hidden rounded-[1.15rem] border border-border/60 bg-card/92 shadow-[0_10px_24px_hsl(var(--foreground)/0.04)] sm:mx-3',
         expense.isReimbursement &&
           'border-primary/20 bg-primary/[0.04] dark:bg-primary/[0.08]',
       )}
@@ -211,13 +210,13 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        className="flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:px-4 sm:py-3"
+        className="flex w-full items-start gap-2 px-2.5 py-2.5 text-left transition-colors hover:bg-secondary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:px-4 sm:py-3"
         aria-expanded={expanded}
       >
         <LeadingIcon expense={expense} />
         <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 text-sm font-semibold leading-tight break-words text-foreground">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 text-[13px] font-semibold leading-tight break-words text-foreground sm:text-sm">
               {summaryTitle}
             </div>
             <AmountColumn
@@ -227,7 +226,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
               locale={locale}
             />
           </div>
-          <div className="truncate text-[11px] leading-tight text-muted-foreground">
+          <div className="truncate text-[10px] leading-tight text-muted-foreground sm:text-[11px]">
             <span>{labels.paidBy}</span>{' '}
             <strong className="text-foreground">
               {formatShortParticipantName(expense.paidBy.name)}
@@ -238,13 +237,13 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
         </div>
         <div className="pt-0.5 text-muted-foreground">
             <ChevronDown
-              className={cn('h-4 w-4 transition-transform duration-150', expanded && 'rotate-180')}
+              className={cn('h-3.5 w-3.5 transition-transform duration-150', expanded && 'rotate-180')}
             />
         </div>
       </button>
 
       {expanded && (
-        <div className="border-t border-border/70 px-3 py-2.5 sm:px-4 sm:py-3">
+        <div className="border-t border-border/60 bg-secondary/[0.14] px-2.5 py-2.5 sm:px-4 sm:py-3">
           <div className="space-y-2">
             {expense.isReimbursement ? (
               <p className="text-sm leading-5 text-muted-foreground">
@@ -269,11 +268,6 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
                 <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[0.7rem]">
                   {labels.documents}: <span className="ml-1 tabular-nums">{expense._count.documents}</span>
                 </Badge>
-              )}
-              {!expense.isReimbursement && expense._count.documents > 0 && (
-                <div className="hidden text-[10px] text-muted-foreground sm:block">
-                  <DocumentsCount count={expense._count.documents} />
-                </div>
               )}
             </div>
 

@@ -32,7 +32,7 @@ export default function BalancesAndReimbursements() {
   ).size
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       <GroupSectionCard>
         <GroupSectionHeader>
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -49,18 +49,18 @@ export default function BalancesAndReimbursements() {
                     ? tSummary('pendingPayments', { count: reimbursementCount })
                     : tSummary('allClear')}
               </Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1">
+              <Badge variant="outline" className="rounded-full border-border/60 bg-background/70 px-3 py-1">
                 <Layers3 className="h-3.5 w-3.5" />
                 {tSummary('currenciesInPlay', { count: currencyCount })}
               </Badge>
               </>
             )}
           </div>
-          <GroupSectionTitle className="mt-3 flex items-center gap-2 text-xl leading-none">
+          <GroupSectionTitle className="mt-2 flex items-center gap-2 text-xl leading-none">
             <CheckCircle2 className="h-5 w-5 text-primary" />
             {t('Reimbursements.settlementsTitle')}
           </GroupSectionTitle>
-          <GroupSectionDescription className="mt-2">
+          <GroupSectionDescription className="mt-1">
             {t('Reimbursements.description')}
           </GroupSectionDescription>
         </GroupSectionHeader>

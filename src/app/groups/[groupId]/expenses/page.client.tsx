@@ -29,21 +29,21 @@ export default function GroupExpensesPageClient() {
 
   return (
     <GroupSectionCard>
-      <div className="flex items-start justify-between gap-3 px-4 py-3 sm:hidden">
-        <div className="min-w-0">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="rounded-full px-3 py-1">
+      <div className="px-3 pb-2 pt-3 sm:hidden">
+        <div className="flex items-start justify-between gap-3 px-1 py-1">
+          <div className="min-w-0">
+            <div className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-muted-foreground">
               {t('title')}
-            </Badge>
+            </div>
+            <h2 className="mt-1.5 text-lg font-semibold leading-none tracking-tight">
+              {t('title')}
+            </h2>
+            <p className="mt-1 text-sm leading-5 text-muted-foreground">
+              {t('description')}
+            </p>
           </div>
-          <h2 className="mt-2 text-lg font-semibold leading-none tracking-tight">
-            {t('title')}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t('description')}
-          </p>
+          <ExportButton groupId={groupId} size="icon" variant="outline" />
         </div>
-        <ExportButton groupId={groupId} size="icon" variant="outline" />
       </div>
 
       <div className="hidden sm:block">
