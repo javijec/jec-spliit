@@ -2,6 +2,7 @@
 
 import { ExpenseCard } from '@/app/groups/[groupId]/expenses/expense-card'
 import { getGroupExpensesAction } from '@/app/groups/[groupId]/expenses/expense-list-fetch-action'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -112,6 +113,7 @@ function EmptyExpenses({ groupId }: { groupId: string }) {
         icon={Wallet}
         title={t('noExpenses')}
         description={t('noEntriesYet')}
+        className="rounded-[1.35rem] border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] p-7 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]"
         action={
           <Button asChild>
             <Link href={`/groups/${groupId}/expenses/create`}>
@@ -134,13 +136,13 @@ function ExpenseListSummary({
   const t = useTranslations('Expenses')
 
   return (
-    <div className="flex flex-wrap gap-2 border-b bg-muted/15 px-4 py-3 sm:px-5">
-      <span className="inline-flex items-center border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground">
+    <div className="flex flex-wrap gap-2 border-b border-border/70 bg-muted/15 px-4 py-3 sm:px-5">
+      <Badge variant="secondary" className="rounded-full px-3 py-1 text-[0.7rem]">
         {expenseCount} {t('title').toLowerCase()}
-      </span>
-      <span className="inline-flex items-center border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+      </Badge>
+      <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
         {reimbursementCount} reembolsos
-      </span>
+      </Badge>
     </div>
   )
 }
@@ -169,8 +171,10 @@ function ExpensesByGroup({
 
         return (
           <div key={expenseGroup}>
-            <div className="border-b bg-muted/20 px-4 py-2 text-[11px] font-medium text-muted-foreground sm:px-5 sm:text-xs">
-              {t(`Groups.${expenseGroup}`)}
+            <div className="border-b border-border/70 bg-muted/20 px-4 py-2.5 sm:px-5">
+              <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
+                {t(`Groups.${expenseGroup}`)}
+              </Badge>
             </div>
             {expensesInGroup.map((expense: ExpensesType[number]) => (
               <ExpenseCard
@@ -251,7 +255,7 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
   if (expenses.length === 0) return <EmptyExpenses groupId={groupId} />
 
   return (
-    <div className="border-t">
+    <div className="overflow-hidden rounded-[1.2rem] border border-border/70 bg-card/80 sm:rounded-[1.35rem]">
       <ExpenseListSummary
         expenseCount={expenses.length}
         reimbursementCount={reimbursementCount}
@@ -271,7 +275,7 @@ const ExpensesLoading = forwardRef<HTMLDivElement>((_, ref) => {
           {[0, 1].map((index) => (
             <div
               key={`${groupIndex}-${index}`}
-              className="flex items-start justify-between gap-3 border bg-card px-4 py-3 text-sm"
+              className="flex items-start justify-between gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-3 text-sm shadow-sm shadow-black/5"
             >
               <div className="pt-0.5">
                 <Skeleton className="h-4 w-4 rounded-sm" />

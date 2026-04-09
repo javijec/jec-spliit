@@ -1,7 +1,9 @@
 'use client'
 
+import { ActiveUserBalance } from '@/app/groups/[groupId]/expenses/active-user-balance'
 import { CategoryIcon } from '@/app/groups/[groupId]/expenses/category-icon'
 import { DocumentsCount } from '@/app/groups/[groupId]/expenses/documents-count'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getGroupExpenses } from '@/lib/api'
 import { Currency, getCurrency } from '@/lib/currency'
@@ -9,7 +11,7 @@ import { cn, formatCurrency, formatDateOnly } from '@/lib/utils'
 import { ArrowRightLeft, ChevronRight } from 'lucide-react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
-import { ReactNode, memo, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 
 type Expense = Awaited<ReturnType<typeof getGroupExpenses>>[number]
 
@@ -137,37 +139,22 @@ function LeadingIcon({ expense }: { expense: Expense }) {
   )
 }
 
-function MetaBadge({
-  children,
-  accent = false,
-}: {
-  children: ReactNode
-  accent?: boolean
-}) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center border px-2 py-1 text-[10px] font-medium leading-none text-muted-foreground',
-        accent && 'border-primary/20 bg-primary/[0.06] text-primary',
-      )}
-    >
-      {children}
-    </span>
-  )
-}
-
 function ExpenseMainColumn({
   expense,
   labels,
   displayCurrency,
   displayAmount,
   locale,
+  currency,
+  groupId,
 }: {
   expense: Expense
   labels: LocaleLabels
   displayCurrency: Currency
   displayAmount: number
   locale: string
+  currency: Currency
+  groupId: string
 }) {
   const formattedDate = formatDateOnly(expense.expenseDate, locale, {
     dateStyle: 'medium',
@@ -177,12 +164,17 @@ function ExpenseMainColumn({
     return (
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <MetaBadge accent>{labels.settlement}</MetaBadge>
-          <MetaBadge>{formattedDate}</MetaBadge>
+          <Badge variant="secondary" className="rounded-full px-2.5 py-1 text-[0.7rem]">
+            {labels.settlement}
+          </Badge>
+          <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[0.7rem]">
+            {formattedDate}
+          </Badge>
         </div>
         <div className="pr-2 text-sm font-semibold leading-tight whitespace-normal break-words text-foreground">
           {getSettlementLabel(expense, locale)}
         </div>
+        <ActiveUserBalance groupId={groupId} currency={currency} expense={expense} />
       </div>
     )
   }
@@ -213,12 +205,15 @@ function ExpenseMainColumn({
         <span>{labels.owes}</span>{' '}
         <strong className="text-foreground font-medium">{debtorSummary}</strong>
       </div>
+      <ActiveUserBalance groupId={groupId} currency={currency} expense={expense} />
       <div className="flex flex-wrap items-center gap-2">
-        <MetaBadge>{formattedDate}</MetaBadge>
+        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[0.7rem]">
+          {formattedDate}
+        </Badge>
         {expense._count.documents > 0 && (
-          <MetaBadge>
+          <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[0.7rem]">
             {labels.documents}: <span className="ml-1 tabular-nums">{expense._count.documents}</span>
-          </MetaBadge>
+          </Badge>
         )}
       </div>
     </div>
@@ -274,7 +269,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
     <Link
       href={href}
       className={cn(
-        'group mx-2 flex items-start gap-3 border-x-0 border-t-0 bg-card px-3 py-3 text-sm transition-colors hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mx-0 sm:px-5 sm:py-4',
+        'group mx-2 my-2 flex items-start gap-3 rounded-2xl border border-border/70 bg-card/90 px-3.5 py-3.5 text-sm shadow-sm shadow-black/5 transition-colors hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mx-3 sm:px-5 sm:py-4',
         expense.isReimbursement &&
           'border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.07] dark:bg-primary/[0.08] dark:hover:bg-primary/[0.12]',
       )}
@@ -288,6 +283,8 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
           displayCurrency={displayCurrency}
           displayAmount={displayAmount}
           locale={locale}
+          currency={currency}
+          groupId={groupId}
         />
       </div>
       <AmountColumn
