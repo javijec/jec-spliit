@@ -2,6 +2,7 @@
 
 import { ExpenseList } from '@/app/groups/[groupId]/expenses/expense-list'
 import ExportButton from '@/app/groups/[groupId]/export-button'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   GroupSectionCard,
@@ -32,6 +33,11 @@ export default function GroupExpensesPageClient() {
         <div className="space-y-2">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="rounded-full px-3 py-1">
+                  {t('title')}
+                </Badge>
+              </div>
               <GroupSectionTitle className="text-xl leading-none">
                 {t('title')}
               </GroupSectionTitle>

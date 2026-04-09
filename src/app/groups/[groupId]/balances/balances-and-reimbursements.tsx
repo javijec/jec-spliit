@@ -1,6 +1,7 @@
 'use client'
 
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
+import { Badge } from '@/components/ui/badge'
 import {
   GroupSectionCard,
   GroupSectionContent,
@@ -42,16 +43,16 @@ export default function BalancesAndReimbursements() {
               </>
             ) : (
               <>
-                <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
-                  <Wallet className="h-3.5 w-3.5" />
-                  {reimbursementCount > 0
+              <Badge variant="secondary" className="rounded-full px-3 py-1">
+                <Wallet className="h-3.5 w-3.5" />
+                {reimbursementCount > 0
                     ? tSummary('pendingPayments', { count: reimbursementCount })
                     : tSummary('allClear')}
-                </span>
-                <span className="inline-flex items-center gap-1 border bg-background px-2.5 py-1">
-                  <Layers3 className="h-3.5 w-3.5" />
-                  {tSummary('currenciesInPlay', { count: currencyCount })}
-                </span>
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">
+                <Layers3 className="h-3.5 w-3.5" />
+                {tSummary('currenciesInPlay', { count: currencyCount })}
+              </Badge>
               </>
             )}
           </div>
@@ -94,7 +95,7 @@ const ReimbursementsLoading = ({
         .map((_, index) => (
           <div
             key={index}
-            className="mb-3 flex items-start justify-between border bg-card px-4 py-4"
+            className="mb-3 flex items-start justify-between rounded-2xl border border-border/70 bg-card/90 px-4 py-4 shadow-sm shadow-black/5"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Skeleton className="h-3 w-32" />

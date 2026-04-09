@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@/components/ui/badge'
 import {
   GroupSectionCard,
   GroupSectionContent,
@@ -95,27 +96,27 @@ export function SummaryPageClient() {
     <div className="space-y-5">
       <GroupSectionCard>
         <GroupSectionHeader>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1 border px-2.5 py-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="rounded-full px-3 py-1">
               <Users className="h-3.5 w-3.5" />
               {tSummary('participantsBadge', {
                 count: group?.participants.length ?? 0,
               })}
-            </span>
+            </Badge>
             {group?.currencyCode && (
-              <span className="inline-flex items-center gap-1 border px-2.5 py-1">
+              <Badge variant="outline" className="rounded-full px-3 py-1">
                 <Wallet className="h-3.5 w-3.5" />
                 {tSummary('defaultCurrencyBadge', {
                   currencyCode: group.currencyCode,
                 })}
-              </span>
+              </Badge>
             )}
-            <span className="inline-flex items-center gap-1 border px-2.5 py-1">
+            <Badge variant="outline" className="rounded-full px-3 py-1">
               <Layers3 className="h-3.5 w-3.5" />
               {groupedDebtSummary.length > 0
                 ? tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })
                 : tSummary('settledBadge')}
-            </span>
+            </Badge>
           </div>
           <GroupSectionTitle className="mt-3 text-xl leading-none">
             {tSummary('title')}
@@ -138,7 +139,7 @@ export function SummaryPageClient() {
           </GroupSectionDescription>
         </GroupSectionHeader>
         <GroupSectionContent>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             {group?.participants.map((participant) => {
               const isLinked = !!participant.appUserId
               const isCurrentViewer =
@@ -148,27 +149,29 @@ export function SummaryPageClient() {
               return (
                 <div
                   key={participant.id}
-                  className="border bg-background px-3 py-2 text-sm"
+                  className="rounded-2xl border border-border/70 bg-background/80 px-3.5 py-3 text-sm shadow-sm shadow-black/5"
                 >
-                  <div className="font-medium">{participant.name}</div>
+                  <div className="font-medium tracking-tight">{participant.name}</div>
                   {isLinked && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {isCurrentViewer ? (
-                        <span
-                          className="inline-flex items-center border px-2 py-1 text-foreground"
+                        <Badge
+                          variant="secondary"
+                          className="rounded-full px-2.5 py-1 text-foreground"
                           title={tSummary('linkedYouBadge')}
                           aria-label={tSummary('linkedYouBadge')}
                         >
                           <UserRound className="h-3.5 w-3.5" />
-                        </span>
+                        </Badge>
                       ) : (
-                        <span
-                          className="inline-flex items-center border px-2 py-1 text-muted-foreground"
+                        <Badge
+                          variant="outline"
+                          className="rounded-full px-2.5 py-1 text-muted-foreground"
                           title={tSummary('linkedBadge')}
                           aria-label={tSummary('linkedBadge')}
                         >
                           <ShieldCheck className="h-3.5 w-3.5" />
-                        </span>
+                        </Badge>
                       )}
                     </div>
                   )}
@@ -206,18 +209,18 @@ export function SummaryPageClient() {
             />
           ) : (
             <div className="space-y-2.5">
-              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="border px-2.5 py-1">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {tSummary('pendingPairsBadge', { count: groupedDebtSummary.length })}
-                </span>
-                <span className="border px-2.5 py-1">
+                </Badge>
+                <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {tSummary('currenciesBadge', { count: debtCurrencyCount })}
-                </span>
+                </Badge>
               </div>
               {groupedDebtSummary.map((pair) => (
                 <div
                   key={`${pair.from}-${pair.to}`}
-                  className="border bg-background px-3 py-3 text-sm"
+                  className="rounded-2xl border border-border/70 bg-background/85 px-3.5 py-3.5 text-sm shadow-sm shadow-black/5"
                 >
                   <div className="leading-snug">
                     <span className="break-words font-semibold">
@@ -232,9 +235,10 @@ export function SummaryPageClient() {
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {pair.items.map((item) => (
-                      <span
+                      <Badge
                         key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                        className="inline-flex items-center border px-2 py-0.5 text-xs tabular-nums"
+                        variant="outline"
+                        className="rounded-full px-2.5 py-1 text-xs tabular-nums"
                       >
                         {formatCurrency(
                           resolveCurrency(item.currencyCode),
@@ -244,7 +248,7 @@ export function SummaryPageClient() {
                         <span className="ml-1 text-muted-foreground uppercase">
                           {item.currencyCode}
                         </span>
-                      </span>
+                      </Badge>
                     ))}
                   </div>
                 </div>

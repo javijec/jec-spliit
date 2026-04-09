@@ -146,7 +146,7 @@ export function GroupLayoutClient({
             <Button
               asChild
               size="icon"
-              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] right-4 z-40 h-12 w-12 rounded-md border border-primary/10 sm:hidden"
+              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 z-40 h-12 w-12 rounded-2xl border border-primary/15 shadow-lg shadow-primary/20 sm:hidden"
             >
               <Link
                 href={`/groups/${groupId}/expenses/create`}
@@ -158,7 +158,7 @@ export function GroupLayoutClient({
           )}
           <nav className="fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-40 px-3 pb-3 sm:hidden">
             <div
-              className={`grid items-center gap-1 border border-border bg-card px-2 py-2 ${
+              className={`grid items-center gap-1 rounded-[1.35rem] border border-border/80 bg-card/95 px-2 py-2 shadow-[0_12px_32px_hsl(var(--foreground)/0.14)] backdrop-blur ${
                 canInstall ? 'grid-cols-5' : 'grid-cols-4'
               }`}
             >
@@ -168,9 +168,9 @@ export function GroupLayoutClient({
                   asChild
                   variant={tab.active ? 'secondary' : 'ghost'}
                   size="sm"
-                  className={`h-11 flex-col gap-1 rounded-md ${
+                  className={`h-11 flex-col gap-1 rounded-xl ${
                     tab.active
-                      ? 'border border-border bg-secondary text-foreground'
+                      ? 'border border-border/70 bg-secondary text-foreground shadow-sm'
                       : 'text-muted-foreground'
                   }`}
                 >
@@ -187,7 +187,7 @@ export function GroupLayoutClient({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-11 flex-col gap-1 rounded-md text-muted-foreground"
+                  className="h-11 flex-col gap-1 rounded-xl text-muted-foreground"
                   onClick={() => void install()}
                 >
                   <Download className="h-4 w-4" />

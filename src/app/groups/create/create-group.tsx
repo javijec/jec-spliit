@@ -1,6 +1,7 @@
 'use client'
 
 import { GroupForm } from '@/components/group-form'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -29,7 +30,14 @@ import {
 import { getCurrency } from '@/lib/currency'
 import { amountAsMinorUnits } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { AlertTriangle, CalendarDays, FileUp, Loader2 } from 'lucide-react'
+import {
+  AlertTriangle,
+  CalendarDays,
+  FileUp,
+  Loader2,
+  Sparkles,
+  Upload,
+} from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -401,24 +409,28 @@ function SplitwiseImportCard() {
   }
 
   return (
-    <Card className="mb-6 overflow-hidden shadow-none">
-      <CardHeader className="p-4 sm:p-5">
-        <div className="space-y-1">
+    <Card className="mb-5 overflow-hidden border-border/70 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)]">
+      <CardHeader className="gap-3">
+        <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
+          <Upload className="h-3.5 w-3.5" />
+          Splitwise CSV
+        </Badge>
+        <div className="space-y-1.5">
           <CardTitle>{t('title')}</CardTitle>
           <CardDescription>{t('description')}</CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 p-4 sm:p-6">
-        <div className="border bg-background p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <CardContent className="space-y-4">
+        <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
+          <div className="flex flex-col gap-3">
             <div className="space-y-1">
-              <p className="text-sm font-medium">{t('step1Title')}</p>
+              <p className="text-sm font-semibold tracking-tight">{t('step1Title')}</p>
               <p className="text-sm text-muted-foreground">{t('step1Description')}</p>
             </div>
             <Input
               type="file"
               accept=".csv,text/csv"
-              className="max-w-full sm:max-w-sm"
+              className="max-w-full"
               onChange={(event) => {
                 const file = event.target.files?.[0]
                 if (file) void onSelectCsv(file)
@@ -432,24 +444,24 @@ function SplitwiseImportCard() {
           </div>
         )}
         {parseError && (
-          <div className="flex items-center gap-2 border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          <div className="flex items-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             {parseError}
           </div>
         )}
         {csvData && (
           <>
-            <div className="border bg-background p-4">
-              <div className="mb-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                <span className="border px-2.5 py-1">
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
+              <div className="mb-4 flex flex-wrap gap-2">
+                <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('fileLabel', { fileName: csvData.fileName })}
-                </span>
-                <span className="border px-2.5 py-1">
+                </Badge>
+                <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('participantsLabel', { count: csvData.participants.length })}
-                </span>
-                <span className="border px-2.5 py-1">
+                </Badge>
+                <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.7rem]">
                   {t('expensesLabel', { count: csvData.expenses.length })}
-                </span>
+                </Badge>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Input
@@ -481,23 +493,23 @@ function SplitwiseImportCard() {
             </div>
 
             {unresolvedExpenses.length > 0 && (
-              <div className="border bg-background p-4">
-                <div className="mb-3">
-                  <p className="text-sm font-medium">
+              <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
+                <div className="mb-3 space-y-1">
+                  <p className="text-sm font-semibold tracking-tight">
                     {t('step2Title', { count: unresolvedExpenses.length })}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">{t('step2Description')}</p>
+                  <p className="text-sm text-muted-foreground">{t('step2Description')}</p>
                 </div>
                 <div className="space-y-2">
                   {unresolvedExpenses.slice(0, 20).map((expense) => (
                     <div
                       key={expense.id}
-                      className="grid gap-2 border bg-card p-3 sm:grid-cols-[1fr_220px] sm:items-center"
+                      className="grid gap-3 rounded-2xl border border-border/70 bg-card/90 p-3.5 sm:grid-cols-[1fr_220px] sm:items-center"
                     >
-                      <div className="text-sm">
+                      <div className="text-sm leading-6">
                         <button
                           type="button"
-                          className="mr-2 inline-flex items-center gap-1 text-primary hover:underline"
+                          className="mr-2 inline-flex items-center gap-1 rounded-full text-primary transition-colors hover:text-primary/80"
                           onClick={() => openDateDialog(expense)}
                         >
                           <CalendarDays className="h-3.5 w-3.5" />
@@ -531,16 +543,16 @@ function SplitwiseImportCard() {
               </div>
             )}
 
-            <div className="border bg-background p-4">
-              <div className="mb-3">
-                <p className="text-sm font-medium">{t('step3Title')}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{t('step3Description')}</p>
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm shadow-black/5">
+              <div className="mb-3 space-y-1">
+                <p className="text-sm font-semibold tracking-tight">{t('step3Title')}</p>
+                <p className="text-sm text-muted-foreground">{t('step3Description')}</p>
               </div>
               <div className="space-y-2">
                 {csvData.expenses.slice(0, 12).map((expense) => (
                   <div
                     key={`date-${expense.id}`}
-                    className="flex items-center justify-between gap-2 border bg-card p-3"
+                    className="flex items-center justify-between gap-2 rounded-2xl border border-border/70 bg-card/90 p-3.5"
                   >
                     <div className="truncate text-sm">{expense.title}</div>
                     <Button
@@ -563,8 +575,14 @@ function SplitwiseImportCard() {
               )}
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">{t('finalDescription')}</p>
+            <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-secondary/45 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  {t('submit')}
+                </div>
+                <p className="text-sm text-muted-foreground">{t('finalDescription')}</p>
+              </div>
               <Button
                 onClick={() => void importData()}
                 type="button"
@@ -640,7 +658,11 @@ export const CreateGroup = () => {
     <div className="space-y-4">
       <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-4 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-5">
         <div className="absolute right-[-3rem] top-[-2rem] h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative space-y-1.5">
+        <div className="relative space-y-3">
+          <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
+            <Sparkles className="h-3.5 w-3.5" />
+            Mobile app flow
+          </Badge>
           <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
             {t('createPageTitle')}
           </h1>
@@ -649,32 +671,38 @@ export const CreateGroup = () => {
           </p>
         </div>
       </section>
-      <SplitwiseImportCard />
-      <GroupForm
-        onSubmit={async (groupFormValues, options) => {
-          try {
-            const { groupId } = await createGroup.mutateAsync({
-              groupFormValues,
-              activeParticipantName: options?.activeParticipantName,
-            })
-            toast({
-              title: t('createSuccessTitle'),
-              description: t('createSuccessDescription'),
-            })
-            await utils.groups.invalidate()
-            router.push(`/groups/${groupId}`)
-          } catch (error) {
-            toast({
-              title: t('createErrorTitle'),
-              description:
-                error instanceof Error
-                  ? error.message
-                  : t('createErrorDescription'),
-              variant: 'destructive',
-            })
-          }
-        }}
-      />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
+        <div className="space-y-4">
+          <SplitwiseImportCard />
+        </div>
+        <div className="space-y-4">
+          <GroupForm
+            onSubmit={async (groupFormValues, options) => {
+              try {
+                const { groupId } = await createGroup.mutateAsync({
+                  groupFormValues,
+                  activeParticipantName: options?.activeParticipantName,
+                })
+                toast({
+                  title: t('createSuccessTitle'),
+                  description: t('createSuccessDescription'),
+                })
+                await utils.groups.invalidate()
+                router.push(`/groups/${groupId}`)
+              } catch (error) {
+                toast({
+                  title: t('createErrorTitle'),
+                  description:
+                    error instanceof Error
+                      ? error.message
+                      : t('createErrorDescription'),
+                  variant: 'destructive',
+                })
+              }
+            }}
+          />
+        </div>
+      </div>
     </div>
   )
 }

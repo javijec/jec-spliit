@@ -1,5 +1,6 @@
 import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -74,7 +75,7 @@ function LabelWithInfo({
               type="button"
               variant="ghost"
               size="icon"
-              className="h-5 w-5 text-muted-foreground"
+              className="h-6 w-6 text-muted-foreground"
               aria-label={`Información sobre ${label}`}
             >
               <Info className="w-3.5 h-3.5" />
@@ -279,11 +280,15 @@ export function GroupForm({
           </Alert>
         )}
 
-        <Card className="mb-4 shadow-none">
-          <CardHeader>
+        <Card className="mb-4 border-border/70">
+          <CardHeader className="gap-3">
+            <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
+              {t('title')}
+            </Badge>
             <CardTitle>{t('title')}</CardTitle>
+            <CardDescription>{t('NameField.description')}</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="name"
@@ -369,7 +374,7 @@ export function GroupForm({
         </Card>
 
         <div className="mb-4 grid gap-4 lg:grid-cols-2">
-          <Card className="h-full shadow-none">
+          <Card className="h-full border-border/70">
             <CardHeader>
               <CardTitle>{t('Participants.title')}</CardTitle>
               <CardDescription className="hidden sm:block">
@@ -389,7 +394,7 @@ export function GroupForm({
                             Participant #{index + 1}
                           </FormLabel>
                           <FormControl>
-                            <div className="space-y-2">
+                            <div className="space-y-2.5 rounded-2xl border border-border/70 bg-background/75 p-3">
                               <div className="flex gap-2">
                                 <Input
                                   className="text-base"
@@ -401,8 +406,8 @@ export function GroupForm({
                                   <HoverCard>
                                     <HoverCardTrigger>
                                       <Button
-                                        variant="ghost"
-                                        className="text-destructive-"
+                                      variant="ghost"
+                                        className="text-destructive"
                                         type="button"
                                         size="icon"
                                         disabled
@@ -443,7 +448,7 @@ export function GroupForm({
                                   <div className="flex flex-wrap gap-2">
                                     {isCurrentViewer ? (
                                       <span
-                                        className="inline-flex items-center border bg-background px-2 py-1 text-foreground"
+                                        className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-foreground"
                                         title={t('Participants.youLinked')}
                                         aria-label={t('Participants.youLinked')}
                                       >
@@ -451,7 +456,7 @@ export function GroupForm({
                                       </span>
                                     ) : (
                                       <span
-                                        className="inline-flex items-center border bg-background px-2 py-1 text-muted-foreground"
+                                        className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-muted-foreground"
                                         title={t('Participants.linkedAccount')}
                                         aria-label={t('Participants.linkedAccount')}
                                       >
@@ -484,7 +489,7 @@ export function GroupForm({
             </CardFooter>
           </Card>
 
-          <Card className="h-full shadow-none">
+          <Card className="h-full border-border/70">
             <CardHeader>
               <CardTitle>{t('Settings.title')}</CardTitle>
               <CardDescription>{t('Settings.description')}</CardDescription>
@@ -532,20 +537,25 @@ export function GroupForm({
           </Card>
         </div>
 
-        <div className="flex flex-col sm:flex-row mt-4 gap-2">
-          <SubmitButton
-            loadingContent={t(group ? 'Settings.saving' : 'Settings.creating')}
-            onClick={updateActiveUser}
-            className="w-full sm:w-auto"
-          >
-            <Save className="w-4 h-4 mr-2" />{' '}
-            {t(group ? 'Settings.save' : 'Settings.create')}
-          </SubmitButton>
-          {!group && (
-            <Button variant="ghost" asChild className="w-full sm:w-auto">
-              <Link href="/groups">{t('Settings.cancel')}</Link>
-            </Button>
-          )}
+        <div className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-secondary/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            {group ? t('Settings.description') : t('Participants.description')}
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <SubmitButton
+              loadingContent={t(group ? 'Settings.saving' : 'Settings.creating')}
+              onClick={updateActiveUser}
+              className="w-full sm:w-auto"
+            >
+              <Save className="w-4 h-4 mr-2" />{' '}
+              {t(group ? 'Settings.save' : 'Settings.create')}
+            </SubmitButton>
+            {!group && (
+              <Button variant="ghost" asChild className="w-full sm:w-auto">
+                <Link href="/groups">{t('Settings.cancel')}</Link>
+              </Button>
+            )}
+          </div>
         </div>
       </form>
     </Form>

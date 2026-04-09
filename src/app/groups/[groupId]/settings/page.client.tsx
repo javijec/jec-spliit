@@ -2,6 +2,7 @@
 
 import ExportButton from '@/app/groups/[groupId]/export-button'
 import { ShareButton } from '@/app/groups/[groupId]/share-button'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -37,7 +38,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { EditGroup } from '../edit/edit-group'
 
@@ -63,7 +64,7 @@ function SettingsOptionCard({
       type="button"
       onClick={onClick}
       className={[
-        'flex w-full items-start justify-between gap-3 border bg-card px-4 py-4 text-left transition-colors hover:bg-muted/25',
+        'flex w-full items-start justify-between gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-4 text-left shadow-sm shadow-black/5 transition-colors hover:bg-muted/25',
         selected ? 'border-primary/25 bg-primary/[0.05]' : '',
         destructive ? 'border-destructive/30' : '',
       ].join(' ')}
@@ -71,7 +72,7 @@ function SettingsOptionCard({
       <div className="flex items-start gap-3">
         <div
           className={[
-            'mt-0.5 flex h-9 w-9 items-center justify-center border',
+            'mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/75',
             destructive
               ? 'border-destructive/30 text-destructive'
               : 'text-primary',
@@ -93,18 +94,6 @@ function SettingsOptionCard({
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
     </button>
-  )
-}
-
-function SettingsMeta({
-  children,
-}: {
-  children: ReactNode
-}) {
-  return (
-    <span className="inline-flex items-center border bg-background px-2.5 py-1 text-xs text-muted-foreground">
-      {children}
-    </span>
   )
 }
 
@@ -175,17 +164,19 @@ export function SettingsPageClient() {
         <GroupSectionCard>
           <GroupSectionHeader>
             <div className="flex flex-wrap gap-2">
-              <SettingsMeta>
+              <Badge variant="secondary" className="rounded-full px-3 py-1">
                 {t('participantsBadge', {
                   count: data.group.participants.length,
                 })}
-              </SettingsMeta>
+              </Badge>
               {data.group.currencyCode && (
-                <SettingsMeta>{data.group.currencyCode}</SettingsMeta>
+                <Badge variant="outline" className="rounded-full px-3 py-1">
+                  {data.group.currencyCode}
+                </Badge>
               )}
-              <SettingsMeta>
+              <Badge variant="outline" className="rounded-full px-3 py-1">
                 {data.hasAccessPassword ? t('protected') : t('open')}
-              </SettingsMeta>
+              </Badge>
             </div>
             <GroupSectionTitle className="mt-3 text-xl leading-none">
               {t('title')}
@@ -269,7 +260,7 @@ export function SettingsPageClient() {
               />
             </div>
 
-            <div className="border bg-background p-3 text-sm">
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 text-sm shadow-sm shadow-black/5">
               <div className="flex items-center gap-2 font-medium">
                 <Info className="h-4 w-4" />
                 {t('groupInformationTitle')}
@@ -279,7 +270,7 @@ export function SettingsPageClient() {
               </p>
             </div>
 
-            <div className="border bg-background p-3 text-sm">
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 text-sm shadow-sm shadow-black/5">
               <div className="flex items-center gap-2 font-medium">
                 <FileOutput className="h-4 w-4" />
                 {t('exportInfoTitle')}
@@ -361,7 +352,7 @@ export function SettingsPageClient() {
               </Button>
             </div>
 
-            <div className="border bg-background p-3 text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 text-sm text-muted-foreground shadow-sm shadow-black/5">
               {t('linkAccessDescription1')} {t('linkAccessDescription2')}
             </div>
           </GroupSectionContent>
@@ -399,7 +390,7 @@ export function SettingsPageClient() {
                 <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
                 <DialogDescription>{t('deleteDialogDescription')}</DialogDescription>
                 <div className="space-y-3 py-2">
-                  <div className="flex items-start gap-2 border bg-background p-3">
+                  <div className="flex items-start gap-2 rounded-2xl border border-border/70 bg-background/80 p-3.5">
                     <Checkbox
                       id="confirm-delete-group"
                       checked={deleteConfirmChecked}
