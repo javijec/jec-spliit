@@ -79,7 +79,7 @@ export function ActiveUserModal({
     if (!tempUser && !activeUser) {
       setOpen(true)
     }
-  }, [currentActiveParticipantId, group, viewer])
+  }, [currentActiveParticipantId, group, setOpen, viewer])
 
   function updateOpen(open: boolean) {
     if (!group) return

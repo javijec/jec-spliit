@@ -1,5 +1,6 @@
 import { auth0Enabled } from '@/lib/env'
 import { getCurrentAppUser, getCurrentAuthSession } from '@/lib/auth'
+import Image from 'next/image'
 import Link from 'next/link'
 
 const getInitials = (value: string) =>
@@ -39,11 +40,14 @@ export async function AuthNav() {
           title={displayName ?? 'Perfil'}
         >
           {avatarUrl ? (
-            <img
+            <Image
               src={avatarUrl}
               alt={displayName ?? 'Usuario'}
+              width={36}
+              height={36}
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
+              unoptimized
             />
           ) : (
             <span className="text-xs font-semibold text-foreground">
@@ -60,11 +64,14 @@ export async function AuthNav() {
           title={displayName ?? 'Perfil'}
         >
           {avatarUrl ? (
-            <img
+            <Image
               src={avatarUrl}
               alt={displayName ?? 'Usuario'}
+              width={36}
+              height={36}
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
+              unoptimized
             />
           ) : (
             <span className="text-xs font-semibold text-foreground">
