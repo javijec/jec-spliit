@@ -124,8 +124,8 @@ function Content({
         </div>
       </header>
 
-      <div className="app-shell flex flex-1 flex-col pt-[calc(4rem+env(safe-area-inset-top))]">
-        <div className="relative z-10 flex flex-1 flex-col">{children}</div>
+      <div className="app-shell box-border flex min-h-[100dvh] flex-col pt-[calc(4rem+env(safe-area-inset-top))]">
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col">{children}</div>
       </div>
 
       <ConditionalFooter footerDescription={t('footerDescription')} />
@@ -157,7 +157,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <ApplePwaSplash icon="/logo.svg" color="#027756" />
-      <body className="flex min-h-[100dvh] flex-col items-stretch">
+      <body className="flex min-h-[100dvh] flex-col items-stretch overflow-x-hidden">
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider
             attribute="class"
