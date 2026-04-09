@@ -18,6 +18,8 @@ export function ShareUrlButton({ url, text }: Props) {
       size="icon"
       variant="outline"
       type="button"
+      aria-label="Compartir enlace"
+      title="Compartir enlace"
       onClick={() => {
         if (navigator.share) {
           navigator.share({ text, url })

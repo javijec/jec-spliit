@@ -1,0 +1,64 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NexoGastos NexoGastos" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "NexoGastos" [ref=e6]
+        - paragraph [ref=e8]: NexoGastos
+      - navigation "Menu" [ref=e9]:
+        - list [ref=e10]:
+          - listitem
+          - listitem [ref=e11]:
+            - 'button "Idioma actual: Español" [ref=e12] [cursor=pointer]':
+              - img [ref=e13]
+              - generic [ref=e17]: Español
+          - listitem [ref=e18]:
+            - button "Toggle theme" [ref=e19] [cursor=pointer]:
+              - img [ref=e20]
+              - img
+              - generic [ref=e22]: Toggle theme
+  - main [ref=e25]:
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - img [ref=e32]
+        - generic [ref=e34]: Grupos
+      - generic [ref=e35]:
+        - heading "Comparte Gastos con Amigos y Familia" [level=1] [ref=e36]:
+          - text: Comparte
+          - strong [ref=e37]: Gastos
+          - text: con
+          - strong [ref=e38]: Amigos y Familia
+        - paragraph [ref=e39]:
+          - text: ¡Bienvenido a
+          - strong [ref=e40]: NexoGastos
+          - text: "!"
+      - link "Ingresar con Google" [ref=e42] [cursor=pointer]:
+        - /url: /auth/login?connection=google-oauth2
+        - img [ref=e43]
+        - text: Ingresar con Google
+        - img [ref=e48]
+  - contentinfo [ref=e50]:
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - img "NexoGastos" [ref=e55]
+        - generic [ref=e56]:
+          - link "NexoGastos" [ref=e57] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e58]: Gestión de gastos compartidos con enfoque móvil.
+      - generic [ref=e59]:
+        - link "Javijec" [ref=e60] [cursor=pointer]:
+          - /url: https://github.com/javijec
+          - generic [ref=e61]: Javijec
+          - img [ref=e62]
+        - link "Spliit" [ref=e66] [cursor=pointer]:
+          - /url: https://github.com/spliit-app/spliit/
+          - generic [ref=e67]: Spliit
+          - img [ref=e68]
+        - link "GitHub" [ref=e72] [cursor=pointer]:
+          - /url: https://github.com/javijec/jec-spliit
+          - generic [ref=e73]: GitHub
+          - img [ref=e74]
+  - region "Notifications (F8)":
+    - list
+  - button "Open Next.js Dev Tools" [ref=e83] [cursor=pointer]:
+    - img [ref=e84]

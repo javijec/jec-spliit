@@ -23,6 +23,8 @@ export function CopyButton({ text }: Props) {
       size="icon"
       variant="outline"
       type="button"
+      aria-label={copied ? 'Enlace copiado' : 'Copiar enlace'}
+      title={copied ? 'Enlace copiado' : 'Copiar enlace'}
       onClick={() => {
         navigator.clipboard.writeText(text)
         setCopied(true)

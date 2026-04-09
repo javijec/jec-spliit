@@ -1,0 +1,134 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NexoGastos NexoGastos Controla gastos compartidos" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "NexoGastos" [ref=e6]
+        - generic [ref=e7]:
+          - paragraph [ref=e8]: NexoGastos
+          - paragraph [ref=e9]: Controla gastos compartidos
+      - navigation "Menu" [ref=e10]:
+        - link "Grupos" [ref=e11] [cursor=pointer]:
+          - /url: /groups
+          - img [ref=e12]
+          - generic [ref=e14]: Grupos
+        - link "Ingresar con Google" [ref=e15] [cursor=pointer]:
+          - /url: /auth/login?connection=google-oauth2
+        - list [ref=e16]:
+          - listitem
+          - listitem [ref=e17]:
+            - 'button "Idioma actual: Español" [ref=e18] [cursor=pointer]':
+              - img [ref=e19]
+              - generic [ref=e23]: Español
+          - listitem [ref=e24]:
+            - button "Toggle theme" [ref=e25] [cursor=pointer]:
+              - img [ref=e26]
+              - img
+              - generic [ref=e28]: Toggle theme
+  - main [ref=e31]:
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - img [ref=e38]
+          - generic [ref=e40]: Grupos
+        - generic [ref=e41]:
+          - heading "Comparte Gastos con Amigos y Familia" [level=1] [ref=e42]:
+            - text: Comparte
+            - strong [ref=e43]: Gastos
+            - text: con
+            - strong [ref=e44]: Amigos y Familia
+          - paragraph [ref=e45]:
+            - text: ¡Bienvenido a
+            - strong [ref=e46]: NexoGastos
+            - text: "!"
+        - generic [ref=e47]:
+          - link "Ir a grupos" [ref=e48] [cursor=pointer]:
+            - /url: /groups
+            - text: Ir a grupos
+            - img [ref=e49]
+          - link "Crear grupo" [ref=e51] [cursor=pointer]:
+            - /url: /groups/create
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - generic [ref=e55]: "01"
+              - img [ref=e56]
+            - paragraph [ref=e58]: Flujo simple
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: "02"
+              - img [ref=e62]
+            - paragraph [ref=e64]: Gastos claros
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]: "03"
+              - img [ref=e68]
+            - paragraph [ref=e74]: Balances rápidos
+      - generic [ref=e77]:
+        - generic [ref=e79]:
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - paragraph [ref=e82]: NexoGastos
+              - paragraph [ref=e83]: Ir a grupos
+            - img [ref=e85]
+          - generic [ref=e87]:
+            - generic [ref=e88]:
+              - img [ref=e90]
+              - generic [ref=e92]:
+                - paragraph [ref=e93]: Flujo simple
+                - paragraph [ref=e94]: Entra al grupo, agrega gastos y liquida sin perderte en pantallas.
+              - paragraph [ref=e96]: $ 24.500
+            - generic [ref=e97]:
+              - img [ref=e99]
+              - generic [ref=e101]:
+                - paragraph [ref=e102]: Gastos claros
+                - paragraph [ref=e103]: Carga importes, participantes y comprobantes desde el celular.
+              - paragraph [ref=e105]: $ 11.200
+            - generic [ref=e106]:
+              - img [ref=e108]
+              - generic [ref=e114]:
+                - paragraph [ref=e115]: Balances rápidos
+                - paragraph [ref=e116]: Ve quién le debe a quién y registra pagos parciales cuando haga falta.
+              - paragraph [ref=e118]: $ 8.100
+          - generic [ref=e120]:
+            - generic [ref=e121]:
+              - paragraph [ref=e122]: Balances rápidos
+              - paragraph [ref=e123]: Ve quién le debe a quién y registra pagos parciales cuando haga falta.
+            - generic [ref=e124]:
+              - paragraph [ref=e125]: Total
+              - paragraph [ref=e126]: $ 43.800
+        - generic [ref=e127]:
+          - generic [ref=e128]:
+            - img [ref=e129]
+            - generic [ref=e131]: Flujo simple
+          - generic [ref=e132]:
+            - img [ref=e133]
+            - generic [ref=e135]: Gastos claros
+          - generic [ref=e136]:
+            - img [ref=e137]
+            - generic [ref=e143]: Balances rápidos
+  - contentinfo [ref=e144]:
+    - generic [ref=e146]:
+      - generic [ref=e147]:
+        - img "NexoGastos" [ref=e149]
+        - generic [ref=e150]:
+          - link "NexoGastos" [ref=e151] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e152]: Gestión de gastos compartidos con enfoque móvil.
+      - generic [ref=e153]:
+        - link "Javijec" [ref=e154] [cursor=pointer]:
+          - /url: https://github.com/javijec
+          - generic [ref=e155]: Javijec
+          - img [ref=e156]
+        - link "Spliit" [ref=e160] [cursor=pointer]:
+          - /url: https://github.com/spliit-app/spliit/
+          - generic [ref=e161]: Spliit
+          - img [ref=e162]
+        - link "GitHub" [ref=e166] [cursor=pointer]:
+          - /url: https://github.com/javijec/jec-spliit
+          - generic [ref=e167]: GitHub
+          - img [ref=e168]
+  - region "Notifications (F8)":
+    - list
+  - button "Open Next.js Dev Tools" [ref=e177] [cursor=pointer]:
+    - img [ref=e178]

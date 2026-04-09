@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Toaster } from '@/components/ui/toaster'
 import { env } from '@/lib/env'
+import { getCurrentAuthSession } from '@/lib/auth'
 import { TRPCProvider } from '@/trpc/client'
 import { FolderKanban } from 'lucide-react'
 import type { Metadata, Viewport } from 'next'
@@ -68,7 +69,13 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-function Content({ children }: { children: React.ReactNode }) {
+function Content({
+  children,
+  isAuthenticated,
+}: {
+  children: React.ReactNode
+  isAuthenticated: boolean
+}) {
   const t = useTranslations('Layout')
   return (
     <TRPCProvider>
@@ -97,7 +104,10 @@ function Content({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
           <div role="navigation" aria-label="Menu" className="flex items-center gap-2">
-            <ButtonLink href="/groups" label={t('groupsCta')} />
+            <ButtonLink
+              href={isAuthenticated ? '/groups' : '/auth/login?connection=google-oauth2'}
+              label={t('groupsCta')}
+            />
             <AuthNav />
             <ul className="flex items-center gap-0.5 text-sm sm:gap-1">
               <li>
@@ -143,6 +153,7 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale()
   const messages = await getMessages()
+  const session = await getCurrentAuthSession()
   return (
     <html lang={locale} suppressHydrationWarning>
       <ApplePwaSplash icon="/logo.svg" color="#027756" />
@@ -157,7 +168,7 @@ export default async function RootLayout({
             <Suspense>
               <ProgressBar />
             </Suspense>
-            <Content>{children}</Content>
+            <Content isAuthenticated={!!session}>{children}</Content>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

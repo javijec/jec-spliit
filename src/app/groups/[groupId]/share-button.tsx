@@ -2,17 +2,25 @@
 import { CopyButton } from '@/components/copy-button'
 import { ShareUrlButton } from '@/components/share-url-button'
 import { Button } from '@/components/ui/button'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { useBaseUrl } from '@/lib/hooks'
+import { useBaseUrl, useMediaQuery } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 import { Share } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { ComponentProps } from 'react'
+import { ComponentProps, useState } from 'react'
 
 type Props = {
   group: {
@@ -34,48 +42,71 @@ export function ShareButton({
 }: Props) {
   const t = useTranslations('Share')
   const baseUrl = useBaseUrl()
+  const isDesktop = useMediaQuery('(min-width: 640px)')
+  const [open, setOpen] = useState(false)
   const url = baseUrl && `${baseUrl}/groups/${group.id}/summary?ref=share`
+  const trigger = (
+    <Button
+      title={t('title')}
+      size={size}
+      variant={variant}
+      className={cn('flex-shrink-0', className)}
+    >
+      <Share className="h-4 w-4" />
+      {showLabel && <span className="ml-2">{t('title')}</span>}
+    </Button>
+  )
+  const content = (
+    <>
+      {url && (
+        <div className="space-y-2">
+          <div className="border border-border bg-muted/20 p-2">
+            <Input
+              className="h-10 border-0 bg-transparent px-1 py-0 text-sm shadow-none focus-visible:ring-0"
+              defaultValue={url}
+              readOnly
+            />
+          </div>
+          <div className="flex gap-2">
+            <CopyButton text={url} />
+            <ShareUrlButton
+              text={t('shareMessage', { groupName: group.name })}
+              url={url}
+            />
+          </div>
+        </div>
+      )}
+      <div className="border-t border-border pt-3 text-sm text-muted-foreground">
+        <strong className="font-medium text-foreground">{t('warning')}</strong>{' '}
+        {t('warningHelp')}
+      </div>
+    </>
+  )
+
+  if (!isDesktop) {
+    return (
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader className="text-left">
+            <DrawerTitle>{t('title')}</DrawerTitle>
+            <DrawerDescription>{t('description')}</DrawerDescription>
+          </DrawerHeader>
+          <div className="space-y-4 p-4 pt-0">{content}</div>
+        </DrawerContent>
+      </Drawer>
+    )
+  }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          title={t('title')}
-          size={size}
-          variant={variant}
-          className={cn('flex-shrink-0', className)}
-        >
-          <Share className="h-4 w-4" />
-          {showLabel && <span className="ml-2">{t('title')}</span>}
-        </Button>
-      </PopoverTrigger>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent align="end" className="w-[min(28rem,calc(100vw-2rem))] space-y-4">
         <div className="space-y-1">
           <p className="text-sm font-medium text-foreground">{t('title')}</p>
           <p className="text-sm text-muted-foreground">{t('description')}</p>
         </div>
-        {url && (
-          <div className="space-y-2">
-            <div className="border border-border bg-muted/20 p-2">
-              <Input
-                className="h-10 border-0 bg-transparent px-1 py-0 text-sm shadow-none focus-visible:ring-0"
-                defaultValue={url}
-                readOnly
-              />
-            </div>
-            <div className="flex gap-2">
-              <CopyButton text={url} />
-              <ShareUrlButton
-                text={t('shareMessage', { groupName: group.name })}
-                url={url}
-              />
-            </div>
-          </div>
-        )}
-        <div className="border-t border-border pt-3 text-sm text-muted-foreground">
-          <strong className="font-medium text-foreground">{t('warning')}</strong>{' '}
-          {t('warningHelp')}
-        </div>
+        {content}
       </PopoverContent>
     </Popover>
   )

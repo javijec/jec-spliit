@@ -9,7 +9,6 @@ import { cn, formatCurrency, formatDateOnly } from '@/lib/utils'
 import { ArrowRightLeft, ChevronRight } from 'lucide-react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { ReactNode, memo, useMemo } from 'react'
 
 type Expense = Awaited<ReturnType<typeof getGroupExpenses>>[number]
@@ -262,7 +261,6 @@ function AmountColumn({
 }
 
 function ExpenseCardComponent({ expense, currency, groupId }: Props) {
-  const router = useRouter()
   const locale = useLocale()
   const labels = useMemo(() => getLabels(locale), [locale])
   const displayCurrency = useMemo(
@@ -273,21 +271,14 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
   const href = `/groups/${groupId}/expenses/${expense.id}/edit`
 
   return (
-    <div
+    <Link
+      href={href}
       className={cn(
-        'group mx-2 flex cursor-pointer items-start gap-3 border-x-0 border-t-0 bg-card px-3 py-3 text-sm transition-colors hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mx-0 sm:px-5 sm:py-4',
+        'group mx-2 flex items-start gap-3 border-x-0 border-t-0 bg-card px-3 py-3 text-sm transition-colors hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mx-0 sm:px-5 sm:py-4',
         expense.isReimbursement &&
           'border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.07] dark:bg-primary/[0.08] dark:hover:bg-primary/[0.12]',
       )}
-      role="button"
-      tabIndex={0}
-      onClick={() => router.push(href)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          router.push(href)
-        }
-      }}
+      aria-label={expense.title}
     >
       <LeadingIcon expense={expense} />
       <div className="min-w-0 flex-1">
@@ -305,17 +296,10 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
         displayAmount={displayAmount}
         locale={locale}
       />
-      <Button
-        size="icon"
-        variant="link"
-        className="hidden self-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:flex"
-        asChild
-      >
-        <Link href={href}>
-          <ChevronRight className="w-4 h-4" />
-        </Link>
-      </Button>
-    </div>
+      <div className="hidden self-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:flex">
+        <ChevronRight className="w-4 h-4" />
+      </div>
+    </Link>
   )
 }
 

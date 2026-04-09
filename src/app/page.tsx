@@ -1,94 +1,60 @@
 import { Button } from '@/components/ui/button'
+import { getCurrentAuthSession } from '@/lib/auth'
 import {
   ArrowRight,
   FolderKanban,
-  HandCoins,
-  ReceiptText,
-  Smartphone,
 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 
-export default function HomePage() {
-  const t = useTranslations()
+export default async function HomePage() {
+  const t = await getTranslations()
+  const session = await getCurrentAuthSession()
+  const groupsHref = session ? '/groups' : '/auth/login?connection=google-oauth2'
+  const primaryCta = session ? t('Homepage.button.groups') : 'Ingresar con Google'
+
   return (
-    <main className="px-4 pb-6 pt-4 sm:px-6 sm:pb-10 sm:pt-8">
-      <div className="mx-auto flex w-full max-w-screen-xl flex-col gap-6 lg:gap-8">
-        <section className="grid w-full gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(20rem,0.85fr)] lg:gap-8">
-          <div className="border-b border-border pb-6 sm:pb-8">
-            <div className="max-w-[42rem] space-y-5">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <FolderKanban className="h-4 w-4 text-primary" />
+    <main className="relative overflow-hidden px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-[-8rem] top-8 h-56 w-56 rounded-full bg-primary/12 blur-3xl sm:h-72 sm:w-72" />
+        <div className="absolute right-[-5rem] top-36 h-48 w-48 rounded-full bg-emerald-300/20 blur-3xl dark:bg-emerald-400/10" />
+        <div className="absolute bottom-8 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-secondary/70 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto flex w-full max-w-screen-xl flex-col">
+        <section className="relative overflow-hidden rounded-[1.75rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] shadow-[0_24px_80px_hsl(var(--foreground)/0.08)]">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+          <div className="px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
+            <div className="relative z-10 mx-auto max-w-[42rem] text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-xs font-medium text-primary sm:text-sm">
+                <FolderKanban className="h-3.5 w-3.5" />
                 <span>{t('Layout.groupsCta')}</span>
               </div>
-              <h1 className="landing-header max-w-[11ch] text-4xl font-semibold leading-[0.98] sm:text-5xl lg:text-[4.2rem]">
-                {t.rich('Homepage.title', {
-                  strong: (chunks) => <strong>{chunks}</strong>,
-                })}
-              </h1>
-              <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
-                {t.rich('Homepage.description', {
-                  strong: (chunks) => <strong>{chunks}</strong>,
-                })}
-              </p>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button asChild className="sm:min-w-44">
-                  <Link href="/groups">
-                    {t('Homepage.button.groups')}
+
+              <div className="mt-4 space-y-3 sm:mt-5 sm:space-y-4">
+                <h1 className="landing-header mx-auto max-w-[11ch] text-balance text-[2.4rem] font-semibold leading-[0.92] tracking-[-0.04em] sm:text-[3.3rem] lg:text-[4rem]">
+                  {t.rich('Homepage.title', {
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
+                </h1>
+
+                <p className="mx-auto max-w-[34rem] text-pretty text-sm text-muted-foreground sm:text-base">
+                  {t.rich('Homepage.description', {
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
+                </p>
+              </div>
+
+              <div className="mt-5 flex justify-center sm:mt-6">
+                <Button asChild className="h-11 min-w-full sm:min-w-44">
+                  <Link href={groupsHref}>
+                    {!session && <GoogleMark />}
+                    {primaryCta}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="sm:min-w-40">
-                  <Link href="/groups/create">{t('Homepage.secondaryCta')}</Link>
-                </Button>
               </div>
             </div>
-          </div>
-
-          <aside className="border border-border bg-card">
-            <div className="border-b px-4 py-3 sm:px-5">
-              <p className="text-sm font-medium text-foreground">
-                {t('Homepage.button.groups')}
-              </p>
-            </div>
-            <div className="grid gap-0">
-              <FeatureRow
-                icon={Smartphone}
-                title={t('Homepage.features.simpleFlow.title')}
-                description={t('Homepage.features.simpleFlow.description')}
-              />
-              <FeatureRow
-                icon={ReceiptText}
-                title={t('Homepage.features.clearExpenses.title')}
-                description={t('Homepage.features.clearExpenses.description')}
-              />
-              <FeatureRow
-                icon={HandCoins}
-                title={t('Homepage.features.fastBalances.title')}
-                description={t('Homepage.features.fastBalances.description')}
-                last
-              />
-            </div>
-          </aside>
-        </section>
-
-        <section className="border border-border">
-          <div className="grid divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
-            <CompactFeature
-              index="01"
-              title={t('Homepage.features.simpleFlow.title')}
-              description={t('Homepage.features.simpleFlow.description')}
-            />
-            <CompactFeature
-              index="02"
-              title={t('Homepage.features.clearExpenses.title')}
-              description={t('Homepage.features.clearExpenses.description')}
-            />
-            <CompactFeature
-              index="03"
-              title={t('Homepage.features.fastBalances.title')}
-              description={t('Homepage.features.fastBalances.description')}
-            />
           </div>
         </section>
       </div>
@@ -96,46 +62,29 @@ export default function HomePage() {
   )
 }
 
-function CompactFeature({
-  index,
-  title,
-  description,
-}: {
-  index: string
-  title: string
-  description: string
-}) {
+function GoogleMark() {
   return (
-    <div className="px-4 py-4 sm:px-5 sm:py-5">
-      <p className="text-[11px] font-medium tracking-[0.18em] text-muted-foreground">
-        {index}
-      </p>
-      <p className="mt-3 text-sm font-medium text-foreground sm:text-base">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-    </div>
-  )
-}
-
-function FeatureRow({
-  icon: Icon,
-  title,
-  description,
-  last = false,
-}: {
-  icon: typeof Smartphone
-  title: string
-  description: string
-  last?: boolean
-}) {
-  return (
-    <div className={`px-4 py-4 sm:px-5 ${last ? '' : 'border-b'}`}>
-      <div className="flex items-start gap-3">
-        <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-        <div>
-          <p className="text-sm font-medium text-foreground sm:text-base">{title}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        </div>
-      </div>
-    </div>
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="mr-2 h-4 w-4 shrink-0"
+    >
+      <path
+        fill="#4285F4"
+        d="M21.6 12.23c0-.68-.06-1.33-.17-1.95H12v3.69h5.39a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.9-1.75 2.97-4.34 2.97-7.26Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 22c2.7 0 4.96-.9 6.61-2.43l-3.24-2.5c-.9.6-2.04.96-3.37.96-2.59 0-4.78-1.75-5.56-4.1H3.09v2.58A9.99 9.99 0 0 0 12 22Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.44 13.93A5.98 5.98 0 0 1 6.13 12c0-.67.11-1.31.31-1.93V7.49H3.09A9.99 9.99 0 0 0 2 12c0 1.61.39 3.13 1.09 4.51l3.35-2.58Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.97c1.47 0 2.79.5 3.83 1.5l2.87-2.87C16.95 2.98 14.69 2 12 2A9.99 9.99 0 0 0 3.09 7.49l3.35 2.58c.78-2.35 2.97-4.1 5.56-4.1Z"
+      />
+    </svg>
   )
 }

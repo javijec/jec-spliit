@@ -27,16 +27,7 @@ export async function AuthNav() {
     appUser?.avatarUrl ||
     (typeof session?.user.picture === 'string' ? session.user.picture : null)
 
-  if (!session) {
-    return (
-      <a
-        href="/auth/login?connection=google-oauth2"
-        className="inline-flex items-center rounded-md border bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
-      >
-        Ingresar con Google
-      </a>
-    )
-  }
+  if (!session) return null
 
   return (
     <>
