@@ -243,11 +243,7 @@ function RecentGroupList_({
               {t('NoRecent.orAsk')}
             </GroupSectionDescription>
           </GroupSectionHeader>
-          <GroupSectionContent className="space-y-3">
-            <Button asChild className="w-full sm:w-auto">
-              <Link href={`/groups/create`}>{t('NoRecent.create')}</Link>
-            </Button>
-          </GroupSectionContent>
+          <GroupSectionContent className="pt-0" />
         </GroupSectionCard>
       </GroupsPage>
     )
@@ -274,11 +270,7 @@ function RecentGroupList_({
               {t('NoRecent.orAsk')}
             </GroupSectionDescription>
           </GroupSectionHeader>
-          <GroupSectionContent className="space-y-3">
-            <Button asChild className="w-full sm:w-auto">
-              <Link href={`/groups/create`}>{t('NoRecent.create')}</Link>
-            </Button>
-          </GroupSectionContent>
+          <GroupSectionContent className="pt-0" />
         </GroupSectionCard>
       </GroupsPage>
     )

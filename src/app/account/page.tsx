@@ -38,12 +38,9 @@ export default async function AccountPage() {
               {t('signInDescription')}
             </GroupSectionDescription>
           </GroupSectionHeader>
-          <GroupSectionContent className="flex flex-col gap-3 sm:flex-row">
+          <GroupSectionContent>
             <Button asChild className="sm:w-auto">
               <a href="/auth/login?connection=google-oauth2">{t('signInAction')}</a>
-            </Button>
-            <Button asChild variant="outline" className="sm:w-auto">
-              <Link href="/groups">{t('groupsAction')}</Link>
             </Button>
           </GroupSectionContent>
         </GroupSectionCard>

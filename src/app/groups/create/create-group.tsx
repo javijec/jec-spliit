@@ -637,14 +637,17 @@ export const CreateGroup = () => {
   const { toast } = useToast()
 
   return (
-    <div className="space-y-5">
-      <section className="border-b pb-5 sm:pb-6">
-        <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
-          {t('createPageTitle')}
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-          {t('createPageDescription')}
-        </p>
+    <div className="space-y-4">
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-[linear-gradient(180deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] px-4 py-4 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-5">
+        <div className="absolute right-[-3rem] top-[-2rem] h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative space-y-1.5">
+          <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+            {t('createPageTitle')}
+          </h1>
+          <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+            {t('createPageDescription')}
+          </p>
+        </div>
       </section>
       <SplitwiseImportCard />
       <GroupForm
