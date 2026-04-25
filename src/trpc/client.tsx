@@ -1,10 +1,14 @@
 'use client' // <-- to make sure we can mount the Provider from a server component
 import { Prisma } from '@prisma/client'
-import type { QueryClient } from '@tanstack/react-query'
-import { QueryClientProvider } from '@tanstack/react-query'
+import {
+  dehydrate,
+  hydrate,
+  QueryClientProvider,
+  type QueryClient,
+} from '@tanstack/react-query'
 import { httpBatchLink } from '@trpc/client'
 import { createTRPCReact } from '@trpc/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import superjson from 'superjson'
 import { makeQueryClient } from './query-client'
 import type { AppRouter } from './routers/_app'
@@ -21,6 +25,75 @@ superjson.registerCustom<Prisma.Decimal, string>(
 export const trpc = createTRPCReact<AppRouter>()
 
 let clientQueryClientSingleton: QueryClient
+let hasRestoredPersistedQueryClient = false
+
+const PERSISTED_QUERY_CACHE_KEY = 'nexogastos.react-query-cache.v1'
+const PERSISTED_QUERY_CACHE_TTL_MS = 1000 * 60 * 60 * 12
+const PERSISTED_QUERY_PATTERNS = [
+  '"viewer","getCurrent"',
+  '"categories","list"',
+  '"groups","get"',
+  '"groups","getDetails"',
+  '"groups","balances","list"',
+  '"groups","expenses","list"',
+  '"groups","stats","get"',
+] as const
+
+function isPersistableQuery(query: Parameters<typeof dehydrate>[0]['getQueryCache']['prototype'] extends never ? never : any) {
+  if (query.state.status !== 'success') return false
+
+  const queryKey = JSON.stringify(query.queryKey)
+  return PERSISTED_QUERY_PATTERNS.some((pattern) => queryKey.includes(pattern))
+}
+
+function restorePersistedQueryClient(queryClient: QueryClient) {
+  if (typeof window === 'undefined' || hasRestoredPersistedQueryClient) return
+
+  hasRestoredPersistedQueryClient = true
+
+  try {
+    const raw = window.localStorage.getItem(PERSISTED_QUERY_CACHE_KEY)
+    if (!raw) return
+
+    const parsed = JSON.parse(raw) as {
+      timestamp?: number
+      clientState?: unknown
+    }
+
+    if (
+      !parsed.timestamp ||
+      !parsed.clientState ||
+      Date.now() - parsed.timestamp > PERSISTED_QUERY_CACHE_TTL_MS
+    ) {
+      window.localStorage.removeItem(PERSISTED_QUERY_CACHE_KEY)
+      return
+    }
+
+    hydrate(queryClient, parsed.clientState)
+  } catch {
+    window.localStorage.removeItem(PERSISTED_QUERY_CACHE_KEY)
+  }
+}
+
+function persistQueryClientSnapshot(queryClient: QueryClient) {
+  if (typeof window === 'undefined') return
+
+  try {
+    const clientState = dehydrate(queryClient, {
+      shouldDehydrateQuery: isPersistableQuery,
+    })
+
+    window.localStorage.setItem(
+      PERSISTED_QUERY_CACHE_KEY,
+      JSON.stringify({
+        timestamp: Date.now(),
+        clientState,
+      }),
+    )
+  } catch {
+    // Ignore persistence failures such as quota exceeded or malformed state.
+  }
+}
 
 function getQueryClient() {
   if (typeof window === 'undefined') {
@@ -28,7 +101,11 @@ function getQueryClient() {
     return makeQueryClient()
   }
   // Browser: use singleton pattern to keep the same query client
-  return (clientQueryClientSingleton ??= makeQueryClient())
+  if (!clientQueryClientSingleton) {
+    clientQueryClientSingleton = makeQueryClient()
+    restorePersistedQueryClient(clientQueryClientSingleton)
+  }
+  return clientQueryClientSingleton
 }
 
 export const trpcClient = getQueryClient()
@@ -62,6 +139,34 @@ export function TRPCProvider(
       ],
     }),
   )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    let persistTimeout: number | null = null
+
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event?.type !== 'added' && event?.type !== 'updated' && event?.type !== 'removed') {
+        return
+      }
+
+      if (persistTimeout !== null) {
+        window.clearTimeout(persistTimeout)
+      }
+
+      persistTimeout = window.setTimeout(() => {
+        persistQueryClientSnapshot(queryClient)
+      }, 300)
+    })
+
+    return () => {
+      unsubscribe()
+      if (persistTimeout !== null) {
+        window.clearTimeout(persistTimeout)
+      }
+    }
+  }, [queryClient])
+
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
