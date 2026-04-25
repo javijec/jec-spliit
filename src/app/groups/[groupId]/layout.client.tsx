@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { CurrentGroupProvider } from './current-group-context'
 import { GroupHeader } from './group-header'
@@ -36,7 +36,9 @@ export function GroupLayoutClient({
 }>) {
   const [activeUserModalOpen, setActiveUserModalOpen] = useState(false)
   const prefetchState = useRef<string | null>(null)
+  const intentPrefetchState = useRef<Set<string>>(new Set())
   const utils = trpc.useUtils()
+  const router = useRouter()
   const { data: viewerData } = trpc.viewer.getCurrent.useQuery(undefined, {
     staleTime: 10 * 60 * 1000,
   })
@@ -105,6 +107,55 @@ export function GroupLayoutClient({
       window.clearTimeout(timeoutId)
     }
   }, [data?.group, groupId, isLoading, utils, viewer?.id])
+
+  function prefetchTabIntent(
+    target: 'summary' | 'expenses' | 'balances' | 'settings',
+  ) {
+    const cacheKey = `${groupId}:${target}`
+    if (intentPrefetchState.current.has(cacheKey)) return
+    intentPrefetchState.current.add(cacheKey)
+
+    switch (target) {
+      case 'summary':
+        void router.prefetch(`/groups/${groupId}/summary`)
+        return
+      case 'expenses':
+        void Promise.allSettled([
+          router.prefetch(`/groups/${groupId}/expenses`),
+          utils.groups.expenses.list.prefetchInfinite({
+            groupId,
+            limit: EXPENSE_PREFETCH_LIMIT,
+            filter: '',
+          }),
+          utils.categories.list.prefetch(),
+        ])
+        return
+      case 'balances':
+        void Promise.allSettled([
+          router.prefetch(`/groups/${groupId}/balances`),
+          utils.groups.balances.list.prefetch({ groupId }),
+        ])
+        return
+      case 'settings':
+        void Promise.allSettled([
+          router.prefetch(`/groups/${groupId}/settings`),
+          utils.groups.getDetails.prefetch({ groupId }),
+        ])
+        return
+    }
+  }
+
+  function prefetchCreateExpenseIntent() {
+    const cacheKey = `${groupId}:create-expense`
+    if (intentPrefetchState.current.has(cacheKey)) return
+    intentPrefetchState.current.add(cacheKey)
+
+    void Promise.allSettled([
+      router.prefetch(`/groups/${groupId}/expenses/create`),
+      utils.categories.list.prefetch(),
+      utils.groups.getDetails.prefetch({ groupId }),
+    ])
+  }
 
   const props =
     isLoading || !data?.group
@@ -198,6 +249,9 @@ export function GroupLayoutClient({
               asChild
               size="icon"
               className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 z-40 h-12 w-12 rounded-2xl border border-primary/15 shadow-lg shadow-primary/20 sm:hidden"
+              onPointerEnter={prefetchCreateExpenseIntent}
+              onFocus={prefetchCreateExpenseIntent}
+              onTouchStart={prefetchCreateExpenseIntent}
             >
               <Link
                 href={`/groups/${groupId}/expenses/create`}
@@ -224,6 +278,9 @@ export function GroupLayoutClient({
                       ? 'border border-border/70 bg-secondary text-foreground shadow-sm'
                       : 'text-muted-foreground'
                   }`}
+                  onPointerEnter={() => prefetchTabIntent(tab.key)}
+                  onFocus={() => prefetchTabIntent(tab.key)}
+                  onTouchStart={() => prefetchTabIntent(tab.key)}
                 >
                   <Link href={tab.href}>
                     <tab.icon className="h-4 w-4" />
