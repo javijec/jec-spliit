@@ -43,7 +43,6 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
         throw new Error(t('invalidPassword'))
       }
       router.replace(`/groups/${groupId}/expenses`)
-      router.refresh()
     } catch (error) {
       toast({
         title: t('errorTitle'),

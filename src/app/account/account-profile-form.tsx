@@ -13,10 +13,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
+import { AppRouterOutput } from '@/trpc/routers/_app'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Save } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { TRPCClientError } from '@trpc/client'
 import { z } from 'zod'
@@ -48,17 +48,20 @@ export function AccountProfileForm({
 }) {
   const t = useTranslations('Account')
   const tSchema = useTranslations('SchemaErrors')
-  const router = useRouter()
   const { toast } = useToast()
   const utils = trpc.useUtils()
   const updateProfile = trpc.viewer.updateProfile.useMutation({
-    onSuccess: async () => {
-      await utils.viewer.getCurrent.invalidate()
+    onSuccess: async ({ user }) => {
+      utils.viewer.getCurrent.setData(undefined, (current) => ({
+        user:
+          user as AppRouterOutput['viewer']['getCurrent']['user'] ??
+          current?.user ??
+          null,
+      }))
       toast({
         title: t('profileSavedTitle'),
         description: t('profileSavedDescription'),
       })
-      router.refresh()
     },
   })
 

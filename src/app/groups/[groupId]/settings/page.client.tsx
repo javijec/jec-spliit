@@ -107,7 +107,12 @@ export function SettingsPageClient() {
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
   const { toast } = useToast()
   const router = useRouter()
-  const { data, isLoading } = trpc.groups.getDetails.useQuery({ groupId })
+  const { data, isLoading } = trpc.groups.getDetails.useQuery(
+    { groupId },
+    {
+      staleTime: 5 * 60 * 1000,
+    },
+  )
   const { mutateAsync: setAccessPasswordAsync, isPending: isSettingPassword } =
     trpc.groups.setAccessPassword.useMutation()
   const {
@@ -434,7 +439,7 @@ export function SettingsPageClient() {
                         title: t('groupDeleted'),
                       })
                       router.replace('/groups')
-                      void utils.groups.invalidate()
+                      void utils.groups.mine.invalidate()
                     }}
                     className="w-full"
                   >

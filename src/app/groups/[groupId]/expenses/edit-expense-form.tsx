@@ -35,13 +35,20 @@ export function EditExpenseForm({
 }) {
   const { group } = useCurrentGroup()
 
-  const { data: categoriesData } = trpc.categories.list.useQuery()
+  const { data: categoriesData } = trpc.categories.list.useQuery(undefined, {
+    staleTime: 60 * 60 * 1000,
+  })
   const categories = categoriesData?.categories
 
-  const { data: expenseData } = trpc.groups.expenses.get.useQuery({
-    groupId,
-    expenseId,
-  })
+  const { data: expenseData } = trpc.groups.expenses.get.useQuery(
+    {
+      groupId,
+      expenseId,
+    },
+    {
+      staleTime: 5 * 60 * 1000,
+    },
+  )
   const expense = expenseData?.expense
 
   const { mutateAsync: updateExpenseMutateAsync } =

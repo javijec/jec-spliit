@@ -32,7 +32,9 @@ export function AddGroupByUrlButton({ reload }: Props) {
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
   const utils = trpc.useUtils()
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery(undefined, {
+    staleTime: 10 * 60 * 1000,
+  })
   const recordVisit = trpc.groups.recordVisit.useMutation({
     onSuccess: async () => {
       await utils.groups.mine.invalidate()

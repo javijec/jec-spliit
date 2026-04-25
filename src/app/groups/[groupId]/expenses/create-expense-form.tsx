@@ -32,7 +32,9 @@ export function CreateExpenseForm({
 }) {
   const { group } = useCurrentGroup()
 
-  const { data: categoriesData } = trpc.categories.list.useQuery()
+  const { data: categoriesData } = trpc.categories.list.useQuery(undefined, {
+    staleTime: 60 * 60 * 1000,
+  })
   const categories = categoriesData?.categories
 
   const { mutateAsync: createExpenseMutateAsync } =

@@ -228,7 +228,10 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
   const { data, isLoading: expensesAreLoading, fetchNextPage } =
     trpc.groups.expenses.list.useInfiniteQuery(
       { groupId, limit: PAGE_SIZE, filter: '' },
-      { getNextPageParam: ({ nextCursor }) => nextCursor },
+      {
+        getNextPageParam: ({ nextCursor }) => nextCursor,
+        staleTime: 60 * 1000,
+      },
     )
 
   const expenses = data?.pages.flatMap((page) => page.expenses)

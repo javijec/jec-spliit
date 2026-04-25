@@ -153,7 +153,7 @@ function SplitwiseImportCard() {
         title: t('successTitle'),
         description: t('successDescription'),
       })
-      await utils.groups.invalidate()
+      await utils.groups.mine.invalidate()
       router.push(`/groups/${groupId}`)
     },
     onError: (error) => {
@@ -687,7 +687,7 @@ export const CreateGroup = () => {
                   title: t('createSuccessTitle'),
                   description: t('createSuccessDescription'),
                 })
-                await utils.groups.invalidate()
+                await utils.groups.mine.invalidate()
                 router.push(`/groups/${groupId}`)
               } catch (error) {
                 toast({
