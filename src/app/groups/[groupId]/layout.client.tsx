@@ -16,14 +16,15 @@ import {
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { PropsWithChildren, useEffect, useState } from 'react'
+import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { CurrentGroupProvider } from './current-group-context'
 import { GroupHeader } from './group-header'
 import { SaveGroupLocally } from './save-recent-group'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 
 type Group = AppRouterOutput['groups']['get']['group']
-type Viewer = AppRouterOutput['viewer']['getCurrent']['user']
+
+const EXPENSE_PREFETCH_LIMIT = 20
 
 export function GroupLayoutClient({
   groupId,
@@ -34,6 +35,8 @@ export function GroupLayoutClient({
   initialGroup: Group
 }>) {
   const [activeUserModalOpen, setActiveUserModalOpen] = useState(false)
+  const prefetchState = useRef<string | null>(null)
+  const utils = trpc.useUtils()
   const { data: viewerData } = trpc.viewer.getCurrent.useQuery(undefined, {
     staleTime: 10 * 60 * 1000,
   })
@@ -63,6 +66,45 @@ export function GroupLayoutClient({
       })
     }
   }, [data, t, toast])
+
+  useEffect(() => {
+    if (isLoading || !data?.group) return
+
+    const prefetchKey = `${groupId}:${viewer?.id ?? 'guest'}`
+    if (prefetchState.current === prefetchKey) return
+    prefetchState.current = prefetchKey
+
+    const runPrefetch = () => {
+      void Promise.allSettled([
+        utils.groups.getDetails.prefetch({ groupId }),
+        utils.groups.balances.list.prefetch({ groupId }),
+        utils.groups.expenses.list.prefetchInfinite({
+          groupId,
+          limit: EXPENSE_PREFETCH_LIMIT,
+          filter: '',
+        }),
+        utils.categories.list.prefetch(),
+      ])
+    }
+
+    type IdleWindow = Window & {
+      requestIdleCallback?: (callback: () => void) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+
+    const idleWindow = window as IdleWindow
+    if (typeof idleWindow.requestIdleCallback === 'function') {
+      const idleId = idleWindow.requestIdleCallback(runPrefetch)
+      return () => {
+        idleWindow.cancelIdleCallback?.(idleId)
+      }
+    }
+
+    const timeoutId = window.setTimeout(runPrefetch, 250)
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [data?.group, groupId, isLoading, utils, viewer?.id])
 
   const props =
     isLoading || !data?.group
