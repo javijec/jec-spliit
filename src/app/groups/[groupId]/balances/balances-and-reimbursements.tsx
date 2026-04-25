@@ -2,12 +2,11 @@
 
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import { Badge } from '@/components/ui/badge'
+import { SectionHeader } from '@/components/ui/page-header'
 import {
   GroupSectionCard,
   GroupSectionContent,
-  GroupSectionDescription,
   GroupSectionHeader,
-  GroupSectionTitle,
 } from '@/components/ui/group-section-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
@@ -35,34 +34,31 @@ export default function BalancesAndReimbursements() {
     <div className="space-y-3">
       <GroupSectionCard>
         <GroupSectionHeader>
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            {isLoading ? (
-              <>
-                <Skeleton className="h-7 w-44 rounded-sm" />
-                <Skeleton className="h-7 w-36 rounded-sm" />
-              </>
-            ) : (
-              <>
-              <Badge variant="secondary" className="rounded-full px-3 py-1">
-                <Wallet className="h-3.5 w-3.5" />
-                {reimbursementCount > 0
-                    ? tSummary('pendingPayments', { count: reimbursementCount })
-                    : tSummary('allClear')}
-              </Badge>
-              <Badge variant="outline" className="rounded-full border-border/60 bg-background/70 px-3 py-1">
-                <Layers3 className="h-3.5 w-3.5" />
-                {tSummary('currenciesInPlay', { count: currencyCount })}
-              </Badge>
-              </>
-            )}
-          </div>
-          <GroupSectionTitle className="mt-2 flex items-center gap-2 text-xl leading-none">
-            <CheckCircle2 className="h-5 w-5 text-primary" />
-            {t('Reimbursements.settlementsTitle')}
-          </GroupSectionTitle>
-          <GroupSectionDescription className="mt-1">
-            {t('Reimbursements.description')}
-          </GroupSectionDescription>
+          <SectionHeader
+            title={t('Reimbursements.settlementsTitle')}
+            description={t('Reimbursements.description')}
+            meta={
+              isLoading ? (
+                <>
+                  <Skeleton className="h-6 w-40 rounded-sm" />
+                  <Skeleton className="h-6 w-32 rounded-sm" />
+                </>
+              ) : (
+                <>
+                  <Badge variant="outline">
+                    <Wallet className="h-3.5 w-3.5" />
+                    {reimbursementCount > 0
+                      ? tSummary('pendingPayments', { count: reimbursementCount })
+                      : tSummary('allClear')}
+                  </Badge>
+                  <Badge variant="outline">
+                    <Layers3 className="h-3.5 w-3.5" />
+                    {tSummary('currenciesInPlay', { count: currencyCount })}
+                  </Badge>
+                </>
+              )
+            }
+          />
         </GroupSectionHeader>
         <GroupSectionContent>
           {isLoading ? (
@@ -95,7 +91,7 @@ const ReimbursementsLoading = ({
         .map((_, index) => (
           <div
             key={index}
-            className="mb-3 flex items-start justify-between rounded-2xl border border-border/70 bg-card/90 px-4 py-4 shadow-sm shadow-black/5"
+            className="mb-3 flex items-start justify-between rounded-xl border border-border/70 bg-card px-4 py-4 shadow-sm shadow-black/5"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Skeleton className="h-3 w-32" />

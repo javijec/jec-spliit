@@ -17,11 +17,10 @@ import {
 import {
   GroupSectionCard,
   GroupSectionContent,
-  GroupSectionDescription,
   GroupSectionHeader,
-  GroupSectionTitle,
 } from '@/components/ui/group-section-card'
 import { Input } from '@/components/ui/input'
+import { SectionHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
@@ -64,15 +63,15 @@ function SettingsOptionCard({
       type="button"
       onClick={onClick}
       className={[
-        'flex w-full items-start justify-between gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-4 text-left shadow-sm shadow-black/5 transition-colors hover:bg-muted/25',
-        selected ? 'border-primary/25 bg-primary/[0.05]' : '',
+        'flex w-full items-start justify-between gap-3 rounded-xl border border-border/70 bg-card px-4 py-4 text-left shadow-sm shadow-black/5 transition-colors hover:bg-muted/25',
+        selected ? 'border-foreground/15 bg-muted/30' : '',
         destructive ? 'border-destructive/30' : '',
       ].join(' ')}
     >
       <div className="flex items-start gap-3">
         <div
           className={[
-            'mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/75',
+            'mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-background',
             destructive
               ? 'border-destructive/30 text-destructive'
               : 'text-primary',
@@ -168,27 +167,25 @@ export function SettingsPageClient() {
       {view === 'hub' && (
         <GroupSectionCard>
           <GroupSectionHeader>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="rounded-full px-3 py-1">
-                {t('participantsBadge', {
-                  count: data.group.participants.length,
-                })}
-              </Badge>
-              {data.group.currencyCode && (
-                <Badge variant="outline" className="rounded-full px-3 py-1">
-                  {data.group.currencyCode}
-                </Badge>
-              )}
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                {data.hasAccessPassword ? t('protected') : t('open')}
-              </Badge>
-            </div>
-            <GroupSectionTitle className="mt-3 text-xl leading-none">
-              {t('title')}
-            </GroupSectionTitle>
-            <GroupSectionDescription className="mt-2">
-              {t('hubDescription')}
-            </GroupSectionDescription>
+            <SectionHeader
+              title={t('title')}
+              description={t('hubDescription')}
+              meta={
+                <>
+                  <Badge variant="outline">
+                    {t('participantsBadge', {
+                      count: data.group.participants.length,
+                    })}
+                  </Badge>
+                  {data.group.currencyCode ? (
+                    <Badge variant="outline">{data.group.currencyCode}</Badge>
+                  ) : null}
+                  <Badge variant="outline">
+                    {data.hasAccessPassword ? t('protected') : t('open')}
+                  </Badge>
+                </>
+              }
+            />
           </GroupSectionHeader>
         </GroupSectionCard>
       )}
@@ -241,12 +238,10 @@ export function SettingsPageClient() {
       {view === 'share' && (
         <GroupSectionCard>
           <GroupSectionHeader>
-            <GroupSectionTitle className="text-xl leading-none">
-              {t('shareAndExport')}
-            </GroupSectionTitle>
-            <GroupSectionDescription className="mt-2">
-              {t('shareAndExportDescription')}
-            </GroupSectionDescription>
+            <SectionHeader
+              title={t('shareAndExport')}
+              description={t('shareAndExportDescription')}
+            />
           </GroupSectionHeader>
           <GroupSectionContent className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -265,7 +260,7 @@ export function SettingsPageClient() {
               />
             </div>
 
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 text-sm shadow-sm shadow-black/5">
+            <div className="rounded-xl border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
               <div className="flex items-center gap-2 font-medium">
                 <Info className="h-4 w-4" />
                 {t('groupInformationTitle')}
@@ -275,7 +270,7 @@ export function SettingsPageClient() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 text-sm shadow-sm shadow-black/5">
+            <div className="rounded-xl border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
               <div className="flex items-center gap-2 font-medium">
                 <FileOutput className="h-4 w-4" />
                 {t('exportInfoTitle')}
@@ -291,13 +286,16 @@ export function SettingsPageClient() {
       {view === 'security' && (
         <GroupSectionCard>
           <GroupSectionHeader>
-            <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
-              <ShieldCheck className="h-5 w-5" />
-              {t('securityTitle')}
-            </GroupSectionTitle>
-            <GroupSectionDescription className="mt-2">
-              {t('securityDescription')}
-            </GroupSectionDescription>
+            <SectionHeader
+              title={t('securityTitle')}
+              description={t('securityDescription')}
+              meta={
+                <Badge variant="outline">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  {t('securityTitle')}
+                </Badge>
+              }
+            />
           </GroupSectionHeader>
           <GroupSectionContent className="space-y-3">
             <Input
@@ -357,7 +355,7 @@ export function SettingsPageClient() {
               </Button>
             </div>
 
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-3.5 text-sm text-muted-foreground shadow-sm shadow-black/5">
+            <div className="rounded-xl border border-border/70 bg-background p-3.5 text-sm text-muted-foreground shadow-sm shadow-black/5">
               {t('linkAccessDescription1')} {t('linkAccessDescription2')}
             </div>
           </GroupSectionContent>
@@ -367,12 +365,10 @@ export function SettingsPageClient() {
       {view === 'danger' && (
         <GroupSectionCard className="border-destructive/30">
           <GroupSectionHeader>
-            <GroupSectionTitle className="text-xl leading-none">
-              {t('dangerZoneTitle')}
-            </GroupSectionTitle>
-            <GroupSectionDescription className="mt-2">
-              {t('dangerZoneDescription')}
-            </GroupSectionDescription>
+            <SectionHeader
+              title={t('dangerZoneTitle')}
+              description={t('dangerZoneDescription')}
+            />
           </GroupSectionHeader>
           <GroupSectionContent>
             <Dialog

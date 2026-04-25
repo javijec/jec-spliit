@@ -7,6 +7,7 @@ import {
   getStarredGroups,
 } from '@/app/groups/recent-groups-helpers'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/ui/page-header'
 import {
   GroupSectionCard,
   GroupSectionContent,
@@ -18,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
-import { FolderOpen, Sparkles } from 'lucide-react'
+import { FolderOpen } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
@@ -389,31 +390,20 @@ function GroupsPage({
   const t = useTranslations('Groups')
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-[1.5rem] border border-border/80 bg-card px-4 py-4 shadow-[0_18px_50px_hsl(var(--foreground)/0.06)] sm:px-5 sm:py-5">
-        <div className="absolute right-[-3rem] top-[-2rem] h-28 w-28 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-primary">
-            <Sparkles className="h-3.5 w-3.5" />
-            {t('myGroups')}
-          </div>
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
-              <Link href="/groups">{t('myGroups')}</Link>
-            </h1>
-            <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-              {t('groupsHeroDescription')}
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
+      <PageHeader
+        title={<Link href="/groups">{t('myGroups')}</Link>}
+        description={t('groupsHeroDescription')}
+        actions={
+          <>
             <Button asChild className="w-full sm:w-auto">
               <Link href="/groups/create">{t('create')}</Link>
             </Button>
             <div className="w-full sm:w-auto">
               <AddGroupByUrlButton reload={reload} />
             </div>
-          </div>
-        </div>
-      </section>
+          </>
+        }
+      />
 
       <div className="space-y-4">{children}</div>
     </div>
@@ -425,12 +415,11 @@ function SectionHeading({
   className = '',
 }: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className={`mb-2 flex items-center gap-2 ${className}`}>
-      <div className="h-px flex-1 bg-border/80" />
-      <h2 className="text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">
+    <div className={`mb-2 flex items-center gap-3 ${className}`}>
+      <h2 className="text-sm font-medium text-muted-foreground">
         {children}
       </h2>
-      <div className="h-px flex-1 bg-border/80" />
+      <div className="h-px flex-1 bg-border/70" />
     </div>
   )
 }
@@ -460,7 +449,7 @@ function GroupListSkeleton() {
 
 function GroupCardSkeleton() {
   return (
-    <div className="rounded-[1.25rem] border border-border/80 bg-card/90 p-4 shadow-[0_12px_28px_hsl(var(--foreground)/0.04)]">
+    <div className="rounded-xl border border-border/80 bg-card p-4 shadow-sm shadow-black/5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-3">
           <Skeleton className="h-5 w-40 rounded-sm" />

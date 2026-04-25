@@ -16,7 +16,7 @@ const GroupSectionCard = React.forwardRef<
   <Card
     ref={ref}
     className={cn(
-      '-mx-3 overflow-hidden rounded-none border-x-0 border-border/70 bg-card shadow-none sm:mx-0 sm:rounded-[1.35rem] sm:border-x sm:shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]',
+      '-mx-3 overflow-hidden rounded-none border-x-0 border-border/70 bg-card shadow-none sm:mx-0 sm:rounded-xl sm:border-x',
       className,
     )}
     {...props}
@@ -30,7 +30,7 @@ const GroupSectionHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CardHeader
     ref={ref}
-    className={cn('border-b border-border/70 px-4 py-3.5 sm:px-5 sm:py-4', className)}
+    className={cn('border-b border-border/70 px-4 py-4 sm:px-5', className)}
     {...props}
   />
 ))
@@ -42,7 +42,7 @@ const GroupSectionContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CardContent
     ref={ref}
-    className={cn('px-4 py-3.5 sm:px-5 sm:py-4', className)}
+    className={cn('px-4 py-4 sm:px-5', className)}
     {...props}
   />
 ))
