@@ -236,7 +236,7 @@ export function SettingsPageClient() {
         </div>
       )}
 
-      {view === 'edit' && <EditGroup />}
+      {view === 'edit' && <EditGroup groupDetails={data} />}
 
       {view === 'share' && (
         <GroupSectionCard>

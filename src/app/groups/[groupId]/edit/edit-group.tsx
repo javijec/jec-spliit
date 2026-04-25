@@ -3,11 +3,25 @@
 import { GroupForm } from '@/components/group-form'
 import { Skeleton } from '@/components/ui/skeleton'
 import { trpc } from '@/trpc/client'
+import { AppRouterOutput } from '@/trpc/routers/_app'
 import { useCurrentGroup } from '../current-group-context'
 
-export const EditGroup = () => {
+type GroupDetails = AppRouterOutput['groups']['getDetails']
+
+export const EditGroup = ({
+  groupDetails,
+}: {
+  groupDetails?: GroupDetails
+}) => {
   const { groupId } = useCurrentGroup()
-  const { data, isLoading } = trpc.groups.getDetails.useQuery({ groupId })
+  const { data, isLoading } = trpc.groups.getDetails.useQuery(
+    { groupId },
+    {
+      enabled: !groupDetails,
+      placeholderData: groupDetails,
+      staleTime: 5 * 60 * 1000,
+    },
+  )
   const { mutateAsync: mutateGroupAsync } = trpc.groups.update.useMutation()
   const { mutateAsync: setActiveParticipantAsync } =
     trpc.groups.setActiveParticipant.useMutation()

@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { forwardRef, useEffect, useMemo } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useCurrentGroup } from '../current-group-context'
+import { updateCurrentActiveParticipantCache } from '../group-query-cache'
 
 const PAGE_SIZE = 20
 const EXPENSE_GROUP_ORDER = [
@@ -193,14 +194,7 @@ function ExpensesByGroup({
 export function ExpenseList() {
   const { groupId, group, viewer } = useCurrentGroup()
   const utils = trpc.useUtils()
-  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation({
-    onSuccess: async () => {
-      await Promise.all([
-        utils.groups.get.invalidate({ groupId }),
-        utils.groups.getDetails.invalidate({ groupId }),
-      ])
-    },
-  })
+  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation()
 
   useEffect(() => {
     if (!group?.participants) return
@@ -209,14 +203,16 @@ export function ExpenseList() {
       void syncPersistedActiveUser(
         groupId,
         group.participants,
-        async ({ groupId, participantId }) =>
-          setActiveParticipant.mutateAsync({ groupId, participantId }),
+        async ({ groupId, participantId }) => {
+          await setActiveParticipant.mutateAsync({ groupId, participantId })
+          updateCurrentActiveParticipantCache(utils, groupId, participantId)
+        },
       )
       return
     }
 
     syncActiveUser(groupId, group.participants)
-  }, [groupId, group?.participants, setActiveParticipant, viewer])
+  }, [groupId, group?.participants, setActiveParticipant, utils, viewer])
 
   return <ExpenseListContent groupId={groupId} />
 }

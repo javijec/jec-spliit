@@ -24,6 +24,7 @@ import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { useTranslations } from 'next-intl'
 import { ComponentProps, useEffect, useMemo, useState } from 'react'
+import { updateCurrentActiveParticipantCache } from '../group-query-cache'
 import { useCurrentGroup } from '../current-group-context'
 
 export function ActiveUserModal({
@@ -44,14 +45,7 @@ export function ActiveUserModal({
     currentActiveParticipantId,
   } = useCurrentGroup()
   const utils = trpc.useUtils()
-  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation({
-    onSuccess: async () => {
-      await Promise.all([
-        utils.groups.get.invalidate({ groupId }),
-        utils.groups.getDetails.invalidate({ groupId }),
-      ])
-    },
-  })
+  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation()
   const isControlled = controlledOpen !== undefined
   const open = controlledOpen ?? internalOpen
   const setOpen = useMemo(
@@ -86,7 +80,11 @@ export function ActiveUserModal({
 
     if (viewer) {
       if (!open && !currentActiveParticipantId) {
-        void setActiveParticipant.mutateAsync({ groupId: group.id, participantId: null })
+        void setActiveParticipant
+          .mutateAsync({ groupId: group.id, participantId: null })
+          .then(() => {
+            updateCurrentActiveParticipantCache(utils, group.id, null)
+          })
       }
       setOpen(open)
       return
@@ -183,14 +181,12 @@ export function ActiveUserForm({
 
         event.preventDefault()
         if (isAuthenticated) {
+          const participantId = selected === 'None' ? null : selected
           await setActiveParticipant.mutateAsync({
             groupId: group.id,
-            participantId: selected === 'None' ? null : selected,
+            participantId,
           })
-          await Promise.all([
-            utils.groups.get.invalidate({ groupId: group.id }),
-            utils.groups.getDetails.invalidate({ groupId: group.id }),
-          ])
+          updateCurrentActiveParticipantCache(utils, group.id, participantId)
         } else {
           localStorage.setItem(`${group.id}-activeUser`, selected)
         }
