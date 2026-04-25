@@ -1,6 +1,7 @@
 import { getGroup } from '@/lib/groups'
 import {
   getGroupStatsExpenses,
+  syncRecurringExpensesForGroupIfDue,
   getTotalGroupSpendingAmount,
 } from '@/lib/expenses'
 import {
@@ -18,6 +19,8 @@ export const getGroupStatsProcedure = baseProcedure
     }),
   )
   .query(async ({ input: { groupId, participantId } }) => {
+    await syncRecurringExpensesForGroupIfDue(groupId)
+
     const group = await getGroup(groupId)
     if (!group) {
       throw new Error('Invalid group ID')

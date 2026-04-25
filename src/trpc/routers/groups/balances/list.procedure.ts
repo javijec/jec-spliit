@@ -1,5 +1,8 @@
 import { getGroup } from '@/lib/groups'
-import { getGroupBalanceExpenses } from '@/lib/expenses'
+import {
+  getGroupBalanceExpenses,
+  syncRecurringExpensesForGroupIfDue,
+} from '@/lib/expenses'
 import {
   ReimbursementByCurrency,
   getBalancesByCurrency,
@@ -12,6 +15,8 @@ import { z } from 'zod'
 export const listGroupBalancesProcedure = baseProcedure
   .input(z.object({ groupId: z.string().min(1) }))
   .query(async ({ input: { groupId } }) => {
+    await syncRecurringExpensesForGroupIfDue(groupId)
+
     const [expenses, group] = await Promise.all([
       getGroupBalanceExpenses(groupId),
       getGroup(groupId),

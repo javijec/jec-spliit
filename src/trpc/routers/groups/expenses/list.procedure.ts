@@ -1,4 +1,7 @@
-import { getGroupExpenses } from '@/lib/expenses'
+import {
+  getGroupExpenses,
+  syncRecurringExpensesForGroupIfDue,
+} from '@/lib/expenses'
 import { baseProcedure } from '@/trpc/init'
 import { z } from 'zod'
 
@@ -12,6 +15,8 @@ export const listGroupExpensesProcedure = baseProcedure
     }),
   )
   .query(async ({ input: { groupId, cursor = 0, limit = 10, filter } }) => {
+    await syncRecurringExpensesForGroupIfDue(groupId)
+
     const expenses = await getGroupExpenses(groupId, {
       offset: cursor,
       length: limit + 1,

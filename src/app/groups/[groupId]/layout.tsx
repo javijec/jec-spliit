@@ -1,11 +1,8 @@
 import { cached } from '@/app/cached-functions'
-import { getCurrentAppUser } from '@/lib/auth'
-import { syncRecurringExpensesForGroupIfDue } from '@/lib/expenses'
 import {
   getGroupAccessCookieName,
   isValidGroupAccessCookieValue,
 } from '@/lib/group-access-session'
-import { getUserGroupMembership } from '@/lib/user-memberships'
 import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -52,23 +49,12 @@ export default async function GroupLayout({
       redirect(`/unlock/${groupId}`)
     }
   }
-
-  await syncRecurringExpensesForGroupIfDue(groupId)
-
-  const [group, viewer] = await Promise.all([
-    cached.getGroup(groupId),
-    getCurrentAppUser(),
-  ])
-  const membership = viewer
-    ? await getUserGroupMembership(viewer.id, groupId)
-    : null
+  const group = await cached.getGroup(groupId)
 
   return (
     <GroupLayoutClient
       groupId={groupId}
       initialGroup={group}
-      initialCurrentActiveParticipantId={membership?.activeParticipantId ?? null}
-      viewer={viewer}
     >
       {children}
     </GroupLayoutClient>

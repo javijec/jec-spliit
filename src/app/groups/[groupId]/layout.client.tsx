@@ -28,26 +28,26 @@ type Viewer = AppRouterOutput['viewer']['getCurrent']['user']
 export function GroupLayoutClient({
   groupId,
   initialGroup,
-  initialCurrentActiveParticipantId,
-  viewer,
   children,
 }: PropsWithChildren<{
   groupId: string
   initialGroup: Group
-  initialCurrentActiveParticipantId: string | null
-  viewer: Viewer | null
 }>) {
   const [activeUserModalOpen, setActiveUserModalOpen] = useState(false)
+  const { data: viewerData } = trpc.viewer.getCurrent.useQuery(undefined, {
+    staleTime: 10 * 60 * 1000,
+  })
   const { data, isLoading } = trpc.groups.get.useQuery(
     { groupId },
     {
-      initialData: {
+      placeholderData: {
         group: initialGroup,
-        currentActiveParticipantId: initialCurrentActiveParticipantId,
+        currentActiveParticipantId: null,
       },
-      refetchOnMount: false,
+      staleTime: 5 * 60 * 1000,
     },
   )
+  const viewer = viewerData?.user ?? null
   const t = useTranslations('Groups.NotFound')
   const tTabs = useTranslations('GroupTabs')
   const tFlow = useTranslations('ExpenseFlow')
