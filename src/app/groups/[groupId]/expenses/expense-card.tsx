@@ -124,14 +124,14 @@ function getDebtorsSummary({
 function LeadingIcon({ expense }: { expense: Expense }) {
   if (expense.isReimbursement) {
     return (
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-primary/12">
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground">
         <ArrowRightLeft className="h-3.5 w-3.5" />
       </div>
     )
   }
 
   return (
-    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-muted-foreground">
+    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground">
       <CategoryIcon
         category={expense.category}
         className="h-3.5 w-3.5"
@@ -202,9 +202,8 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
   return (
     <div
       className={cn(
-        'mx-2 my-2 overflow-hidden rounded-[1.15rem] border border-border/60 bg-card/92 shadow-[0_10px_24px_hsl(var(--foreground)/0.04)] sm:mx-3',
-        expense.isReimbursement &&
-          'border-primary/20 bg-primary/[0.04] dark:bg-primary/[0.08]',
+        'mx-2 my-2 overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm shadow-black/5 sm:mx-3',
+        expense.isReimbursement && 'border-border/80 bg-secondary/20',
       )}
     >
       <button
@@ -243,7 +242,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
       </button>
 
       {expanded && (
-        <div className="border-t border-border/60 bg-secondary/[0.14] px-2.5 py-2.5 sm:px-4 sm:py-3">
+        <div className="border-t border-border/70 bg-background px-2.5 py-2.5 sm:px-4 sm:py-3">
           <div className="space-y-2">
             {expense.isReimbursement ? (
               <p className="text-sm leading-5 text-muted-foreground">
@@ -260,12 +259,12 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
 
             <div className="flex flex-wrap items-center gap-2">
               {expense.isReimbursement && (
-                <Badge variant="secondary" className="rounded-full px-2.5 py-1 text-[0.7rem]">
+                <Badge variant="outline" className="text-[0.7rem]">
                   {labels.settlement}
                 </Badge>
               )}
               {expense._count.documents > 0 && (
-                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[0.7rem]">
+                <Badge variant="outline" className="text-[0.7rem]">
                   {labels.documents}: <span className="ml-1 tabular-nums">{expense._count.documents}</span>
                 </Badge>
               )}

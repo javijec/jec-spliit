@@ -13,7 +13,7 @@ export const GroupHeader = () => {
 
   return (
     <div className="mb-3">
-      <div className="min-w-0 flex items-center justify-between gap-2 rounded-[1.35rem] border border-border/80 bg-card px-4 py-3.5 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)] sm:px-5 sm:py-4">
+      <div className="min-w-0 flex items-center justify-between gap-2 rounded-xl border border-border/80 bg-card px-4 py-4 shadow-sm shadow-black/5 sm:px-5">
         <div className="min-w-0 flex-1">
           {isLoading ? (
             <div className="mb-2.5 flex flex-wrap gap-2">
@@ -23,14 +23,14 @@ export const GroupHeader = () => {
           ) : (
             group && (
               <div className="mb-2.5 flex flex-wrap gap-2">
-                <Badge variant="secondary" className="rounded-full px-3 py-1">
+                <Badge variant="outline">
                   <Users className="h-3.5 w-3.5" />
                   {t('Settings.participantsBadge', {
                     count: group.participants.length,
                   })}
                 </Badge>
                 {group.currencyCode ? (
-                  <Badge variant="outline" className="rounded-full px-3 py-1">
+                  <Badge variant="outline">
                     <Layers3 className="h-3.5 w-3.5" />
                     {group.currencyCode}
                   </Badge>
@@ -38,7 +38,7 @@ export const GroupHeader = () => {
               </div>
             )
           )}
-          <h1 className="min-w-0 text-xl font-semibold leading-tight tracking-tight sm:text-[1.9rem]">
+          <h1 className="min-w-0 text-xl font-semibold leading-tight tracking-tight sm:text-[1.75rem]">
             <Link
               href={`/groups/${groupId}/summary`}
               className="inline-block max-w-full"

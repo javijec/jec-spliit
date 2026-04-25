@@ -199,14 +199,14 @@ export function ReimbursementList({
       <div className="space-y-2">
         {groupedReimbursements.map((pair) => (
           <div
-            className="rounded-[1rem] border border-border/60 bg-card/92 p-2.5 shadow-[0_8px_20px_hsl(var(--foreground)/0.035)]"
+            className="rounded-xl border border-border/70 bg-card p-3 shadow-sm shadow-black/5"
             key={`${pair.from}-${pair.to}`}
           >
             <div className="mb-2 flex items-center gap-1.5 text-sm leading-tight">
               <strong className="min-w-0 flex-1 truncate font-semibold tracking-tight">
                 {getParticipant(pair.from)?.name ?? ''}
               </strong>
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-muted-foreground">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground">
                 <ArrowRight className="h-3 w-3" />
               </div>
               <strong className="min-w-0 flex-1 truncate text-right font-semibold tracking-tight">
@@ -224,10 +224,10 @@ export function ReimbursementList({
                 return (
                   <div
                     key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                    className="rounded-lg bg-secondary/25 px-2.5 py-1.5"
+                    className="rounded-lg border border-border/70 bg-background px-2.5 py-2"
                   >
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                      <span className="text-[0.75rem] font-medium text-muted-foreground">
                         {reimbursementCurrency.code}
                       </span>
                       <div
