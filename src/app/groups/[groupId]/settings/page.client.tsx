@@ -87,9 +87,6 @@ function SettingsOptionCard({
         </div>
       </div>
       <div className="flex items-center gap-2 self-center">
-        <span className="text-xs font-medium text-muted-foreground">
-          {selected ? 'Actual' : 'Abrir'}
-        </span>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
     </button>
@@ -260,7 +257,7 @@ export function SettingsPageClient() {
               />
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
+            <div className="rounded-lg border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
               <div className="flex items-center gap-2 font-medium">
                 <Info className="h-4 w-4" />
                 {t('groupInformationTitle')}
@@ -270,7 +267,7 @@ export function SettingsPageClient() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
+            <div className="rounded-lg border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
               <div className="flex items-center gap-2 font-medium">
                 <FileOutput className="h-4 w-4" />
                 {t('exportInfoTitle')}
@@ -355,7 +352,7 @@ export function SettingsPageClient() {
               </Button>
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-background p-3.5 text-sm text-muted-foreground shadow-sm shadow-black/5">
+            <div className="rounded-lg border border-border/70 bg-background p-3.5 text-sm text-muted-foreground shadow-sm shadow-black/5">
               {t('linkAccessDescription1')} {t('linkAccessDescription2')}
             </div>
           </GroupSectionContent>
@@ -388,10 +385,12 @@ export function SettingsPageClient() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
-                <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
-                <DialogDescription>{t('deleteDialogDescription')}</DialogDescription>
+                <div className="space-y-1 pr-8">
+                  <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
+                  <DialogDescription>{t('deleteDialogDescription')}</DialogDescription>
+                </div>
                 <div className="space-y-3 py-2">
-                  <div className="flex items-start gap-2 rounded-2xl border border-border/70 bg-background/80 p-3.5">
+                  <div className="flex items-start gap-2 rounded-lg border border-border/70 bg-background p-3.5">
                     <Checkbox
                       id="confirm-delete-group"
                       checked={deleteConfirmChecked}
@@ -401,13 +400,13 @@ export function SettingsPageClient() {
                     />
                     <label
                       htmlFor="confirm-delete-group"
-                      className="cursor-pointer text-sm leading-snug"
+                      className="cursor-pointer text-sm leading-6"
                     >
                       {t('deleteConfirmCheckbox')}
                     </label>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm font-medium text-foreground">
                       {t('deleteConfirmLabel')}
                     </p>
                     <Input
@@ -442,7 +441,7 @@ export function SettingsPageClient() {
                     {t('deleteForever')}
                   </Button>
                   <DialogClose asChild>
-                    <Button variant="secondary" className="w-full">
+                    <Button variant="outline" className="w-full">
                       {t('cancel')}
                     </Button>
                   </DialogClose>
