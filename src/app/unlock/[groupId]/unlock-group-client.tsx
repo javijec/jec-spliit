@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { PageContainer } from '@/components/ui/page-container'
 import { useToast } from '@/components/ui/use-toast'
 import { Loader2, Lock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -47,9 +48,7 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
       toast({
         title: t('errorTitle'),
         description:
-          error instanceof Error
-            ? error.message
-            : t('errorDescription'),
+          error instanceof Error ? error.message : t('errorDescription'),
         variant: 'destructive',
       })
     } finally {
@@ -58,7 +57,7 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
   }
 
   return (
-    <main className="flex-1 w-full max-w-screen-sm mx-auto px-4 py-8">
+    <PageContainer as="main" width="form">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -98,6 +97,6 @@ export function UnlockGroupClient({ groupId, groupName }: Props) {
           </CardFooter>
         </form>
       </Card>
-    </main>
+    </PageContainer>
   )
 }

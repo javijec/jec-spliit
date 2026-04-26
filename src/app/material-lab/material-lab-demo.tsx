@@ -1,5 +1,6 @@
 'use client'
 
+import { PageContainer } from '@/components/ui/page-container'
 import '@material/web/button/filled-button.js'
 import '@material/web/button/outlined-button.js'
 import '@material/web/checkbox/checkbox.js'
@@ -29,8 +30,10 @@ const toneStyles: Record<MaterialTone, Record<string, string>> = {
     '--md-sys-color-surface-container-high': '#ebe6de',
     '--md-sys-color-on-surface': '#1d2a27',
     '--md-sys-color-outline': '#82918c',
-    '--md-ref-typeface-brand': '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
-    '--md-ref-typeface-plain': '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
+    '--md-ref-typeface-brand':
+      '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
+    '--md-ref-typeface-plain':
+      '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
   },
   night: {
     '--md-sys-color-primary': '#7ad1c5',
@@ -46,8 +49,10 @@ const toneStyles: Record<MaterialTone, Record<string, string>> = {
     '--md-sys-color-surface-container-high': '#22302c',
     '--md-sys-color-on-surface': '#e5efeb',
     '--md-sys-color-outline': '#8a9b96',
-    '--md-ref-typeface-brand': '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
-    '--md-ref-typeface-plain': '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
+    '--md-ref-typeface-brand':
+      '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
+    '--md-ref-typeface-plain':
+      '"Segoe UI Variable Text", "Helvetica Neue", sans-serif',
   },
 }
 
@@ -63,7 +68,7 @@ export function MaterialLabDemo() {
   )
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+    <PageContainer as="main" width="wide" className="sm:px-6">
       <section className="border bg-card">
         <div className="flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -190,20 +195,30 @@ export function MaterialLabDemo() {
           <aside className="p-5">
             <div className="grid gap-4">
               <div className="border bg-background p-4">
-                <h2 className="text-base font-semibold">Qué estamos probando</h2>
+                <h2 className="text-base font-semibold">
+                  Qué estamos probando
+                </h2>
                 <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                  <li>Componentes web reales de `@material/web` dentro de App Router.</li>
-                  <li>Tokens Material 3 conectados a una paleta compatible con NexoGastos.</li>
+                  <li>
+                    Componentes web reales de `@material/web` dentro de App
+                    Router.
+                  </li>
+                  <li>
+                    Tokens Material 3 conectados a una paleta compatible con
+                    NexoGastos.
+                  </li>
                   <li>Convivencia entre Tailwind actual y custom elements.</li>
                 </ul>
               </div>
 
               <div className="border bg-background p-4">
-                <h2 className="text-base font-semibold">Siguiente paso sugerido</h2>
+                <h2 className="text-base font-semibold">
+                  Siguiente paso sugerido
+                </h2>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  Si esta base te convence, el siguiente experimento sano es migrar
-                  una pantalla chica y autocontenida, por ejemplo el perfil o el
-                  selector de participante activo.
+                  Si esta base te convence, el siguiente experimento sano es
+                  migrar una pantalla chica y autocontenida, por ejemplo el
+                  perfil o el selector de participante activo.
                 </p>
               </div>
 
@@ -214,6 +229,6 @@ export function MaterialLabDemo() {
           </aside>
         </div>
       </section>
-    </main>
+    </PageContainer>
   )
 }
