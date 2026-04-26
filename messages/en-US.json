@@ -44,6 +44,7 @@
       "access": "Access",
       "account": "Account"
     },
+    "profileCardDescription": "Review the details you use to access the app and how you appear inside your groups.",
     "profileValue": "Signed in as {name}.",
     "emailMissing": "There is no email available.",
     "accessValue": "Your session is linked to Google through Auth0.",

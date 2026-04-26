@@ -44,6 +44,7 @@
       "access": "Acceso",
       "account": "Cuenta"
     },
+    "profileCardDescription": "Revisa los datos con los que entras a la app y cómo apareces dentro de tus grupos.",
     "profileValue": "Sesión activa como {name}.",
     "emailMissing": "No hay un correo disponible.",
     "accessValue": "Tu sesión está vinculada a Google mediante Auth0.",
