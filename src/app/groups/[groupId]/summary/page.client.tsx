@@ -2,19 +2,15 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { SectionHeader } from '@/components/ui/page-header'
 import {
   GroupSectionCard,
   GroupSectionContent,
-  GroupSectionHeader,
 } from '@/components/ui/group-section-card'
 import { trpc } from '@/trpc/client'
 import {
   ArrowRight,
   ShieldCheck,
   UserRound,
-  Users,
-  Wallet,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
@@ -38,46 +34,36 @@ export function SummaryPageClient() {
   return (
     <div className="space-y-3">
       <GroupSectionCard>
-        <GroupSectionHeader>
-          <SectionHeader
-            title={tSummary('title')}
-            description={tSummary('description')}
-            meta={
-              <>
-                <Badge variant="outline">
-                  <Users className="h-3.5 w-3.5" />
-                  {tSummary('participantsBadge', {
-                    count: participantCount,
-                  })}
-                </Badge>
-                {group?.currencyCode ? (
-                  <Badge variant="outline">
-                    <Wallet className="h-3.5 w-3.5" />
-                    {tSummary('defaultCurrencyBadge', {
-                      currencyCode: group.currencyCode,
-                    })}
-                  </Badge>
-                ) : null}
-                <Badge variant="outline">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  {tSummary('linkedCountBadge', {
-                    count: linkedParticipants.length,
-                  })}
-                </Badge>
-              </>
-            }
-          />
-        </GroupSectionHeader>
-      </GroupSectionCard>
-
-      <GroupSectionCard>
-        <GroupSectionHeader>
-          <SectionHeader
-            title={tSummary('accessTitle')}
-            description={tSummary('accessDescription')}
-          />
-        </GroupSectionHeader>
         <GroupSectionContent>
+          <div className="mb-4 flex flex-wrap gap-2">
+            <span className="inline-flex items-center rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
+              {tSummary('participantsBadge', {
+                count: participantCount,
+              })}
+            </span>
+            {group?.currencyCode ? (
+              <span className="inline-flex items-center rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
+                {tSummary('defaultCurrencyBadge', {
+                  currencyCode: group.currencyCode,
+                })}
+              </span>
+            ) : null}
+            <span className="inline-flex items-center rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
+              {tSummary('linkedCountBadge', {
+                count: linkedParticipants.length,
+              })}
+            </span>
+          </div>
+
+          <div className="mb-4">
+            <h2 className="text-base font-semibold tracking-tight">
+              {tSummary('accessTitle')}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {tSummary('accessDescription')}
+            </p>
+          </div>
+
           <div className="space-y-2">
             {linkedMembers.map((member) => {
               const activeParticipant = member.activeParticipant
