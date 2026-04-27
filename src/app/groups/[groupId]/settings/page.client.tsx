@@ -28,12 +28,13 @@ import {
   ArrowLeft,
   ChevronRight,
   FileOutput,
-  Info,
+  Link2,
   MailPlus,
   Pencil,
   ShieldCheck,
   Trash2,
   UserMinus,
+  Users,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -41,7 +42,12 @@ import { useMemo, useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { EditGroup } from '../edit/edit-group'
 
-type SettingsView = 'hub' | 'edit' | 'share' | 'danger'
+type SettingsView =
+  | 'hub'
+  | 'edit'
+  | 'participants'
+  | 'export'
+  | 'danger'
 
 function SettingsOptionCard({
   onClick,
@@ -121,10 +127,13 @@ export function SettingsPageClient() {
   const isInviteOnboarding = searchParams.get('onboarding') === 'invite'
   const section = searchParams.get('section')
   const view: SettingsView =
-    section === 'edit' || section === 'share' || section === 'danger'
+    section === 'edit' ||
+    section === 'participants' ||
+    section === 'export' ||
+    section === 'danger'
       ? section
       : isInviteOnboarding
-        ? 'share'
+        ? 'participants'
         : 'hub'
 
   const buildSettingsHref = useMemo(
@@ -210,10 +219,16 @@ export function SettingsPageClient() {
             description={t('editGroupShort')}
           />
           <SettingsOptionCard
-            onClick={() => router.push(buildSettingsHref('share'))}
+            onClick={() => router.push(buildSettingsHref('participants'))}
+            icon={Users}
+            title={t('participantsAndAccessTitle')}
+            description={t('participantsAndAccessShort')}
+          />
+          <SettingsOptionCard
+            onClick={() => router.push(buildSettingsHref('export'))}
             icon={FileOutput}
-            title={t('shareAndExport')}
-            description={t('shareAndExportShort')}
+            title={t('exportSectionTitle')}
+            description={t('exportSectionShort')}
           />
           <SettingsOptionCard
             onClick={() => router.push(buildSettingsHref('danger'))}
@@ -238,58 +253,251 @@ export function SettingsPageClient() {
         </div>
       )}
 
-      {view === 'edit' && <EditGroup groupDetails={data} />}
+      {view === 'edit' && <EditGroup groupDetails={data} mode="details" />}
 
-      {view === 'share' && (
+      {view === 'participants' && (
+        <div className="space-y-4">
+          <GroupSectionCard>
+            <GroupSectionHeader>
+              <SectionHeader
+                title={t('participantsAndAccessTitle')}
+                description={
+                  isInviteOnboarding
+                    ? t('inviteOnboardingDescription')
+                    : t('participantsAndAccessDescription')
+                }
+              />
+            </GroupSectionHeader>
+            <GroupSectionContent>
+              <EditGroup groupDetails={data} mode="participants" />
+            </GroupSectionContent>
+          </GroupSectionCard>
+
+          <GroupSectionCard>
+            <GroupSectionContent className="space-y-3">
+              {isInviteOnboarding && (
+                <div className="rounded-lg border border-primary/25 bg-primary/10 p-3.5 text-sm shadow-sm shadow-black/5">
+                  <p className="font-medium text-foreground">
+                    {t('inviteOnboardingTitle')}
+                  </p>
+                  <p className="mt-1.5 text-muted-foreground">
+                    {t('inviteOnboardingBody')}
+                  </p>
+                </div>
+              )}
+
+              <div className="rounded-lg border border-border/70 bg-background p-3.5 shadow-sm shadow-black/5">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Link2 className="h-4 w-4" />
+                  {t('shareLinkTitle')}
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t('shareLinkDescription')}
+                </p>
+                <div className="mt-3">
+                  <ShareButton
+                    group={{ id: data.group.id, name: data.group.name }}
+                    showLabel
+                    size="default"
+                    variant="outline"
+                    className="w-full justify-center sm:w-auto"
+                  />
+                </div>
+              </div>
+
+              {canManageMembers && (
+                <div
+                  className={[
+                    'rounded-lg border bg-background p-3.5 shadow-sm shadow-black/5',
+                    isInviteOnboarding
+                      ? 'border-primary/30 ring-1 ring-primary/15'
+                      : 'border-border/70',
+                  ].join(' ')}
+                >
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <MailPlus className="h-4 w-4" />
+                    {t('memberAccessTitle')}
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {t('memberAccessDescription')}
+                  </p>
+
+                  {availableParticipants.length === 0 ? (
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      {t('memberAccessNoParticipants')}
+                    </p>
+                  ) : (
+                    <div className="mt-3 grid gap-2">
+                      <Input
+                        type="email"
+                        value={memberEmail}
+                        onChange={(event) => setMemberEmail(event.target.value)}
+                        placeholder={t('memberAccessEmailPlaceholder')}
+                        autoComplete="email"
+                      />
+                      <select
+                        value={memberParticipantId}
+                        onChange={(event) =>
+                          setMemberParticipantId(event.target.value)
+                        }
+                        className="h-11 rounded-md border border-input bg-background px-3 text-sm"
+                      >
+                        <option value="">
+                          {t('memberAccessParticipantPlaceholder')}
+                        </option>
+                        {availableParticipants.map((participant) => (
+                          <option key={participant.id} value={participant.id}>
+                            {participant.name}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        disabled={
+                          isAddingMember ||
+                          memberEmail.trim().length === 0 ||
+                          memberParticipantId.length === 0
+                        }
+                        onClick={async () => {
+                          try {
+                            const result = await addMemberAsync({
+                              groupId,
+                              email: memberEmail.trim(),
+                              participantId: memberParticipantId,
+                            })
+                            setMemberEmail('')
+                            setMemberParticipantId('')
+                            await utils.groups.invalidate()
+                            toast({
+                              title: t('memberAddedTitle'),
+                              description: t('memberAddedDescription', {
+                                participant: result.member.participantName,
+                                email:
+                                  result.member.email ??
+                                  memberEmail.trim().toLowerCase(),
+                              }),
+                            })
+                          } catch (error) {
+                            toast({
+                              title: t('memberAddErrorTitle'),
+                              description:
+                                error instanceof Error
+                                  ? error.message
+                                  : t('memberAddErrorDescription'),
+                              variant: 'destructive',
+                            })
+                          }
+                        }}
+                        className="h-11 w-full sm:w-auto"
+                      >
+                        {t('memberAccessSubmit')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="rounded-lg border border-border/70 bg-background p-3.5 shadow-sm shadow-black/5">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <ShieldCheck className="h-4 w-4" />
+                  {t('linkedMembersTitle')}
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t('linkedMembersDescription')}
+                </p>
+
+                {linkedMembers.length === 0 ? (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {t('linkedMembersEmpty')}
+                  </p>
+                ) : (
+                  <div className="mt-3 space-y-2">
+                    {linkedMembers.map((member) => {
+                      const isOwner = member.role === 'OWNER'
+                      const label =
+                        member.user.displayName ||
+                        member.user.email ||
+                        member.activeParticipant?.name ||
+                        t('linkedMembersFallback')
+
+                      return (
+                        <div
+                          key={`${member.userId}-${member.activeParticipant?.id ?? 'none'}`}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-border/70 px-3.5 py-3"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">{label}</p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {member.user.email || t('linkedMembersNoEmail')}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {t('linkedMembersParticipant', {
+                                participant:
+                                  member.activeParticipant?.name ??
+                                  t('linkedMembersFallback'),
+                              })}
+                            </p>
+                          </div>
+
+                          {isOwner ? (
+                            <Badge variant="outline">{t('linkedMembersOwner')}</Badge>
+                          ) : canManageMembers ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={isRemovingMember}
+                              onClick={async () => {
+                                try {
+                                  await removeMemberAsync({
+                                    groupId,
+                                    userId: member.userId,
+                                  })
+                                  await utils.groups.invalidate()
+                                  toast({
+                                    title: t('memberRemovedTitle'),
+                                    description: t('memberRemovedDescription', {
+                                      participant:
+                                        member.activeParticipant?.name ??
+                                        t('linkedMembersFallback'),
+                                    }),
+                                  })
+                                } catch (error) {
+                                  toast({
+                                    title: t('memberRemoveErrorTitle'),
+                                    description:
+                                      error instanceof Error
+                                        ? error.message
+                                        : t('memberRemoveErrorDescription'),
+                                      variant: 'destructive',
+                                  })
+                                }
+                              }}
+                            >
+                              <UserMinus className="mr-2 h-4 w-4" />
+                              {t('memberRemoveAction')}
+                            </Button>
+                          ) : null}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </GroupSectionContent>
+          </GroupSectionCard>
+        </div>
+      )}
+
+      {view === 'export' && (
         <GroupSectionCard>
           <GroupSectionHeader>
             <SectionHeader
-              title={t('shareAndExport')}
-              description={
-                isInviteOnboarding
-                  ? t('inviteOnboardingDescription')
-                  : t('shareAndExportDescription')
-              }
+              title={t('exportSectionTitle')}
+              description={t('exportSectionDescription')}
             />
           </GroupSectionHeader>
           <GroupSectionContent className="space-y-3">
-            {isInviteOnboarding && (
-              <div className="rounded-lg border border-primary/25 bg-primary/10 p-3.5 text-sm shadow-sm shadow-black/5">
-                <p className="font-medium text-foreground">
-                  {t('inviteOnboardingTitle')}
-                </p>
-                <p className="mt-1.5 text-muted-foreground">
-                  {t('inviteOnboardingBody')}
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <ShareButton
-                group={{ id: data.group.id, name: data.group.name }}
-                showLabel
-                size="default"
-                variant="outline"
-                className="w-full justify-center sm:w-auto"
-              />
-              <ExportButton
-                groupId={groupId}
-                showLabel
-                size="default"
-                variant="outline"
-              />
-            </div>
-
-            <div className="rounded-lg border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
-              <div className="flex items-center gap-2 font-medium">
-                <Info className="h-4 w-4" />
-                {t('groupInformationTitle')}
-              </div>
-              <p className="mt-2 whitespace-pre-wrap text-muted-foreground">
-                {data.group.information?.trim() || t('emptyInformation')}
-              </p>
-            </div>
-
             <div className="rounded-lg border border-border/70 bg-background p-3.5 text-sm shadow-sm shadow-black/5">
               <div className="flex items-center gap-2 font-medium">
                 <FileOutput className="h-4 w-4" />
@@ -298,186 +506,14 @@ export function SettingsPageClient() {
               <p className="mt-2 text-muted-foreground">
                 {t('exportInfoDescription')}
               </p>
-            </div>
-
-            {canManageMembers && (
-              <div
-                className={[
-                  'rounded-lg border bg-background p-3.5 shadow-sm shadow-black/5',
-                  isInviteOnboarding
-                    ? 'border-primary/30 ring-1 ring-primary/15'
-                    : 'border-border/70',
-                ].join(' ')}
-              >
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <MailPlus className="h-4 w-4" />
-                  {t('memberAccessTitle')}
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {t('memberAccessDescription')}
-                </p>
-
-                {availableParticipants.length === 0 ? (
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    {t('memberAccessNoParticipants')}
-                  </p>
-                ) : (
-                  <div className="mt-3 grid gap-2">
-                    <Input
-                      type="email"
-                      value={memberEmail}
-                      onChange={(event) => setMemberEmail(event.target.value)}
-                      placeholder={t('memberAccessEmailPlaceholder')}
-                      autoComplete="email"
-                    />
-                    <select
-                      value={memberParticipantId}
-                      onChange={(event) =>
-                        setMemberParticipantId(event.target.value)
-                      }
-                      className="h-11 rounded-md border border-input bg-background px-3 text-sm"
-                    >
-                      <option value="">
-                        {t('memberAccessParticipantPlaceholder')}
-                      </option>
-                      {availableParticipants.map((participant) => (
-                        <option key={participant.id} value={participant.id}>
-                          {participant.name}
-                        </option>
-                      ))}
-                    </select>
-                    <Button
-                      type="button"
-                      disabled={
-                        isAddingMember ||
-                        memberEmail.trim().length === 0 ||
-                        memberParticipantId.length === 0
-                      }
-                      onClick={async () => {
-                        try {
-                          const result = await addMemberAsync({
-                            groupId,
-                            email: memberEmail.trim(),
-                            participantId: memberParticipantId,
-                          })
-                          setMemberEmail('')
-                          setMemberParticipantId('')
-                          await utils.groups.invalidate()
-                          toast({
-                            title: t('memberAddedTitle'),
-                            description: t('memberAddedDescription', {
-                              participant: result.member.participantName,
-                              email:
-                                result.member.email ??
-                                memberEmail.trim().toLowerCase(),
-                            }),
-                          })
-                        } catch (error) {
-                          toast({
-                            title: t('memberAddErrorTitle'),
-                            description:
-                              error instanceof Error
-                                ? error.message
-                                : t('memberAddErrorDescription'),
-                            variant: 'destructive',
-                          })
-                        }
-                      }}
-                      className="h-11 w-full sm:w-auto"
-                    >
-                      {t('memberAccessSubmit')}
-                    </Button>
-                  </div>
-                )}
+              <div className="mt-3">
+                <ExportButton
+                  groupId={groupId}
+                  showLabel
+                  size="default"
+                  variant="outline"
+                />
               </div>
-            )}
-
-            <div className="rounded-lg border border-border/70 bg-background p-3.5 shadow-sm shadow-black/5">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <ShieldCheck className="h-4 w-4" />
-                {t('linkedMembersTitle')}
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {t('linkedMembersDescription')}
-              </p>
-
-              {linkedMembers.length === 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {t('linkedMembersEmpty')}
-                </p>
-              ) : (
-                <div className="mt-3 space-y-2">
-                  {linkedMembers.map((member) => {
-                    const isOwner = member.role === 'OWNER'
-                    const label =
-                      member.user.displayName ||
-                      member.user.email ||
-                      member.activeParticipant?.name ||
-                      t('linkedMembersFallback')
-
-                    return (
-                      <div
-                        key={`${member.userId}-${member.activeParticipant?.id ?? 'none'}`}
-                        className="flex items-center justify-between gap-3 rounded-xl border border-border/70 px-3.5 py-3"
-                      >
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium">{label}</p>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {member.user.email || t('linkedMembersNoEmail')}
-                          </p>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {t('linkedMembersParticipant', {
-                              participant:
-                                member.activeParticipant?.name ??
-                                t('linkedMembersFallback'),
-                            })}
-                          </p>
-                        </div>
-
-                        {isOwner ? (
-                          <Badge variant="outline">{t('linkedMembersOwner')}</Badge>
-                        ) : canManageMembers ? (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isRemovingMember}
-                            onClick={async () => {
-                              try {
-                                await removeMemberAsync({
-                                  groupId,
-                                  userId: member.userId,
-                                })
-                                await utils.groups.invalidate()
-                                toast({
-                                  title: t('memberRemovedTitle'),
-                                  description: t('memberRemovedDescription', {
-                                    participant:
-                                      member.activeParticipant?.name ??
-                                      t('linkedMembersFallback'),
-                                  }),
-                                })
-                              } catch (error) {
-                                toast({
-                                  title: t('memberRemoveErrorTitle'),
-                                  description:
-                                    error instanceof Error
-                                      ? error.message
-                                      : t('memberRemoveErrorDescription'),
-                                  variant: 'destructive',
-                                })
-                              }
-                            }}
-                          >
-                            <UserMinus className="mr-2 h-4 w-4" />
-                            {t('memberRemoveAction')}
-                          </Button>
-                        ) : null}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
             </div>
           </GroupSectionContent>
         </GroupSectionCard>

@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { Locale } from '@/i18n/request'
 import { getGroup } from '@/lib/api'
 import { defaultCurrencyList, getCurrency } from '@/lib/currency'
@@ -55,6 +56,7 @@ export type Props = {
   ) => Promise<void>
   protectedParticipantIds?: string[]
   currentActiveParticipantId?: string | null
+  mode?: 'full' | 'details' | 'participants'
 }
 
 function LabelWithInfo({
@@ -94,6 +96,7 @@ export function GroupForm({
   onSubmit,
   protectedParticipantIds = [],
   currentActiveParticipantId = null,
+  mode = 'full',
 }: Props) {
   const locale = useLocale()
   const t = useTranslations('GroupForm')
@@ -269,6 +272,9 @@ export function GroupForm({
     .filter(Boolean)
   const uniqueInvalidFieldLabels = Array.from(new Set(invalidFieldLabels))
   const topInvalidFields = uniqueInvalidFieldLabels.slice(0, 4)
+  const showGroupDetails = mode !== 'participants'
+  const showParticipants = mode !== 'details'
+  const showLocalSettings = mode === 'full' && !!group
 
   return (
     <Form {...form}>
@@ -319,97 +325,123 @@ export function GroupForm({
           </Alert>
         )}
 
-        <Card className="mb-3 border-border/70">
-          <CardHeader className="pb-3">
-            <CardTitle>{t('title')}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <LabelWithInfo
-                    label={t('NameField.label')}
-                    description={t('NameField.description')}
-                  />
-                  <FormControl>
-                    <Input
-                      className="text-base"
-                      placeholder={t('NameField.placeholder')}
-                      {...field}
+        {showGroupDetails && (
+          <Card className="mb-3 border-border/70">
+            <CardHeader className="pb-3">
+              <CardTitle>{t('title')}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <LabelWithInfo
+                      label={t('NameField.label')}
+                      description={t('NameField.description')}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormControl>
+                      <Input
+                        className="text-base"
+                        placeholder={t('NameField.placeholder')}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="currencyCode"
-              render={({ field }) => (
-                <FormItem>
-                  <LabelWithInfo
-                    label={t('CurrencyCodeField.label')}
-                    description={t(
-                      group
-                        ? 'CurrencyCodeField.editDescription'
-                        : 'CurrencyCodeField.createDescription',
-                    )}
-                  />
-                  <CurrencySelector
-                    currencies={defaultCurrencyList(
-                      locale as Locale,
-                      t('CurrencyCodeField.customOption'),
-                    )}
-                    defaultValue={field.value ?? ''}
-                    onValueChange={(newCurrency) => {
-                      field.onChange(newCurrency)
-                      const currency = getCurrency(newCurrency)
-                      if (
-                        currency.code.length ||
-                        form.getFieldState('currency').isTouched
-                      )
-                        form.setValue('currency', currency.symbol, {
-                          shouldValidate: form.getFieldState('currency').isTouched,
-                          shouldTouch: true,
-                          shouldDirty: true,
-                        })
-                    }}
-                    isLoading={false}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="currency"
-              render={({ field }) => (
-                <FormItem hidden={!!watchedCurrencyCode?.length}>
-                  <LabelWithInfo
-                    label={t('CurrencyField.label')}
-                    description={t('CurrencyField.description')}
-                  />
-                  <FormControl>
-                    <Input
-                      className="text-base"
-                      placeholder={t('CurrencyField.placeholder')}
-                      max={5}
-                      {...field}
+              <FormField
+                control={form.control}
+                name="currencyCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <LabelWithInfo
+                      label={t('CurrencyCodeField.label')}
+                      description={t(
+                        group
+                          ? 'CurrencyCodeField.editDescription'
+                          : 'CurrencyCodeField.createDescription',
+                      )}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+                    <CurrencySelector
+                      currencies={defaultCurrencyList(
+                        locale as Locale,
+                        t('CurrencyCodeField.customOption'),
+                      )}
+                      defaultValue={field.value ?? ''}
+                      onValueChange={(newCurrency) => {
+                        field.onChange(newCurrency)
+                        const currency = getCurrency(newCurrency)
+                        if (
+                          currency.code.length ||
+                          form.getFieldState('currency').isTouched
+                        )
+                          form.setValue('currency', currency.symbol, {
+                            shouldValidate: form.getFieldState('currency').isTouched,
+                            shouldTouch: true,
+                            shouldDirty: true,
+                          })
+                      }}
+                      isLoading={false}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div className="mb-3 grid gap-3 lg:grid-cols-2">
-          <Card className="h-full border-border/70">
+              <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                  <FormItem hidden={!!watchedCurrencyCode?.length}>
+                    <LabelWithInfo
+                      label={t('CurrencyField.label')}
+                      description={t('CurrencyField.description')}
+                    />
+                    <FormControl>
+                      <Input
+                        className="text-base"
+                        placeholder={t('CurrencyField.placeholder')}
+                        max={5}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="information"
+                render={({ field }) => (
+                  <FormItem className="sm:col-span-2">
+                    <LabelWithInfo label={t('InformationField.label')} />
+                    <FormControl>
+                      <Textarea
+                        className="min-h-28 text-base"
+                        placeholder={t('InformationField.placeholder')}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        <div
+          className={[
+            'mb-3 grid gap-3',
+            showParticipants && showLocalSettings ? 'lg:grid-cols-2' : '',
+          ].join(' ')}
+        >
+          {showParticipants && (
+            <Card className="h-full border-border/70">
             <CardHeader>
               <CardTitle>{t('Participants.title')}</CardTitle>
               <CardDescription className="hidden sm:block">
@@ -531,8 +563,9 @@ export function GroupForm({
               </Button>
             </CardFooter>
           </Card>
+          )}
 
-          {group && (
+          {showLocalSettings && (
             <Card className="h-full border-border/70">
               <CardHeader>
                 <CardTitle>{t('Settings.title')}</CardTitle>
@@ -587,7 +620,11 @@ export function GroupForm({
 
         <div className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-secondary/40 p-3.5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            {group ? t('Settings.description') : t('Participants.description')}
+            {mode === 'participants'
+              ? t('Participants.description')
+              : group
+                ? t('Settings.description')
+                : t('Participants.description')}
           </p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <SubmitButton

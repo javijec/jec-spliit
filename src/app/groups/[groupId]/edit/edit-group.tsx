@@ -10,8 +10,10 @@ type GroupDetails = AppRouterOutput['groups']['getDetails']
 
 export const EditGroup = ({
   groupDetails,
+  mode = 'full',
 }: {
   groupDetails?: GroupDetails
+  mode?: 'full' | 'details' | 'participants'
 }) => {
   const { groupId } = useCurrentGroup()
   const { data, isLoading } = trpc.groups.getDetails.useQuery(
@@ -35,6 +37,7 @@ export const EditGroup = ({
     <div>
       <GroupForm
         group={data?.group}
+        mode={mode}
         currentActiveParticipantId={data?.currentActiveParticipantId}
         onSubmit={async (groupFormValues, options) => {
           await mutateGroupAsync({
