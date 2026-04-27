@@ -84,3 +84,9 @@ export async function updateAppUserDisplayName(
 
   return user
 }
+
+export async function deleteAppUserAccount(userId: string) {
+  return prisma.appUser.delete({
+    where: { id: userId },
+  })
+}

@@ -45,7 +45,7 @@
       "account": "Account"
     },
     "profileCardDescription": "Review the details you use to access the app and how you appear inside your groups.",
-    "profileValue": "Signed in as {name}.",
+    "profileValue": "{name}",
     "emailMissing": "There is no email available.",
     "accessValue": "Your session is linked to Google through Auth0.",
     "accountValue": "Your account is already active in the app.",
@@ -55,14 +55,22 @@
     "editNameLabel": "Your name in the app",
     "editNamePlaceholder": "Type the name you want to display",
     "editNameDescription": "This name will be used in your profile and when linking you to group participants.",
+    "profileEditAction": "Edit",
+    "profileCancelAction": "Close",
     "profileSaveAction": "Save name",
     "profileSaving": "Saving...",
     "profileResetAction": "Reset",
     "profileSavedTitle": "Profile updated",
     "profileSavedDescription": "Your display name was saved successfully.",
     "actionsTitle": "Actions",
-    "actionsDescription": "Jump back to your groups or end the current session.",
-    "logoutAction": "Log out"
+    "actionsDescription": "Log out of the current session or remove your local NexoGastos account.",
+    "logoutAction": "Log out",
+    "deleteAccountAction": "Delete account",
+    "deleteAccountTitle": "Delete account?",
+    "deleteAccountDescription": "This removes your local NexoGastos profile, clears saved access, and then logs you out. Your Google/Auth0 account is not deleted.",
+    "deleteAccountCancel": "Cancel",
+    "deleteAccountConfirm": "Delete and log out",
+    "deleteAccountLoading": "Deleting account..."
   },
   "Footer": {
     "madeIn": "Made in Montréal, Québec 🇨🇦",

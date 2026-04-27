@@ -45,7 +45,7 @@
       "account": "Cuenta"
     },
     "profileCardDescription": "Revisa los datos con los que entras a la app y cómo apareces dentro de tus grupos.",
-    "profileValue": "Sesión activa como {name}.",
+    "profileValue": "{name}",
     "emailMissing": "No hay un correo disponible.",
     "accessValue": "Tu sesión está vinculada a Google mediante Auth0.",
     "accountValue": "Tu cuenta ya está activa en la aplicación.",
@@ -55,14 +55,22 @@
     "editNameLabel": "Tu nombre en la app",
     "editNamePlaceholder": "Escribe el nombre que quieres mostrar",
     "editNameDescription": "Este nombre se usará en tu perfil y al vincularte con participantes del grupo.",
+    "profileEditAction": "Editar",
+    "profileCancelAction": "Cerrar",
     "profileSaveAction": "Guardar nombre",
     "profileSaving": "Guardando...",
     "profileResetAction": "Restablecer",
     "profileSavedTitle": "Perfil actualizado",
     "profileSavedDescription": "Tu nombre visible se guardó correctamente.",
     "actionsTitle": "Acciones",
-    "actionsDescription": "Accede rápido a tus grupos o cierra la sesión actual.",
-    "logoutAction": "Cerrar sesión"
+    "actionsDescription": "Cierra la sesión actual o elimina tu cuenta local de NexoGastos.",
+    "logoutAction": "Cerrar sesión",
+    "deleteAccountAction": "Eliminar cuenta",
+    "deleteAccountTitle": "¿Eliminar cuenta?",
+    "deleteAccountDescription": "Se eliminará tu perfil local de NexoGastos, se quitarán tus accesos guardados y luego se cerrará tu sesión. Tu cuenta de Google/Auth0 no se borra.",
+    "deleteAccountCancel": "Cancelar",
+    "deleteAccountConfirm": "Eliminar y cerrar sesión",
+    "deleteAccountLoading": "Eliminando cuenta..."
   },
   "Footer": {
     "madeIn": "Hecho en Montréal, Québec 🇨🇦",

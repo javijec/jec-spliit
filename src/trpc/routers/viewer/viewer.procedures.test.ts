@@ -1,12 +1,15 @@
 const getCurrentAuthSessionMock = jest.fn()
 const getCurrentAppUserMock = jest.fn()
 const updateAppUserDisplayNameMock = jest.fn()
+const deleteAppUserAccountMock = jest.fn()
 
 jest.mock('@/lib/auth', () => ({
   getCurrentAuthSession: (...args: unknown[]) => getCurrentAuthSessionMock(...args),
   getCurrentAppUser: (...args: unknown[]) => getCurrentAppUserMock(...args),
   updateAppUserDisplayName: (...args: unknown[]) =>
     updateAppUserDisplayNameMock(...args),
+  deleteAppUserAccount: (...args: unknown[]) =>
+    deleteAppUserAccountMock(...args),
 }))
 
 jest.mock('superjson', () => ({
@@ -60,5 +63,16 @@ describe('viewer tRPC procedures', () => {
     })
 
     expect(updateAppUserDisplayNameMock).toHaveBeenCalledWith('user-1', 'Javi')
+  })
+
+  it('deletes the authenticated user account', async () => {
+    const caller = createCaller('user-1')
+    deleteAppUserAccountMock.mockResolvedValue({ id: 'user-1' })
+
+    await expect(caller.deleteAccount()).resolves.toEqual({
+      success: true,
+    })
+
+    expect(deleteAppUserAccountMock).toHaveBeenCalledWith('user-1')
   })
 })

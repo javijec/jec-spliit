@@ -44,8 +44,14 @@ function getDisplayNameErrorMessage(error: unknown) {
 
 export function AccountProfileForm({
   initialDisplayName,
+  onSaved,
+  onCancel,
+  compact = false,
 }: {
   initialDisplayName: string
+  onSaved?: () => void
+  onCancel?: () => void
+  compact?: boolean
 }) {
   const t = useTranslations('Account')
   const tSchema = useTranslations('SchemaErrors')
@@ -69,6 +75,7 @@ export function AccountProfileForm({
         title: t('profileSavedTitle'),
         description: t('profileSavedDescription'),
       })
+      onSaved?.()
       router.refresh()
     },
   })
@@ -98,14 +105,14 @@ export function AccountProfileForm({
             throw error
           }
         })}
-        className="space-y-4"
+        className={compact ? 'space-y-3' : 'space-y-4'}
       >
         <FormField
           control={form.control}
           name="displayName"
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>{t('editNameLabel')}</FormLabel>
+              {!compact ? <FormLabel>{t('editNameLabel')}</FormLabel> : null}
               <FormControl>
                 <Input
                   {...field}
@@ -141,11 +148,16 @@ export function AccountProfileForm({
           <Button
             type="button"
             variant="ghost"
-            onClick={() => form.reset({ displayName: initialDisplayName })}
-            disabled={updateProfile.isPending || !form.formState.isDirty}
+            onClick={() => {
+              form.reset({ displayName: initialDisplayName })
+              onCancel?.()
+            }}
+            disabled={
+              updateProfile.isPending || (!compact && !form.formState.isDirty)
+            }
             className="sm:w-auto"
           >
-            {t('profileResetAction')}
+            {compact ? t('profileCancelAction') : t('profileResetAction')}
           </Button>
         </div>
       </form>
