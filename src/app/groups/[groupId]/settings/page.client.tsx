@@ -43,7 +43,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { EditGroup } from '../edit/edit-group'
 
@@ -213,7 +213,25 @@ function ParticipantsManager({
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex shrink-0 items-center gap-1">
+                  {canRemoveAccess ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      disabled={removingAccessUserId === accessInfo.userId}
+                      onClick={() =>
+                        void onRemoveParticipantAccess(participant.id, accessInfo.userId)
+                      }
+                    >
+                      {removeAccessLabel}
+                    </Button>
+                  ) : accessInfo?.isOwner ? (
+                    <Badge variant="outline" className="h-7 text-[10px]">
+                      {t('linkedMembersOwner')}
+                    </Badge>
+                  ) : null}
                   <Button
                     type="button"
                     variant="ghost"
@@ -238,28 +256,6 @@ function ParticipantsManager({
                   </Button>
                 </div>
               </div>
-              {canRemoveAccess ? (
-                <div className="pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-7 px-2 text-xs"
-                    disabled={removingAccessUserId === accessInfo.userId}
-                    onClick={() =>
-                      void onRemoveParticipantAccess(participant.id, accessInfo.userId)
-                    }
-                  >
-                    {removeAccessLabel}
-                  </Button>
-                </div>
-              ) : accessInfo?.isOwner ? (
-                <div className="pt-2">
-                  <Badge variant="outline" className="h-7 text-[10px]">
-                    {t('linkedMembersOwner')}
-                  </Badge>
-                </div>
-              ) : null}
             </div>
           )
         })}
@@ -350,6 +346,7 @@ export function SettingsPageClient() {
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
   const { toast } = useToast()
   const router = useRouter()
+  const [hasHydrated, setHasHydrated] = useState(false)
   const { data, isLoading } = trpc.groups.getDetails.useQuery(
     { groupId },
     {
@@ -401,7 +398,11 @@ export function SettingsPageClient() {
 
   const getActiveParticipantId = () => data?.currentActiveParticipantId ?? undefined
 
-  if (isLoading || !data?.group) {
+  useEffect(() => {
+    setHasHydrated(true)
+  }, [])
+
+  if (!hasHydrated || isLoading || !data?.group) {
     return (
       <div className="space-y-4">
         <div className="border bg-card p-5">

@@ -150,36 +150,73 @@ export async function updateGroup(
 
   await logActivity(groupId, ActivityType.UPDATE_GROUP, { participantId })
 
-  return prisma.group.update({
-    where: { id: groupId },
-    data: {
-      name: groupFormValues.name,
-      information: groupFormValues.information,
-      currency: groupFormValues.currency,
-      currencyCode: groupFormValues.currencyCode,
-      participants: {
-        deleteMany: existingGroup.participants.filter(
-          (participant) =>
-            !groupFormValues.participants.some(
-              (nextParticipant) => nextParticipant.id === participant.id,
-            ),
+  const removedParticipantIds = existingGroup.participants
+    .filter(
+      (participant) =>
+        !groupFormValues.participants.some(
+          (nextParticipant) => nextParticipant.id === participant.id,
         ),
-        updateMany: groupFormValues.participants
-          .filter((participant) => participant.id !== undefined)
-          .map((participant) => ({
-            where: { id: participant.id },
-            data: { name: participant.name },
-          })),
-        createMany: {
-          data: groupFormValues.participants
-            .filter((participant) => participant.id === undefined)
-            .map((participant) => ({
-              id: randomId(),
-              name: participant.name,
-            })),
-        },
+    )
+    .map((participant) => participant.id)
+
+  const participantsToUpdate = groupFormValues.participants.filter(
+    (participant): participant is { id: string; name: string } =>
+      participant.id !== undefined,
+  )
+
+  const participantsToCreate = groupFormValues.participants.filter(
+    (participant) => participant.id === undefined,
+  )
+
+  return prisma.$transaction(async (tx) => {
+    await tx.group.update({
+      where: { id: groupId },
+      data: {
+        name: groupFormValues.name,
+        information: groupFormValues.information,
+        currency: groupFormValues.currency,
+        currencyCode: groupFormValues.currencyCode,
       },
-    },
+    })
+
+    if (removedParticipantIds.length > 0) {
+      await tx.participant.deleteMany({
+        where: {
+          groupId,
+          id: { in: removedParticipantIds },
+        },
+      })
+    }
+
+    await Promise.all(
+      participantsToUpdate.map((participant) =>
+        tx.participant.update({
+          where: { id: participant.id },
+          data: { name: participant.name },
+        }),
+      ),
+    )
+
+    if (participantsToCreate.length > 0) {
+      await tx.participant.createMany({
+        data: participantsToCreate.map((participant) => ({
+          id: randomId(),
+          name: participant.name,
+          groupId,
+        })),
+      })
+    }
+
+    const updatedGroup = await tx.group.findUnique({
+      where: { id: groupId },
+      include: { participants: true },
+    })
+
+    if (!updatedGroup) {
+      throw new Error('Failed to update group')
+    }
+
+    return updatedGroup
   })
 }
 
