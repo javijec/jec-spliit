@@ -559,7 +559,7 @@
   "Summary": {
     "title": "Resumen",
     "description": "Estado general del grupo y accesos principales.",
-    "accessTitle": "Quién tiene acceso",
+    "accessTitle": "Participantes",
     "accessDescription": "Cuentas con membresía activa en este grupo.",
     "linkedCountBadge": "{count} acceso(s) vinculados",
     "accessFallback": "Participante",

@@ -559,7 +559,7 @@
   "Summary": {
     "title": "Summary",
     "description": "General group status and main entry points.",
-    "accessTitle": "Who has access",
+    "accessTitle": "Participants",
     "accessDescription": "Accounts with active membership in this group.",
     "linkedCountBadge": "{count} linked access(es)",
     "accessFallback": "Participant",
