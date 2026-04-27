@@ -36,8 +36,8 @@ import {
   UserMinus,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useMemo, useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { EditGroup } from '../edit/edit-group'
 
@@ -96,8 +96,8 @@ function SettingsOptionCard({
 export function SettingsPageClient() {
   const { groupId } = useCurrentGroup()
   const t = useTranslations('Settings')
-  const [view, setView] = useState<SettingsView>('hub')
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmChecked, setDeleteConfirmChecked] = useState(false)
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
@@ -119,12 +119,30 @@ export function SettingsPageClient() {
   const [memberEmail, setMemberEmail] = useState('')
   const [memberParticipantId, setMemberParticipantId] = useState('')
   const isInviteOnboarding = searchParams.get('onboarding') === 'invite'
+  const section = searchParams.get('section')
+  const view: SettingsView =
+    section === 'edit' || section === 'share' || section === 'danger'
+      ? section
+      : isInviteOnboarding
+        ? 'share'
+        : 'hub'
 
-  useEffect(() => {
-    if (isInviteOnboarding) {
-      setView('share')
-    }
-  }, [isInviteOnboarding])
+  const buildSettingsHref = useMemo(
+    () => (nextView: SettingsView) => {
+      const params = new URLSearchParams(searchParams.toString())
+
+      if (nextView === 'hub') {
+        params.delete('section')
+        params.delete('onboarding')
+      } else {
+        params.set('section', nextView)
+      }
+
+      const query = params.toString()
+      return query ? `${pathname}?${query}` : pathname
+    },
+    [pathname, searchParams],
+  )
 
   const getActiveParticipantId = () => data?.currentActiveParticipantId ?? undefined
 
@@ -186,19 +204,19 @@ export function SettingsPageClient() {
       {view === 'hub' ? (
         <div className="space-y-3">
           <SettingsOptionCard
-            onClick={() => setView('edit')}
+            onClick={() => router.push(buildSettingsHref('edit'))}
             icon={Pencil}
             title={t('editGroup')}
             description={t('editGroupShort')}
           />
           <SettingsOptionCard
-            onClick={() => setView('share')}
+            onClick={() => router.push(buildSettingsHref('share'))}
             icon={FileOutput}
             title={t('shareAndExport')}
             description={t('shareAndExportShort')}
           />
           <SettingsOptionCard
-            onClick={() => setView('danger')}
+            onClick={() => router.push(buildSettingsHref('danger'))}
             icon={Trash2}
             title={t('dangerZoneTitle')}
             description={t('dangerZoneShort')}
@@ -212,7 +230,7 @@ export function SettingsPageClient() {
             variant="ghost"
             size="sm"
             className="h-9 px-3"
-            onClick={() => setView('hub')}
+            onClick={() => router.push(buildSettingsHref('hub'))}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t('backToSettings')}
