@@ -1,7 +1,7 @@
 import { randomId } from '@/lib/ids'
 import { prisma } from '@/lib/prisma'
 import { GroupFormValues } from '@/lib/schemas'
-import { ActivityType, GroupRole, Prisma, RecurrenceRule } from '@prisma/client'
+import { ActivityType, GroupRole } from '@prisma/client'
 
 export async function createGroup(
   groupFormValues: GroupFormValues,
@@ -91,87 +91,6 @@ export async function createGroup(
 
     return createdGroup
   })
-}
-
-export type ImportedExpense = {
-  expenseDate: Date
-  title: string
-  amount: number
-  currencyCode: string
-  paidByName: string
-  paidFor: Array<{ participantName: string; shares: number }>
-  isReimbursement: boolean
-}
-
-export async function createGroupFromImportedExpenses(
-  groupFormValues: GroupFormValues,
-  importedExpenses: ImportedExpense[],
-  options?: {
-    userId?: string
-    activeParticipantName?: string
-    linkedUserName?: string
-  },
-) {
-  const group = await createGroup(groupFormValues, options)
-  const participantIdByName = new Map(
-    group.participants.map((participant) => [participant.name, participant.id]),
-  )
-  const expensesToCreate: Prisma.ExpenseCreateManyInput[] = []
-  const expensePaidForToCreate: Prisma.ExpensePaidForCreateManyInput[] = []
-
-  for (const importedExpense of importedExpenses) {
-    const paidById = participantIdByName.get(importedExpense.paidByName)
-    if (!paidById) {
-      throw new Error(
-        `Unknown participant in paidBy: ${importedExpense.paidByName}`,
-      )
-    }
-    const expenseId = randomId()
-    const useOriginalCurrency =
-      group.currencyCode &&
-      importedExpense.currencyCode &&
-      importedExpense.currencyCode !== group.currencyCode
-
-    expensesToCreate.push({
-      id: expenseId,
-      groupId: group.id,
-      expenseDate: importedExpense.expenseDate,
-      title: importedExpense.title,
-      categoryId: importedExpense.isReimbursement ? 1 : 0,
-      amount: importedExpense.amount,
-      originalAmount: useOriginalCurrency ? importedExpense.amount : null,
-      originalCurrency: useOriginalCurrency
-        ? importedExpense.currencyCode
-        : null,
-      conversionRate: null,
-      paidById,
-      splitMode: 'BY_AMOUNT',
-      recurrenceRule: RecurrenceRule.NONE,
-      isReimbursement: importedExpense.isReimbursement,
-      notes: null,
-    })
-
-    for (const paidFor of importedExpense.paidFor) {
-      const participantId = participantIdByName.get(paidFor.participantName)
-      if (!participantId) {
-        throw new Error(
-          `Unknown participant in paidFor: ${paidFor.participantName}`,
-        )
-      }
-      expensePaidForToCreate.push({
-        expenseId,
-        participantId,
-        shares: paidFor.shares,
-      })
-    }
-  }
-
-  await prisma.$transaction([
-    prisma.expense.createMany({ data: expensesToCreate }),
-    prisma.expensePaidFor.createMany({ data: expensePaidForToCreate }),
-  ])
-
-  return { groupId: group.id }
 }
 
 export async function getGroups(groupIds: string[]) {

@@ -15,7 +15,6 @@ export {
 } from '@/lib/expenses'
 export {
   createGroup,
-  createGroupFromImportedExpenses,
   deleteGroup,
   getActivities,
   getCategories,
@@ -24,7 +23,6 @@ export {
   logActivity,
   updateGroup,
 } from '@/lib/groups'
-export type { ImportedExpense } from '@/lib/groups'
 export {
   getUserGroupMembership,
   getUserGroups,

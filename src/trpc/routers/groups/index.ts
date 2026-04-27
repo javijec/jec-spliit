@@ -16,7 +16,6 @@ import { syncLegacyGroupsProcedure } from '@/trpc/routers/groups/syncLegacy.proc
 import { updateGroupProcedure } from '@/trpc/routers/groups/update.procedure'
 import { updateGroupMembershipProcedure } from '@/trpc/routers/groups/updateMembership.procedure'
 import { getGroupDetailsProcedure } from './getDetails.procedure'
-import { importSplitwiseProcedure } from './importSplitwise.procedure'
 import { listGroupsProcedure } from './list.procedure'
 
 export const groupsRouter = createTRPCRouter({
@@ -31,7 +30,6 @@ export const groupsRouter = createTRPCRouter({
   mine: getMyGroupsProcedure,
   create: createGroupProcedure,
   addMember: addGroupMemberProcedure,
-  importSplitwise: importSplitwiseProcedure,
   update: updateGroupProcedure,
   delete: deleteGroupProcedure,
   removeMember: removeGroupMemberProcedure,

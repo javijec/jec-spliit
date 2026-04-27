@@ -138,20 +138,54 @@ export function GroupForm({
     name: 'participants',
   })
   const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
-  const [activeUser, setActiveUser] = useState<string | null>(null)
+  const [activeParticipantKey, setActiveParticipantKey] = useState<string | null>(
+    null,
+  )
+
+  const activeParticipantOptions: Array<{
+    key: string
+    name: string
+    participantId?: string
+  }> = group
+    ? group.participants.map((participant) => ({
+        key: participant.id,
+        name: participant.name,
+        participantId: participant.id,
+      }))
+    : fields.map((field, index) => ({
+        key: `draft:${field.key}`,
+        name: watchedParticipants?.[index]?.name ?? '',
+      }))
+
   useEffect(() => {
-    if (activeUser === null) {
-      const persistedActiveUser =
-        currentActiveParticipantId && group
-          ? group.participants.find((participant) => participant.id === currentActiveParticipantId)?.name
-          : null
-      const currentActiveUser =
-        persistedActiveUser ||
-        watchedParticipants?.[0]?.name ||
-        t('Settings.ActiveUserField.none')
-      setActiveUser(currentActiveUser)
+    const availableOptions = activeParticipantOptions.filter(
+      (option) => option.name.trim().length > 0,
+    )
+
+    const persistedKey =
+      group && currentActiveParticipantId
+        ? activeParticipantOptions.find(
+            (option) => option.participantId === currentActiveParticipantId,
+          )?.key
+        : null
+
+    const nextSelectedKey =
+      persistedKey ??
+      (activeParticipantKey &&
+      availableOptions.some((option) => option.key === activeParticipantKey)
+        ? activeParticipantKey
+        : availableOptions[0]?.key ?? t('Settings.ActiveUserField.none'))
+
+    if (nextSelectedKey !== activeParticipantKey) {
+      setActiveParticipantKey(nextSelectedKey)
     }
-  }, [t, activeUser, group, currentActiveParticipantId, watchedParticipants])
+  }, [
+    activeParticipantKey,
+    activeParticipantOptions,
+    currentActiveParticipantId,
+    group,
+    t,
+  ])
 
   const countErrors = (value: unknown): number => {
     if (!value || typeof value !== 'object') return 0
@@ -225,11 +259,18 @@ export function GroupForm({
               values,
               {
                 participantId:
-                  group?.participants.find((p) => p.name === activeUser)?.id ??
-                  undefined,
+                  activeParticipantKey &&
+                  activeParticipantKey !== t('Settings.ActiveUserField.none')
+                    ? activeParticipantOptions.find(
+                        (option) => option.key === activeParticipantKey,
+                      )?.participantId
+                    : undefined,
                 activeParticipantName:
-                  activeUser !== t('Settings.ActiveUserField.none')
-                    ? (activeUser ?? undefined)
+                  activeParticipantKey &&
+                  activeParticipantKey !== t('Settings.ActiveUserField.none')
+                    ? activeParticipantOptions.find(
+                        (option) => option.key === activeParticipantKey,
+                      )?.name
                     : undefined,
               },
             )
@@ -474,7 +515,7 @@ export function GroupForm({
             </CardHeader>
             <CardContent>
               <div className="grid sm:grid-cols-2 gap-4">
-                {activeUser !== null && (
+                {activeParticipantKey !== null && (
                   <FormItem>
                     <LabelWithInfo
                       label={t('Settings.ActiveUserField.label')}
@@ -483,9 +524,9 @@ export function GroupForm({
                     <FormControl>
                       <Select
                         onValueChange={(value) => {
-                          setActiveUser(value)
+                          setActiveParticipantKey(value)
                         }}
-                        defaultValue={activeUser}
+                        defaultValue={activeParticipantKey}
                       >
                         <SelectTrigger>
                           <SelectValue
@@ -496,12 +537,15 @@ export function GroupForm({
                         </SelectTrigger>
                         <SelectContent>
                           {[
-                            { name: t('Settings.ActiveUserField.none') },
-                            ...(watchedParticipants ?? []),
+                            {
+                              key: t('Settings.ActiveUserField.none'),
+                              name: t('Settings.ActiveUserField.none'),
+                            },
+                            ...activeParticipantOptions,
                           ]
                             .filter((item) => item.name.length > 0)
-                            .map(({ name }) => (
-                              <SelectItem key={name} value={name}>
+                            .map(({ key, name }) => (
+                              <SelectItem key={key} value={key}>
                                 {name}
                               </SelectItem>
                             ))}
