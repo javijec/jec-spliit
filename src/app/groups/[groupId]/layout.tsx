@@ -1,11 +1,9 @@
 import { cached } from '@/app/cached-functions'
-import {
-  getGroupAccessCookieName,
-  isValidGroupAccessCookieValue,
-} from '@/lib/group-access-session'
+import { getCurrentAppUser, getCurrentAuthSession } from '@/lib/auth'
+import { auth0Enabled } from '@/lib/env'
+import { getUserGroupMembership } from '@/lib/user-memberships'
 import { Metadata } from 'next'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { PropsWithChildren } from 'react'
 import { GroupLayoutClient } from './layout.client'
 
@@ -32,23 +30,24 @@ export default async function GroupLayout({
   params,
 }: PropsWithChildren<Props>) {
   const { groupId } = await params
-  const accessControl = await cached.getGroupAccessControl(groupId)
-  if (accessControl?.hasAccessPassword) {
-    const cookieStore = await cookies()
-    const cookieValue = cookieStore.get(
-      getGroupAccessCookieName(groupId),
-    )?.value
-    if (
-      !accessControl.accessPasswordHash ||
-      !isValidGroupAccessCookieValue(
-        groupId,
-        accessControl.accessPasswordHash,
-        cookieValue,
-      )
-    ) {
-      redirect(`/unlock/${groupId}`)
+
+  if (auth0Enabled) {
+    const session = await getCurrentAuthSession()
+    if (!session) {
+      redirect('/auth/login?connection=google-oauth2')
+    }
+
+    const user = await getCurrentAppUser()
+    if (!user) {
+      redirect('/auth/login?connection=google-oauth2')
+    }
+
+    const membership = await getUserGroupMembership(user.id, groupId)
+    if (!membership) {
+      notFound()
     }
   }
+
   const group = await cached.getGroup(groupId)
 
   return (

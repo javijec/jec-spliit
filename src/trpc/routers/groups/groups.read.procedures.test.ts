@@ -76,25 +76,12 @@ describe('groups read tRPC procedures', () => {
     })
   })
 
-  it('returns null active participant when the request is anonymous', async () => {
-    getGroupMock.mockResolvedValue({
-      id: 'group-1',
-      name: 'Viaje',
-      participants: [],
-    })
-
+  it('rejects anonymous access to protected group reads', async () => {
     const caller = createCaller()
-    const result = await caller.get({ groupId: 'group-1' })
 
-    expect(getUserGroupMembershipMock).not.toHaveBeenCalled()
-    expect(result).toEqual({
-      group: {
-        id: 'group-1',
-        name: 'Viaje',
-        participants: [],
-      },
-      currentActiveParticipantId: null,
-    })
+    await expect(caller.get({ groupId: 'group-1' })).rejects.toMatchObject({
+      code: 'UNAUTHORIZED',
+    } satisfies Partial<TRPCError>)
   })
 
   it('returns details including access control, participants with expenses and active participant', async () => {

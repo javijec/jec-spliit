@@ -2,10 +2,11 @@ import {
   getGroupExpenses,
   syncRecurringExpensesForGroupIfDue,
 } from '@/lib/expenses'
-import { baseProcedure } from '@/trpc/init'
+import { protectedProcedure } from '@/trpc/init'
+import { requireGroupMembership } from '../authorization'
 import { z } from 'zod'
 
-export const listGroupExpensesProcedure = baseProcedure
+export const listGroupExpensesProcedure = protectedProcedure
   .input(
     z.object({
       groupId: z.string().min(1),
@@ -14,7 +15,8 @@ export const listGroupExpensesProcedure = baseProcedure
       filter: z.string().optional(),
     }),
   )
-  .query(async ({ input: { groupId, cursor = 0, limit = 10, filter } }) => {
+  .query(async ({ ctx, input: { groupId, cursor = 0, limit = 10, filter } }) => {
+    await requireGroupMembership(ctx.auth.user.id, groupId)
     await syncRecurringExpensesForGroupIfDue(groupId)
 
     const expenses = await getGroupExpenses(groupId, {

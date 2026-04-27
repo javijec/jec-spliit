@@ -1,4 +1,5 @@
 import { randomId } from '@/lib/ids'
+import { getUniqueParticipantName } from '@/lib/participants'
 import { prisma } from '@/lib/prisma'
 import { GroupRole } from '@prisma/client'
 
@@ -56,34 +57,39 @@ export async function getUserGroupMembership(userId: string, groupId: string) {
 }
 
 export async function saveGroupToUser(userId: string, groupId: string) {
-  const group = await prisma.group.findUnique({
-    where: { id: groupId },
-    select: { id: true, name: true },
-  })
-  if (!group) {
-    throw new Error(`Invalid group ID: ${groupId}`)
-  }
-
-  await prisma.userGroupMembership.upsert({
+  const membership = await prisma.userGroupMembership.findUnique({
     where: {
       userId_groupId: {
         userId,
         groupId,
       },
     },
-    create: {
-      id: randomId(),
-      userId,
-      groupId,
-      role: GroupRole.MEMBER,
-      lastAccessedAt: new Date(),
+    select: {
+      group: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
-    update: {
+  })
+  if (!membership?.group) {
+    throw new Error(`User ${userId} is not a member of group ${groupId}`)
+  }
+
+  await prisma.userGroupMembership.update({
+    where: {
+      userId_groupId: {
+        userId,
+        groupId,
+      },
+    },
+    data: {
       lastAccessedAt: new Date(),
     },
   })
 
-  return group
+  return membership.group
 }
 
 export async function syncUserGroupsFromLegacyState(
@@ -246,8 +252,8 @@ export async function setUserActiveParticipant(
     throw new Error(`Participant already linked to another user: ${participantId}`)
   }
 
-  await prisma.$transaction([
-    prisma.participant.updateMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.participant.updateMany({
       where: {
         groupId,
         appUserId: userId,
@@ -256,15 +262,21 @@ export async function setUserActiveParticipant(
       data: {
         appUserId: null,
       },
-    }),
-    prisma.participant.update({
+    })
+
+    const uniqueName = linkedUserName
+      ? await getUniqueParticipantName(tx, groupId, participantId, linkedUserName)
+      : null
+
+    await tx.participant.update({
       where: { id: participantId },
       data: {
         appUserId: userId,
-        ...(linkedUserName ? { name: linkedUserName } : {}),
+        ...(uniqueName ? { name: uniqueName } : {}),
       },
-    }),
-    prisma.userGroupMembership.upsert({
+    })
+
+    await tx.userGroupMembership.upsert({
       where: {
         userId_groupId: {
           userId,
@@ -283,8 +295,8 @@ export async function setUserActiveParticipant(
         activeParticipantId: participantId,
         lastAccessedAt: new Date(),
       },
-    }),
-  ])
+    })
+  })
 }
 
 export async function removeUserGroupMembership(userId: string, groupId: string) {

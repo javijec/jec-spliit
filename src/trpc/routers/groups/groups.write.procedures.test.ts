@@ -2,6 +2,8 @@ const updateGroupMock = jest.fn()
 const createExpenseMock = jest.fn()
 const updateExpenseMock = jest.fn()
 const deleteExpenseMock = jest.fn()
+const requireGroupMembershipMock = jest.fn()
+const requireGroupOwnerMock = jest.fn()
 
 jest.mock('@/lib/groups', () => ({
   updateGroup: (...args: unknown[]) => updateGroupMock(...args),
@@ -11,6 +13,12 @@ jest.mock('@/lib/expenses', () => ({
   createExpense: (...args: unknown[]) => createExpenseMock(...args),
   updateExpense: (...args: unknown[]) => updateExpenseMock(...args),
   deleteExpense: (...args: unknown[]) => deleteExpenseMock(...args),
+}))
+
+jest.mock('./authorization', () => ({
+  requireGroupMembership: (...args: unknown[]) =>
+    requireGroupMembershipMock(...args),
+  requireGroupOwner: (...args: unknown[]) => requireGroupOwnerMock(...args),
 }))
 
 jest.mock('@/lib/auth', () => ({
@@ -54,11 +62,11 @@ const expenseFormValues = {
   recurrenceRule: 'NONE' as const,
 }
 
-function createCaller() {
+function createCaller(userId?: string) {
   return groupsRouter.createCaller({
     auth: {
-      session: null,
-      user: null,
+      session: userId ? ({ user: { sub: userId } } as never) : null,
+      user: userId ? ({ id: userId } as never) : null,
     },
   } as never)
 }
@@ -66,12 +74,20 @@ function createCaller() {
 describe('groups write procedures', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    requireGroupMembershipMock.mockResolvedValue({
+      groupId: 'group-1',
+      role: 'MEMBER',
+    })
+    requireGroupOwnerMock.mockResolvedValue({
+      groupId: 'group-1',
+      role: 'OWNER',
+    })
   })
 
   it('passes the selected participant through the group update procedure', async () => {
     updateGroupMock.mockResolvedValue(undefined)
 
-    const caller = createCaller()
+    const caller = createCaller('user-1')
     await expect(
       caller.update({
         groupId: 'group-1',
@@ -97,6 +113,7 @@ describe('groups write procedures', () => {
       },
       'participant-1',
     )
+    expect(requireGroupOwnerMock).toHaveBeenCalledWith('user-1', 'group-1')
   })
 
   it('uses the provided participant when creating, updating and deleting expenses', async () => {
@@ -104,7 +121,7 @@ describe('groups write procedures', () => {
     updateExpenseMock.mockResolvedValue({ id: 'expense-1' })
     deleteExpenseMock.mockResolvedValue(undefined)
 
-    const caller = createCaller()
+    const caller = createCaller('user-1')
 
     await expect(
       caller.expenses.create({
@@ -147,5 +164,22 @@ describe('groups write procedures', () => {
       'expense-1',
       'participant-1',
     )
+    expect(requireGroupMembershipMock).toHaveBeenCalledWith('user-1', 'group-1')
+  })
+
+  it('rejects anonymous access to protected writes', async () => {
+    const caller = createCaller()
+
+    await expect(
+      caller.expenses.create({
+        groupId: 'group-1',
+        participantId: 'participant-1',
+        expenseFormValues,
+      }),
+    ).rejects.toMatchObject({
+      code: 'UNAUTHORIZED',
+    })
+
+    expect(requireGroupMembershipMock).not.toHaveBeenCalled()
   })
 })

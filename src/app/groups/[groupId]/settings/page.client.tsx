@@ -94,7 +94,7 @@ function SettingsOptionCard({
 }
 
 export function SettingsPageClient() {
-  const { groupId, viewer } = useCurrentGroup()
+  const { groupId } = useCurrentGroup()
   const t = useTranslations('Settings')
   const [view, setView] = useState<SettingsView>('hub')
   const [password, setPassword] = useState('')
@@ -119,20 +119,7 @@ export function SettingsPageClient() {
     trpc.groups.delete.useMutation()
   const utils = trpc.useUtils()
 
-  const getActiveParticipantId = () => {
-    if (viewer) {
-      return data?.currentActiveParticipantId ?? undefined
-    }
-
-    const rawActiveUser = localStorage.getItem(`${groupId}-activeUser`)
-    if (!rawActiveUser || !data?.group) return undefined
-
-    const participant = data.group.participants.find(
-      (item) => item.id === rawActiveUser || item.name === rawActiveUser,
-    )
-
-    return participant?.id
-  }
+  const getActiveParticipantId = () => data?.currentActiveParticipantId ?? undefined
 
   if (isLoading || !data?.group) {
     return (

@@ -4,13 +4,15 @@ import {
 } from '@/lib/groups'
 import { getGroupExpensesParticipants } from '@/lib/expenses'
 import { getUserGroupMembership } from '@/lib/user-memberships'
-import { baseProcedure } from '@/trpc/init'
+import { protectedProcedure } from '@/trpc/init'
 import { TRPCError } from '@trpc/server'
+import { requireGroupMembership } from './authorization'
 import { z } from 'zod'
 
-export const getGroupDetailsProcedure = baseProcedure
+export const getGroupDetailsProcedure = protectedProcedure
   .input(z.object({ groupId: z.string().min(1) }))
   .query(async ({ ctx, input: { groupId } }) => {
+    await requireGroupMembership(ctx.auth.user.id, groupId)
     const group = await getGroup(groupId)
     if (!group) {
       throw new TRPCError({
@@ -21,9 +23,7 @@ export const getGroupDetailsProcedure = baseProcedure
 
     const participantsWithExpenses = await getGroupExpensesParticipants(groupId)
     const accessControl = await getGroupAccessControl(groupId)
-    const membership = ctx.auth.user
-      ? await getUserGroupMembership(ctx.auth.user.id, groupId)
-      : null
+    const membership = await getUserGroupMembership(ctx.auth.user.id, groupId)
     return {
       group,
       participantsWithExpenses,

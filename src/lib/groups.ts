@@ -22,6 +22,23 @@ export async function createGroup(
   const activeParticipantId = options?.activeParticipantName
     ? participantIdsByName.get(options.activeParticipantName) ?? null
     : null
+  const participantNames = new Set(groupFormValues.participants.map((participant) => participant.name))
+  const linkedParticipantName =
+    options?.userId &&
+    options.linkedUserName &&
+    options.activeParticipantName
+      ? (() => {
+          const originalName = options.activeParticipantName
+          participantNames.delete(originalName)
+          let suffix = 1
+          let candidate = options.linkedUserName
+          while (participantNames.has(candidate)) {
+            suffix += 1
+            candidate = `${options.linkedUserName} (${suffix})`
+          }
+          return candidate
+        })()
+      : null
 
   return prisma.$transaction(async (tx) => {
     await tx.group.create({
@@ -38,8 +55,8 @@ export async function createGroup(
               name:
                 options?.userId &&
                 options.activeParticipantName === name &&
-                options.linkedUserName
-                  ? options.linkedUserName
+                linkedParticipantName
+                  ? linkedParticipantName
                   : name,
               appUserId:
                 options?.userId && options.activeParticipantName === name
@@ -245,6 +262,33 @@ export async function getGroups(groupIds: string[]) {
       },
     })
   ).map((group) => ({
+    ...group,
+    createdAt: group.createdAt.toISOString(),
+  }))
+}
+
+export async function getGroupsForUser(userId: string, groupIds: string[]) {
+  return (
+    await prisma.userGroupMembership.findMany({
+      where: {
+        userId,
+        groupId: { in: groupIds },
+      },
+      select: {
+        group: {
+          select: {
+            id: true,
+            name: true,
+            currency: true,
+            createdAt: true,
+            information: true,
+            currencyCode: true,
+            _count: { select: { participants: true } },
+          },
+        },
+      },
+    })
+  ).map(({ group }) => ({
     ...group,
     createdAt: group.createdAt.toISOString(),
   }))

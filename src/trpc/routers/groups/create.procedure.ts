@@ -1,9 +1,9 @@
 import { createGroup } from '@/lib/groups'
 import { groupFormSchema } from '@/lib/schemas'
-import { baseProcedure } from '@/trpc/init'
+import { protectedProcedure } from '@/trpc/init'
 import { z } from 'zod'
 
-export const createGroupProcedure = baseProcedure
+export const createGroupProcedure = protectedProcedure
   .input(
     z.object({
       groupFormValues: groupFormSchema,

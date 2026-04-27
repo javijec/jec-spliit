@@ -3,7 +3,7 @@ import {
   createGroupFromImportedExpenses,
 } from '@/lib/groups'
 import { groupFormSchema } from '@/lib/schemas'
-import { baseProcedure } from '@/trpc/init'
+import { protectedProcedure } from '@/trpc/init'
 import { z } from 'zod'
 
 const importedExpenseSchema = z.object({
@@ -23,7 +23,7 @@ const importedExpenseSchema = z.object({
   isReimbursement: z.boolean(),
 })
 
-export const importSplitwiseProcedure = baseProcedure
+export const importSplitwiseProcedure = protectedProcedure
   .input(
     z.object({
       groupFormValues: groupFormSchema,

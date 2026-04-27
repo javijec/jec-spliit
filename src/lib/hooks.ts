@@ -60,9 +60,6 @@ export function useActiveUser(groupId?: string) {
   const [activeUser, setActiveUser] = useState<string | null>(null)
   const currentGroup = useOptionalCurrentGroup()
   const canUseGroupContext = !!groupId && currentGroup?.groupId === groupId
-  const { data: viewerData } = trpc.viewer.getCurrent.useQuery(undefined, {
-    enabled: !canUseGroupContext,
-  })
   const { data: groupDetails } = trpc.groups.getDetails.useQuery(
     { groupId: groupId ?? '' },
     {
@@ -74,40 +71,16 @@ export function useActiveUser(groupId?: string) {
     if (!groupId) return
 
     if (canUseGroupContext) {
-      if (currentGroup.viewer) {
-        setActiveUser(currentGroup.currentActiveParticipantId ?? null)
-        return
-      }
-
-      const activeUser = localStorage.getItem(`${groupId}-activeUser`)
-      if (activeUser) {
-        setActiveUser(activeUser)
-        return
-      }
-
-      setActiveUser(null)
+      setActiveUser(currentGroup.currentActiveParticipantId ?? null)
       return
     }
 
-    if (viewerData?.user) {
-      setActiveUser(groupDetails?.currentActiveParticipantId ?? null)
-      return
-    }
-
-    const activeUser = localStorage.getItem(`${groupId}-activeUser`)
-    if (activeUser) {
-      setActiveUser(activeUser)
-      return
-    }
-
-    setActiveUser(null)
+    setActiveUser(groupDetails?.currentActiveParticipantId ?? null)
   }, [
     canUseGroupContext,
     currentGroup?.currentActiveParticipantId,
-    currentGroup?.viewer,
     groupDetails?.currentActiveParticipantId,
     groupId,
-    viewerData?.user,
   ])
 
   return activeUser

@@ -1,4 +1,7 @@
+import { getCurrentAppUser, getCurrentAuthSession } from '@/lib/auth'
 import { getCurrency } from '@/lib/currency'
+import { auth0Enabled } from '@/lib/env'
+import { getUserGroupMembership } from '@/lib/user-memberships'
 import { formatAmountAsDecimal, getCurrencyFromGroup } from '@/lib/utils'
 import { Parser } from '@json2csv/plainjs'
 import { PrismaClient } from '@prisma/client'
@@ -27,6 +30,20 @@ export async function GET(
   { params }: { params: Promise<{ groupId: string }> },
 ) {
   const { groupId } = await params
+
+  if (auth0Enabled) {
+    const session = await getCurrentAuthSession()
+    const user = session ? await getCurrentAppUser() : null
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const membership = await getUserGroupMembership(user.id, groupId)
+    if (!membership) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+  }
+
   const group = await prisma.group.findUnique({
     where: { id: groupId },
     select: {

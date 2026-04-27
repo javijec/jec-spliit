@@ -5,6 +5,7 @@ jest.mock('@/lib/prisma', () => ({
     $transaction: jest.fn(),
     participant: {
       findFirst: jest.fn(),
+      findMany: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
     },
@@ -25,12 +26,18 @@ import type { GroupFormValues } from './schemas'
 
 const transactionMock = jest.mocked(prisma.$transaction)
 const participantFindFirstMock = jest.mocked(prisma.participant.findFirst)
+const participantFindManyMock = jest.mocked(prisma.participant.findMany)
 const participantUpdateMock = jest.mocked(prisma.participant.update)
 const participantUpdateManyMock = jest.mocked(prisma.participant.updateMany)
 const membershipUpsertMock = jest.mocked(prisma.userGroupMembership.upsert)
 const nanoidMock = jest.mocked(nanoid)
 
 const mockTx = {
+  participant: {
+    findMany: jest.fn(),
+    update: jest.fn(),
+    updateMany: jest.fn(),
+  },
   group: {
     create: jest.fn(),
     findUnique: jest.fn(),
@@ -225,7 +232,12 @@ describe('setUserActiveParticipant', () => {
     })
     participantUpdateManyMock.mockResolvedValue({ count: 1 } as never)
     participantUpdateMock.mockResolvedValue({} as never)
+    participantFindManyMock.mockResolvedValue([])
     membershipUpsertMock.mockResolvedValue({} as never)
+    mockTx.participant.findMany.mockResolvedValue([])
+    mockTx.participant.updateMany.mockResolvedValue({ count: 1 })
+    mockTx.participant.update.mockResolvedValue({})
+    mockTx.userGroupMembership.upsert.mockResolvedValue({})
   })
 
   it('persists the selected participant for the authenticated user', async () => {
@@ -241,7 +253,7 @@ describe('setUserActiveParticipant', () => {
       },
       select: { id: true, appUserId: true },
     })
-    expect(participantUpdateManyMock).toHaveBeenCalledWith({
+    expect(mockTx.participant.updateMany).toHaveBeenCalledWith({
       where: {
         groupId: 'group-1',
         appUserId: 'user-1',
@@ -251,11 +263,11 @@ describe('setUserActiveParticipant', () => {
         appUserId: null,
       },
     })
-    expect(participantUpdateMock).toHaveBeenCalledWith({
+    expect(mockTx.participant.update).toHaveBeenCalledWith({
       where: { id: 'participant-juan' },
       data: { appUserId: 'user-1' },
     })
-    expect(membershipUpsertMock).toHaveBeenCalledWith({
+    expect(mockTx.userGroupMembership.upsert).toHaveBeenCalledWith({
       where: {
         userId_groupId: {
           userId: 'user-1',
@@ -280,6 +292,7 @@ describe('setUserActiveParticipant', () => {
   it('renames the selected participant to the authenticated user name when provided', async () => {
     nanoidMock.mockReturnValueOnce('membership-id')
     participantFindFirstMock.mockResolvedValue({ id: 'participant-juan' } as never)
+    mockTx.participant.findMany.mockResolvedValue([])
 
     await setUserActiveParticipant(
       'user-1',
@@ -288,9 +301,27 @@ describe('setUserActiveParticipant', () => {
       'Javier',
     )
 
-    expect(participantUpdateMock).toHaveBeenCalledWith({
+    expect(mockTx.participant.update).toHaveBeenCalledWith({
       where: { id: 'participant-juan' },
       data: { appUserId: 'user-1', name: 'Javier' },
+    })
+  })
+
+  it('adds a suffix when the synced participant name already exists in the group', async () => {
+    nanoidMock.mockReturnValueOnce('membership-id')
+    participantFindFirstMock.mockResolvedValue({ id: 'participant-juan' } as never)
+    mockTx.participant.findMany.mockResolvedValue([{ name: 'Javier' }])
+
+    await setUserActiveParticipant(
+      'user-1',
+      'group-1',
+      'participant-juan',
+      'Javier',
+    )
+
+    expect(mockTx.participant.update).toHaveBeenCalledWith({
+      where: { id: 'participant-juan' },
+      data: { appUserId: 'user-1', name: 'Javier (2)' },
     })
   })
 
@@ -328,7 +359,7 @@ describe('setUserActiveParticipant', () => {
         lastAccessedAt: expect.any(Date),
       },
     })
-    expect(participantUpdateMock).not.toHaveBeenCalled()
+    expect(mockTx.participant.update).not.toHaveBeenCalled()
   })
 
   it('rejects participants that do not belong to the group', async () => {
@@ -338,8 +369,8 @@ describe('setUserActiveParticipant', () => {
       setUserActiveParticipant('user-1', 'group-1', 'participant-juan'),
     ).rejects.toThrow('Invalid participant ID: participant-juan')
 
-    expect(participantUpdateManyMock).not.toHaveBeenCalled()
-    expect(membershipUpsertMock).not.toHaveBeenCalled()
+    expect(mockTx.participant.updateMany).not.toHaveBeenCalled()
+    expect(mockTx.userGroupMembership.upsert).not.toHaveBeenCalled()
   })
 
   it('rejects participants already linked to a different authenticated user', async () => {
@@ -354,8 +385,8 @@ describe('setUserActiveParticipant', () => {
       'Participant already linked to another user: participant-juan',
     )
 
-    expect(participantUpdateManyMock).not.toHaveBeenCalled()
-    expect(participantUpdateMock).not.toHaveBeenCalled()
-    expect(membershipUpsertMock).not.toHaveBeenCalled()
+    expect(mockTx.participant.updateMany).not.toHaveBeenCalled()
+    expect(mockTx.participant.update).not.toHaveBeenCalled()
+    expect(mockTx.userGroupMembership.upsert).not.toHaveBeenCalled()
   })
 })

@@ -1,5 +1,4 @@
 'use client'
-import { AddGroupByUrlButton } from '@/app/groups/add-group-by-url-button'
 import {
   RecentGroups,
   getArchivedGroups,
@@ -76,6 +75,9 @@ export function RecentGroupList() {
   const { data: viewerData, isLoading: isViewerLoading } =
     trpc.viewer.getCurrent.useQuery()
   const isAuthenticated = !!viewerData?.user
+  const legacySyncKey = viewerData?.user
+    ? `legacy-groups-synced:${viewerData.user.id}`
+    : null
   const { data: myGroupsData, isLoading: isMyGroupsLoading } =
     trpc.groups.mine.useQuery(undefined, {
       enabled: isAuthenticated,
@@ -116,6 +118,10 @@ export function RecentGroupList() {
     if (!isAuthenticated || state.status === 'pending' || hasSyncedLegacyGroups.current) {
       return
     }
+    if (legacySyncKey && localStorage.getItem(legacySyncKey) === '1') {
+      hasSyncedLegacyGroups.current = true
+      return
+    }
 
     hasSyncedLegacyGroups.current = true
     const legacyState = state
@@ -132,7 +138,10 @@ export function RecentGroupList() {
       starredGroupIds: legacyState.starredGroups,
       archivedGroupIds: legacyState.archivedGroups,
     })
-  }, [isAuthenticated, state, syncLegacyGroups])
+    if (legacySyncKey) {
+      localStorage.setItem(legacySyncKey, '1')
+    }
+  }, [isAuthenticated, legacySyncKey, state, syncLegacyGroups])
 
   if (state.status === 'pending' || isViewerLoading) {
     return (
@@ -385,7 +394,6 @@ function GroupList({
 
 function GroupsPage({
   children,
-  reload,
 }: PropsWithChildren<{ reload: () => void }>) {
   const t = useTranslations('Groups')
   return (
@@ -394,14 +402,9 @@ function GroupsPage({
         title={<Link href="/groups">{t('myGroups')}</Link>}
         description={t('groupsHeroDescription')}
         actions={
-          <>
-            <Button asChild className="w-full sm:w-auto">
-              <Link href="/groups/create">{t('create')}</Link>
-            </Button>
-            <div className="w-full sm:w-auto">
-              <AddGroupByUrlButton reload={reload} />
-            </div>
-          </>
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/groups/create">{t('create')}</Link>
+          </Button>
         }
       />
 

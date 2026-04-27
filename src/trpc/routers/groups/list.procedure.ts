@@ -1,14 +1,14 @@
-import { getGroups } from '@/lib/groups'
-import { baseProcedure } from '@/trpc/init'
+import { getGroupsForUser } from '@/lib/groups'
+import { protectedProcedure } from '@/trpc/init'
 import { z } from 'zod'
 
-export const listGroupsProcedure = baseProcedure
+export const listGroupsProcedure = protectedProcedure
   .input(
     z.object({
       groupIds: z.array(z.string().min(1)),
     }),
   )
-  .query(async ({ input: { groupIds } }) => {
-    const groups = await getGroups(groupIds)
+  .query(async ({ ctx, input: { groupIds } }) => {
+    const groups = await getGroupsForUser(ctx.auth.user.id, groupIds)
     return { groups }
   })

@@ -1,6 +1,7 @@
 import { auth0 } from '@/lib/auth0'
 import { prisma } from '@/lib/prisma'
 import { randomId } from '@/lib/ids'
+import { getUniqueParticipantName } from '@/lib/participants'
 
 export interface AuthenticatedUser {
   auth0UserId: string
@@ -71,18 +72,34 @@ export async function updateAppUserDisplayName(
   userId: string,
   displayName: string,
 ) {
-  const [user] = await prisma.$transaction([
-    prisma.appUser.update({
+  return prisma.$transaction(async (tx) => {
+    const user = await tx.appUser.update({
       where: { id: userId },
       data: { displayName },
-    }),
-    prisma.participant.updateMany({
-      where: { appUserId: userId },
-      data: { name: displayName },
-    }),
-  ])
+    })
 
-  return user
+    const linkedParticipants = await tx.participant.findMany({
+      where: { appUserId: userId },
+      select: { id: true, groupId: true },
+      orderBy: [{ groupId: 'asc' }, { id: 'asc' }],
+    })
+
+    for (const participant of linkedParticipants) {
+      const uniqueName = await getUniqueParticipantName(
+        tx,
+        participant.groupId,
+        participant.id,
+        displayName,
+      )
+
+      await tx.participant.update({
+        where: { id: participant.id },
+        data: { name: uniqueName },
+      })
+    }
+
+    return user
+  })
 }
 
 export async function deleteAppUserAccount(userId: string) {

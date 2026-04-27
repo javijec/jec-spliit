@@ -14,7 +14,6 @@ import Link from 'next/link'
 import { forwardRef, useEffect, useMemo } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useCurrentGroup } from '../current-group-context'
-import { updateCurrentActiveParticipantCache } from '../group-query-cache'
 
 const PAGE_SIZE = 20
 const EXPENSE_GROUP_ORDER = [
@@ -49,59 +48,6 @@ function groupExpensesByDate(expenses: ExpensesType): GroupedExpenses {
     result[groupKey]!.push(expense)
     return result
   }, {})
-}
-
-function syncActiveUser(groupId: string, participants?: { id: string; name: string }[]) {
-  if (!participants) return
-
-  const activeUser = localStorage.getItem('newGroup-activeUser')
-  const newUser = localStorage.getItem(`${groupId}-newUser`)
-  if (!activeUser && !newUser) return
-
-  localStorage.removeItem('newGroup-activeUser')
-  localStorage.removeItem(`${groupId}-newUser`)
-
-  if (activeUser === 'None') {
-    localStorage.setItem(`${groupId}-activeUser`, 'None')
-    return
-  }
-
-  const selectedName = activeUser || newUser
-  const selectedParticipantId = participants.find(
-    (participant) => participant.name === selectedName,
-  )?.id
-  if (selectedParticipantId) {
-    localStorage.setItem(`${groupId}-activeUser`, selectedParticipantId)
-  }
-}
-
-async function syncPersistedActiveUser(
-  groupId: string,
-  participants: { id: string; name: string }[],
-  setActiveParticipant: (input: {
-    groupId: string
-    participantId: string | null
-  }) => Promise<unknown>,
-) {
-  const activeUser = localStorage.getItem('newGroup-activeUser')
-  const newUser = localStorage.getItem(`${groupId}-newUser`)
-  if (!activeUser && !newUser) return
-
-  localStorage.removeItem('newGroup-activeUser')
-  localStorage.removeItem(`${groupId}-newUser`)
-
-  if (activeUser === 'None') {
-    await setActiveParticipant({ groupId, participantId: null })
-    return
-  }
-
-  const selectedName = activeUser || newUser
-  const selectedParticipantId = participants.find(
-    (participant) => participant.name === selectedName,
-  )?.id
-  if (selectedParticipantId) {
-    await setActiveParticipant({ groupId, participantId: selectedParticipantId })
-  }
 }
 
 function EmptyExpenses({ groupId }: { groupId: string }) {
@@ -192,28 +138,7 @@ function ExpensesByGroup({
 }
 
 export function ExpenseList() {
-  const { groupId, group, viewer } = useCurrentGroup()
-  const utils = trpc.useUtils()
-  const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation()
-
-  useEffect(() => {
-    if (!group?.participants) return
-
-    if (viewer) {
-      void syncPersistedActiveUser(
-        groupId,
-        group.participants,
-        async ({ groupId, participantId }) => {
-          await setActiveParticipant.mutateAsync({ groupId, participantId })
-          updateCurrentActiveParticipantCache(utils, groupId, participantId)
-        },
-      )
-      return
-    }
-
-    syncActiveUser(groupId, group.participants)
-  }, [groupId, group?.participants, setActiveParticipant, utils, viewer])
-
+  const { groupId } = useCurrentGroup()
   return <ExpenseListContent groupId={groupId} />
 }
 

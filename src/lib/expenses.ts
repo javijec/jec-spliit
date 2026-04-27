@@ -164,10 +164,13 @@ export async function deleteExpense(
   participantId?: string,
 ) {
   const existingExpense = await getExpense(groupId, expenseId)
+  if (!existingExpense) {
+    throw new Error(`Invalid expense ID: ${expenseId}`)
+  }
   await logExpenseActivity(groupId, ActivityType.DELETE_EXPENSE, {
     participantId,
     expenseId,
-    data: existingExpense?.title,
+    data: existingExpense.title,
   })
 
   await prisma.expense.delete({
@@ -409,8 +412,11 @@ export async function getGroupExpenseCount(groupId: string) {
 }
 
 export async function getExpense(groupId: string, expenseId: string) {
-  return prisma.expense.findUnique({
-    where: { id: expenseId },
+  return prisma.expense.findFirst({
+    where: {
+      id: expenseId,
+      groupId,
+    },
     include: {
       paidBy: true,
       paidFor: true,

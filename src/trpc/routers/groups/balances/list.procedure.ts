@@ -9,12 +9,14 @@ import {
   getPublicBalances,
   getSuggestedReimbursements,
 } from '@/lib/balances'
-import { baseProcedure } from '@/trpc/init'
+import { protectedProcedure } from '@/trpc/init'
+import { requireGroupMembership } from '../authorization'
 import { z } from 'zod'
 
-export const listGroupBalancesProcedure = baseProcedure
+export const listGroupBalancesProcedure = protectedProcedure
   .input(z.object({ groupId: z.string().min(1) }))
-  .query(async ({ input: { groupId } }) => {
+  .query(async ({ ctx, input: { groupId } }) => {
+    await requireGroupMembership(ctx.auth.user.id, groupId)
     await syncRecurringExpensesForGroupIfDue(groupId)
 
     const [expenses, group] = await Promise.all([
