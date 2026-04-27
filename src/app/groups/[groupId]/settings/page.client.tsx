@@ -23,18 +23,23 @@ import { Input } from '@/components/ui/input'
 import { SectionHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
+import { getCurrency } from '@/lib/currency'
+import type { GroupFormValues } from '@/lib/schemas'
 import { trpc } from '@/trpc/client'
 import {
   ArrowLeft,
+  Check,
   ChevronRight,
   FileOutput,
   Link2,
   MailPlus,
+  Plus,
   Pencil,
   ShieldCheck,
   Trash2,
   UserMinus,
   Users,
+  X,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -48,6 +53,242 @@ type SettingsView =
   | 'participants'
   | 'export'
   | 'danger'
+
+type ParticipantRow = {
+  id: string
+  name: string
+  appUserId: string | null
+  appUser?: {
+    email?: string | null
+    displayName?: string | null
+  } | null
+}
+
+function buildGroupFormValues(
+  group: {
+    name: string
+    information: string | null
+    currency: string | null
+    currencyCode: string | null
+  },
+  participants: Array<{ id?: string; name: string }>,
+): GroupFormValues {
+  return {
+    name: group.name,
+    information: group.information ?? '',
+    currency:
+      group.currency ??
+      getCurrency(group.currencyCode ?? process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE ?? 'USD')
+        .symbol,
+    currencyCode: group.currencyCode ?? '',
+    participants,
+  }
+}
+
+function ParticipantsManager({
+  canManageMembers,
+  currentActiveParticipantId,
+  group,
+  isUpdatingGroup,
+  onAddParticipant,
+  onDeleteParticipant,
+  onEditParticipant,
+  onRemoveParticipantAccess,
+  participantAccess,
+  protectedParticipantIds,
+  removeAccessLabel,
+  removingAccessUserId,
+}: {
+  canManageMembers: boolean
+  currentActiveParticipantId: string | null
+  group: {
+    participants: ParticipantRow[]
+  }
+  isUpdatingGroup: boolean
+  onAddParticipant: (name: string) => Promise<void>
+  onDeleteParticipant: (participantId: string) => Promise<void>
+  onEditParticipant: (participantId: string, name: string) => Promise<void>
+  onRemoveParticipantAccess: (participantId: string, userId: string) => Promise<void>
+  participantAccess: Record<
+    string,
+    {
+      userId: string
+      label: string
+      secondary?: string | null
+      isOwner?: boolean
+      isCurrentViewer?: boolean
+    }
+  >
+  protectedParticipantIds: Set<string>
+  removeAccessLabel: string
+  removingAccessUserId: string | null
+}) {
+  const t = useTranslations('Settings')
+  const [newParticipantName, setNewParticipantName] = useState('')
+  const [editingParticipant, setEditingParticipant] = useState<ParticipantRow | null>(null)
+  const [editingName, setEditingName] = useState('')
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-medium">{t('participantsAndAccessListTitle')}</p>
+        <span className="text-xs text-muted-foreground">
+          {t('participantsBadge', { count: group.participants.length })}
+        </span>
+      </div>
+
+      <Dialog
+        open={editingParticipant !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingParticipant(null)
+            setEditingName('')
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <div className="space-y-1 pr-8">
+            <DialogTitle>{t('participantEditTitle')}</DialogTitle>
+            <DialogDescription>{t('participantEditDescription')}</DialogDescription>
+          </div>
+          <Input
+            value={editingName}
+            onChange={(event) => setEditingName(event.target.value)}
+            placeholder={t('participantNamePlaceholder')}
+            autoFocus
+          />
+          <DialogFooter className="flex flex-col gap-2">
+            <Button
+              type="button"
+              disabled={isUpdatingGroup || editingName.trim().length < 2}
+              onClick={async () => {
+                if (!editingParticipant) return
+                await onEditParticipant(editingParticipant.id, editingName.trim())
+                setEditingParticipant(null)
+                setEditingName('')
+              }}
+              className="w-full"
+            >
+              <Check className="mr-2 h-4 w-4" />
+              {t('participantSaveAction')}
+            </Button>
+            <DialogClose asChild>
+              <Button variant="outline" className="w-full">
+                <X className="mr-2 h-4 w-4" />
+                {t('cancel')}
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <div className="rounded-xl border border-border/70 bg-background/60">
+        {group.participants.map((participant, index) => {
+          const accessInfo = participantAccess[participant.id]
+          const canDelete =
+            canManageMembers &&
+            participant.id !== currentActiveParticipantId &&
+            !protectedParticipantIds.has(participant.id)
+          const canRemoveAccess =
+            !!accessInfo && !accessInfo.isOwner && canManageMembers
+
+          return (
+            <div
+              key={participant.id}
+              className={[
+                'px-3 py-2.5',
+                index > 0 ? 'border-t border-border/70' : '',
+              ].join(' ')}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{participant.name}</p>
+                  {accessInfo ? (
+                    <p className="truncate pt-1 text-[11px] text-muted-foreground">
+                      {accessInfo.secondary ?? accessInfo.label}
+                    </p>
+                  ) : (
+                    <p className="truncate pt-1 text-[11px] text-muted-foreground">
+                      {t('participantNoAccess')}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => {
+                      setEditingParticipant(participant)
+                      setEditingName(participant.name)
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive"
+                    disabled={!canDelete || isUpdatingGroup}
+                    onClick={() => void onDeleteParticipant(participant.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              {canRemoveAccess ? (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    disabled={removingAccessUserId === accessInfo.userId}
+                    onClick={() =>
+                      void onRemoveParticipantAccess(participant.id, accessInfo.userId)
+                    }
+                  >
+                    {removeAccessLabel}
+                  </Button>
+                </div>
+              ) : accessInfo?.isOwner ? (
+                <div className="pt-2">
+                  <Badge variant="outline" className="h-7 text-[10px]">
+                    {t('linkedMembersOwner')}
+                  </Badge>
+                </div>
+              ) : null}
+            </div>
+          )
+        })}
+
+        <div className="border-t border-border/70 px-3 py-2.5">
+          <div className="flex items-center gap-2">
+            <Input
+              value={newParticipantName}
+              onChange={(event) => setNewParticipantName(event.target.value)}
+              placeholder={t('participantNamePlaceholder')}
+            />
+            <Button
+              type="button"
+              size="sm"
+              className="h-9 shrink-0"
+              disabled={isUpdatingGroup || newParticipantName.trim().length < 2}
+              onClick={async () => {
+                await onAddParticipant(newParticipantName.trim())
+                setNewParticipantName('')
+              }}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function SettingsOptionCard({
   onClick,
@@ -121,6 +362,8 @@ export function SettingsPageClient() {
     trpc.groups.addMember.useMutation()
   const { mutateAsync: removeMemberAsync, isPending: isRemovingMember } =
     trpc.groups.removeMember.useMutation()
+  const { mutateAsync: updateGroupAsync, isPending: isUpdatingGroup } =
+    trpc.groups.update.useMutation()
   const utils = trpc.useUtils()
   const [memberEmail, setMemberEmail] = useState('')
   const [memberParticipantId, setMemberParticipantId] = useState('')
@@ -183,6 +426,7 @@ export function SettingsPageClient() {
   const canDeleteGroup =
     deleteConfirmChecked && deleteConfirmName.trim() === data.group.name
   const canManageMembers = data.currentUserRole === 'OWNER'
+  const protectedParticipantIds = new Set(data.participantsWithExpenses ?? [])
   const availableParticipants = data.group.participants.filter(
     (participant) => !participant.appUserId,
   )
@@ -399,84 +643,55 @@ export function SettingsPageClient() {
                   </div>
                 )}
 
-                {linkedMembers.length > 0 && (
-                  <div className="grid gap-2 border-t border-border/70 pt-3">
-                    <p className="text-sm font-medium">{t('linkedMembersTitle')}</p>
-                    {linkedMembers.map((member) => {
-                      const isOwner = member.role === 'OWNER'
-                      const label =
-                        member.user.displayName ||
-                        member.user.email ||
-                        member.activeParticipant?.name ||
-                        t('linkedMembersFallback')
-
-                      return (
-                        <div
-                          key={`${member.userId}-${member.activeParticipant?.id ?? 'none'}`}
-                          className="flex items-center justify-between gap-3 rounded-lg border border-border/70 px-3 py-2.5"
-                        >
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">{label}</p>
-                            <p className="truncate text-xs text-muted-foreground">
-                              {member.activeParticipant?.name ?? t('linkedMembersFallback')}
-                            </p>
-                          </div>
-
-                          {isOwner ? (
-                            <Badge variant="outline">{t('linkedMembersOwner')}</Badge>
-                          ) : canManageMembers ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              disabled={isRemovingMember}
-                              onClick={async () => {
-                                try {
-                                  await removeMemberAsync({
-                                    groupId,
-                                    userId: member.userId,
-                                  })
-                                  await utils.groups.invalidate()
-                                  toast({
-                                    title: t('memberRemovedTitle'),
-                                    description: t('memberRemovedDescription', {
-                                      participant:
-                                        member.activeParticipant?.name ??
-                                        t('linkedMembersFallback'),
-                                    }),
-                                  })
-                                } catch (error) {
-                                  toast({
-                                    title: t('memberRemoveErrorTitle'),
-                                    description:
-                                      error instanceof Error
-                                        ? error.message
-                                        : t('memberRemoveErrorDescription'),
-                                      variant: 'destructive',
-                                  })
-                                }
-                              }}
-                            >
-                              <UserMinus className="mr-2 h-4 w-4" />
-                              {t('memberRemoveAction')}
-                            </Button>
-                          ) : null}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
             </div>
 
             <div className="border-t border-border/70 pt-4">
-              <EditGroup
-                groupDetails={data}
-                mode="participants"
-                participantAccess={participantAccess}
-                removingParticipantUserId={removingAccessUserId}
-                removeAccessLabel={t('memberRemoveAction')}
-                onRemoveParticipantAccess={async (_participantId, userId) => {
+              <ParticipantsManager
+                canManageMembers={canManageMembers}
+                currentActiveParticipantId={data.currentActiveParticipantId}
+                group={data.group}
+                isUpdatingGroup={isUpdatingGroup}
+                onAddParticipant={async (name) => {
+                  const nextParticipants = [
+                    ...data.group.participants.map((participant) => ({
+                      id: participant.id,
+                      name: participant.name,
+                    })),
+                    { name },
+                  ]
+                  await updateGroupAsync({
+                    groupId,
+                    groupFormValues: buildGroupFormValues(data.group, nextParticipants),
+                  })
+                  await utils.groups.invalidate()
+                }}
+                onDeleteParticipant={async (participantId) => {
+                  const nextParticipants = data.group.participants
+                    .filter((participant) => participant.id !== participantId)
+                    .map((participant) => ({
+                      id: participant.id,
+                      name: participant.name,
+                    }))
+                  await updateGroupAsync({
+                    groupId,
+                    groupFormValues: buildGroupFormValues(data.group, nextParticipants),
+                  })
+                  await utils.groups.invalidate()
+                }}
+                onEditParticipant={async (participantId, name) => {
+                  const nextParticipants = data.group.participants.map((participant) =>
+                    participant.id === participantId
+                      ? { id: participant.id, name }
+                      : { id: participant.id, name: participant.name },
+                  )
+                  await updateGroupAsync({
+                    groupId,
+                    groupFormValues: buildGroupFormValues(data.group, nextParticipants),
+                  })
+                  await utils.groups.invalidate()
+                }}
+                onRemoveParticipantAccess={async (participantId, userId) => {
                   try {
                     const member = linkedMembers.find(
                       (linkedMember) => linkedMember.userId === userId,
@@ -508,6 +723,10 @@ export function SettingsPageClient() {
                     setRemovingAccessUserId(null)
                   }
                 }}
+                participantAccess={participantAccess}
+                protectedParticipantIds={protectedParticipantIds}
+                removeAccessLabel={t('memberRemoveAction')}
+                removingAccessUserId={removingAccessUserId}
               />
             </div>
           </GroupSectionContent>
