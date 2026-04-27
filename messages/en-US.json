@@ -127,6 +127,11 @@
     "createSuccessDescription": "The group was created successfully.",
     "createErrorTitle": "Could not create the group",
     "createErrorDescription": "An error occurred while creating the group.",
+    "SignIn": {
+      "title": "Sign in to view your groups",
+      "description": "NexoGastos now uses account-based access. Sign in to open your groups and continue where you left off.",
+      "action": "Sign in with Google"
+    },
     "Import": {
       "badges": {
         "csv": "CSV",
@@ -175,11 +180,11 @@
       "importedGroupInfo": "Imported from Splitwise CSV ({fileName})"
     },
     "loadingRecent": "Loading recent groups…",
-    "groupsHeroDescription": "Open a recent group, create a new one, or add one from a link.",
+    "groupsHeroDescription": "Open your groups, create a new one, and manage everything from your account.",
     "NoRecent": {
-      "description": "You have not visited any group recently.",
+      "description": "You do not have any groups in your account yet.",
       "create": "Create one",
-      "orAsk": "or ask a friend to send you the link to an existing one."
+      "orAsk": "or ask to be added to a group with your account so it appears here."
     },
     "recent": "Recent groups",
     "starred": "Starred groups",
@@ -530,21 +535,21 @@
     "quickActionsTitle": "Quick actions",
     "quickActionsDescription": "Jump to the most common group tasks without going through long forms.",
     "editGroupShort": "Name, participants, and currency.",
-    "shareAndExportShort": "Share the link and export data.",
-    "securityShort": "Password and link access.",
+    "shareAndExportShort": "Share access and export data.",
+    "securityShort": "Member-based access.",
     "dangerZoneShort": "Delete the group permanently.",
     "editGroup": "Edit group",
     "editGroupDescription": "Name, participants, currency, and general information.",
     "viewBalances": "View balances",
     "viewBalancesDescription": "Review settlements and pending group payments.",
     "shareAndExport": "Share and export",
-    "shareAndExportDescription": "Share group access or download its records.",
+    "shareAndExportDescription": "Share the link with people who already have access or download the group's records.",
     "groupInformationTitle": "Group information",
     "emptyInformation": "There is no information yet.",
     "exportInfoTitle": "Export",
     "exportInfoDescription": "JSON and CSV export the group expenses with their current information.",
     "securityTitle": "Security",
-    "securityDescription": "Protect group access when sharing by link.",
+    "securityDescription": "Group access is now controlled through account membership.",
     "dangerZoneTitle": "Danger zone",
     "dangerZoneDescription": "Deleting the group removes expenses, balances, and activity.",
     "protected": "Protected",
@@ -617,10 +622,10 @@
   },
   "Share": {
     "title": "Share",
-    "description": "For other participants to see the group and add expenses, share its URL with them.",
+    "description": "Share the group URL with people who already have access linked to their account.",
     "shareMessage": "Join my group {groupName} on NexoGastos",
     "warning": "Warning!",
-    "warningHelp": "Every person with the group URL will be able to see and edit expenses. Share with caution!"
+    "warningHelp": "The link alone does not grant access. If someone is not yet a member, add them first."
   },
   "SchemaErrors": {
     "min1": "Enter at least 1 character.",

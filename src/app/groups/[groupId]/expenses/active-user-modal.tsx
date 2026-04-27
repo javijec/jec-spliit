@@ -65,20 +65,11 @@ export function ActiveUserModal({
   useEffect(() => {
     if (!group) return
 
-    const tempUser = typeof window === 'undefined'
-      ? null
-      : localStorage.getItem(`newGroup-activeUser`)
-    const activeUser = typeof window === 'undefined'
-      ? null
-      : localStorage.getItem(`${group.id}-activeUser`)
-
     if (
       shouldPromptForActiveParticipant({
         isAuthResolved,
         viewer,
         currentActiveParticipantId,
-        tempUser,
-        activeUser,
       })
     ) {
       setOpen(true)
@@ -88,20 +79,12 @@ export function ActiveUserModal({
   function updateOpen(open: boolean) {
     if (!group) return
 
-    if (viewer) {
-      if (!open && !currentActiveParticipantId) {
-        void setActiveParticipant
-          .mutateAsync({ groupId: group.id, participantId: null })
-          .then(() => {
-            updateCurrentActiveParticipantCache(utils, group.id, null)
-          })
-      }
-      setOpen(open)
-      return
-    }
-
-    if (!open && !localStorage.getItem(`${group.id}-activeUser`)) {
-      localStorage.setItem(`${group.id}-activeUser`, 'None')
+    if (!open && !currentActiveParticipantId) {
+      void setActiveParticipant
+        .mutateAsync({ groupId: group.id, participantId: null })
+        .then(() => {
+          updateCurrentActiveParticipantCache(utils, group.id, null)
+        })
     }
     setOpen(open)
   }
@@ -117,7 +100,6 @@ export function ActiveUserModal({
           <ActiveUserForm
             group={group}
             currentActiveParticipantId={currentActiveParticipantId}
-            isAuthenticated={!!viewer}
             currentUserId={viewer?.id}
             close={() => setOpen(false)}
           />
@@ -142,7 +124,6 @@ export function ActiveUserModal({
           className="px-4"
           group={group}
           currentActiveParticipantId={currentActiveParticipantId}
-          isAuthenticated={!!viewer}
           currentUserId={viewer?.id}
           close={() => setOpen(false)}
         />
@@ -158,39 +139,28 @@ export function ActiveUserModal({
 
 export function shouldPromptForActiveParticipant({
   isAuthResolved,
-  viewer,
   currentActiveParticipantId,
-  tempUser,
-  activeUser,
 }: {
   isAuthResolved: boolean
   viewer: Viewer | null
   currentActiveParticipantId: string | null
-  tempUser: string | null
-  activeUser: string | null
 }) {
   if (!isAuthResolved) {
     return false
   }
 
-  if (viewer) {
-    return !currentActiveParticipantId
-  }
-
-  return !tempUser && !activeUser
+  return !currentActiveParticipantId
 }
 
 export function ActiveUserForm({
   group,
   currentActiveParticipantId,
-  isAuthenticated,
   currentUserId,
   close,
   className,
 }: ComponentProps<'form'> & {
   group?: AppRouterOutput['groups']['get']['group']
   currentActiveParticipantId?: string | null
-  isAuthenticated?: boolean
   currentUserId?: string
   close: () => void
 }) {
@@ -214,16 +184,12 @@ export function ActiveUserForm({
         if (!group) return
 
         event.preventDefault()
-        if (isAuthenticated) {
-          const participantId = selected === 'None' ? null : selected
-          await setActiveParticipant.mutateAsync({
-            groupId: group.id,
-            participantId,
-          })
-          updateCurrentActiveParticipantCache(utils, group.id, participantId)
-        } else {
-          localStorage.setItem(`${group.id}-activeUser`, selected)
-        }
+        const participantId = selected === 'None' ? null : selected
+        await setActiveParticipant.mutateAsync({
+          groupId: group.id,
+          participantId,
+        })
+        updateCurrentActiveParticipantCache(utils, group.id, participantId)
         close()
       }}
     >
@@ -237,7 +203,6 @@ export function ActiveUserForm({
           </div>
           {group?.participants.map((participant: NonNullable<typeof group>['participants'][number]) => {
             const isLinkedToAnotherUser =
-              !!isAuthenticated &&
               !!participant.appUserId &&
               participant.appUserId !== currentUserId
 

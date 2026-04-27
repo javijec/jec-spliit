@@ -138,7 +138,6 @@ export function GroupForm({
     name: 'participants',
   })
   const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
-
   const [activeUser, setActiveUser] = useState<string | null>(null)
   useEffect(() => {
     if (activeUser === null) {
@@ -146,34 +145,13 @@ export function GroupForm({
         currentActiveParticipantId && group
           ? group.participants.find((participant) => participant.id === currentActiveParticipantId)?.name
           : null
-      const localActiveUser =
-        fields.find(
-          (f) => f.id === localStorage.getItem(`${group?.id}-activeUser`),
-        )?.name
       const currentActiveUser =
         persistedActiveUser ||
-        localActiveUser ||
+        watchedParticipants?.[0]?.name ||
         t('Settings.ActiveUserField.none')
       setActiveUser(currentActiveUser)
     }
-  }, [t, activeUser, fields, group, currentActiveParticipantId])
-
-  const updateActiveUser = () => {
-    if (!activeUser) return
-    if (viewerData?.user) {
-      return
-    }
-    if (group?.id) {
-      const participant = group.participants.find((p) => p.name === activeUser)
-      if (participant?.id) {
-        localStorage.setItem(`${group.id}-activeUser`, participant.id)
-      } else {
-        localStorage.setItem(`${group.id}-activeUser`, activeUser)
-      }
-    } else {
-      localStorage.setItem('newGroup-activeUser', activeUser)
-    }
-  }
+  }, [t, activeUser, group, currentActiveParticipantId, watchedParticipants])
 
   const countErrors = (value: unknown): number => {
     if (!value || typeof value !== 'object') return 0
@@ -544,7 +522,6 @@ export function GroupForm({
           <div className="flex flex-col gap-2 sm:flex-row">
             <SubmitButton
               loadingContent={t(group ? 'Settings.saving' : 'Settings.creating')}
-              onClick={updateActiveUser}
               className="w-full sm:w-auto"
             >
               <Save className="w-4 h-4 mr-2" />{' '}

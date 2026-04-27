@@ -127,6 +127,11 @@
     "createSuccessDescription": "El grupo se creó correctamente.",
     "createErrorTitle": "No se pudo crear el grupo",
     "createErrorDescription": "Ocurrió un error al crear el grupo.",
+    "SignIn": {
+      "title": "Ingresa para ver tus grupos",
+      "description": "Ahora NexoGastos funciona con acceso por cuenta. Inicia sesión para abrir tus grupos y continuar donde dejaste.",
+      "action": "Ingresar con Google"
+    },
     "Import": {
       "badges": {
         "csv": "CSV",
@@ -175,11 +180,11 @@
       "importedGroupInfo": "Importado desde CSV de Splitwise ({fileName})"
     },
     "loadingRecent": "Cargando grupos recientes…",
-    "groupsHeroDescription": "Abre un grupo reciente, crea uno nuevo o suma uno desde un enlace.",
+    "groupsHeroDescription": "Abre tus grupos, crea uno nuevo y administra todo desde tu cuenta.",
     "NoRecent": {
-      "description": "No has visitado ningun grupo recientemente.",
+      "description": "Todavía no tienes grupos en tu cuenta.",
       "create": "Crea uno",
-      "orAsk": "o pídele a un amigo que te envíe el enlace a uno ya existente."
+      "orAsk": "o pide que te agreguen al grupo con tu cuenta para verlo aquí."
     },
     "recent": "Grupos recientes",
     "starred": "Grupos favoritos",
@@ -530,21 +535,21 @@
     "quickActionsTitle": "Accesos rápidos",
     "quickActionsDescription": "Entra a las tareas más comunes del grupo sin pasar por formularios largos.",
     "editGroupShort": "Nombre, participantes y moneda.",
-    "shareAndExportShort": "Compartir enlace y descargar datos.",
-    "securityShort": "Contraseña y acceso por enlace.",
+    "shareAndExportShort": "Compartir acceso y descargar datos.",
+    "securityShort": "Acceso por miembros.",
     "dangerZoneShort": "Eliminar el grupo definitivamente.",
     "editGroup": "Editar grupo",
     "editGroupDescription": "Nombre, participantes, moneda e información general.",
     "viewBalances": "Ver balances",
     "viewBalancesDescription": "Revisa liquidaciones y pagos pendientes del grupo.",
     "shareAndExport": "Compartir y exportar",
-    "shareAndExportDescription": "Comparte el acceso al grupo o descarga sus movimientos.",
+    "shareAndExportDescription": "Comparte el enlace con personas que ya tengan acceso o descarga los movimientos del grupo.",
     "groupInformationTitle": "Información del grupo",
     "emptyInformation": "No hay información cargada todavía.",
     "exportInfoTitle": "Exportación",
     "exportInfoDescription": "JSON y CSV exportan los gastos del grupo con su información actual.",
     "securityTitle": "Seguridad",
-    "securityDescription": "Protege el acceso al grupo cuando se comparte por enlace.",
+    "securityDescription": "El acceso al grupo se controla desde la membresía de la cuenta.",
     "dangerZoneTitle": "Zona peligrosa",
     "dangerZoneDescription": "Eliminar el grupo borra gastos, balances y actividad.",
     "protected": "Protegido",
@@ -617,10 +622,10 @@
   },
   "Share": {
     "title": "Compartir",
-    "description": "Para que otros participantes puedan ver el grupo y añadir gastos, compárteles su URL.",
+    "description": "Comparte la URL del grupo con personas que ya tengan acceso vinculado a su cuenta.",
     "shareMessage": "Únete a mi grupo {groupName} en NexoGastos",
     "warning": "Cuidado!",
-    "warningHelp": "Todas las personas que tengan la URL del grupo podrán ver y editar los gastos. ¡Comparte con precaución!"
+    "warningHelp": "El enlace no otorga acceso por sí solo. Si alguien aún no pertenece al grupo, primero debes agregarlo."
   },
   "SchemaErrors": {
     "min1": "Ingresa al menos 1 carácter.",

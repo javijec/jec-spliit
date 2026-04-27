@@ -29,10 +29,7 @@ import {
   ChevronRight,
   FileOutput,
   Info,
-  Lock,
-  LockOpen,
   Pencil,
-  ShieldCheck,
   Trash2,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -41,7 +38,7 @@ import { useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { EditGroup } from '../edit/edit-group'
 
-type SettingsView = 'hub' | 'edit' | 'share' | 'security' | 'danger'
+type SettingsView = 'hub' | 'edit' | 'share' | 'danger'
 
 function SettingsOptionCard({
   onClick,
@@ -97,7 +94,6 @@ export function SettingsPageClient() {
   const { groupId } = useCurrentGroup()
   const t = useTranslations('Settings')
   const [view, setView] = useState<SettingsView>('hub')
-  const [password, setPassword] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmChecked, setDeleteConfirmChecked] = useState(false)
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
@@ -109,12 +105,6 @@ export function SettingsPageClient() {
       staleTime: 5 * 60 * 1000,
     },
   )
-  const { mutateAsync: setAccessPasswordAsync, isPending: isSettingPassword } =
-    trpc.groups.setAccessPassword.useMutation()
-  const {
-    mutateAsync: clearAccessPasswordAsync,
-    isPending: isClearingPassword,
-  } = trpc.groups.clearAccessPassword.useMutation()
   const { mutateAsync: deleteGroupAsync, isPending: isDeletingGroup } =
     trpc.groups.delete.useMutation()
   const utils = trpc.useUtils()
@@ -164,9 +154,6 @@ export function SettingsPageClient() {
                   {data.group.currencyCode ? (
                     <Badge variant="outline">{data.group.currencyCode}</Badge>
                   ) : null}
-                  <Badge variant="outline">
-                    {data.hasAccessPassword ? t('protected') : t('open')}
-                  </Badge>
                 </>
               }
             />
@@ -187,12 +174,6 @@ export function SettingsPageClient() {
             icon={FileOutput}
             title={t('shareAndExport')}
             description={t('shareAndExportShort')}
-          />
-          <SettingsOptionCard
-            onClick={() => setView('security')}
-            icon={ShieldCheck}
-            title={t('securityTitle')}
-            description={t('securityShort')}
           />
           <SettingsOptionCard
             onClick={() => setView('danger')}
@@ -262,85 +243,6 @@ export function SettingsPageClient() {
               <p className="mt-2 text-muted-foreground">
                 {t('exportInfoDescription')}
               </p>
-            </div>
-          </GroupSectionContent>
-        </GroupSectionCard>
-      )}
-
-      {view === 'security' && (
-        <GroupSectionCard>
-          <GroupSectionHeader>
-            <SectionHeader
-              title={t('securityTitle')}
-              description={t('securityDescription')}
-              meta={
-                <Badge variant="outline">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  {t('securityTitle')}
-                </Badge>
-              }
-            />
-          </GroupSectionHeader>
-          <GroupSectionContent className="space-y-3">
-            <Input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder={
-                data.hasAccessPassword
-                  ? t('passwordPlaceholderChange')
-                  : t('passwordPlaceholderSet')
-              }
-              minLength={4}
-            />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Button
-                type="button"
-                onClick={async () => {
-                  if (password.trim().length < 4) return
-                  await setAccessPasswordAsync({
-                    groupId,
-                    password,
-                    participantId: getActiveParticipantId(),
-                  })
-                  setPassword('')
-                  await utils.groups.getDetails.invalidate({ groupId })
-                  toast({
-                    title: data.hasAccessPassword
-                      ? t('passwordUpdated')
-                      : t('passwordEnabled'),
-                  })
-                }}
-                disabled={isSettingPassword || password.trim().length < 4}
-                className="h-11 w-full"
-              >
-                <Lock className="mr-2 h-4 w-4" />
-                {data.hasAccessPassword ? t('updatePassword') : t('enablePassword')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={async () => {
-                  await clearAccessPasswordAsync({
-                    groupId,
-                    participantId: getActiveParticipantId(),
-                  })
-                  setPassword('')
-                  await utils.groups.getDetails.invalidate({ groupId })
-                  toast({
-                    title: t('passwordRemoved'),
-                  })
-                }}
-                disabled={!data.hasAccessPassword || isClearingPassword}
-                className="h-11 w-full"
-              >
-                <LockOpen className="mr-2 h-4 w-4" />
-                {t('removePassword')}
-              </Button>
-            </div>
-
-            <div className="rounded-lg border border-border/70 bg-background p-3.5 text-sm text-muted-foreground shadow-sm shadow-black/5">
-              {t('linkAccessDescription1')} {t('linkAccessDescription2')}
             </div>
           </GroupSectionContent>
         </GroupSectionCard>

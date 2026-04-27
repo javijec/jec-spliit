@@ -95,7 +95,6 @@ jest.mock('@/components/ui/drawer', () => ({
 describe('ActiveUserForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    localStorage.clear()
   })
 
   it('persists the authenticated participant selection in the backend', async () => {
@@ -112,7 +111,6 @@ describe('ActiveUserForm', () => {
           ],
         } as never}
         currentActiveParticipantId="participant-2"
-        isAuthenticated
         currentUserId="user-1"
         close={close}
       />,
@@ -130,7 +128,7 @@ describe('ActiveUserForm', () => {
     expect(close).toHaveBeenCalled()
   })
 
-  it('stores the guest selection in localStorage', async () => {
+  it('persists clearing the participant selection in the backend', async () => {
     const close = jest.fn()
 
     render(
@@ -140,7 +138,6 @@ describe('ActiveUserForm', () => {
           name: 'Viaje',
           participants: [{ id: 'participant-1', name: 'Juan', appUserId: null }],
         } as never}
-        isAuthenticated={false}
         close={close}
       />,
     )
@@ -149,9 +146,12 @@ describe('ActiveUserForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /guardar/i }))
 
     await waitFor(() =>
-      expect(localStorage.getItem('group-1-activeUser')).toBe('None'),
+      expect(mutateAsyncMock).toHaveBeenCalledWith({
+        groupId: 'group-1',
+        participantId: null,
+      }),
     )
-    expect(mutateAsyncMock).not.toHaveBeenCalled()
+    expect(setDataMock).toHaveBeenCalled()
     expect(close).toHaveBeenCalled()
   })
 
@@ -166,7 +166,6 @@ describe('ActiveUserForm', () => {
             { id: 'participant-2', name: 'Maria', appUserId: 'user-1' },
           ],
         } as never}
-        isAuthenticated
         currentUserId="user-1"
         close={jest.fn()}
       />,
@@ -179,26 +178,22 @@ describe('ActiveUserForm', () => {
 })
 
 describe('shouldPromptForActiveParticipant', () => {
-  it('waits for auth resolution before using guest fallback', () => {
+  it('waits for auth resolution before prompting', () => {
     expect(
       shouldPromptForActiveParticipant({
         isAuthResolved: false,
         viewer: null,
         currentActiveParticipantId: null,
-        tempUser: null,
-        activeUser: null,
       }),
     ).toBe(false)
   })
 
-  it('prompts authenticated user only when no participant selected', () => {
+  it('prompts only when no participant is selected yet', () => {
     expect(
       shouldPromptForActiveParticipant({
         isAuthResolved: true,
         viewer: { id: 'user-1' } as never,
         currentActiveParticipantId: null,
-        tempUser: null,
-        activeUser: null,
       }),
     ).toBe(true)
 
@@ -207,8 +202,6 @@ describe('shouldPromptForActiveParticipant', () => {
         isAuthResolved: true,
         viewer: { id: 'user-1' } as never,
         currentActiveParticipantId: 'participant-1',
-        tempUser: null,
-        activeUser: null,
       }),
     ).toBe(false)
   })

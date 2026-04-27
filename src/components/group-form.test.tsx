@@ -212,10 +212,9 @@ jest.mock('next/link', () => ({
 describe('GroupForm', () => {
   beforeEach(() => {
     viewerQueryMock.mockReturnValue({ data: { user: { id: 'user-1' } } })
-    localStorage.clear()
   })
 
-  it('submits the persisted authenticated participant without touching localStorage', async () => {
+  it('submits the persisted authenticated participant by membership id', async () => {
     const onSubmit = jest.fn().mockResolvedValue(undefined)
 
     render(
@@ -248,12 +247,9 @@ describe('GroupForm', () => {
         },
       ),
     )
-    expect(localStorage.getItem('group-1-activeUser')).toBeNull()
   })
 
-  it('uses and persists the local active participant for guests', async () => {
-    viewerQueryMock.mockReturnValue({ data: { user: null } })
-    localStorage.setItem('group-1-activeUser', 'participant-2')
+  it('defaults to the first participant when there is no persisted active selection', async () => {
     const onSubmit = jest.fn().mockResolvedValue(undefined)
 
     render(
@@ -280,11 +276,10 @@ describe('GroupForm', () => {
       expect(onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'Viaje' }),
         {
-          participantId: 'participant-2',
-          activeParticipantName: 'Maria',
+          participantId: 'participant-1',
+          activeParticipantName: 'Juan',
         },
       ),
     )
-    expect(localStorage.getItem('group-1-activeUser')).toBe('participant-2')
   })
 })

@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
-import { FolderOpen } from 'lucide-react'
+import { FolderOpen, LogIn } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
@@ -151,56 +151,53 @@ export function RecentGroupList() {
     )
   }
 
-  if (isAuthenticated) {
-    const persistedGroups = myGroupsData?.groups ?? []
-    const groups = persistedGroups.map((group) => ({
-      id: group.id,
-      name: group.name,
-    }))
-    const starredGroups = persistedGroups
-      .filter((group) => group.isStarred)
-      .map((group) => group.id)
-    const archivedGroups = persistedGroups
-      .filter((group) => group.isArchived)
-      .map((group) => group.id)
-
+  if (!isAuthenticated) {
     return (
-      <RecentGroupList_
-        groups={groups}
-        groupsDetails={persistedGroups}
-        starredGroups={starredGroups}
-        archivedGroups={archivedGroups}
-        refreshGroupsFromStorage={() => {
-          void utils.groups.mine.invalidate()
-        }}
-        loading={isMyGroupsLoading}
-        onToggleStar={async (groupId, currentlyStarred) => {
-          await updateMembership.mutateAsync({
-            groupId,
-            isStarred: !currentlyStarred,
-            ...(currentlyStarred ? {} : { isArchived: false }),
-          })
-        }}
-        onToggleArchive={async (groupId, currentlyArchived) => {
-          await updateMembership.mutateAsync({
-            groupId,
-            isArchived: !currentlyArchived,
-            ...(currentlyArchived ? {} : { isStarred: false }),
-          })
-        }}
-        onRemove={async (group) => {
-          await removeMembership.mutateAsync({ groupId: group.id })
-        }}
-      />
+      <GroupsPage isAuthenticated={false}>
+        <SignInCard />
+      </GroupsPage>
     )
   }
 
+  const persistedGroups = myGroupsData?.groups ?? []
+  const groups = persistedGroups.map((group) => ({
+    id: group.id,
+    name: group.name,
+  }))
+  const starredGroups = persistedGroups
+    .filter((group) => group.isStarred)
+    .map((group) => group.id)
+  const archivedGroups = persistedGroups
+    .filter((group) => group.isArchived)
+    .map((group) => group.id)
+
   return (
     <RecentGroupList_
-      groups={state.groups}
-      starredGroups={state.starredGroups}
-      archivedGroups={state.archivedGroups}
-      refreshGroupsFromStorage={() => loadGroups()}
+      groups={groups}
+      groupsDetails={persistedGroups}
+      starredGroups={starredGroups}
+      archivedGroups={archivedGroups}
+      refreshGroupsFromStorage={() => {
+        void utils.groups.mine.invalidate()
+      }}
+      loading={isMyGroupsLoading}
+      onToggleStar={async (groupId, currentlyStarred) => {
+        await updateMembership.mutateAsync({
+          groupId,
+          isStarred: !currentlyStarred,
+          ...(currentlyStarred ? {} : { isArchived: false }),
+        })
+      }}
+      onToggleArchive={async (groupId, currentlyArchived) => {
+        await updateMembership.mutateAsync({
+          groupId,
+          isArchived: !currentlyArchived,
+          ...(currentlyArchived ? {} : { isStarred: false }),
+        })
+      }}
+      onRemove={async (group) => {
+        await removeMembership.mutateAsync({ groupId: group.id })
+      }}
     />
   )
 }
@@ -392,9 +389,35 @@ function GroupList({
   )
 }
 
+function SignInCard() {
+  const t = useTranslations('Groups.SignIn')
+
+  return (
+    <GroupSectionCard>
+      <GroupSectionHeader>
+        <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
+          <LogIn className="h-5 w-5" />
+          {t('title')}
+        </GroupSectionTitle>
+        <GroupSectionDescription className="mt-2">
+          {t('description')}
+        </GroupSectionDescription>
+      </GroupSectionHeader>
+      <GroupSectionContent className="pt-0">
+        <Button asChild className="w-full sm:w-auto">
+          <Link href="/auth/login?connection=google-oauth2">
+            {t('action')}
+          </Link>
+        </Button>
+      </GroupSectionContent>
+    </GroupSectionCard>
+  )
+}
+
 function GroupsPage({
   children,
-}: PropsWithChildren<{ reload: () => void }>) {
+  isAuthenticated = true,
+}: PropsWithChildren<{ reload?: () => void; isAuthenticated?: boolean }>) {
   const t = useTranslations('Groups')
   return (
     <div className="space-y-4">
@@ -403,7 +426,15 @@ function GroupsPage({
         description={t('groupsHeroDescription')}
         actions={
           <Button asChild className="w-full sm:w-auto">
-            <Link href="/groups/create">{t('create')}</Link>
+            <Link
+              href={
+                isAuthenticated
+                  ? '/groups/create'
+                  : '/auth/login?connection=google-oauth2'
+              }
+            >
+              {isAuthenticated ? t('create') : t('SignIn.action')}
+            </Link>
           </Button>
         }
       />
