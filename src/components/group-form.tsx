@@ -1,6 +1,5 @@
 import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -101,7 +100,6 @@ export function GroupForm({
   const defaultParticipantNames = [
     t('Participants.John'),
     t('Participants.Jane'),
-    t('Participants.Jack'),
   ]
   const form = useForm<GroupFormValues>({
     resolver: zodResolver(groupFormSchema),
@@ -322,12 +320,8 @@ export function GroupForm({
         )}
 
         <Card className="mb-3 border-border/70">
-          <CardHeader className="gap-3">
-            <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">
-              {t('title')}
-            </Badge>
+          <CardHeader className="pb-3">
             <CardTitle>{t('title')}</CardTitle>
-            <CardDescription>{t('NameField.description')}</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField
@@ -437,17 +431,23 @@ export function GroupForm({
                           <FormControl>
                             <div className="space-y-2 rounded-2xl border border-border/70 bg-background/75 p-2.5">
                               <div className="flex gap-2">
+                                {/*
+                                  In create mode, the first participant is the signed-in user.
+                                  Keep that identity fixed here and let account settings own renames.
+                                */}
                                 <Input
                                   className="text-base"
+                                  disabled={!group && index === 0}
                                   {...field}
                                   placeholder={t('Participants.new')}
                                 />
-                                {item.id &&
-                                protectedParticipantIds.includes(item.id) ? (
+                                {(item.id &&
+                                  protectedParticipantIds.includes(item.id)) ||
+                                (!group && index === 0) ? (
                                   <HoverCard>
                                     <HoverCardTrigger>
                                       <Button
-                                      variant="ghost"
+                                        variant="ghost"
                                         className="text-destructive"
                                         type="button"
                                         size="icon"
@@ -460,7 +460,9 @@ export function GroupForm({
                                       align="end"
                                       className="text-sm"
                                     >
-                                      {t('Participants.protectedParticipant')}
+                                      {!group && index === 0
+                                        ? t('Participants.youLinked')
+                                        : t('Participants.protectedParticipant')}
                                     </HoverCardContent>
                                   </HoverCard>
                                 ) : (

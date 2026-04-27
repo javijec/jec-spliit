@@ -23,6 +23,8 @@ jest.mock('next-intl', () => ({
       'Participants.new': 'Nuevo',
       'Participants.add': 'Añadir participante',
       'Participants.protectedParticipant': 'Participante protegido',
+      'Participants.youLinked': 'Tu participante vinculado',
+      'Participants.linkedAccount': 'Cuenta vinculada',
       'Participants.John': 'Juan',
       'Participants.Jane': 'Maria',
       'Participants.Jack': 'Sergio',
@@ -316,6 +318,10 @@ describe('GroupForm', () => {
 
     expect(screen.queryByText('Usuario activo')).toBeNull()
     expect(screen.getByDisplayValue('Javier Camargo')).toBeTruthy()
+    expect(screen.getAllByPlaceholderText('Nuevo')).toHaveLength(2)
+    expect(
+      screen.getByDisplayValue('Javier Camargo'),
+    ).toHaveProperty('disabled', true)
 
     fireEvent.change(
       screen.getByPlaceholderText('Vacaciones de verano'),
