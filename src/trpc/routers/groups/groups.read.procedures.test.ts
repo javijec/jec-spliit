@@ -1,13 +1,11 @@
 import { TRPCError } from '@trpc/server'
 
 const getGroupMock = jest.fn()
-const getGroupAccessControlMock = jest.fn()
 const getGroupExpensesParticipantsMock = jest.fn()
 const getUserGroupMembershipMock = jest.fn()
 
 jest.mock('@/lib/groups', () => ({
   getGroup: (...args: unknown[]) => getGroupMock(...args),
-  getGroupAccessControl: (...args: unknown[]) => getGroupAccessControlMock(...args),
 }))
 
 jest.mock('@/lib/expenses', () => ({
@@ -84,16 +82,13 @@ describe('groups read tRPC procedures', () => {
     } satisfies Partial<TRPCError>)
   })
 
-  it('returns details including access control, participants with expenses and active participant', async () => {
+  it('returns details including participants with expenses and active participant', async () => {
     getGroupMock.mockResolvedValue({
       id: 'group-1',
       name: 'Viaje',
       participants: [{ id: 'participant-1', name: 'Juan' }],
     })
     getGroupExpensesParticipantsMock.mockResolvedValue(['participant-1'])
-    getGroupAccessControlMock.mockResolvedValue({
-      hasAccessPassword: true,
-    })
     getUserGroupMembershipMock.mockResolvedValue({
       groupId: 'group-1',
       activeParticipantId: 'participant-1',
@@ -103,7 +98,6 @@ describe('groups read tRPC procedures', () => {
     const result = await caller.getDetails({ groupId: 'group-1' })
 
     expect(getGroupExpensesParticipantsMock).toHaveBeenCalledWith('group-1')
-    expect(getGroupAccessControlMock).toHaveBeenCalledWith('group-1')
     expect(result).toEqual({
       group: {
         id: 'group-1',
@@ -111,7 +105,6 @@ describe('groups read tRPC procedures', () => {
         participants: [{ id: 'participant-1', name: 'Juan' }],
       },
       participantsWithExpenses: ['participant-1'],
-      hasAccessPassword: true,
       currentActiveParticipantId: 'participant-1',
     })
   })

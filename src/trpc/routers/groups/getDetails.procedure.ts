@@ -1,6 +1,5 @@
 import {
   getGroup,
-  getGroupAccessControl,
 } from '@/lib/groups'
 import { getGroupExpensesParticipants } from '@/lib/expenses'
 import { getUserGroupMembership } from '@/lib/user-memberships'
@@ -22,12 +21,10 @@ export const getGroupDetailsProcedure = protectedProcedure
     }
 
     const participantsWithExpenses = await getGroupExpensesParticipants(groupId)
-    const accessControl = await getGroupAccessControl(groupId)
     const membership = await getUserGroupMembership(ctx.auth.user.id, groupId)
     return {
       group,
       participantsWithExpenses,
-      hasAccessPassword: accessControl?.hasAccessPassword ?? false,
       currentActiveParticipantId: membership?.activeParticipantId ?? null,
     }
   })

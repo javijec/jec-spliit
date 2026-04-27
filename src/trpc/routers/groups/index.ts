@@ -1,7 +1,6 @@
 import { createTRPCRouter } from '@/trpc/init'
 import { activitiesRouter } from '@/trpc/routers/groups/activities'
 import { groupBalancesRouter } from '@/trpc/routers/groups/balances'
-import { clearGroupAccessPasswordProcedure } from '@/trpc/routers/groups/clearAccessPassword.procedure'
 import { createGroupProcedure } from '@/trpc/routers/groups/create.procedure'
 import { deleteGroupProcedure } from '@/trpc/routers/groups/delete.procedure'
 import { groupExpensesRouter } from '@/trpc/routers/groups/expenses'
@@ -9,7 +8,6 @@ import { getGroupProcedure } from '@/trpc/routers/groups/get.procedure'
 import { getMyGroupsProcedure } from '@/trpc/routers/groups/mine.procedure'
 import { recordGroupVisitProcedure } from '@/trpc/routers/groups/recordVisit.procedure'
 import { removeGroupMembershipProcedure } from '@/trpc/routers/groups/removeMembership.procedure'
-import { setGroupAccessPasswordProcedure } from '@/trpc/routers/groups/setAccessPassword.procedure'
 import { setGroupActiveParticipantProcedure } from '@/trpc/routers/groups/setActiveParticipant.procedure'
 import { groupStatsRouter } from '@/trpc/routers/groups/stats'
 import { syncLegacyGroupsProcedure } from '@/trpc/routers/groups/syncLegacy.procedure'
@@ -38,6 +36,4 @@ export const groupsRouter = createTRPCRouter({
   updateMembership: updateGroupMembershipProcedure,
   removeMembership: removeGroupMembershipProcedure,
   setActiveParticipant: setGroupActiveParticipantProcedure,
-  setAccessPassword: setGroupAccessPasswordProcedure,
-  clearAccessPassword: clearGroupAccessPasswordProcedure,
 })

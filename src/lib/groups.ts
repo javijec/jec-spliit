@@ -1,5 +1,4 @@
 import { randomId } from '@/lib/ids'
-import { hashPassword, verifyPassword } from '@/lib/password'
 import { prisma } from '@/lib/prisma'
 import { GroupFormValues } from '@/lib/schemas'
 import { ActivityType, GroupRole, Prisma, RecurrenceRule } from '@prisma/client'
@@ -91,78 +90,6 @@ export async function createGroup(
     }
 
     return createdGroup
-  })
-}
-
-export async function getGroupAccessControl(groupId: string) {
-  try {
-    const group = await prisma.group.findUnique({
-      where: { id: groupId },
-      select: { id: true, accessPasswordHash: true },
-    })
-    if (!group) return null
-    return {
-      id: group.id,
-      hasAccessPassword: !!group.accessPasswordHash,
-      accessPasswordHash: group.accessPasswordHash,
-    }
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2022'
-    ) {
-      const group = await prisma.group.findUnique({
-        where: { id: groupId },
-        select: { id: true },
-      })
-      if (!group) return null
-      return {
-        id: group.id,
-        hasAccessPassword: false,
-        accessPasswordHash: null,
-      }
-    }
-    throw error
-  }
-}
-
-export async function verifyGroupAccessPassword(
-  groupId: string,
-  password: string,
-) {
-  const group = await prisma.group.findUnique({
-    where: { id: groupId },
-    select: { accessPasswordHash: true },
-  })
-  if (!group || !group.accessPasswordHash) return false
-  return verifyPassword(password, group.accessPasswordHash)
-}
-
-export async function setGroupAccessPassword(
-  groupId: string,
-  password: string,
-  participantId?: string,
-) {
-  const existingGroup = await getGroup(groupId)
-  if (!existingGroup) throw new Error('Invalid group ID')
-  const passwordHash = hashPassword(password)
-  await logActivity(groupId, ActivityType.UPDATE_GROUP, { participantId })
-  await prisma.group.update({
-    where: { id: groupId },
-    data: { accessPasswordHash: passwordHash },
-  })
-}
-
-export async function clearGroupAccessPassword(
-  groupId: string,
-  participantId?: string,
-) {
-  const existingGroup = await getGroup(groupId)
-  if (!existingGroup) throw new Error('Invalid group ID')
-  await logActivity(groupId, ActivityType.UPDATE_GROUP, { participantId })
-  await prisma.group.update({
-    where: { id: groupId },
-    data: { accessPasswordHash: null },
   })
 }
 

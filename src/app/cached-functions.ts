@@ -1,4 +1,4 @@
-import { getGroup, getGroupAccessControl } from '@/lib/groups'
+import { getGroup } from '@/lib/groups'
 import { cache } from 'react'
 
 function logAndCache<P extends any[], R>(fn: (...args: P) => R) {
@@ -14,5 +14,4 @@ function logAndCache<P extends any[], R>(fn: (...args: P) => R) {
 
 export const cached = {
   getGroup: logAndCache(getGroup),
-  getGroupAccessControl: logAndCache(getGroupAccessControl),
 }
