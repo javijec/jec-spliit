@@ -57,6 +57,7 @@ describe('groups read tRPC procedures', () => {
     getUserGroupMembershipMock.mockResolvedValue({
       groupId: 'group-1',
       activeParticipantId: 'participant-1',
+      role: 'OWNER',
     })
 
     const caller = createCaller('user-1')
@@ -92,6 +93,7 @@ describe('groups read tRPC procedures', () => {
     getUserGroupMembershipMock.mockResolvedValue({
       groupId: 'group-1',
       activeParticipantId: 'participant-1',
+      role: 'OWNER',
     })
 
     const caller = createCaller('user-1')
@@ -105,6 +107,7 @@ describe('groups read tRPC procedures', () => {
         participants: [{ id: 'participant-1', name: 'Juan' }],
       },
       participantsWithExpenses: ['participant-1'],
+      currentUserRole: 'OWNER',
       currentActiveParticipantId: 'participant-1',
     })
   })

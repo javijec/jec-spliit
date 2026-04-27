@@ -29,6 +29,7 @@ import {
   ChevronRight,
   FileOutput,
   Info,
+  MailPlus,
   Pencil,
   Trash2,
 } from 'lucide-react'
@@ -107,7 +108,11 @@ export function SettingsPageClient() {
   )
   const { mutateAsync: deleteGroupAsync, isPending: isDeletingGroup } =
     trpc.groups.delete.useMutation()
+  const { mutateAsync: addMemberAsync, isPending: isAddingMember } =
+    trpc.groups.addMember.useMutation()
   const utils = trpc.useUtils()
+  const [memberEmail, setMemberEmail] = useState('')
+  const [memberParticipantId, setMemberParticipantId] = useState('')
 
   const getActiveParticipantId = () => data?.currentActiveParticipantId ?? undefined
 
@@ -135,6 +140,10 @@ export function SettingsPageClient() {
 
   const canDeleteGroup =
     deleteConfirmChecked && deleteConfirmName.trim() === data.group.name
+  const canManageMembers = data.currentUserRole === 'OWNER'
+  const availableParticipants = data.group.participants.filter(
+    (participant) => !participant.appUserId,
+  )
 
   return (
     <div className="space-y-4">
@@ -244,6 +253,91 @@ export function SettingsPageClient() {
                 {t('exportInfoDescription')}
               </p>
             </div>
+
+            {canManageMembers && (
+              <div className="rounded-lg border border-border/70 bg-background p-3.5 shadow-sm shadow-black/5">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <MailPlus className="h-4 w-4" />
+                  {t('memberAccessTitle')}
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t('memberAccessDescription')}
+                </p>
+
+                {availableParticipants.length === 0 ? (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {t('memberAccessNoParticipants')}
+                  </p>
+                ) : (
+                  <div className="mt-3 grid gap-2">
+                    <Input
+                      type="email"
+                      value={memberEmail}
+                      onChange={(event) => setMemberEmail(event.target.value)}
+                      placeholder={t('memberAccessEmailPlaceholder')}
+                      autoComplete="email"
+                    />
+                    <select
+                      value={memberParticipantId}
+                      onChange={(event) =>
+                        setMemberParticipantId(event.target.value)
+                      }
+                      className="h-11 rounded-md border border-input bg-background px-3 text-sm"
+                    >
+                      <option value="">
+                        {t('memberAccessParticipantPlaceholder')}
+                      </option>
+                      {availableParticipants.map((participant) => (
+                        <option key={participant.id} value={participant.id}>
+                          {participant.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      disabled={
+                        isAddingMember ||
+                        memberEmail.trim().length === 0 ||
+                        memberParticipantId.length === 0
+                      }
+                      onClick={async () => {
+                        try {
+                          const result = await addMemberAsync({
+                            groupId,
+                            email: memberEmail.trim(),
+                            participantId: memberParticipantId,
+                          })
+                          setMemberEmail('')
+                          setMemberParticipantId('')
+                          await utils.groups.invalidate()
+                          toast({
+                            title: t('memberAddedTitle'),
+                            description: t('memberAddedDescription', {
+                              participant: result.member.participantName,
+                              email:
+                                result.member.email ??
+                                memberEmail.trim().toLowerCase(),
+                            }),
+                          })
+                        } catch (error) {
+                          toast({
+                            title: t('memberAddErrorTitle'),
+                            description:
+                              error instanceof Error
+                                ? error.message
+                                : t('memberAddErrorDescription'),
+                            variant: 'destructive',
+                          })
+                        }
+                      }}
+                      className="h-11 w-full sm:w-auto"
+                    >
+                      {t('memberAccessSubmit')}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </GroupSectionContent>
         </GroupSectionCard>
       )}

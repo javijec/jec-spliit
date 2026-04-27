@@ -1,22 +1,30 @@
 import { TRPCError } from '@trpc/server'
 
 const createGroupMock = jest.fn()
+const addGroupMemberMock = jest.fn()
 const getUserGroupsMock = jest.fn()
 const recordVisitMock = jest.fn()
 const setActiveParticipantMock = jest.fn()
 const syncLegacyMock = jest.fn()
 const updateMembershipMock = jest.fn()
+const requireGroupOwnerMock = jest.fn()
 
 jest.mock('@/lib/groups', () => ({
   createGroup: (...args: unknown[]) => createGroupMock(...args),
 }))
 
 jest.mock('@/lib/user-memberships', () => ({
+  addUserToGroupByEmail: (...args: unknown[]) => addGroupMemberMock(...args),
   getUserGroups: (...args: unknown[]) => getUserGroupsMock(...args),
   saveGroupToUser: (...args: unknown[]) => recordVisitMock(...args),
   setUserActiveParticipant: (...args: unknown[]) => setActiveParticipantMock(...args),
   syncUserGroupsFromLegacyState: (...args: unknown[]) => syncLegacyMock(...args),
   updateUserGroupMembership: (...args: unknown[]) => updateMembershipMock(...args),
+}))
+
+jest.mock('./authorization', () => ({
+  requireGroupOwner: (...args: unknown[]) => requireGroupOwnerMock(...args),
+  requireGroupMembership: jest.fn(),
 }))
 
 jest.mock('@/lib/auth', () => ({
@@ -49,6 +57,10 @@ function createCaller(userId?: string) {
 describe('groups tRPC procedures', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    requireGroupOwnerMock.mockResolvedValue({
+      groupId: 'group-1',
+      role: 'OWNER',
+    })
   })
 
   it('creates groups with the authenticated user and active participant name', async () => {
@@ -161,6 +173,37 @@ describe('groups tRPC procedures', () => {
     expect(updateMembershipMock).toHaveBeenCalledWith('user-1', 'group-1', {
       isArchived: false,
       isStarred: true,
+    })
+  })
+
+  it('adds an existing signed-in user to the group by email', async () => {
+    addGroupMemberMock.mockResolvedValue({
+      userId: 'user-2',
+      email: 'invitee@example.com',
+      participantId: 'participant-2',
+      participantName: 'Maria',
+    })
+
+    const caller = createCaller('user-1')
+    const result = await caller.addMember({
+      groupId: 'group-1',
+      participantId: 'participant-2',
+      email: 'invitee@example.com',
+    })
+
+    expect(requireGroupOwnerMock).toHaveBeenCalledWith('user-1', 'group-1')
+    expect(addGroupMemberMock).toHaveBeenCalledWith(
+      'group-1',
+      'participant-2',
+      'invitee@example.com',
+    )
+    expect(result).toEqual({
+      member: {
+        userId: 'user-2',
+        email: 'invitee@example.com',
+        participantId: 'participant-2',
+        participantName: 'Maria',
+      },
     })
   })
 

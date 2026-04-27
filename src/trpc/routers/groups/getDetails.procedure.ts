@@ -25,6 +25,7 @@ export const getGroupDetailsProcedure = protectedProcedure
     return {
       group,
       participantsWithExpenses,
+      currentUserRole: membership?.role ?? null,
       currentActiveParticipantId: membership?.activeParticipantId ?? null,
     }
   })

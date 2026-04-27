@@ -307,3 +307,95 @@ export async function removeUserGroupMembership(userId: string, groupId: string)
     },
   })
 }
+
+export async function addUserToGroupByEmail(
+  groupId: string,
+  participantId: string,
+  email: string,
+) {
+  const normalizedEmail = email.trim().toLowerCase()
+  if (!normalizedEmail) {
+    throw new Error('Email is required.')
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const participant = await tx.participant.findFirst({
+      where: {
+        id: participantId,
+        groupId,
+      },
+      select: {
+        id: true,
+        name: true,
+        appUserId: true,
+      },
+    })
+    if (!participant) {
+      throw new Error(`Invalid participant ID: ${participantId}`)
+    }
+
+    const user = await tx.appUser.findUnique({
+      where: { email: normalizedEmail },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+      },
+    })
+    if (!user) {
+      throw new Error('The invited user must sign in before you can add them.')
+    }
+
+    if (participant.appUserId && participant.appUserId !== user.id) {
+      throw new Error('This participant is already linked to another account.')
+    }
+
+    const existingLinkedParticipant = await tx.participant.findFirst({
+      where: {
+        groupId,
+        appUserId: user.id,
+        id: { not: participantId },
+      },
+      select: { id: true },
+    })
+    if (existingLinkedParticipant) {
+      throw new Error('This user is already linked to another participant in the group.')
+    }
+
+    await tx.participant.update({
+      where: { id: participantId },
+      data: {
+        appUserId: user.id,
+      },
+    })
+
+    await tx.userGroupMembership.upsert({
+      where: {
+        userId_groupId: {
+          userId: user.id,
+          groupId,
+        },
+      },
+      create: {
+        id: randomId(),
+        userId: user.id,
+        groupId,
+        role: GroupRole.MEMBER,
+        activeParticipantId: participantId,
+        lastAccessedAt: new Date(),
+      },
+      update: {
+        activeParticipantId: participantId,
+        lastAccessedAt: new Date(),
+      },
+    })
+
+    return {
+      userId: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      participantId: participant.id,
+      participantName: participant.name,
+    }
+  })
+}
