@@ -1,2 +1,2 @@
 ALTER TABLE "Group"
-ADD COLUMN "recurringSyncAt" TIMESTAMP(3);
+ADD COLUMN IF NOT EXISTS "recurringSyncAt" TIMESTAMP(3);
