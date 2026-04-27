@@ -211,7 +211,9 @@ jest.mock('next/link', () => ({
 
 describe('GroupForm', () => {
   beforeEach(() => {
-    viewerQueryMock.mockReturnValue({ data: { user: { id: 'user-1' } } })
+    viewerQueryMock.mockReturnValue({
+      data: { user: { id: 'user-1', displayName: 'Javier Camargo' } },
+    })
   })
 
   it('submits the persisted authenticated participant by membership id', async () => {
@@ -302,6 +304,37 @@ describe('GroupForm', () => {
         {
           participantId: 'participant-1',
           activeParticipantName: 'Juan',
+        },
+      ),
+    )
+  })
+
+  it('hides the active user selector during group creation and uses the viewer name', async () => {
+    const onSubmit = jest.fn().mockResolvedValue(undefined)
+
+    render(<GroupForm onSubmit={onSubmit} />)
+
+    expect(screen.queryByText('Usuario activo')).toBeNull()
+    expect(screen.getByDisplayValue('Javier Camargo')).toBeTruthy()
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Vacaciones de verano'),
+      { target: { value: 'Viaje nuevo' } },
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /crear/i }))
+
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Viaje nuevo',
+          participants: expect.arrayContaining([
+            expect.objectContaining({ name: 'Javier Camargo' }),
+          ]),
+        }),
+        {
+          participantId: undefined,
+          activeParticipantName: 'Javier Camargo',
         },
       ),
     )

@@ -98,6 +98,11 @@ export function GroupForm({
 }: Props) {
   const locale = useLocale()
   const t = useTranslations('GroupForm')
+  const defaultParticipantNames = [
+    t('Participants.John'),
+    t('Participants.Jane'),
+    t('Participants.Jack'),
+  ]
   const form = useForm<GroupFormValues>({
     resolver: zodResolver(groupFormSchema),
     defaultValues: group
@@ -117,11 +122,7 @@ export function GroupForm({
             process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE || 'USD',
             locale as Locale,
           ).symbol,
-          participants: [
-            { name: t('Participants.John') },
-            { name: t('Participants.Jane') },
-            { name: t('Participants.Jack') },
-          ],
+          participants: defaultParticipantNames.map((name) => ({ name })),
         },
   })
   const { fields, append, remove } = useFieldArray({
@@ -141,6 +142,8 @@ export function GroupForm({
   const [activeParticipantKey, setActiveParticipantKey] = useState<string | null>(
     null,
   )
+  const viewerDisplayName =
+    viewerData?.user?.displayName?.trim() || viewerData?.user?.email?.trim() || ''
 
   const activeParticipantOptions: Array<{
     key: string
@@ -186,6 +189,25 @@ export function GroupForm({
     group,
     t,
   ])
+
+  useEffect(() => {
+    if (group || !viewerDisplayName) return
+
+    const firstParticipantName = watchedParticipants?.[0]?.name ?? ''
+    const isDefaultFirstParticipant =
+      firstParticipantName.trim().length === 0 ||
+      defaultParticipantNames.includes(firstParticipantName)
+
+    if (!isDefaultFirstParticipant || form.getFieldState('participants.0.name').isDirty) {
+      return
+    }
+
+    form.setValue('participants.0.name', viewerDisplayName, {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    })
+  }, [defaultParticipantNames, form, group, viewerDisplayName, watchedParticipants])
 
   const countErrors = (value: unknown): number => {
     if (!value || typeof value !== 'object') return 0
@@ -508,55 +530,57 @@ export function GroupForm({
             </CardFooter>
           </Card>
 
-          <Card className="h-full border-border/70">
-            <CardHeader>
-              <CardTitle>{t('Settings.title')}</CardTitle>
-              <CardDescription>{t('Settings.description')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {activeParticipantKey !== null && (
-                  <FormItem>
-                    <LabelWithInfo
-                      label={t('Settings.ActiveUserField.label')}
-                      description={t('Settings.ActiveUserField.description')}
-                    />
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) => {
-                          setActiveParticipantKey(value)
-                        }}
-                        defaultValue={activeParticipantKey}
-                      >
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t(
-                              'Settings.ActiveUserField.placeholder',
-                            )}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[
-                            {
-                              key: t('Settings.ActiveUserField.none'),
-                              name: t('Settings.ActiveUserField.none'),
-                            },
-                            ...activeParticipantOptions,
-                          ]
-                            .filter((item) => item.name.length > 0)
-                            .map(({ key, name }) => (
-                              <SelectItem key={key} value={key}>
-                                {name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {group && (
+            <Card className="h-full border-border/70">
+              <CardHeader>
+                <CardTitle>{t('Settings.title')}</CardTitle>
+                <CardDescription>{t('Settings.description')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {activeParticipantKey !== null && (
+                    <FormItem>
+                      <LabelWithInfo
+                        label={t('Settings.ActiveUserField.label')}
+                        description={t('Settings.ActiveUserField.description')}
+                      />
+                      <FormControl>
+                        <Select
+                          onValueChange={(value) => {
+                            setActiveParticipantKey(value)
+                          }}
+                          defaultValue={activeParticipantKey}
+                        >
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={t(
+                                'Settings.ActiveUserField.placeholder',
+                              )}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              {
+                                key: t('Settings.ActiveUserField.none'),
+                                name: t('Settings.ActiveUserField.none'),
+                              },
+                              ...activeParticipantOptions,
+                            ]
+                              .filter((item) => item.name.length > 0)
+                              .map(({ key, name }) => (
+                                <SelectItem key={key} value={key}>
+                                  {name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-secondary/40 p-3.5 sm:flex-row sm:items-center sm:justify-between">
