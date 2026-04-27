@@ -8,7 +8,7 @@ type Props = {
 }
 
 export const metadata: Metadata = {
-  title: 'Unlock Group',
+  title: 'Redirecting to group',
 }
 
 export default async function UnlockGroupPage({ params }: Props) {
