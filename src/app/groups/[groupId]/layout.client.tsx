@@ -53,6 +53,7 @@ export function GroupLayoutClient({
     },
   )
   const viewer = viewerData?.user ?? null
+  const isAuthResolved = viewerData !== undefined
   const t = useTranslations('Groups.NotFound')
   const tTabs = useTranslations('GroupTabs')
   const tFlow = useTranslations('ExpenseFlow')
@@ -228,6 +229,7 @@ export function GroupLayoutClient({
         <div className="pb-24 sm:pb-0">{children}</div>
         <ActiveUserModal
           groupId={groupId}
+          isAuthResolved={isAuthResolved}
           open={activeUserModalOpen}
           onOpenChange={setActiveUserModalOpen}
         />
@@ -309,6 +311,7 @@ export function GroupLayoutClient({
       <SaveGroupLocally />
       <ActiveUserModal
         groupId={groupId}
+        isAuthResolved={isAuthResolved}
         open={activeUserModalOpen}
         onOpenChange={setActiveUserModalOpen}
       />

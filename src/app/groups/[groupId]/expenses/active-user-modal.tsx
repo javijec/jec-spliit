@@ -27,14 +27,18 @@ import { ComponentProps, useEffect, useMemo, useState } from 'react'
 import { updateCurrentActiveParticipantCache } from '../group-query-cache'
 import { useCurrentGroup } from '../current-group-context'
 
+type Viewer = AppRouterOutput['viewer']['getCurrent']['user']
+
 export function ActiveUserModal({
   groupId,
   open: controlledOpen,
   onOpenChange,
+  isAuthResolved = true,
 }: {
   groupId: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  isAuthResolved?: boolean
 }) {
   const t = useTranslations('Expenses.ActiveUserModal')
   const [internalOpen, setInternalOpen] = useState(false)
@@ -61,19 +65,25 @@ export function ActiveUserModal({
   useEffect(() => {
     if (!group) return
 
-    if (viewer) {
-      if (!currentActiveParticipantId) {
-        setOpen(true)
-      }
-      return
-    }
+    const tempUser = typeof window === 'undefined'
+      ? null
+      : localStorage.getItem(`newGroup-activeUser`)
+    const activeUser = typeof window === 'undefined'
+      ? null
+      : localStorage.getItem(`${group.id}-activeUser`)
 
-    const tempUser = localStorage.getItem(`newGroup-activeUser`)
-    const activeUser = localStorage.getItem(`${group.id}-activeUser`)
-    if (!tempUser && !activeUser) {
+    if (
+      shouldPromptForActiveParticipant({
+        isAuthResolved,
+        viewer,
+        currentActiveParticipantId,
+        tempUser,
+        activeUser,
+      })
+    ) {
       setOpen(true)
     }
-  }, [currentActiveParticipantId, group, setOpen, viewer])
+  }, [currentActiveParticipantId, group, isAuthResolved, setOpen, viewer])
 
   function updateOpen(open: boolean) {
     if (!group) return
@@ -144,6 +154,30 @@ export function ActiveUserModal({
       </DrawerContent>
     </Drawer>
   )
+}
+
+export function shouldPromptForActiveParticipant({
+  isAuthResolved,
+  viewer,
+  currentActiveParticipantId,
+  tempUser,
+  activeUser,
+}: {
+  isAuthResolved: boolean
+  viewer: Viewer | null
+  currentActiveParticipantId: string | null
+  tempUser: string | null
+  activeUser: string | null
+}) {
+  if (!isAuthResolved) {
+    return false
+  }
+
+  if (viewer) {
+    return !currentActiveParticipantId
+  }
+
+  return !tempUser && !activeUser
 }
 
 export function ActiveUserForm({

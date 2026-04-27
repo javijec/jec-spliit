@@ -1,8 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { ActiveUserForm } from './active-user-modal'
+import {
+  ActiveUserForm,
+  shouldPromptForActiveParticipant,
+} from './active-user-modal'
 
 const mutateAsyncMock = jest.fn()
-const invalidateMock = jest.fn()
+const setDataMock = jest.fn()
 
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => {
@@ -21,8 +24,8 @@ jest.mock('@/trpc/client', () => ({
   trpc: {
     useUtils: () => ({
       groups: {
-        get: { invalidate: invalidateMock },
-        getDetails: { invalidate: invalidateMock },
+        get: { setData: setDataMock },
+        getDetails: { setData: setDataMock },
       },
     }),
     groups: {
@@ -123,7 +126,7 @@ describe('ActiveUserForm', () => {
         participantId: 'participant-2',
       }),
     )
-    expect(invalidateMock).toHaveBeenCalledWith({ groupId: 'group-1' })
+    expect(setDataMock).toHaveBeenCalled()
     expect(close).toHaveBeenCalled()
   })
 
@@ -172,5 +175,41 @@ describe('ActiveUserForm', () => {
     expect(screen.getByLabelText(/Juan/i).getAttribute('disabled')).not.toBeNull()
     expect(screen.getByLabelText(/Maria/i).getAttribute('disabled')).toBeNull()
     expect(screen.getByText(/ya vinculado/i)).toBeTruthy()
+  })
+})
+
+describe('shouldPromptForActiveParticipant', () => {
+  it('waits for auth resolution before using guest fallback', () => {
+    expect(
+      shouldPromptForActiveParticipant({
+        isAuthResolved: false,
+        viewer: null,
+        currentActiveParticipantId: null,
+        tempUser: null,
+        activeUser: null,
+      }),
+    ).toBe(false)
+  })
+
+  it('prompts authenticated user only when no participant selected', () => {
+    expect(
+      shouldPromptForActiveParticipant({
+        isAuthResolved: true,
+        viewer: { id: 'user-1' } as never,
+        currentActiveParticipantId: null,
+        tempUser: null,
+        activeUser: null,
+      }),
+    ).toBe(true)
+
+    expect(
+      shouldPromptForActiveParticipant({
+        isAuthResolved: true,
+        viewer: { id: 'user-1' } as never,
+        currentActiveParticipantId: 'participant-1',
+        tempUser: null,
+        activeUser: null,
+      }),
+    ).toBe(false)
   })
 })
