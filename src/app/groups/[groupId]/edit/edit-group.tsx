@@ -11,9 +11,26 @@ type GroupDetails = AppRouterOutput['groups']['getDetails']
 export const EditGroup = ({
   groupDetails,
   mode = 'full',
+  participantAccess,
+  onRemoveParticipantAccess,
+  removingParticipantUserId,
+  removeAccessLabel,
 }: {
   groupDetails?: GroupDetails
   mode?: 'full' | 'details' | 'participants'
+  participantAccess?: Record<
+    string,
+    {
+      userId: string
+      label: string
+      secondary?: string | null
+      isOwner?: boolean
+      isCurrentViewer?: boolean
+    }
+  >
+  onRemoveParticipantAccess?: (participantId: string, userId: string) => void | Promise<void>
+  removingParticipantUserId?: string | null
+  removeAccessLabel?: string
 }) => {
   const { groupId } = useCurrentGroup()
   const { data, isLoading } = trpc.groups.getDetails.useQuery(
@@ -38,6 +55,10 @@ export const EditGroup = ({
       <GroupForm
         group={data?.group}
         mode={mode}
+        participantAccess={participantAccess}
+        onRemoveParticipantAccess={onRemoveParticipantAccess}
+        removingParticipantUserId={removingParticipantUserId}
+        removeAccessLabel={removeAccessLabel}
         currentActiveParticipantId={data?.currentActiveParticipantId}
         onSubmit={async (groupFormValues, options) => {
           await mutateGroupAsync({

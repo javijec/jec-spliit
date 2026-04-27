@@ -57,6 +57,19 @@ export type Props = {
   protectedParticipantIds?: string[]
   currentActiveParticipantId?: string | null
   mode?: 'full' | 'details' | 'participants'
+  participantAccess?: Record<
+    string,
+    {
+      userId: string
+      label: string
+      secondary?: string | null
+      isOwner?: boolean
+      isCurrentViewer?: boolean
+    }
+  >
+  onRemoveParticipantAccess?: (participantId: string, userId: string) => void | Promise<void>
+  removingParticipantUserId?: string | null
+  removeAccessLabel?: string
 }
 
 function LabelWithInfo({
@@ -97,6 +110,10 @@ export function GroupForm({
   protectedParticipantIds = [],
   currentActiveParticipantId = null,
   mode = 'full',
+  participantAccess,
+  onRemoveParticipantAccess,
+  removingParticipantUserId = null,
+  removeAccessLabel,
 }: Props) {
   const locale = useLocale()
   const t = useTranslations('GroupForm')
@@ -275,6 +292,7 @@ export function GroupForm({
   const showGroupDetails = mode !== 'participants'
   const showParticipants = mode !== 'details'
   const showLocalSettings = mode === 'full' && !!group
+  const compactParticipantsMode = mode === 'participants'
 
   return (
     <Form {...form}>
@@ -441,14 +459,22 @@ export function GroupForm({
           ].join(' ')}
         >
           {showParticipants && (
-            <Card className="h-full border-border/70">
-            <CardHeader>
-              <CardTitle>{t('Participants.title')}</CardTitle>
-              <CardDescription className="hidden sm:block">
-                {t('Participants.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            <Card
+              className={
+                compactParticipantsMode
+                  ? 'h-full border-0 bg-transparent shadow-none'
+                  : 'h-full border-border/70'
+              }
+            >
+            {!compactParticipantsMode && (
+              <CardHeader>
+                <CardTitle>{t('Participants.title')}</CardTitle>
+                <CardDescription className="hidden sm:block">
+                  {t('Participants.description')}
+                </CardDescription>
+              </CardHeader>
+            )}
+            <CardContent className={compactParticipantsMode ? 'px-0 pb-0 pt-0' : undefined}>
               <ul className="flex flex-col gap-2">
                 {fields.map((item, index) => (
                   <li key={item.key}>
@@ -515,29 +541,73 @@ export function GroupForm({
                                 )
                                 const linkedUserId = linkedParticipant?.appUserId
                                 if (!linkedUserId) return null
+                                const accessInfo = item.id
+                                  ? participantAccess?.[item.id]
+                                  : undefined
 
                                 const isCurrentViewer =
+                                  accessInfo?.isCurrentViewer ??
                                   viewerData?.user?.id === linkedUserId
 
                                 return (
-                                  <div className="flex flex-wrap gap-2">
-                                    {isCurrentViewer ? (
-                                      <span
-                                        className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-foreground"
-                                        title={t('Participants.youLinked')}
-                                        aria-label={t('Participants.youLinked')}
+                                  <div className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-background px-2.5 py-2">
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        {isCurrentViewer ? (
+                                          <span
+                                            className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-foreground"
+                                            title={t('Participants.youLinked')}
+                                            aria-label={t('Participants.youLinked')}
+                                          >
+                                            <UserRound className="h-3.5 w-3.5" />
+                                          </span>
+                                        ) : (
+                                          <span
+                                            className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-muted-foreground"
+                                            title={t('Participants.linkedAccount')}
+                                            aria-label={t('Participants.linkedAccount')}
+                                          >
+                                            <ShieldCheck className="h-3.5 w-3.5" />
+                                          </span>
+                                        )}
+                                        <p className="truncate text-xs font-medium">
+                                          {accessInfo?.label ??
+                                            linkedParticipant.appUser?.displayName ??
+                                            linkedParticipant.appUser?.email ??
+                                            t('Participants.linkedAccount')}
+                                        </p>
+                                      </div>
+                                      {accessInfo?.secondary ? (
+                                        <p className="mt-1 truncate text-xs text-muted-foreground">
+                                          {accessInfo.secondary}
+                                        </p>
+                                      ) : linkedParticipant.appUser?.email ? (
+                                        <p className="mt-1 truncate text-xs text-muted-foreground">
+                                          {linkedParticipant.appUser.email}
+                                        </p>
+                                      ) : null}
+                                    </div>
+
+                                    {item.id &&
+                                    accessInfo &&
+                                    !accessInfo.isOwner &&
+                                    onRemoveParticipantAccess &&
+                                    removeAccessLabel ? (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={removingParticipantUserId === accessInfo.userId}
+                                        onClick={() =>
+                                          void onRemoveParticipantAccess(
+                                            item.id as string,
+                                            accessInfo.userId,
+                                          )
+                                        }
                                       >
-                                        <UserRound className="h-3.5 w-3.5" />
-                                      </span>
-                                    ) : (
-                                      <span
-                                        className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-muted-foreground"
-                                        title={t('Participants.linkedAccount')}
-                                        aria-label={t('Participants.linkedAccount')}
-                                      >
-                                        <ShieldCheck className="h-3.5 w-3.5" />
-                                      </span>
-                                    )}
+                                        {removeAccessLabel}
+                                      </Button>
+                                    ) : null}
                                   </div>
                                 )
                               })()}
@@ -551,7 +621,7 @@ export function GroupForm({
                 ))}
               </ul>
             </CardContent>
-            <CardFooter>
+            <CardFooter className={compactParticipantsMode ? 'px-0 pb-0 pt-3' : undefined}>
               <Button
                 variant="secondary"
                 onClick={() => {
