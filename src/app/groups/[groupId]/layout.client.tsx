@@ -179,6 +179,10 @@ export function GroupLayoutClient({
     !!data?.group &&
     !pathname.endsWith('/expenses/create') &&
     !/\/expenses\/[^/]+\/edit$/.test(pathname)
+  const hideGroupHeaderCompletely =
+    pathname.startsWith(`/groups/${groupId}/settings`) ||
+    pathname.startsWith(`/groups/${groupId}/edit`) ||
+    pathname.startsWith(`/groups/${groupId}/information`)
   const hideGroupHeaderOnMobile =
     pathname === `/groups/${groupId}` ||
     pathname === `/groups/${groupId}/summary` ||
@@ -223,9 +227,11 @@ export function GroupLayoutClient({
   if (isLoading) {
     return (
       <CurrentGroupProvider {...props}>
-        <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
-          <GroupHeader />
-        </div>
+        {!hideGroupHeaderCompletely && (
+          <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
+            <GroupHeader />
+          </div>
+        )}
         <div className="pb-24 sm:pb-0">{children}</div>
         <ActiveUserModal
           groupId={groupId}
@@ -239,9 +245,11 @@ export function GroupLayoutClient({
 
   return (
     <CurrentGroupProvider {...props}>
-      <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
-        <GroupHeader />
-      </div>
+      {!hideGroupHeaderCompletely && (
+        <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
+          <GroupHeader />
+        </div>
+      )}
       <div className="pb-24 sm:pb-0">{children}</div>
       {showMobileChrome && (
         <>
