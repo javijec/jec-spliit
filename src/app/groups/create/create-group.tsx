@@ -45,7 +45,7 @@ export const CreateGroup = () => {
               description: t('createSuccessDescription'),
             })
             await utils.groups.mine.invalidate()
-            router.push(`/groups/${groupId}`)
+            router.push(`/groups/${groupId}/settings?onboarding=invite`)
           } catch (error) {
             toast({
               title: t('createErrorTitle'),

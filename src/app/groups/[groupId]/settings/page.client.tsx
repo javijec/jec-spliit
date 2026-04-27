@@ -36,8 +36,8 @@ import {
   UserMinus,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { EditGroup } from '../edit/edit-group'
 
@@ -97,6 +97,7 @@ export function SettingsPageClient() {
   const { groupId } = useCurrentGroup()
   const t = useTranslations('Settings')
   const [view, setView] = useState<SettingsView>('hub')
+  const searchParams = useSearchParams()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmChecked, setDeleteConfirmChecked] = useState(false)
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
@@ -117,6 +118,13 @@ export function SettingsPageClient() {
   const utils = trpc.useUtils()
   const [memberEmail, setMemberEmail] = useState('')
   const [memberParticipantId, setMemberParticipantId] = useState('')
+  const isInviteOnboarding = searchParams.get('onboarding') === 'invite'
+
+  useEffect(() => {
+    if (isInviteOnboarding) {
+      setView('share')
+    }
+  }, [isInviteOnboarding])
 
   const getActiveParticipantId = () => data?.currentActiveParticipantId ?? undefined
 
@@ -219,10 +227,25 @@ export function SettingsPageClient() {
           <GroupSectionHeader>
             <SectionHeader
               title={t('shareAndExport')}
-              description={t('shareAndExportDescription')}
+              description={
+                isInviteOnboarding
+                  ? t('inviteOnboardingDescription')
+                  : t('shareAndExportDescription')
+              }
             />
           </GroupSectionHeader>
           <GroupSectionContent className="space-y-3">
+            {isInviteOnboarding && (
+              <div className="rounded-lg border border-primary/25 bg-primary/10 p-3.5 text-sm shadow-sm shadow-black/5">
+                <p className="font-medium text-foreground">
+                  {t('inviteOnboardingTitle')}
+                </p>
+                <p className="mt-1.5 text-muted-foreground">
+                  {t('inviteOnboardingBody')}
+                </p>
+              </div>
+            )}
+
             <div className="flex flex-col gap-2 sm:flex-row">
               <ShareButton
                 group={{ id: data.group.id, name: data.group.name }}
@@ -260,7 +283,14 @@ export function SettingsPageClient() {
             </div>
 
             {canManageMembers && (
-              <div className="rounded-lg border border-border/70 bg-background p-3.5 shadow-sm shadow-black/5">
+              <div
+                className={[
+                  'rounded-lg border bg-background p-3.5 shadow-sm shadow-black/5',
+                  isInviteOnboarding
+                    ? 'border-primary/30 ring-1 ring-primary/15'
+                    : 'border-border/70',
+                ].join(' ')}
+              >
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <MailPlus className="h-4 w-4" />
                   {t('memberAccessTitle')}
