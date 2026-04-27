@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server'
 
 const getGroupMock = jest.fn()
 const getGroupExpensesParticipantsMock = jest.fn()
+const getGroupMembershipUsersMock = jest.fn()
 const getUserGroupMembershipMock = jest.fn()
 
 jest.mock('@/lib/groups', () => ({
@@ -13,6 +14,8 @@ jest.mock('@/lib/expenses', () => ({
 }))
 
 jest.mock('@/lib/user-memberships', () => ({
+  getGroupMembershipUsers: (...args: unknown[]) =>
+    getGroupMembershipUsersMock(...args),
   getUserGroupMembership: (...args: unknown[]) => getUserGroupMembershipMock(...args),
 }))
 
@@ -90,6 +93,20 @@ describe('groups read tRPC procedures', () => {
       participants: [{ id: 'participant-1', name: 'Juan' }],
     })
     getGroupExpensesParticipantsMock.mockResolvedValue(['participant-1'])
+    getGroupMembershipUsersMock.mockResolvedValue([
+      {
+        userId: 'user-1',
+        role: 'OWNER',
+        user: {
+          email: 'owner@example.com',
+          displayName: 'Javier',
+        },
+        activeParticipant: {
+          id: 'participant-1',
+          name: 'Juan',
+        },
+      },
+    ])
     getUserGroupMembershipMock.mockResolvedValue({
       groupId: 'group-1',
       activeParticipantId: 'participant-1',
@@ -106,6 +123,20 @@ describe('groups read tRPC procedures', () => {
         name: 'Viaje',
         participants: [{ id: 'participant-1', name: 'Juan' }],
       },
+      members: [
+        {
+          userId: 'user-1',
+          role: 'OWNER',
+          user: {
+            email: 'owner@example.com',
+            displayName: 'Javier',
+          },
+          activeParticipant: {
+            id: 'participant-1',
+            name: 'Juan',
+          },
+        },
+      ],
       participantsWithExpenses: ['participant-1'],
       currentUserRole: 'OWNER',
       currentActiveParticipantId: 'participant-1',

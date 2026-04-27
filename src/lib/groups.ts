@@ -284,7 +284,20 @@ export async function getGroup(groupId: string) {
       createdAt: true,
       information: true,
       currencyCode: true,
-      participants: true,
+      participants: {
+        select: {
+          id: true,
+          name: true,
+          groupId: true,
+          appUserId: true,
+          appUser: {
+            select: {
+              email: true,
+              displayName: true,
+            },
+          },
+        },
+      },
     },
   })
 }

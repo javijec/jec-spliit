@@ -31,7 +31,9 @@ import {
   Info,
   MailPlus,
   Pencil,
+  ShieldCheck,
   Trash2,
+  UserMinus,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
@@ -110,6 +112,8 @@ export function SettingsPageClient() {
     trpc.groups.delete.useMutation()
   const { mutateAsync: addMemberAsync, isPending: isAddingMember } =
     trpc.groups.addMember.useMutation()
+  const { mutateAsync: removeMemberAsync, isPending: isRemovingMember } =
+    trpc.groups.removeMember.useMutation()
   const utils = trpc.useUtils()
   const [memberEmail, setMemberEmail] = useState('')
   const [memberParticipantId, setMemberParticipantId] = useState('')
@@ -144,6 +148,7 @@ export function SettingsPageClient() {
   const availableParticipants = data.group.participants.filter(
     (participant) => !participant.appUserId,
   )
+  const linkedMembers = data.members.filter((member) => member.activeParticipant)
 
   return (
     <div className="space-y-4">
@@ -338,6 +343,94 @@ export function SettingsPageClient() {
                 )}
               </div>
             )}
+
+            <div className="rounded-lg border border-border/70 bg-background p-3.5 shadow-sm shadow-black/5">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <ShieldCheck className="h-4 w-4" />
+                {t('linkedMembersTitle')}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {t('linkedMembersDescription')}
+              </p>
+
+              {linkedMembers.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {t('linkedMembersEmpty')}
+                </p>
+              ) : (
+                <div className="mt-3 space-y-2">
+                  {linkedMembers.map((member) => {
+                    const isOwner = member.role === 'OWNER'
+                    const label =
+                      member.user.displayName ||
+                      member.user.email ||
+                      member.activeParticipant?.name ||
+                      t('linkedMembersFallback')
+
+                    return (
+                      <div
+                        key={`${member.userId}-${member.activeParticipant?.id ?? 'none'}`}
+                        className="flex items-center justify-between gap-3 rounded-xl border border-border/70 px-3.5 py-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{label}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {member.user.email || t('linkedMembersNoEmail')}
+                          </p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {t('linkedMembersParticipant', {
+                              participant:
+                                member.activeParticipant?.name ??
+                                t('linkedMembersFallback'),
+                            })}
+                          </p>
+                        </div>
+
+                        {isOwner ? (
+                          <Badge variant="outline">{t('linkedMembersOwner')}</Badge>
+                        ) : canManageMembers ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isRemovingMember}
+                            onClick={async () => {
+                              try {
+                                await removeMemberAsync({
+                                  groupId,
+                                  userId: member.userId,
+                                })
+                                await utils.groups.invalidate()
+                                toast({
+                                  title: t('memberRemovedTitle'),
+                                  description: t('memberRemovedDescription', {
+                                    participant:
+                                      member.activeParticipant?.name ??
+                                      t('linkedMembersFallback'),
+                                  }),
+                                })
+                              } catch (error) {
+                                toast({
+                                  title: t('memberRemoveErrorTitle'),
+                                  description:
+                                    error instanceof Error
+                                      ? error.message
+                                      : t('memberRemoveErrorDescription'),
+                                  variant: 'destructive',
+                                })
+                              }
+                            }}
+                          >
+                            <UserMinus className="mr-2 h-4 w-4" />
+                            {t('memberRemoveAction')}
+                          </Button>
+                        ) : null}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </GroupSectionContent>
         </GroupSectionCard>
       )}

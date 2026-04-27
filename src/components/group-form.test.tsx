@@ -227,8 +227,20 @@ describe('GroupForm', () => {
           currencyCode: 'USD',
           createdAt: new Date(),
           participants: [
-            { id: 'participant-1', name: 'Juan', groupId: 'group-1', appUserId: null },
-            { id: 'participant-2', name: 'Maria', groupId: 'group-1', appUserId: null },
+            {
+              id: 'participant-1',
+              name: 'Juan',
+              groupId: 'group-1',
+              appUserId: null,
+              appUser: null,
+            },
+            {
+              id: 'participant-2',
+              name: 'Maria',
+              groupId: 'group-1',
+              appUserId: null,
+              appUser: null,
+            },
           ],
         }}
         currentActiveParticipantId="participant-1"
@@ -262,8 +274,20 @@ describe('GroupForm', () => {
           currencyCode: 'USD',
           createdAt: new Date(),
           participants: [
-            { id: 'participant-1', name: 'Juan', groupId: 'group-1', appUserId: null },
-            { id: 'participant-2', name: 'Maria', groupId: 'group-1', appUserId: null },
+            {
+              id: 'participant-1',
+              name: 'Juan',
+              groupId: 'group-1',
+              appUserId: null,
+              appUser: null,
+            },
+            {
+              id: 'participant-2',
+              name: 'Maria',
+              groupId: 'group-1',
+              appUserId: null,
+              appUser: null,
+            },
           ],
         }}
         onSubmit={onSubmit}

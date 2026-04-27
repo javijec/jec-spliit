@@ -2,7 +2,10 @@ import {
   getGroup,
 } from '@/lib/groups'
 import { getGroupExpensesParticipants } from '@/lib/expenses'
-import { getUserGroupMembership } from '@/lib/user-memberships'
+import {
+  getGroupMembershipUsers,
+  getUserGroupMembership,
+} from '@/lib/user-memberships'
 import { protectedProcedure } from '@/trpc/init'
 import { TRPCError } from '@trpc/server'
 import { requireGroupMembership } from './authorization'
@@ -22,8 +25,10 @@ export const getGroupDetailsProcedure = protectedProcedure
 
     const participantsWithExpenses = await getGroupExpensesParticipants(groupId)
     const membership = await getUserGroupMembership(ctx.auth.user.id, groupId)
+    const members = await getGroupMembershipUsers(groupId)
     return {
       group,
+      members,
       participantsWithExpenses,
       currentUserRole: membership?.role ?? null,
       currentActiveParticipantId: membership?.activeParticipantId ?? null,

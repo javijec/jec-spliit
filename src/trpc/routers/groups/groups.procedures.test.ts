@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server'
 
 const createGroupMock = jest.fn()
 const addGroupMemberMock = jest.fn()
+const removeGroupMemberMock = jest.fn()
 const getUserGroupsMock = jest.fn()
 const recordVisitMock = jest.fn()
 const setActiveParticipantMock = jest.fn()
@@ -16,6 +17,7 @@ jest.mock('@/lib/groups', () => ({
 jest.mock('@/lib/user-memberships', () => ({
   addUserToGroupByEmail: (...args: unknown[]) => addGroupMemberMock(...args),
   getUserGroups: (...args: unknown[]) => getUserGroupsMock(...args),
+  removeUserFromGroup: (...args: unknown[]) => removeGroupMemberMock(...args),
   saveGroupToUser: (...args: unknown[]) => recordVisitMock(...args),
   setUserActiveParticipant: (...args: unknown[]) => setActiveParticipantMock(...args),
   syncUserGroupsFromLegacyState: (...args: unknown[]) => syncLegacyMock(...args),
@@ -205,6 +207,20 @@ describe('groups tRPC procedures', () => {
         participantName: 'Maria',
       },
     })
+  })
+
+  it('removes a non-owner member from the group', async () => {
+    removeGroupMemberMock.mockResolvedValue({ success: true })
+
+    const caller = createCaller('user-1')
+    const result = await caller.removeMember({
+      groupId: 'group-1',
+      userId: 'user-2',
+    })
+
+    expect(requireGroupOwnerMock).toHaveBeenCalledWith('user-1', 'group-1')
+    expect(removeGroupMemberMock).toHaveBeenCalledWith('group-1', 'user-2')
+    expect(result).toEqual({ success: true })
   })
 
   it('rejects protected procedures when there is no authenticated user', async () => {

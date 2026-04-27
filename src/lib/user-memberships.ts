@@ -299,12 +299,78 @@ export async function setUserActiveParticipant(
   })
 }
 
+export async function getGroupMembershipUsers(groupId: string) {
+  return prisma.userGroupMembership.findMany({
+    where: { groupId },
+    orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
+    select: {
+      userId: true,
+      role: true,
+      user: {
+        select: {
+          email: true,
+          displayName: true,
+        },
+      },
+      activeParticipant: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  })
+}
+
 export async function removeUserGroupMembership(userId: string, groupId: string) {
   await prisma.userGroupMembership.deleteMany({
     where: {
       userId,
       groupId,
     },
+  })
+}
+
+export async function removeUserFromGroup(groupId: string, userId: string) {
+  return prisma.$transaction(async (tx) => {
+    const membership = await tx.userGroupMembership.findUnique({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId,
+        },
+      },
+      select: {
+        role: true,
+      },
+    })
+    if (!membership) {
+      throw new Error('The user is not a member of this group.')
+    }
+    if (membership.role === GroupRole.OWNER) {
+      throw new Error('The group owner cannot be removed.')
+    }
+
+    await tx.participant.updateMany({
+      where: {
+        groupId,
+        appUserId: userId,
+      },
+      data: {
+        appUserId: null,
+      },
+    })
+
+    await tx.userGroupMembership.delete({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId,
+        },
+      },
+    })
+
+    return { success: true }
   })
 }
 
