@@ -13,14 +13,21 @@ import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { CheckCircle2, Layers3, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 
 export default function BalancesAndReimbursements() {
   const { groupId, group } = useCurrentGroup()
+  const utils = trpc.useUtils()
+  const cachedBalances = useMemo(
+    () => utils.groups.balances.list.getData({ groupId }),
+    [groupId, utils.groups.balances.list],
+  )
   const { data: balancesData, isLoading: balancesAreLoading } =
     trpc.groups.balances.list.useQuery({
       groupId,
     }, {
+      placeholderData: cachedBalances,
       staleTime: 5 * 60 * 1000,
       refetchOnMount: false,
     })

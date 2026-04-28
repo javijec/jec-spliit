@@ -144,13 +144,24 @@ export function ExpenseList() {
 
 function ExpenseListContent({ groupId }: { groupId: string }) {
   const { group } = useCurrentGroup()
+  const utils = trpc.useUtils()
   const { ref: loadingRef, inView } = useInView()
+  const cachedExpenses = useMemo(
+    () =>
+      utils.groups.expenses.list.getInfiniteData({
+        groupId,
+        limit: PAGE_SIZE,
+        filter: '',
+      }),
+    [groupId, utils.groups.expenses.list],
+  )
 
   const { data, isLoading: expensesAreLoading, fetchNextPage } =
     trpc.groups.expenses.list.useInfiniteQuery(
       { groupId, limit: PAGE_SIZE, filter: '' },
       {
         getNextPageParam: ({ nextCursor }) => nextCursor,
+        placeholderData: cachedExpenses,
         staleTime: 5 * 60 * 1000,
         refetchOnMount: false,
       },
