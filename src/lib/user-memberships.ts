@@ -299,6 +299,170 @@ export async function setUserActiveParticipant(
   })
 }
 
+export async function backfillLegacyMembershipForUser(
+  userId: string,
+  groupId: string,
+) {
+  return prisma.$transaction(async (tx) => {
+    const membership = await tx.userGroupMembership.findUnique({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId,
+        },
+      },
+      select: {
+        groupId: true,
+        activeParticipantId: true,
+        isArchived: true,
+        isStarred: true,
+        role: true,
+      },
+    })
+
+    if (membership?.activeParticipantId) {
+      return membership
+    }
+
+    const linkedParticipants = await tx.participant.findMany({
+      where: {
+        groupId,
+        appUserId: userId,
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (linkedParticipants.length !== 1) {
+      return membership
+    }
+
+    const activeParticipantId = linkedParticipants[0]!.id
+
+    if (membership) {
+      return tx.userGroupMembership.update({
+        where: {
+          userId_groupId: {
+            userId,
+            groupId,
+          },
+        },
+        data: {
+          activeParticipantId,
+          lastAccessedAt: new Date(),
+        },
+        select: {
+          groupId: true,
+          activeParticipantId: true,
+          isArchived: true,
+          isStarred: true,
+          role: true,
+        },
+      })
+    }
+
+    return tx.userGroupMembership.create({
+      data: {
+        id: randomId(),
+        userId,
+        groupId,
+        role: GroupRole.MEMBER,
+        activeParticipantId,
+        lastAccessedAt: new Date(),
+      },
+      select: {
+        groupId: true,
+        activeParticipantId: true,
+        isArchived: true,
+        isStarred: true,
+        role: true,
+      },
+    })
+  })
+}
+
+export async function backfillLegacyGroupMemberships(groupId: string) {
+  return prisma.$transaction(async (tx) => {
+    const [linkedParticipants, memberships] = await Promise.all([
+      tx.participant.findMany({
+        where: {
+          groupId,
+          appUserId: { not: null },
+        },
+        select: {
+          id: true,
+          appUserId: true,
+        },
+      }),
+      tx.userGroupMembership.findMany({
+        where: { groupId },
+        select: {
+          userId: true,
+          activeParticipantId: true,
+        },
+      }),
+    ])
+
+    const participantIdsByUser = new Map<string, string[]>()
+    for (const participant of linkedParticipants) {
+      const userId = participant.appUserId
+      if (!userId) continue
+      participantIdsByUser.set(userId, [
+        ...(participantIdsByUser.get(userId) ?? []),
+        participant.id,
+      ])
+    }
+
+    const membershipByUser = new Map(memberships.map((membership) => [membership.userId, membership]))
+    const updates: Array<Promise<unknown>> = []
+
+    for (const [userId, participantIds] of participantIdsByUser) {
+      if (participantIds.length !== 1) continue
+
+      const participantId = participantIds[0]!
+      const membership = membershipByUser.get(userId)
+
+      if (!membership) {
+        updates.push(
+          tx.userGroupMembership.create({
+            data: {
+              id: randomId(),
+              userId,
+              groupId,
+              role: GroupRole.MEMBER,
+              activeParticipantId: participantId,
+              lastAccessedAt: new Date(),
+            },
+          }),
+        )
+        continue
+      }
+
+      if (membership.activeParticipantId === null) {
+        updates.push(
+          tx.userGroupMembership.update({
+            where: {
+              userId_groupId: {
+                userId,
+                groupId,
+              },
+            },
+            data: {
+              activeParticipantId: participantId,
+              lastAccessedAt: new Date(),
+            },
+          }),
+        )
+      }
+    }
+
+    if (updates.length > 0) {
+      await Promise.all(updates)
+    }
+  })
+}
+
 export async function getGroupMembershipUsers(groupId: string) {
   return prisma.userGroupMembership.findMany({
     where: { groupId },

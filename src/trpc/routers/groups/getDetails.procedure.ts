@@ -3,6 +3,7 @@ import {
 } from '@/lib/groups'
 import { getGroupExpensesParticipants } from '@/lib/expenses'
 import {
+  backfillLegacyGroupMemberships,
   getGroupMembershipUsers,
   getUserGroupMembership,
 } from '@/lib/user-memberships'
@@ -15,6 +16,7 @@ export const getGroupDetailsProcedure = protectedProcedure
   .input(z.object({ groupId: z.string().min(1) }))
   .query(async ({ ctx, input: { groupId } }) => {
     await requireGroupMembership(ctx.auth.user.id, groupId)
+    await backfillLegacyGroupMemberships(groupId)
     const group = await getGroup(groupId)
     if (!group) {
       throw new TRPCError({
