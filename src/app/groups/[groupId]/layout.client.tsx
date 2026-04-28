@@ -1,14 +1,12 @@
 'use client'
 
 import { ActiveUserModal } from '@/app/groups/[groupId]/expenses/active-user-modal'
+import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
-import { Button } from '@/components/ui/button'
-import { usePwaInstallPrompt } from '@/components/use-pwa-install-prompt'
 import {
   ChartColumn,
   HandCoins,
-  Download,
   Plus,
   ReceiptText,
   Settings,
@@ -49,7 +47,15 @@ export function GroupLayoutClient({
         group: initialGroup,
         currentActiveParticipantId: null,
       },
-      staleTime: 5 * 60 * 1000,
+      staleTime: 15 * 60 * 1000,
+      refetchOnMount: false,
+    },
+  )
+  const { data: groupDetailsData } = trpc.groups.getDetails.useQuery(
+    { groupId },
+    {
+      staleTime: 15 * 60 * 1000,
+      refetchOnMount: false,
     },
   )
   const viewer = viewerData?.user ?? null
@@ -59,7 +65,6 @@ export function GroupLayoutClient({
   const tFlow = useTranslations('ExpenseFlow')
   const pathname = usePathname()
   const { toast } = useToast()
-  const { canInstall, install } = usePwaInstallPrompt()
 
   useEffect(() => {
     if (data && !data.group) {
@@ -87,6 +92,9 @@ export function GroupLayoutClient({
           filter: '',
         }),
         utils.categories.list.prefetch(),
+        router.prefetch(`/groups/${groupId}/summary`),
+        router.prefetch(`/groups/${groupId}/balances`),
+        router.prefetch(`/groups/${groupId}/settings`),
       ])
     }
 
@@ -107,7 +115,7 @@ export function GroupLayoutClient({
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [data?.group, groupId, isLoading, utils, viewer?.id])
+  }, [data?.group, groupId, isLoading, router, utils, viewer?.id])
 
   function prefetchTabIntent(
     target: 'summary' | 'expenses' | 'balances' | 'settings',
@@ -164,6 +172,7 @@ export function GroupLayoutClient({
           isLoading: true as const,
           groupId,
           group: undefined,
+          groupDetails: groupDetailsData ?? null,
           viewer,
           currentActiveParticipantId: data?.currentActiveParticipantId ?? null,
         }
@@ -171,6 +180,7 @@ export function GroupLayoutClient({
           isLoading: false as const,
           groupId,
           group: data.group,
+          groupDetails: groupDetailsData ?? null,
           viewer,
           currentActiveParticipantId: data.currentActiveParticipantId ?? null,
         }
@@ -272,11 +282,7 @@ export function GroupLayoutClient({
             </Button>
           )}
           <nav className="fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-40 px-3 pb-3 sm:hidden">
-            <div
-              className={`grid items-center gap-1 rounded-[1.35rem] border border-border/80 bg-card/95 px-2 py-2 shadow-[0_12px_32px_hsl(var(--foreground)/0.14)] backdrop-blur ${
-                canInstall ? 'grid-cols-5' : 'grid-cols-4'
-              }`}
-            >
+            <div className="grid grid-cols-4 items-center gap-1 rounded-[1.35rem] border border-border/80 bg-card/95 px-2 py-2 shadow-[0_12px_32px_hsl(var(--foreground)/0.14)] backdrop-blur">
               {tabs.map((tab) => (
                 <Button
                   key={tab.key}
@@ -300,18 +306,6 @@ export function GroupLayoutClient({
                   </Link>
                 </Button>
               ))}
-              {canInstall && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-11 flex-col gap-1 rounded-xl text-muted-foreground"
-                  onClick={() => void install()}
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="text-[10px] leading-none">Instalar</span>
-                </Button>
-              )}
             </div>
           </nav>
         </>

@@ -34,6 +34,7 @@ const PERSISTED_QUERY_PATTERNS = [
   '"categories","list"',
   '"groups","get"',
   '"groups","getDetails"',
+  '"groups","mine"',
   '"groups","balances","list"',
   '"groups","expenses","list"',
   '"groups","stats","get"',

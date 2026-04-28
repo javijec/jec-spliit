@@ -151,7 +151,8 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
       { groupId, limit: PAGE_SIZE, filter: '' },
       {
         getNextPageParam: ({ nextCursor }) => nextCursor,
-        staleTime: 60 * 1000,
+        staleTime: 5 * 60 * 1000,
+        refetchOnMount: false,
       },
     )
 

@@ -6,7 +6,6 @@ import {
   GroupSectionCard,
   GroupSectionContent,
 } from '@/components/ui/group-section-card'
-import { trpc } from '@/trpc/client'
 import {
   ArrowRight,
   ShieldCheck,
@@ -18,19 +17,13 @@ import { useCurrentGroup } from '../current-group-context'
 
 export function SummaryPageClient() {
   const tSummary = useTranslations('Summary')
-  const { group, viewer, groupId } = useCurrentGroup()
-  const { data } = trpc.groups.getDetails.useQuery(
-    { groupId },
-    {
-      staleTime: 5 * 60 * 1000,
-    },
-  )
+  const { group, groupDetails, viewer, groupId } = useCurrentGroup()
   const participantCount = group?.participants.length ?? 0
   const linkedParticipants = group?.participants.filter((participant) => participant.appUserId) ?? []
   const unlinkedParticipants =
     group?.participants.filter((participant) => !participant.appUserId) ?? []
   const linkedParticipantIds = new Set(linkedParticipants.map((participant) => participant.id))
-  const linkedMembers = (data?.members ?? []).filter(
+  const linkedMembers = (groupDetails?.members ?? []).filter(
     (member) =>
       member.activeParticipant &&
       linkedParticipantIds.has(member.activeParticipant.id),

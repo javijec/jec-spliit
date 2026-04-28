@@ -43,7 +43,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { EditGroup } from '../edit/edit-group'
 
@@ -441,7 +441,7 @@ function SettingsOptionCard({
 }
 
 export function SettingsPageClient() {
-  const { groupId, viewer } = useCurrentGroup()
+  const { groupId, groupDetails, viewer } = useCurrentGroup()
   const t = useTranslations('Settings')
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -450,13 +450,6 @@ export function SettingsPageClient() {
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
   const { toast } = useToast()
   const router = useRouter()
-  const [hasHydrated, setHasHydrated] = useState(false)
-  const { data, isLoading } = trpc.groups.getDetails.useQuery(
-    { groupId },
-    {
-      staleTime: 5 * 60 * 1000,
-    },
-  )
   const { mutateAsync: deleteGroupAsync, isPending: isDeletingGroup } =
     trpc.groups.delete.useMutation()
   const { mutateAsync: addMemberAsync, isPending: isAddingMember } =
@@ -471,6 +464,7 @@ export function SettingsPageClient() {
   )
   const isInviteOnboarding = searchParams.get('onboarding') === 'invite'
   const section = searchParams.get('section')
+  const data = groupDetails
   const view: SettingsView =
     section === 'edit' ||
     section === 'participants' ||
@@ -500,11 +494,7 @@ export function SettingsPageClient() {
 
   const getActiveParticipantId = () => data?.currentActiveParticipantId ?? undefined
 
-  useEffect(() => {
-    setHasHydrated(true)
-  }, [])
-
-  if (!hasHydrated || isLoading || !data?.group) {
+  if (!data?.group) {
     return (
       <div className="space-y-4">
         <div className="border bg-card p-5">

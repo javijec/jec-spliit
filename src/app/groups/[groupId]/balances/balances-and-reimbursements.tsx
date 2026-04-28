@@ -20,6 +20,9 @@ export default function BalancesAndReimbursements() {
   const { data: balancesData, isLoading: balancesAreLoading } =
     trpc.groups.balances.list.useQuery({
       groupId,
+    }, {
+      staleTime: 5 * 60 * 1000,
+      refetchOnMount: false,
     })
   const t = useTranslations('Balances')
   const tSummary = useTranslations('Balances.summary')
