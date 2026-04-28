@@ -5,6 +5,7 @@ import { getGroupExpensesParticipants } from '@/lib/expenses'
 import {
   backfillLegacyGroupMemberships,
   getGroupMembershipUsers,
+  pruneOrphanedGroupMemberships,
   getUserGroupMembership,
 } from '@/lib/user-memberships'
 import { protectedProcedure } from '@/trpc/init'
@@ -17,6 +18,7 @@ export const getGroupDetailsProcedure = protectedProcedure
   .query(async ({ ctx, input: { groupId } }) => {
     await requireGroupMembership(ctx.auth.user.id, groupId)
     await backfillLegacyGroupMemberships(groupId)
+    await pruneOrphanedGroupMemberships(groupId)
     const group = await getGroup(groupId)
     if (!group) {
       throw new TRPCError({

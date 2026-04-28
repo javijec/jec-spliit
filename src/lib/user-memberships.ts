@@ -463,8 +463,64 @@ export async function backfillLegacyGroupMemberships(groupId: string) {
   })
 }
 
+export async function pruneOrphanedGroupMemberships(groupId: string) {
+  return prisma.$transaction(async (tx) => {
+    const orphanCandidates = await tx.userGroupMembership.findMany({
+      where: {
+        groupId,
+        activeParticipantId: null,
+        role: { not: GroupRole.OWNER },
+      },
+      select: {
+        userId: true,
+      },
+    })
+
+    if (orphanCandidates.length === 0) {
+      return { removedCount: 0 }
+    }
+
+    const linkedParticipants = await tx.participant.findMany({
+      where: {
+        groupId,
+        appUserId: {
+          in: orphanCandidates.map((membership) => membership.userId),
+        },
+      },
+      select: {
+        appUserId: true,
+      },
+    })
+
+    const usersWithLinkedParticipant = new Set(
+      linkedParticipants
+        .map((participant) => participant.appUserId)
+        .filter((userId): userId is string => userId !== null),
+    )
+
+    const orphanUserIds = orphanCandidates
+      .map((membership) => membership.userId)
+      .filter((userId) => !usersWithLinkedParticipant.has(userId))
+
+    if (orphanUserIds.length === 0) {
+      return { removedCount: 0 }
+    }
+
+    const { count } = await tx.userGroupMembership.deleteMany({
+      where: {
+        groupId,
+        activeParticipantId: null,
+        role: { not: GroupRole.OWNER },
+        userId: { in: orphanUserIds },
+      },
+    })
+
+    return { removedCount: count }
+  })
+}
+
 export async function getGroupMembershipUsers(groupId: string) {
-  return prisma.userGroupMembership.findMany({
+  const memberships = await prisma.userGroupMembership.findMany({
     where: { groupId },
     orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
     select: {
@@ -484,6 +540,8 @@ export async function getGroupMembershipUsers(groupId: string) {
       },
     },
   })
+
+  return memberships.filter((membership) => membership.activeParticipant !== null)
 }
 
 export async function removeUserGroupMembership(userId: string, groupId: string) {
