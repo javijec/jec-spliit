@@ -29,7 +29,12 @@ export function SummaryPageClient() {
   const linkedParticipants = group?.participants.filter((participant) => participant.appUserId) ?? []
   const unlinkedParticipants =
     group?.participants.filter((participant) => !participant.appUserId) ?? []
-  const linkedMembers = data?.members ?? []
+  const linkedParticipantIds = new Set(linkedParticipants.map((participant) => participant.id))
+  const linkedMembers = (data?.members ?? []).filter(
+    (member) =>
+      member.activeParticipant &&
+      linkedParticipantIds.has(member.activeParticipant.id),
+  )
 
   return (
     <div className="space-y-3">
