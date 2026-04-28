@@ -534,6 +534,7 @@
     "linkedMembersNoEmail": "No email available",
     "linkedMembersParticipant": "Participant: {participant}",
     "linkedMembersOwner": "Owner",
+    "linkedMembersLinkedAccount": "Linked account",
     "memberRemoveAction": "Remove access",
     "memberRemovedTitle": "Access removed",
     "memberRemovedDescription": "Access for participant {participant} was removed.",

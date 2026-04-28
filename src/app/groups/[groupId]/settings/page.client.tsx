@@ -88,6 +88,8 @@ function buildGroupFormValues(
 function ParticipantsManager({
   canManageMembers,
   currentActiveParticipantId,
+  currentUserRole,
+  currentViewerId,
   group,
   isAddingMember,
   isUpdatingGroup,
@@ -103,6 +105,8 @@ function ParticipantsManager({
 }: {
   canManageMembers: boolean
   currentActiveParticipantId: string | null
+  currentUserRole: string | null
+  currentViewerId: string | null
   group: {
     participants: ParticipantRow[]
   }
@@ -249,6 +253,24 @@ function ParticipantsManager({
       <div className="rounded-xl border border-border/70 bg-background/60">
         {group.participants.map((participant, index) => {
           const accessInfo = participantAccess[participant.id]
+          const fallbackAccessInfo =
+            !accessInfo && participant.appUserId
+              ? {
+                  userId: participant.appUserId,
+                  label:
+                    participant.appUser?.displayName ??
+                    participant.appUser?.email ??
+                    participant.name,
+                  secondary:
+                    participant.appUser?.displayName && participant.appUser?.email
+                      ? participant.appUser.email
+                      : null,
+                  isOwner:
+                    participant.appUserId === currentViewerId &&
+                    currentUserRole === 'OWNER',
+                }
+              : null
+          const resolvedAccessInfo = accessInfo ?? fallbackAccessInfo
           const canDelete =
             canManageMembers &&
             participant.id !== currentActiveParticipantId &&
@@ -267,9 +289,9 @@ function ParticipantsManager({
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{participant.name}</p>
-                  {accessInfo ? (
+                  {resolvedAccessInfo ? (
                     <p className="truncate pt-1 text-[11px] text-muted-foreground">
-                      {accessInfo.secondary ?? accessInfo.label}
+                      {resolvedAccessInfo.secondary ?? resolvedAccessInfo.label}
                     </p>
                   ) : (
                     <p className="truncate pt-1 text-[11px] text-muted-foreground">
@@ -291,9 +313,13 @@ function ParticipantsManager({
                     >
                       {removeAccessLabel}
                     </Button>
-                  ) : accessInfo?.isOwner ? (
+                  ) : resolvedAccessInfo?.isOwner ? (
                     <Badge variant="outline" className="h-7 text-[10px]">
                       {t('linkedMembersOwner')}
+                    </Badge>
+                  ) : fallbackAccessInfo ? (
+                    <Badge variant="outline" className="h-7 text-[10px]">
+                      {t('linkedMembersLinkedAccount')}
                     </Badge>
                   ) : canManageMembers ? (
                     <Button
@@ -646,6 +672,8 @@ export function SettingsPageClient() {
               <ParticipantsManager
                 canManageMembers={canManageMembers}
                 currentActiveParticipantId={data.currentActiveParticipantId}
+                currentUserRole={data.currentUserRole}
+                currentViewerId={viewer?.id ?? null}
                 group={data.group}
                 isAddingMember={isAddingMember}
                 isUpdatingGroup={isUpdatingGroup}

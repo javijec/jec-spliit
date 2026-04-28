@@ -534,6 +534,7 @@
     "linkedMembersNoEmail": "Sin correo disponible",
     "linkedMembersParticipant": "Participante: {participant}",
     "linkedMembersOwner": "Owner",
+    "linkedMembersLinkedAccount": "Cuenta vinculada",
     "memberRemoveAction": "Quitar acceso",
     "memberRemovedTitle": "Acceso eliminado",
     "memberRemovedDescription": "Se quitó el acceso del participante {participant}.",
