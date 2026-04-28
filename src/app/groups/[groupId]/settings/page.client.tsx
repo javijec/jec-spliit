@@ -89,7 +89,9 @@ function ParticipantsManager({
   canManageMembers,
   currentActiveParticipantId,
   group,
+  isAddingMember,
   isUpdatingGroup,
+  onAssignParticipantAccess,
   onAddParticipant,
   onDeleteParticipant,
   onEditParticipant,
@@ -104,7 +106,9 @@ function ParticipantsManager({
   group: {
     participants: ParticipantRow[]
   }
+  isAddingMember: boolean
   isUpdatingGroup: boolean
+  onAssignParticipantAccess: (participantId: string, email: string) => Promise<void>
   onAddParticipant: (name: string) => Promise<void>
   onDeleteParticipant: (participantId: string) => Promise<void>
   onEditParticipant: (participantId: string, name: string) => Promise<void>
@@ -127,6 +131,10 @@ function ParticipantsManager({
   const [newParticipantName, setNewParticipantName] = useState('')
   const [editingParticipant, setEditingParticipant] = useState<ParticipantRow | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [assigningParticipant, setAssigningParticipant] = useState<ParticipantRow | null>(
+    null,
+  )
+  const [assignEmail, setAssignEmail] = useState('')
 
   return (
     <div className="space-y-2">
@@ -171,6 +179,62 @@ function ParticipantsManager({
             >
               <Check className="mr-2 h-4 w-4" />
               {t('participantSaveAction')}
+            </Button>
+            <DialogClose asChild>
+              <Button variant="outline" className="w-full">
+                <X className="mr-2 h-4 w-4" />
+                {t('cancel')}
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={assigningParticipant !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAssigningParticipant(null)
+            setAssignEmail('')
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <div className="space-y-1 pr-8">
+            <DialogTitle>{t('participantAssignAccessTitle')}</DialogTitle>
+            <DialogDescription>
+              {assigningParticipant
+                ? t('participantAssignAccessDescription', {
+                    participant: assigningParticipant.name,
+                  })
+                : t('memberAccessDescription')}
+            </DialogDescription>
+          </div>
+          <Input
+            type="email"
+            value={assignEmail}
+            onChange={(event) => setAssignEmail(event.target.value)}
+            placeholder={t('memberAccessEmailPlaceholder')}
+            autoComplete="email"
+            autoFocus
+          />
+          <DialogFooter className="flex flex-col gap-2">
+            <Button
+              type="button"
+              disabled={isAddingMember || assignEmail.trim().length === 0}
+              onClick={async () => {
+                if (!assigningParticipant) return
+                await onAssignParticipantAccess(
+                  assigningParticipant.id,
+                  assignEmail.trim(),
+                )
+                setAssigningParticipant(null)
+                setAssignEmail('')
+              }}
+              className="w-full"
+            >
+              <MailPlus className="mr-2 h-4 w-4" />
+              {t('participantAssignAccessAction')}
             </Button>
             <DialogClose asChild>
               <Button variant="outline" className="w-full">
@@ -231,6 +295,20 @@ function ParticipantsManager({
                     <Badge variant="outline" className="h-7 text-[10px]">
                       {t('linkedMembersOwner')}
                     </Badge>
+                  ) : canManageMembers ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => {
+                        setAssigningParticipant(participant)
+                        setAssignEmail('')
+                      }}
+                    >
+                      <MailPlus className="mr-1.5 h-3.5 w-3.5" />
+                      {t('participantAssignAccessAction')}
+                    </Button>
                   ) : null}
                   <Button
                     type="button"
@@ -362,8 +440,6 @@ export function SettingsPageClient() {
   const { mutateAsync: updateGroupAsync, isPending: isUpdatingGroup } =
     trpc.groups.update.useMutation()
   const utils = trpc.useUtils()
-  const [memberEmail, setMemberEmail] = useState('')
-  const [memberParticipantId, setMemberParticipantId] = useState('')
   const [removingAccessUserId, setRemovingAccessUserId] = useState<string | null>(
     null,
   )
@@ -428,9 +504,6 @@ export function SettingsPageClient() {
     deleteConfirmChecked && deleteConfirmName.trim() === data.group.name
   const canManageMembers = data.currentUserRole === 'OWNER'
   const protectedParticipantIds = new Set(data.participantsWithExpenses ?? [])
-  const availableParticipants = data.group.participants.filter(
-    (participant) => !participant.appUserId,
-  )
   const linkedMembers = data.members.filter((member) => member.activeParticipant)
   const participantAccess = Object.fromEntries(
     linkedMembers
@@ -566,84 +639,6 @@ export function SettingsPageClient() {
                   />
                 </div>
 
-                {canManageMembers && (
-                  <div className="grid gap-2 border-t border-border/70 pt-3">
-                    <p className="text-sm font-medium">{t('memberAccessTitle')}</p>
-                    {availableParticipants.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        {t('memberAccessNoParticipants')}
-                      </p>
-                    ) : (
-                      <>
-                        <Input
-                          type="email"
-                          value={memberEmail}
-                          onChange={(event) => setMemberEmail(event.target.value)}
-                          placeholder={t('memberAccessEmailPlaceholder')}
-                          autoComplete="email"
-                        />
-                        <select
-                          value={memberParticipantId}
-                          onChange={(event) =>
-                            setMemberParticipantId(event.target.value)
-                          }
-                          className="h-11 rounded-md border border-input bg-background px-3 text-sm"
-                        >
-                          <option value="">
-                            {t('memberAccessParticipantPlaceholder')}
-                          </option>
-                          {availableParticipants.map((participant) => (
-                            <option key={participant.id} value={participant.id}>
-                              {participant.name}
-                            </option>
-                          ))}
-                        </select>
-                        <Button
-                          type="button"
-                          disabled={
-                            isAddingMember ||
-                            memberEmail.trim().length === 0 ||
-                            memberParticipantId.length === 0
-                          }
-                          onClick={async () => {
-                            try {
-                              const result = await addMemberAsync({
-                                groupId,
-                                email: memberEmail.trim(),
-                                participantId: memberParticipantId,
-                              })
-                              setMemberEmail('')
-                              setMemberParticipantId('')
-                              await utils.groups.invalidate()
-                              toast({
-                                title: t('memberAddedTitle'),
-                                description: t('memberAddedDescription', {
-                                  participant: result.member.participantName,
-                                  email:
-                                    result.member.email ??
-                                    memberEmail.trim().toLowerCase(),
-                                }),
-                              })
-                            } catch (error) {
-                              toast({
-                                title: t('memberAddErrorTitle'),
-                                description:
-                                  error instanceof Error
-                                    ? error.message
-                                    : t('memberAddErrorDescription'),
-                                variant: 'destructive',
-                              })
-                            }
-                          }}
-                          className="h-11 w-full sm:w-auto"
-                        >
-                          {t('memberAccessSubmit')}
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                )}
-
               </div>
             </div>
 
@@ -652,7 +647,35 @@ export function SettingsPageClient() {
                 canManageMembers={canManageMembers}
                 currentActiveParticipantId={data.currentActiveParticipantId}
                 group={data.group}
+                isAddingMember={isAddingMember}
                 isUpdatingGroup={isUpdatingGroup}
+                onAssignParticipantAccess={async (participantId, email) => {
+                  try {
+                    const result = await addMemberAsync({
+                      groupId,
+                      email,
+                      participantId,
+                    })
+                    await utils.groups.invalidate()
+                    toast({
+                      title: t('memberAddedTitle'),
+                      description: t('memberAddedDescription', {
+                        participant: result.member.participantName,
+                        email: result.member.email ?? email.toLowerCase(),
+                      }),
+                    })
+                  } catch (error) {
+                    toast({
+                      title: t('memberAddErrorTitle'),
+                      description:
+                        error instanceof Error
+                          ? error.message
+                          : t('memberAddErrorDescription'),
+                      variant: 'destructive',
+                    })
+                    throw error
+                  }
+                }}
                 onAddParticipant={async (name) => {
                   const nextParticipants = [
                     ...data.group.participants.map((participant) => ({
