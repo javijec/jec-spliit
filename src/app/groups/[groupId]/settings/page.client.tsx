@@ -441,7 +441,7 @@ function SettingsOptionCard({
 }
 
 export function SettingsPageClient() {
-  const { groupId, groupDetails, viewer } = useCurrentGroup()
+  const { groupId, groupDetails, groupSnapshot, viewer } = useCurrentGroup()
   const t = useTranslations('Settings')
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -464,7 +464,7 @@ export function SettingsPageClient() {
   )
   const isInviteOnboarding = searchParams.get('onboarding') === 'invite'
   const section = searchParams.get('section')
-  const data = groupDetails
+  const data = groupDetails ?? groupSnapshot?.groupDetails ?? null
   const view: SettingsView =
     section === 'edit' ||
     section === 'participants' ||

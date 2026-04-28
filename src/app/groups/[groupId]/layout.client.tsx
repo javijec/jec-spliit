@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { CurrentGroupProvider } from './current-group-context'
+import { loadGroupSnapshot, saveGroupSnapshot } from './group-snapshot'
 import { GroupHeader } from './group-header'
 import { SaveGroupLocally } from './save-recent-group'
 import { AppRouterOutput } from '@/trpc/routers/_app'
@@ -59,6 +60,7 @@ export function GroupLayoutClient({
     },
   )
   const viewer = viewerData?.user ?? null
+  const viewerId = viewer?.id ?? null
   const isAuthResolved = viewerData !== undefined
   const t = useTranslations('Groups.NotFound')
   const tTabs = useTranslations('GroupTabs')
@@ -74,6 +76,35 @@ export function GroupLayoutClient({
       })
     }
   }, [data, t, toast])
+
+  const [groupSnapshot, setGroupSnapshot] = useState<{
+    group: Group
+    groupDetails: AppRouterOutput['groups']['getDetails'] | null
+  } | null>(null)
+
+  useEffect(() => {
+    if (!groupSnapshot) {
+      const storedSnapshot = loadGroupSnapshot(viewerId, groupId)
+      if (storedSnapshot) {
+        setGroupSnapshot({
+          group: storedSnapshot.group,
+          groupDetails: storedSnapshot.groupDetails,
+        })
+      }
+    }
+  }, [groupId, groupSnapshot, viewerId])
+
+  useEffect(() => {
+    if (!data?.group) return
+
+    const nextSnapshot = {
+      group: data.group,
+      groupDetails: groupDetailsData ?? null,
+    }
+
+    setGroupSnapshot(nextSnapshot)
+    saveGroupSnapshot(viewerId, groupId, nextSnapshot)
+  }, [data?.group, groupDetailsData, groupId, viewerId])
 
   useEffect(() => {
     if (isLoading || !data?.group) return
@@ -173,6 +204,7 @@ export function GroupLayoutClient({
           groupId,
           group: undefined,
           groupDetails: groupDetailsData ?? null,
+          groupSnapshot,
           viewer,
           currentActiveParticipantId: data?.currentActiveParticipantId ?? null,
         }
@@ -181,6 +213,7 @@ export function GroupLayoutClient({
           groupId,
           group: data.group,
           groupDetails: groupDetailsData ?? null,
+          groupSnapshot,
           viewer,
           currentActiveParticipantId: data.currentActiveParticipantId ?? null,
         }

@@ -4,6 +4,10 @@ import { PropsWithChildren, createContext, useContext } from 'react'
 type Group = NonNullable<AppRouterOutput['groups']['get']['group']>
 type Viewer = AppRouterOutput['viewer']['getCurrent']['user']
 type GroupDetails = AppRouterOutput['groups']['getDetails']
+type GroupSnapshot = {
+  group: Group
+  groupDetails: GroupDetails | null
+} | null
 
 type GroupContext =
   | {
@@ -11,6 +15,7 @@ type GroupContext =
       groupId: string
       group: Group
       groupDetails: GroupDetails | null
+      groupSnapshot: GroupSnapshot
       viewer: Viewer | null
       currentActiveParticipantId: string | null
     }
@@ -19,6 +24,7 @@ type GroupContext =
       groupId: string
       group: undefined
       groupDetails: GroupDetails | null
+      groupSnapshot: GroupSnapshot
       viewer: Viewer | null
       currentActiveParticipantId: string | null
     }

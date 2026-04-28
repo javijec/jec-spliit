@@ -17,13 +17,16 @@ import { useCurrentGroup } from '../current-group-context'
 
 export function SummaryPageClient() {
   const tSummary = useTranslations('Summary')
-  const { group, groupDetails, viewer, groupId } = useCurrentGroup()
-  const participantCount = group?.participants.length ?? 0
-  const linkedParticipants = group?.participants.filter((participant) => participant.appUserId) ?? []
+  const { group, groupDetails, groupSnapshot, viewer, groupId } = useCurrentGroup()
+  const resolvedGroup = group ?? groupSnapshot?.group ?? null
+  const resolvedGroupDetails = groupDetails ?? groupSnapshot?.groupDetails ?? null
+  const participantCount = resolvedGroup?.participants.length ?? 0
+  const linkedParticipants =
+    resolvedGroup?.participants.filter((participant) => participant.appUserId) ?? []
   const unlinkedParticipants =
-    group?.participants.filter((participant) => !participant.appUserId) ?? []
+    resolvedGroup?.participants.filter((participant) => !participant.appUserId) ?? []
   const linkedParticipantIds = new Set(linkedParticipants.map((participant) => participant.id))
-  const linkedMembers = (groupDetails?.members ?? []).filter(
+  const linkedMembers = (resolvedGroupDetails?.members ?? []).filter(
     (member) =>
       member.activeParticipant &&
       linkedParticipantIds.has(member.activeParticipant.id),
@@ -39,10 +42,10 @@ export function SummaryPageClient() {
                 count: participantCount,
               })}
             </span>
-            {group?.currencyCode ? (
+            {resolvedGroup?.currencyCode ? (
               <span className="inline-flex items-center rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
                 {tSummary('defaultCurrencyBadge', {
-                  currencyCode: group.currencyCode,
+                  currencyCode: resolvedGroup.currencyCode,
                 })}
               </span>
             ) : null}
