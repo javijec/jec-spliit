@@ -66,7 +66,9 @@ function sortGroups({
     groupInfo,
     archivedGroupInfo,
   }
-}
+    }
+
+const MY_GROUPS_CACHE_KEY = 'nexogastos.groups.mine.v1'
 
 export function RecentGroupList() {
   const [state, setState] = useState<RecentGroupsState>({ status: 'pending' })
@@ -78,9 +80,15 @@ export function RecentGroupList() {
   const legacySyncKey = viewerData?.user
     ? `legacy-groups-synced:${viewerData.user.id}`
     : null
+  const [cachedMyGroups, setCachedMyGroups] = useState<
+    AppRouterOutput['groups']['mine']['groups'] | null
+  >(null)
   const { data: myGroupsData, isLoading: isMyGroupsLoading } =
     trpc.groups.mine.useQuery(undefined, {
       enabled: isAuthenticated,
+      placeholderData: cachedMyGroups ? { groups: cachedMyGroups } : undefined,
+      staleTime: 15 * 60 * 1000,
+      refetchOnMount: false,
     })
   const syncLegacyGroups = trpc.groups.syncLegacy.useMutation({
     onSuccess: async () => {
@@ -113,6 +121,46 @@ export function RecentGroupList() {
   useEffect(() => {
     loadGroups()
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !viewerData?.user) return
+
+    try {
+      const raw = window.localStorage.getItem(
+        `${MY_GROUPS_CACHE_KEY}:${viewerData.user.id}`,
+      )
+      if (!raw) return
+
+      const parsed = JSON.parse(raw) as {
+        groups?: AppRouterOutput['groups']['mine']['groups']
+      }
+
+      if (parsed.groups?.length) {
+        setCachedMyGroups(parsed.groups)
+      }
+    } catch {
+      // Ignore malformed cache data and continue with network state.
+    }
+  }, [viewerData?.user])
+
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !viewerData?.user ||
+      !myGroupsData?.groups
+    ) {
+      return
+    }
+
+    try {
+      window.localStorage.setItem(
+        `${MY_GROUPS_CACHE_KEY}:${viewerData.user.id}`,
+        JSON.stringify({ groups: myGroupsData.groups }),
+      )
+    } catch {
+      // Ignore persistence failures and continue with in-memory cache.
+    }
+  }, [myGroupsData?.groups, viewerData?.user])
 
   useEffect(() => {
     if (!isAuthenticated || state.status === 'pending' || hasSyncedLegacyGroups.current) {
