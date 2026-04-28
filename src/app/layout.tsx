@@ -10,6 +10,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { env } from '@/lib/env'
 import { getCurrentAuthSession } from '@/lib/auth'
 import { TRPCProvider } from '@/trpc/client'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { FolderKanban } from 'lucide-react'
 import type { Metadata, Viewport } from 'next'
 import Image from 'next/image'
@@ -169,6 +170,9 @@ export default async function RootLayout({
               <ProgressBar />
             </Suspense>
             <Content isAuthenticated={!!session}>{children}</Content>
+            <SpeedInsights
+              sampleRate={env.NEXT_PUBLIC_SPEED_INSIGHTS_SAMPLE_RATE}
+            />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
