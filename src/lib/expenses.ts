@@ -99,12 +99,6 @@ export async function createExpense(
   }
 
   const expenseId = randomId()
-  await logExpenseActivity(groupId, ActivityType.CREATE_EXPENSE, {
-    participantId,
-    expenseId,
-    data: expenseFormValues.title,
-  })
-
   const isCreateRecurrence =
     expenseFormValues.recurrenceRule !== RecurrenceRule.NONE
   const recurringExpenseLinkPayload = createPayloadForNewRecurringExpenseLink(
@@ -113,48 +107,63 @@ export async function createExpense(
     groupId,
   )
 
-  return prisma.expense.create({
-    data: {
-      id: expenseId,
-      groupId,
-      expenseDate: expenseFormValues.expenseDate,
-      categoryId: expenseFormValues.category,
-      amount: expenseFormValues.amount,
-      originalAmount: expenseFormValues.originalAmount,
-      originalCurrency: expenseFormValues.originalCurrency,
-      conversionRate: expenseFormValues.conversionRate,
-      title: expenseFormValues.title,
-      paidById: expenseFormValues.paidBy,
-      splitMode: expenseFormValues.splitMode,
-      recurrenceRule: expenseFormValues.recurrenceRule,
-      recurringExpenseLink: {
-        ...(isCreateRecurrence
-          ? {
-              create: recurringExpenseLinkPayload,
-            }
-          : {}),
-      },
-      paidFor: {
-        createMany: {
-          data: expenseFormValues.paidFor.map((paidFor) => ({
-            participantId: paidFor.participant,
-            shares: paidFor.shares,
-          })),
+  return prisma.$transaction(async (transaction) => {
+    const expense = await transaction.expense.create({
+      data: {
+        id: expenseId,
+        groupId,
+        expenseDate: expenseFormValues.expenseDate,
+        categoryId: expenseFormValues.category,
+        amount: expenseFormValues.amount,
+        originalAmount: expenseFormValues.originalAmount,
+        originalCurrency: expenseFormValues.originalCurrency,
+        conversionRate: expenseFormValues.conversionRate,
+        title: expenseFormValues.title,
+        paidById: expenseFormValues.paidBy,
+        splitMode: expenseFormValues.splitMode,
+        recurrenceRule: expenseFormValues.recurrenceRule,
+        recurringExpenseLink: {
+          ...(isCreateRecurrence
+            ? {
+                create: recurringExpenseLinkPayload,
+              }
+            : {}),
         },
-      },
-      isReimbursement: expenseFormValues.isReimbursement,
-      documents: {
-        createMany: {
-          data: expenseFormValues.documents.map((doc) => ({
-            id: randomId(),
-            url: doc.url,
-            width: doc.width,
-            height: doc.height,
-          })),
+        paidFor: {
+          createMany: {
+            data: expenseFormValues.paidFor.map((paidFor) => ({
+              participantId: paidFor.participant,
+              shares: paidFor.shares,
+            })),
+          },
         },
+        isReimbursement: expenseFormValues.isReimbursement,
+        documents: {
+          createMany: {
+            data: expenseFormValues.documents.map((doc) => ({
+              id: randomId(),
+              url: doc.url,
+              width: doc.width,
+              height: doc.height,
+            })),
+          },
+        },
+        notes: expenseFormValues.notes,
       },
-      notes: expenseFormValues.notes,
-    },
+    })
+
+    await transaction.activity.create({
+      data: {
+        id: randomId(),
+        groupId,
+        activityType: ActivityType.CREATE_EXPENSE,
+        participantId,
+        expenseId,
+        data: expenseFormValues.title,
+      },
+    })
+
+    return expense
   })
 }
 
