@@ -42,6 +42,7 @@ model Participant {
   groupId         String
   appUserId       String?
   activeMemberships UserGroupMembership[] @relation("ActiveMembershipParticipant")
+  activities      Activity[]
   expensesPaidBy  Expense[]
   expensesPaidFor ExpensePaidFor[]
   appUser         AppUser?         @relation(fields: [appUserId], references: [id], onDelete: SetNull)
@@ -97,13 +98,16 @@ model Expense {
   category               Category              @relation(fields: [categoryId], references: [id])
   group                  Group                 @relation(fields: [groupId], references: [id], onDelete: Cascade)
   paidBy                 Participant           @relation(fields: [paidById], references: [id], onDelete: Cascade)
+  linkedRecurringExpenseLink RecurringExpenseLink? @relation("ExpenseRecurringLink", fields: [recurringExpenseLinkId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  activities             Activity[]
   documents              ExpenseDocument[]
   paidFor                ExpensePaidFor[]
-  recurringExpenseLink   RecurringExpenseLink?
+  recurringExpenseLink   RecurringExpenseLink? @relation("RecurringExpenseCurrentFrame")
 
   @@index([groupId, expenseDate(sort: Desc), createdAt(sort: Desc)])
   @@index([groupId, isReimbursement])
   @@index([groupId, paidById])
+  @@index([recurringExpenseLinkId])
 }
 
 model ExpenseDocument {
@@ -123,7 +127,8 @@ model RecurringExpenseLink {
   currentFrameExpenseId String    @unique
   nextExpenseCreatedAt  DateTime?
   nextExpenseDate       DateTime
-  currentFrameExpense   Expense   @relation(fields: [currentFrameExpenseId], references: [id], onDelete: Cascade)
+  currentFrameExpense   Expense   @relation("RecurringExpenseCurrentFrame", fields: [currentFrameExpenseId], references: [id], onDelete: Cascade)
+  linkedExpenses        Expense[] @relation("ExpenseRecurringLink")
 
   @@index([groupId])
   @@index([groupId, nextExpenseCreatedAt, nextExpenseDate(sort: Desc)])
@@ -148,9 +153,13 @@ model Activity {
   participantId String?
   expenseId     String?
   data          String?
+  expense       Expense?     @relation(fields: [expenseId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   group         Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  participant   Participant? @relation(fields: [participantId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([groupId, time(sort: Desc)])
+  @@index([participantId])
+  @@index([expenseId])
 }
 
 enum SplitMode {
