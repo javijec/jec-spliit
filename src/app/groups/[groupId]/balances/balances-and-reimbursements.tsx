@@ -2,16 +2,16 @@
 
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import { Badge } from '@/components/ui/badge'
-import { SectionHeader } from '@/components/ui/page-header'
 import {
   GroupSectionCard,
   GroupSectionContent,
   GroupSectionHeader,
 } from '@/components/ui/group-section-card'
+import { SectionHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { CheckCircle2, Layers3, Wallet } from 'lucide-react'
+import { Layers3, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
@@ -24,13 +24,16 @@ export default function BalancesAndReimbursements() {
     [groupId, utils.groups.balances.list],
   )
   const { data: balancesData, isLoading: balancesAreLoading } =
-    trpc.groups.balances.list.useQuery({
-      groupId,
-    }, {
-      placeholderData: cachedBalances,
-      staleTime: 5 * 60 * 1000,
-      refetchOnMount: false,
-    })
+    trpc.groups.balances.list.useQuery(
+      {
+        groupId,
+      },
+      {
+        placeholderData: cachedBalances,
+        staleTime: 5 * 60 * 1000,
+        refetchOnMount: false,
+      },
+    )
   const t = useTranslations('Balances')
   const tSummary = useTranslations('Balances.summary')
 
@@ -58,7 +61,9 @@ export default function BalancesAndReimbursements() {
                   <Badge variant="outline">
                     <Wallet className="h-3.5 w-3.5" />
                     {reimbursementCount > 0
-                      ? tSummary('pendingPayments', { count: reimbursementCount })
+                      ? tSummary('pendingPayments', {
+                          count: reimbursementCount,
+                        })
                       : tSummary('allClear')}
                   </Badge>
                   <Badge variant="outline">
@@ -101,7 +106,7 @@ const ReimbursementsLoading = ({
         .map((_, index) => (
           <div
             key={index}
-            className="mb-3 flex items-start justify-between rounded-xl border border-border/70 bg-card px-4 py-4 shadow-sm shadow-black/5"
+            className="mb-3 flex items-start justify-between rounded-lg border border-border/70 bg-card px-4 py-4 shadow-sm shadow-black/5"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Skeleton className="h-3 w-32" />

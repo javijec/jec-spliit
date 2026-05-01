@@ -8,6 +8,10 @@ import {
 } from '@/components/ui/group-section-card'
 import {
   ArrowRight,
+  HandCoins,
+  Plus,
+  ReceiptText,
+  Settings,
   ShieldCheck,
   UserRound,
 } from 'lucide-react'
@@ -17,20 +21,52 @@ import { useCurrentGroup } from '../current-group-context'
 
 export function SummaryPageClient() {
   const tSummary = useTranslations('Summary')
-  const { group, groupDetails, groupSnapshot, viewer, groupId } = useCurrentGroup()
+  const tTabs = useTranslations('GroupTabs')
+  const tExpenseFlow = useTranslations('ExpenseFlow')
+  const { group, groupDetails, groupSnapshot, viewer, groupId } =
+    useCurrentGroup()
   const resolvedGroup = group ?? groupSnapshot?.group ?? null
-  const resolvedGroupDetails = groupDetails ?? groupSnapshot?.groupDetails ?? null
+  const resolvedGroupDetails =
+    groupDetails ?? groupSnapshot?.groupDetails ?? null
   const participantCount = resolvedGroup?.participants.length ?? 0
   const linkedParticipants =
-    resolvedGroup?.participants.filter((participant) => participant.appUserId) ?? []
+    resolvedGroup?.participants.filter(
+      (participant) => participant.appUserId,
+    ) ?? []
   const unlinkedParticipants =
-    resolvedGroup?.participants.filter((participant) => !participant.appUserId) ?? []
-  const linkedParticipantIds = new Set(linkedParticipants.map((participant) => participant.id))
+    resolvedGroup?.participants.filter(
+      (participant) => !participant.appUserId,
+    ) ?? []
+  const linkedParticipantIds = new Set(
+    linkedParticipants.map((participant) => participant.id),
+  )
   const linkedMembers = (resolvedGroupDetails?.members ?? []).filter(
     (member) =>
       member.activeParticipant &&
       linkedParticipantIds.has(member.activeParticipant.id),
   )
+  const quickActions = [
+    {
+      href: `/groups/${groupId}/expenses/create`,
+      label: tExpenseFlow('createTitle'),
+      icon: Plus,
+    },
+    {
+      href: `/groups/${groupId}/expenses`,
+      label: tTabs('expenses'),
+      icon: ReceiptText,
+    },
+    {
+      href: `/groups/${groupId}/balances`,
+      label: tTabs('balances'),
+      icon: HandCoins,
+    },
+    {
+      href: `/groups/${groupId}/settings`,
+      label: tTabs('settings'),
+      icon: Settings,
+    },
+  ]
 
   return (
     <div className="space-y-3">
@@ -56,6 +92,22 @@ export function SummaryPageClient() {
             </span>
           </div>
 
+          <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {quickActions.map((action) => {
+              const Icon = action.icon
+              return (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="flex min-h-20 flex-col justify-between rounded-lg border border-border/70 bg-background px-3 py-3 text-sm font-medium transition-colors hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  <span className="leading-snug">{action.label}</span>
+                </Link>
+              )
+            })}
+          </div>
+
           <div className="mb-4">
             <h2 className="text-base font-semibold tracking-tight">
               {tSummary('accessTitle')}
@@ -73,7 +125,7 @@ export function SummaryPageClient() {
               return (
                 <div
                   key={`${member.userId}-${activeParticipant?.id ?? 'none'}`}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-background px-3.5 py-3 text-sm shadow-sm shadow-black/5"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border/70 bg-background px-3.5 py-3 text-sm shadow-sm shadow-black/5"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium tracking-tight">
@@ -119,8 +171,10 @@ export function SummaryPageClient() {
           </div>
 
           {unlinkedParticipants.length > 0 && (
-            <div className="mt-4 rounded-xl border border-dashed border-border/70 bg-background px-3.5 py-3">
-              <p className="text-sm font-medium">{tSummary('pendingAccessTitle')}</p>
+            <div className="mt-4 rounded-lg border border-dashed border-border/70 bg-background px-3.5 py-3">
+              <p className="text-sm font-medium">
+                {tSummary('pendingAccessTitle')}
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {tSummary('pendingAccessDescription')}
               </p>

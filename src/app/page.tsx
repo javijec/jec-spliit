@@ -25,16 +25,16 @@ export default async function HomePage() {
   return (
     <main className="relative overflow-hidden px-3 pb-5 pt-3 sm:px-6 sm:pb-8 sm:pt-5">
       <div className="relative mx-auto w-full max-w-screen-xl">
-        <section className="grid min-h-[calc(100dvh-8rem)] items-center gap-8 py-6 sm:min-h-[calc(100dvh-10rem)] lg:grid-cols-[0.92fr_1.08fr] lg:gap-10">
+        <section className="grid min-h-[calc(100dvh-8rem)] items-center gap-8 py-6 sm:min-h-[calc(100dvh-10rem)] lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
           <div className="max-w-2xl">
             <div className="space-y-4 sm:space-y-5">
-              <h1 className="landing-header max-w-[12ch] text-balance text-[2.7rem] font-semibold leading-[0.93] tracking-tight sm:text-[4.4rem] lg:text-[5.2rem]">
+              <h1 className="landing-header max-w-[12ch] text-balance text-[2.5rem] font-semibold leading-[0.96] tracking-tight sm:text-[4rem] lg:text-[4.8rem]">
                 {t.rich('Homepage.title', {
                   strong: (chunks) => <strong>{chunks}</strong>,
                 })}
               </h1>
 
-              <p className="max-w-[34rem] text-pretty text-base text-muted-foreground sm:text-lg">
+              <p className="max-w-[34rem] text-pretty text-base leading-7 text-muted-foreground">
                 {t.rich('Homepage.description', {
                   strong: (chunks) => <strong>{chunks}</strong>,
                 })}
@@ -78,7 +78,7 @@ export default async function HomePage() {
           </div>
 
           <div className="relative min-w-0">
-            <div className="overflow-hidden rounded-xl border border-border/90 bg-card shadow-sm">
+            <div className="finance-shell overflow-hidden">
               <div className="flex items-center justify-between border-b border-border/80 px-4 py-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">

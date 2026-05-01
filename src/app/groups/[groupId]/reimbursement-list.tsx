@@ -24,7 +24,9 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
-type Participant = NonNullable<AppRouterOutput['groups']['get']['group']>['participants'][number]
+type Participant = NonNullable<
+  AppRouterOutput['groups']['get']['group']
+>['participants'][number]
 
 type Props = {
   reimbursements: ReimbursementByCurrency[]
@@ -141,15 +143,14 @@ export function ReimbursementList({
       ? paymentDialog.mode === 'TOTAL'
         ? paymentDialog.maxAmount
         : isValidPartialAmount
-        ? Math.min(
-            paymentDialog.maxAmount,
-            amountAsMinorUnits(parsedPartialAmount, dialogCurrency),
-          )
-        : 0
+          ? Math.min(
+              paymentDialog.maxAmount,
+              amountAsMinorUnits(parsedPartialAmount, dialogCurrency),
+            )
+          : 0
       : 0
   const canConfirmPayment =
-    !!paymentDialog &&
-    (paymentDialog.mode === 'TOTAL' || isValidPartialAmount)
+    !!paymentDialog && (paymentDialog.mode === 'TOTAL' || isValidPartialAmount)
 
   const closeDialog = () => {
     setPaymentDialog(null)
@@ -199,7 +200,7 @@ export function ReimbursementList({
       <div className="space-y-2">
         {groupedReimbursements.map((pair) => (
           <div
-            className="rounded-xl border border-border/70 bg-card p-3 shadow-sm shadow-black/5"
+            className="rounded-lg border border-border/70 bg-card p-3 shadow-sm shadow-black/5"
             key={`${pair.from}-${pair.to}`}
           >
             <div className="mb-2 flex items-center gap-1.5 text-sm leading-tight">
@@ -235,14 +236,18 @@ export function ReimbursementList({
                           'text-sm font-semibold tabular-nums whitespace-nowrap text-primary sm:text-[0.95rem]',
                         )}
                       >
-                        {formatCurrency(reimbursementCurrency, item.amount, locale)}
+                        {formatCurrency(
+                          reimbursementCurrency,
+                          item.amount,
+                          locale,
+                        )}
                       </div>
                     </div>
 
                     <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                       <Button
                         variant="secondary"
-                        className="h-7 rounded-lg px-2 text-[10px] font-medium"
+                        className="h-8 rounded-md px-2 text-[11px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() =>
                           setPaymentDialog({
@@ -258,7 +263,7 @@ export function ReimbursementList({
                       </Button>
                       <Button
                         variant="outline"
-                        className="h-7 rounded-lg px-2 text-[10px] font-medium"
+                        className="h-8 rounded-md px-2 text-[11px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() => {
                           setPartialAmountInput('')
@@ -314,7 +319,9 @@ export function ReimbursementList({
                   </div>
                   <Input
                     value={partialAmountInput}
-                    onChange={(event) => setPartialAmountInput(event.target.value)}
+                    onChange={(event) =>
+                      setPartialAmountInput(event.target.value)
+                    }
                     placeholder={amountAsDecimal(
                       paymentDialog.maxAmount,
                       dialogCurrency,
@@ -326,7 +333,7 @@ export function ReimbursementList({
                 </div>
               )}
 
-              <div className="space-y-1 rounded-xl border border-border/70 bg-secondary/20 p-2.5 text-sm">
+              <div className="space-y-1 rounded-lg border border-border/70 bg-secondary/20 p-2.5 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-muted-foreground">
                     {t('summary.currentDebt')}

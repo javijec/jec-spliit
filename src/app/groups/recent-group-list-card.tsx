@@ -49,26 +49,28 @@ export function RecentGroupListCard({
 
   return (
     <li key={group.id}>
-      <div className="rounded-lg border border-border/80 bg-card p-3.5 shadow-sm shadow-black/5 transition-colors hover:border-border hover:bg-secondary/25 sm:p-4">
-        <div className="flex items-start gap-3">
+      <div className="finance-shell p-3 transition-colors hover:border-border hover:bg-secondary/20 sm:p-3.5">
+        <div className="flex items-center gap-3">
           <Link
             href={`/groups/${group.id}`}
             className="min-w-0 flex-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/70 bg-secondary/65 text-muted-foreground">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/70 bg-secondary/65 text-muted-foreground">
                     <Users className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-base font-semibold text-foreground">
                       {group.name}
                     </p>
-                    <p className="mt-1 text-sm text-muted-foreground">Grupo</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Grupo
+                    </p>
                   </div>
                 </div>
-                <div className="mt-3 text-xs text-muted-foreground">
+                <div className="mt-2 text-xs text-muted-foreground">
                   {groupDetail ? (
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center rounded-md border border-border/80 bg-background px-2 py-1">
@@ -102,7 +104,7 @@ export function RecentGroupListCard({
             <Button
               size="icon"
               variant="ghost"
-              className="-my-2 -ml-2 -mr-1 h-10 w-10 rounded-md"
+              className="-my-2 -ml-2 -mr-1 h-9 w-9 rounded-md"
               aria-label={isStarred ? t('unarchive') : t('starred')}
               onClick={(event) => {
                 event.stopPropagation()
@@ -130,7 +132,7 @@ export function RecentGroupListCard({
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="-my-2 -mr-2 h-10 w-10 rounded-md"
+                  className="-my-2 -mr-2 h-9 w-9 rounded-md"
                   aria-label="Más opciones"
                 >
                   <MoreHorizontal className="h-4 w-4" />

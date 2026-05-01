@@ -80,7 +80,7 @@ function Content({
   const t = useTranslations('Layout')
   return (
     <TRPCProvider>
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/80 bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/80 bg-background/92 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex h-14 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:h-16 sm:px-4 lg:px-8">
           <Link
             className="flex min-w-0 items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-secondary/70 sm:gap-3"
@@ -118,7 +118,7 @@ function Content({
               label={t('groupsCta')}
             />
             <AuthNav />
-            <ul className="flex items-center gap-0.5 text-sm sm:gap-1">
+            <ul className="flex items-center gap-0.5 border-l border-border/70 pl-1 text-sm sm:gap-1 sm:pl-2">
               <li>
                 <PwaInstallButton />
               </li>
@@ -149,7 +149,7 @@ function ButtonLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="hidden items-center gap-2 rounded-md border border-border/90 bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 sm:inline-flex"
+      className="hidden h-9 items-center gap-2 rounded-md border border-border/90 bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 sm:inline-flex"
     >
       <FolderKanban className="h-4 w-4 text-primary" />
       <span>{label}</span>

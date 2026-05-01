@@ -37,10 +37,17 @@ import { defaultCurrencyList, getCurrency } from '@/lib/currency'
 import { GroupFormValues, groupFormSchema } from '@/lib/schemas'
 import { trpc } from '@/trpc/client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertTriangle, Info, Save, ShieldCheck, Trash2, UserRound } from 'lucide-react'
+import {
+  AlertTriangle,
+  Info,
+  Save,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+} from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { CurrencySelector } from './currency-selector'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
@@ -68,7 +75,10 @@ export type Props = {
       isCurrentViewer?: boolean
     }
   >
-  onRemoveParticipantAccess?: (participantId: string, userId: string) => void | Promise<void>
+  onRemoveParticipantAccess?: (
+    participantId: string,
+    userId: string,
+  ) => void | Promise<void>
   removingParticipantUserId?: string | null
   removeAccessLabel?: string
 }
@@ -118,10 +128,10 @@ export function GroupForm({
 }: Props) {
   const locale = useLocale()
   const t = useTranslations('GroupForm')
-  const defaultParticipantNames = [
-    t('Participants.John'),
-    t('Participants.Jane'),
-  ]
+  const defaultParticipantNames = useMemo(
+    () => [t('Participants.John'), t('Participants.Jane')],
+    [t],
+  )
   const form = useForm<GroupFormValues>({
     resolver: zodResolver(groupFormSchema),
     defaultValues: group
@@ -133,8 +143,7 @@ export function GroupForm({
           participants: group.participants,
         }
       : {
-          currencyCode:
-            process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE || 'USD', // TODO: If NEXT_PUBLIC_DEFAULT_CURRENCY_CODE, is not set, determine the default currency code based on locale
+          currencyCode: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE || 'USD', // TODO: If NEXT_PUBLIC_DEFAULT_CURRENCY_CODE, is not set, determine the default currency code based on locale
           name: '',
           information: '',
           currency: getCurrency(
@@ -158,11 +167,13 @@ export function GroupForm({
     name: 'participants',
   })
   const { data: viewerData } = trpc.viewer.getCurrent.useQuery()
-  const [activeParticipantKey, setActiveParticipantKey] = useState<string | null>(
-    null,
-  )
+  const [activeParticipantKey, setActiveParticipantKey] = useState<
+    string | null
+  >(null)
   const viewerDisplayName =
-    viewerData?.user?.displayName?.trim() || viewerData?.user?.email?.trim() || ''
+    viewerData?.user?.displayName?.trim() ||
+    viewerData?.user?.email?.trim() ||
+    ''
 
   const activeParticipantOptions: Array<{
     key: string
@@ -196,7 +207,7 @@ export function GroupForm({
       (activeParticipantKey &&
       availableOptions.some((option) => option.key === activeParticipantKey)
         ? activeParticipantKey
-        : availableOptions[0]?.key ?? t('Settings.ActiveUserField.none'))
+        : (availableOptions[0]?.key ?? t('Settings.ActiveUserField.none')))
 
     if (nextSelectedKey !== activeParticipantKey) {
       setActiveParticipantKey(nextSelectedKey)
@@ -217,7 +228,10 @@ export function GroupForm({
       firstParticipantName.trim().length === 0 ||
       defaultParticipantNames.includes(firstParticipantName)
 
-    if (!isDefaultFirstParticipant || form.getFieldState('participants.0.name').isDirty) {
+    if (
+      !isDefaultFirstParticipant ||
+      form.getFieldState('participants.0.name').isDirty
+    ) {
       return
     }
 
@@ -226,7 +240,13 @@ export function GroupForm({
       shouldTouch: false,
       shouldValidate: false,
     })
-  }, [defaultParticipantNames, form, group, viewerDisplayName, watchedParticipants])
+  }, [
+    defaultParticipantNames,
+    form,
+    group,
+    viewerDisplayName,
+    watchedParticipants,
+  ])
 
   const countErrors = (value: unknown): number => {
     if (!value || typeof value !== 'object') return 0
@@ -300,25 +320,22 @@ export function GroupForm({
       <form
         onSubmit={form.handleSubmit(
           async (values) => {
-            await onSubmit(
-              values,
-              {
-                participantId:
-                  activeParticipantKey &&
-                  activeParticipantKey !== t('Settings.ActiveUserField.none')
-                    ? activeParticipantOptions.find(
-                        (option) => option.key === activeParticipantKey,
-                      )?.participantId
-                    : undefined,
-                activeParticipantName:
-                  activeParticipantKey &&
-                  activeParticipantKey !== t('Settings.ActiveUserField.none')
-                    ? activeParticipantOptions.find(
-                        (option) => option.key === activeParticipantKey,
-                      )?.name
-                    : undefined,
-              },
-            )
+            await onSubmit(values, {
+              participantId:
+                activeParticipantKey &&
+                activeParticipantKey !== t('Settings.ActiveUserField.none')
+                  ? activeParticipantOptions.find(
+                      (option) => option.key === activeParticipantKey,
+                    )?.participantId
+                  : undefined,
+              activeParticipantName:
+                activeParticipantKey &&
+                activeParticipantKey !== t('Settings.ActiveUserField.none')
+                  ? activeParticipantOptions.find(
+                      (option) => option.key === activeParticipantKey,
+                    )?.name
+                  : undefined,
+            })
           },
           () => {
             focusFirstInvalidField()
@@ -398,7 +415,8 @@ export function GroupForm({
                           form.getFieldState('currency').isTouched
                         )
                           form.setValue('currency', currency.symbol, {
-                            shouldValidate: form.getFieldState('currency').isTouched,
+                            shouldValidate:
+                              form.getFieldState('currency').isTouched,
                             shouldTouch: true,
                             shouldDirty: true,
                           })
@@ -467,238 +485,277 @@ export function GroupForm({
                   : 'h-full border-border/70'
               }
             >
-            {!compactParticipantsMode && (
-              <CardHeader>
-                <CardTitle>{t('Participants.title')}</CardTitle>
-                <CardDescription className="hidden sm:block">
-                  {t('Participants.description')}
-                </CardDescription>
-              </CardHeader>
-            )}
-            <CardContent className={compactParticipantsMode ? 'px-0 pb-0 pt-0' : undefined}>
-              <ul className="flex flex-col gap-2">
-                {fields.map((item, index) => (
-                  <li key={item.key}>
-                    <FormField
-                      control={form.control}
-                      name={`participants.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="sr-only">
-                            Participant #{index + 1}
-                          </FormLabel>
-                          <FormControl>
-                            <div
-                              className={[
-                                'rounded-2xl border border-border/70 bg-background/75',
-                                compactParticipantsMode ? 'p-2' : 'p-2.5',
-                              ].join(' ')}
-                            >
-                              <div className="flex items-start gap-2">
-                                <div className="min-w-0 flex-1 space-y-2">
-                                {/*
+              {!compactParticipantsMode && (
+                <CardHeader>
+                  <CardTitle>{t('Participants.title')}</CardTitle>
+                  <CardDescription className="hidden sm:block">
+                    {t('Participants.description')}
+                  </CardDescription>
+                </CardHeader>
+              )}
+              <CardContent
+                className={
+                  compactParticipantsMode ? 'px-0 pb-0 pt-0' : undefined
+                }
+              >
+                <ul className="flex flex-col gap-2">
+                  {fields.map((item, index) => (
+                    <li key={item.key}>
+                      <FormField
+                        control={form.control}
+                        name={`participants.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="sr-only">
+                              Participant #{index + 1}
+                            </FormLabel>
+                            <FormControl>
+                              <div
+                                className={[
+                                  'rounded-lg border border-border/70 bg-background/75',
+                                  compactParticipantsMode ? 'p-2' : 'p-2.5',
+                                ].join(' ')}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <div className="min-w-0 flex-1 space-y-2">
+                                    {/*
                                   In create mode, the first participant is the signed-in user.
                                   Keep that identity fixed here and let account settings own renames.
                                 */}
-                                <Input
-                                  className="text-base"
-                                  disabled={!group && index === 0}
-                                  {...field}
-                                  placeholder={t('Participants.new')}
-                                />
-                                {(item.id &&
-                                  protectedParticipantIds.includes(item.id)) ||
-                                (!group && index === 0) ? (
-                                  <HoverCard>
-                                    <HoverCardTrigger>
+                                    <Input
+                                      className="text-base"
+                                      disabled={!group && index === 0}
+                                      {...field}
+                                      placeholder={t('Participants.new')}
+                                    />
+                                    {(item.id &&
+                                      protectedParticipantIds.includes(
+                                        item.id,
+                                      )) ||
+                                    (!group && index === 0) ? (
+                                      <HoverCard>
+                                        <HoverCardTrigger>
+                                          <Button
+                                            variant="ghost"
+                                            className="text-destructive"
+                                            type="button"
+                                            size="icon"
+                                            disabled
+                                          >
+                                            <Trash2 className="w-4 h-4 text-destructive opacity-50" />
+                                          </Button>
+                                        </HoverCardTrigger>
+                                        <HoverCardContent
+                                          align="end"
+                                          className="text-sm"
+                                        >
+                                          {!group && index === 0
+                                            ? t('Participants.youLinked')
+                                            : t(
+                                                'Participants.protectedParticipant',
+                                              )}
+                                        </HoverCardContent>
+                                      </HoverCard>
+                                    ) : (
                                       <Button
                                         variant="ghost"
                                         className="text-destructive"
+                                        onClick={() => remove(index)}
                                         type="button"
                                         size="icon"
-                                        disabled
                                       >
-                                        <Trash2 className="w-4 h-4 text-destructive opacity-50" />
+                                        <Trash2 className="w-4 h-4" />
                                       </Button>
-                                    </HoverCardTrigger>
-                                    <HoverCardContent
-                                      align="end"
-                                      className="text-sm"
-                                    >
-                                      {!group && index === 0
-                                        ? t('Participants.youLinked')
-                                        : t('Participants.protectedParticipant')}
-                                    </HoverCardContent>
-                                  </HoverCard>
-                                ) : (
-                                  <Button
-                                    variant="ghost"
-                                    className="text-destructive"
-                                    onClick={() => remove(index)}
-                                    type="button"
-                                    size="icon"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                )}
-                                {(() => {
-                                  const linkedParticipant = group?.participants.find(
-                                    (participant) => participant.id === item.id,
-                                  )
-                                  const linkedUserId = linkedParticipant?.appUserId
-                                  if (!linkedUserId) return null
-                                  const accessInfo = item.id
-                                    ? participantAccess?.[item.id]
-                                    : undefined
+                                    )}
+                                    {(() => {
+                                      const linkedParticipant =
+                                        group?.participants.find(
+                                          (participant) =>
+                                            participant.id === item.id,
+                                        )
+                                      const linkedUserId =
+                                        linkedParticipant?.appUserId
+                                      if (!linkedUserId) return null
+                                      const accessInfo = item.id
+                                        ? participantAccess?.[item.id]
+                                        : undefined
 
-                                  const isCurrentViewer =
-                                    accessInfo?.isCurrentViewer ??
-                                    viewerData?.user?.id === linkedUserId
+                                      const isCurrentViewer =
+                                        accessInfo?.isCurrentViewer ??
+                                        viewerData?.user?.id === linkedUserId
 
-                                  const accessLabel =
-                                    accessInfo?.label ??
-                                    linkedParticipant.appUser?.displayName ??
-                                    linkedParticipant.appUser?.email ??
-                                    t('Participants.linkedAccount')
-                                  const accessSecondary =
-                                    accessInfo?.secondary ??
-                                    linkedParticipant.appUser?.email ??
-                                    null
+                                      const accessLabel =
+                                        accessInfo?.label ??
+                                        linkedParticipant.appUser
+                                          ?.displayName ??
+                                        linkedParticipant.appUser?.email ??
+                                        t('Participants.linkedAccount')
+                                      const accessSecondary =
+                                        accessInfo?.secondary ??
+                                        linkedParticipant.appUser?.email ??
+                                        null
 
-                                  return compactParticipantsMode ? (
-                                    <div className="flex items-center justify-between gap-2 rounded-lg bg-background/80 px-2 py-1.5">
-                                      <div className="min-w-0 flex items-center gap-2">
-                                        {isCurrentViewer ? (
-                                          <UserRound
-                                            className="h-3.5 w-3.5 shrink-0 text-foreground"
-                                            aria-label={t('Participants.youLinked')}
-                                          />
-                                        ) : (
-                                          <ShieldCheck
-                                            className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
-                                            aria-label={t('Participants.linkedAccount')}
-                                          />
-                                        )}
-                                        <div className="min-w-0">
-                                          <p className="truncate text-xs font-medium leading-none">
-                                            {accessLabel}
-                                          </p>
-                                          {accessSecondary &&
-                                          accessSecondary !== accessLabel ? (
-                                            <p className="truncate pt-1 text-[10px] leading-none text-muted-foreground">
-                                              {accessSecondary}
-                                            </p>
+                                      return compactParticipantsMode ? (
+                                        <div className="flex items-center justify-between gap-2 rounded-lg bg-background/80 px-2 py-1.5">
+                                          <div className="min-w-0 flex items-center gap-2">
+                                            {isCurrentViewer ? (
+                                              <UserRound
+                                                className="h-3.5 w-3.5 shrink-0 text-foreground"
+                                                aria-label={t(
+                                                  'Participants.youLinked',
+                                                )}
+                                              />
+                                            ) : (
+                                              <ShieldCheck
+                                                className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+                                                aria-label={t(
+                                                  'Participants.linkedAccount',
+                                                )}
+                                              />
+                                            )}
+                                            <div className="min-w-0">
+                                              <p className="truncate text-xs font-medium leading-none">
+                                                {accessLabel}
+                                              </p>
+                                              {accessSecondary &&
+                                              accessSecondary !==
+                                                accessLabel ? (
+                                                <p className="truncate pt-1 text-[10px] leading-none text-muted-foreground">
+                                                  {accessSecondary}
+                                                </p>
+                                              ) : null}
+                                            </div>
+                                          </div>
+
+                                          {item.id &&
+                                          accessInfo &&
+                                          !accessInfo.isOwner &&
+                                          onRemoveParticipantAccess &&
+                                          removeAccessLabel ? (
+                                            <Button
+                                              type="button"
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-7 shrink-0 px-2 text-xs"
+                                              disabled={
+                                                removingParticipantUserId ===
+                                                accessInfo.userId
+                                              }
+                                              onClick={() =>
+                                                void onRemoveParticipantAccess(
+                                                  item.id as string,
+                                                  accessInfo.userId,
+                                                )
+                                              }
+                                            >
+                                              {removeAccessLabel}
+                                            </Button>
+                                          ) : accessInfo?.isOwner ? (
+                                            <Badge
+                                              variant="outline"
+                                              className="h-7 shrink-0 text-[10px]"
+                                            >
+                                              {t('Participants.linkedAccount')}
+                                            </Badge>
                                           ) : null}
                                         </div>
-                                      </div>
+                                      ) : (
+                                        <div className="flex items-center justify-between gap-2 rounded-lg border border-border/70 bg-background px-2.5 py-2">
+                                          <div className="min-w-0 flex items-center gap-2">
+                                            {isCurrentViewer ? (
+                                              <span
+                                                className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-foreground"
+                                                title={t(
+                                                  'Participants.youLinked',
+                                                )}
+                                                aria-label={t(
+                                                  'Participants.youLinked',
+                                                )}
+                                              >
+                                                <UserRound className="h-3.5 w-3.5" />
+                                              </span>
+                                            ) : (
+                                              <span
+                                                className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-muted-foreground"
+                                                title={t(
+                                                  'Participants.linkedAccount',
+                                                )}
+                                                aria-label={t(
+                                                  'Participants.linkedAccount',
+                                                )}
+                                              >
+                                                <ShieldCheck className="h-3.5 w-3.5" />
+                                              </span>
+                                            )}
+                                            <div className="min-w-0">
+                                              <p className="truncate text-xs font-medium">
+                                                {accessLabel}
+                                              </p>
+                                              {accessSecondary &&
+                                              accessSecondary !==
+                                                accessLabel ? (
+                                                <p className="truncate text-[11px] text-muted-foreground">
+                                                  {accessSecondary}
+                                                </p>
+                                              ) : null}
+                                            </div>
+                                          </div>
 
-                                      {item.id &&
-                                      accessInfo &&
-                                      !accessInfo.isOwner &&
-                                      onRemoveParticipantAccess &&
-                                      removeAccessLabel ? (
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-7 shrink-0 px-2 text-xs"
-                                          disabled={removingParticipantUserId === accessInfo.userId}
-                                          onClick={() =>
-                                            void onRemoveParticipantAccess(
-                                              item.id as string,
-                                              accessInfo.userId,
-                                            )
-                                          }
-                                        >
-                                          {removeAccessLabel}
-                                        </Button>
-                                      ) : accessInfo?.isOwner ? (
-                                        <Badge variant="outline" className="h-7 shrink-0 text-[10px]">
-                                          {t('Participants.linkedAccount')}
-                                        </Badge>
-                                      ) : null}
-                                    </div>
-                                  ) : (
-                                    <div className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-background px-2.5 py-2">
-                                      <div className="min-w-0 flex items-center gap-2">
-                                        {isCurrentViewer ? (
-                                          <span
-                                            className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-foreground"
-                                            title={t('Participants.youLinked')}
-                                            aria-label={t('Participants.youLinked')}
-                                          >
-                                            <UserRound className="h-3.5 w-3.5" />
-                                          </span>
-                                        ) : (
-                                          <span
-                                            className="inline-flex items-center rounded-full border bg-background px-2 py-1 text-muted-foreground"
-                                            title={t('Participants.linkedAccount')}
-                                            aria-label={t('Participants.linkedAccount')}
-                                          >
-                                            <ShieldCheck className="h-3.5 w-3.5" />
-                                          </span>
-                                        )}
-                                        <div className="min-w-0">
-                                          <p className="truncate text-xs font-medium">
-                                            {accessLabel}
-                                          </p>
-                                          {accessSecondary &&
-                                          accessSecondary !== accessLabel ? (
-                                            <p className="truncate text-[11px] text-muted-foreground">
-                                              {accessSecondary}
-                                            </p>
+                                          {item.id &&
+                                          accessInfo &&
+                                          !accessInfo.isOwner &&
+                                          onRemoveParticipantAccess &&
+                                          removeAccessLabel ? (
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              size="sm"
+                                              className="shrink-0"
+                                              disabled={
+                                                removingParticipantUserId ===
+                                                accessInfo.userId
+                                              }
+                                              onClick={() =>
+                                                void onRemoveParticipantAccess(
+                                                  item.id as string,
+                                                  accessInfo.userId,
+                                                )
+                                              }
+                                            >
+                                              {removeAccessLabel}
+                                            </Button>
                                           ) : null}
                                         </div>
-                                      </div>
-
-                                      {item.id &&
-                                      accessInfo &&
-                                      !accessInfo.isOwner &&
-                                      onRemoveParticipantAccess &&
-                                      removeAccessLabel ? (
-                                        <Button
-                                          type="button"
-                                          variant="outline"
-                                          size="sm"
-                                          className="shrink-0"
-                                          disabled={removingParticipantUserId === accessInfo.userId}
-                                          onClick={() =>
-                                            void onRemoveParticipantAccess(
-                                              item.id as string,
-                                              accessInfo.userId,
-                                            )
-                                          }
-                                        >
-                                          {removeAccessLabel}
-                                        </Button>
-                                      ) : null}
-                                    </div>
-                                  )
-                                })()}
+                                      )
+                                    })()}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter className={compactParticipantsMode ? 'px-0 pb-0 pt-3' : undefined}>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  append({ name: '' })
-                }}
-                type="button"
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter
+                className={
+                  compactParticipantsMode ? 'px-0 pb-0 pt-3' : undefined
+                }
               >
-                {t('Participants.add')}
-              </Button>
-            </CardFooter>
-          </Card>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    append({ name: '' })
+                  }}
+                  type="button"
+                >
+                  {t('Participants.add')}
+                </Button>
+              </CardFooter>
+            </Card>
           )}
 
           {showLocalSettings && (
@@ -754,7 +811,7 @@ export function GroupForm({
           )}
         </div>
 
-        <div className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-secondary/40 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 rounded-lg border border-border/70 bg-secondary/40 p-3.5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             {mode === 'participants'
               ? t('Participants.description')
@@ -764,7 +821,9 @@ export function GroupForm({
           </p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <SubmitButton
-              loadingContent={t(group ? 'Settings.saving' : 'Settings.creating')}
+              loadingContent={t(
+                group ? 'Settings.saving' : 'Settings.creating',
+              )}
               className="w-full sm:w-auto"
             >
               <Save className="w-4 h-4 mr-2" />{' '}
@@ -781,4 +840,3 @@ export function GroupForm({
     </Form>
   )
 }
-

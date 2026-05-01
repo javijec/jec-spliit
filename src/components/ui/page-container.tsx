@@ -8,10 +8,10 @@ type PageContainerProps = React.HTMLAttributes<HTMLElement> & {
 }
 
 const widthClassName: Record<NonNullable<PageContainerProps['width']>, string> = {
-  default: 'max-w-screen-xl gap-5 sm:py-7',
-  narrow: 'max-w-3xl',
-  wide: 'max-w-6xl gap-6 sm:py-7',
-  form: 'max-w-screen-sm py-8',
+  default: 'max-w-screen-xl gap-4 sm:py-6',
+  narrow: 'max-w-3xl gap-4 sm:py-6',
+  wide: 'max-w-6xl gap-5 sm:py-6',
+  form: 'max-w-screen-sm gap-4 py-6 sm:py-8',
 }
 
 export function PageContainer({
@@ -23,7 +23,7 @@ export function PageContainer({
   return (
     <Component
       className={cn(
-        'relative z-10 mx-auto flex w-full flex-1 flex-col px-3 py-4 sm:px-4 lg:px-8',
+        'relative z-10 mx-auto flex w-full flex-1 flex-col px-3 py-4 sm:px-5 lg:px-8',
         widthClassName[width],
         className,
       )}

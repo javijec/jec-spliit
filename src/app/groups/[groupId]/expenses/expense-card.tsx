@@ -199,14 +199,14 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
   return (
     <div
       className={cn(
-        'mx-2 my-2 overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm shadow-black/5 sm:mx-3',
+        'mx-0 my-0 overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm shadow-black/5 sm:mx-0',
         expense.isReimbursement && 'border-border/80 bg-secondary/20',
       )}
     >
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        className="flex w-full items-start gap-2 px-2.5 py-2.5 text-left transition-colors hover:bg-secondary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:px-4 sm:py-3"
+        className="flex w-full items-start gap-2 px-3 py-3 text-left transition-colors hover:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:px-4"
         aria-expanded={expanded}
       >
         <LeadingIcon expense={expense} />
@@ -242,7 +242,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
       </button>
 
       {expanded && (
-        <div className="border-t border-border/70 bg-background px-2.5 py-2.5 sm:px-4 sm:py-3">
+        <div className="border-t border-border/70 bg-background/80 px-3 py-3 sm:px-4">
           <div className="space-y-2">
             {expense.isReimbursement ? (
               <p className="text-sm leading-5 text-muted-foreground">

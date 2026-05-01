@@ -4,48 +4,48 @@
 
 @layer base {
   :root {
-    --background: 48 29% 97%;
-    --foreground: 180 13% 14%;
+    --background: 48 21% 96%;
+    --foreground: 180 12% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 180 13% 14%;
+    --card-foreground: 180 12% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 180 13% 14%;
-    --primary: 166 55% 24%;
+    --popover-foreground: 180 12% 12%;
+    --primary: 164 54% 25%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 45 22% 92%;
-    --secondary-foreground: 180 12% 20%;
-    --muted: 45 18% 92%;
-    --muted-foreground: 180 7% 39%;
-    --accent: 43 28% 89%;
-    --accent-foreground: 180 12% 20%;
+    --secondary: 45 15% 91%;
+    --secondary-foreground: 180 10% 19%;
+    --muted: 45 14% 91%;
+    --muted-foreground: 180 6% 38%;
+    --accent: 42 18% 88%;
+    --accent-foreground: 180 10% 18%;
     --destructive: 8 72% 48%;
     --destructive-foreground: 0 0% 98%;
-    --border: 42 15% 82%;
-    --input: 42 14% 78%;
-    --ring: 166 55% 24%;
+    --border: 42 11% 81%;
+    --input: 42 10% 76%;
+    --ring: 164 54% 25%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 45 16% 92%;
-    --card: 0 0% 7%;
-    --card-foreground: 45 16% 92%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 45 16% 92%;
-    --primary: 160 46% 56%;
-    --primary-foreground: 176 20% 9%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 45 16% 92%;
-    --muted: 0 0% 9%;
-    --muted-foreground: 45 10% 70%;
-    --accent: 0 0% 12%;
-    --accent-foreground: 45 16% 92%;
+    --background: 0 0% 5%;
+    --foreground: 44 12% 92%;
+    --card: 0 0% 8%;
+    --card-foreground: 44 12% 92%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 44 12% 92%;
+    --primary: 160 47% 55%;
+    --primary-foreground: 164 33% 8%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 44 12% 92%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 44 8% 68%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 44 12% 92%;
     --destructive: 8 68% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 15%;
-    --input: 0 0% 18%;
-    --ring: 160 46% 56%;
+    --border: 0 0% 18%;
+    --input: 0 0% 22%;
+    --ring: 160 47% 55%;
   }
 }
 
@@ -59,14 +59,14 @@
   }
 
   body {
-    @apply text-[15px] leading-6 text-foreground sm:text-base;
+    @apply text-[15px] leading-6 text-foreground;
     background-color: hsl(var(--background));
     background-image:
-      linear-gradient(180deg, hsl(48 36% 98%) 0%, hsl(var(--background)) 34rem),
+      linear-gradient(180deg, hsl(48 28% 98%) 0%, hsl(var(--background)) 28rem),
       radial-gradient(
         circle at 18% 0%,
-        hsl(var(--primary) / 0.08),
-        transparent 24rem
+        hsl(var(--primary) / 0.055),
+        transparent 20rem
       );
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -83,11 +83,11 @@
   }
 
   h1 {
-    @apply text-2xl font-semibold leading-tight tracking-tight sm:text-3xl;
+    @apply text-2xl font-semibold leading-tight tracking-tight sm:text-[2rem];
   }
 
   h2 {
-    @apply text-xl sm:text-2xl font-semibold tracking-tight leading-tight;
+    @apply text-xl font-semibold leading-tight tracking-tight sm:text-2xl;
   }
 
   h3 {
@@ -129,11 +129,11 @@
   inset: 0;
   z-index: 0;
   background:
-    linear-gradient(90deg, hsl(var(--border) / 0.28) 1px, transparent 1px),
-    linear-gradient(180deg, hsl(var(--border) / 0.22) 1px, transparent 1px);
+    linear-gradient(90deg, hsl(var(--border) / 0.24) 1px, transparent 1px),
+    linear-gradient(180deg, hsl(var(--border) / 0.18) 1px, transparent 1px);
   background-size: 4rem 4rem;
-  mask-image: linear-gradient(to bottom, black, transparent 44rem);
-  opacity: 0.42;
+  mask-image: linear-gradient(to bottom, black, transparent 34rem);
+  opacity: 0.34;
 }
 
 .app-shell [data-slot='card'] {
@@ -154,4 +154,20 @@
 .app-shell .surface-muted {
   background-color: hsl(var(--secondary) / 0.55);
   border-color: hsl(var(--border));
+}
+
+.finance-shell {
+  @apply rounded-lg border border-border/80 bg-card shadow-sm shadow-black/5;
+}
+
+.finance-row {
+  @apply border-b border-border/70 last:border-b-0;
+}
+
+.finance-muted-panel {
+  @apply rounded-lg border border-border/70 bg-background/70;
+}
+
+.finance-label {
+  @apply text-xs font-medium text-muted-foreground;
 }

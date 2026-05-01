@@ -19,7 +19,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <section
-      className={cn('border-b border-border/70 pb-4 sm:pb-6', className)}
+      className={cn('border-b border-border/70 pb-4 sm:pb-5', className)}
       {...props}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -30,11 +30,11 @@ export function PageHeader({
             </div>
           ) : null}
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-[2.15rem]">
+            <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-[2rem]">
               {title}
             </h1>
             {description ? (
-              <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
                 {description}
               </p>
             ) : null}
@@ -80,7 +80,7 @@ export function SectionHeader({
           </div>
         ) : null}
         <div className="space-y-1.5">
-          <h2 className="text-xl font-semibold leading-tight tracking-tight">
+          <h2 className="text-lg font-semibold leading-tight tracking-tight">
             {title}
           </h2>
           {description ? (

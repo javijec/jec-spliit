@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
-import { FolderOpen, LogIn } from 'lucide-react'
+import { FolderOpen, LogIn, Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
@@ -294,7 +294,7 @@ function RecentGroupList_({
       <GroupsPage reload={refreshGroupsFromStorage}>
         <GroupSectionCard>
           <GroupSectionHeader>
-            <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
+            <GroupSectionTitle className="flex items-center gap-2 leading-none">
               <FolderOpen className="h-5 w-5" />
               {t('NoRecent.description')}
             </GroupSectionTitle>
@@ -324,7 +324,7 @@ function RecentGroupList_({
       <GroupsPage reload={refreshGroupsFromStorage}>
         <GroupSectionCard>
           <GroupSectionHeader>
-            <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
+            <GroupSectionTitle className="flex items-center gap-2 leading-none">
               <FolderOpen className="h-5 w-5" />
               {t('NoRecent.description')}
             </GroupSectionTitle>
@@ -426,7 +426,7 @@ function GroupList({
   onRemove?: (group: RecentGroups[number]) => Promise<void> | void
 }) {
   return (
-    <ul className="grid gap-3">
+    <ul className="grid gap-2.5">
       {groups.map((group) => (
         <RecentGroupListCard
           key={group.id}
@@ -452,7 +452,7 @@ function SignInCard() {
   return (
     <GroupSectionCard>
       <GroupSectionHeader>
-        <GroupSectionTitle className="flex items-center gap-2 text-xl leading-none">
+        <GroupSectionTitle className="flex items-center gap-2 leading-none">
           <LogIn className="h-5 w-5" />
           {t('title')}
         </GroupSectionTitle>
@@ -488,13 +488,14 @@ function GroupsPage({
                   : '/auth/login?connection=google-oauth2'
               }
             >
+              {isAuthenticated ? <Plus className="h-4 w-4" /> : null}
               {isAuthenticated ? t('create') : t('SignIn.action')}
             </Link>
           </Button>
         }
       />
 
-      <div className="space-y-5">{children}</div>
+      <div className="space-y-4">{children}</div>
     </div>
   )
 }
@@ -536,7 +537,7 @@ function GroupListSkeleton() {
 
 function GroupCardSkeleton() {
   return (
-    <div className="rounded-lg border border-border/80 bg-card p-4 shadow-sm shadow-black/5">
+    <div className="finance-shell p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-3">
           <Skeleton className="h-5 w-40 rounded-sm" />

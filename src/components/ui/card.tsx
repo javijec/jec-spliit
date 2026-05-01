@@ -10,7 +10,7 @@ const Card = React.forwardRef<
     data-slot="card"
     ref={ref}
     className={cn(
-      "rounded-xl border border-border/80 bg-card text-card-foreground shadow-sm shadow-black/5 motion-safe:transition-[background-color,border-color,box-shadow] motion-safe:duration-200",
+      "rounded-lg border border-border/80 bg-card text-card-foreground shadow-sm shadow-black/5 motion-safe:transition-[background-color,border-color,box-shadow] motion-safe:duration-200",
       className
     )}
     {...props}
@@ -40,7 +40,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-base font-semibold leading-tight tracking-tight sm:text-[1.05rem]",
+      "text-base font-semibold leading-tight tracking-tight",
       className
     )}
     {...props}

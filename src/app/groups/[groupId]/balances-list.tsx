@@ -6,7 +6,9 @@ import { AppRouterOutput } from '@/trpc/routers/_app'
 import { Scale } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 
-type Participant = NonNullable<AppRouterOutput['groups']['get']['group']>['participants'][number]
+type Participant = NonNullable<
+  AppRouterOutput['groups']['get']['group']
+>['participants'][number]
 
 type Props = {
   balancesByCurrency: BalancesByCurrency
@@ -22,7 +24,8 @@ export function BalancesList({
   const locale = useLocale()
   const t = useTranslations('Balances')
   const hasPendingBalances = Object.values(balancesByCurrency).some(
-    (balances) => Object.values(balances).some((balance) => balance.total !== 0),
+    (balances) =>
+      Object.values(balances).some((balance) => balance.total !== 0),
   )
 
   if (!hasPendingBalances) {
@@ -36,7 +39,7 @@ export function BalancesList({
   }
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-2">
       {participants.map((participant) => {
         const entries = Object.entries(balancesByCurrency)
           .map(([currencyCode, balances]) => ({
@@ -53,10 +56,7 @@ export function BalancesList({
             : [{ currencyCode: zeroCurrencyCode, total: 0 }]
 
         return (
-          <div
-            key={participant.id}
-            className="border bg-card p-3 sm:p-4"
-          >
+          <div key={participant.id} className="finance-shell p-3 sm:p-4">
             <div className="text-sm font-semibold truncate">
               {participant.name}
             </div>
@@ -69,7 +69,7 @@ export function BalancesList({
                 return (
                   <div
                     key={`${participant.id}-${currencyCode}-${index}`}
-                    className="flex items-center justify-between gap-2 border bg-muted/30 px-2.5 py-2"
+                    className="flex items-center justify-between gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-2"
                   >
                     <span className="text-[11px] font-medium text-muted-foreground">
                       {currencyCode}
