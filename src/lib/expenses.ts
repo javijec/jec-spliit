@@ -342,9 +342,13 @@ export async function getGroupExpenses(
   return prisma.expense.findMany({
     select: {
       amount: true,
-      category: true,
-      conversionRate: true,
-      createdAt: true,
+      category: {
+        select: {
+          id: true,
+          grouping: true,
+          name: true,
+        },
+      },
       expenseDate: true,
       id: true,
       isReimbursement: true,
@@ -358,7 +362,6 @@ export async function getGroupExpenses(
         },
       },
       splitMode: true,
-      recurrenceRule: true,
       title: true,
       _count: { select: { documents: true } },
     },

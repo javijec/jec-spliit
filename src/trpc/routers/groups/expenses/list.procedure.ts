@@ -27,7 +27,6 @@ export const listGroupExpensesProcedure = protectedProcedure
     return {
       expenses: expenses.slice(0, limit).map((expense) => ({
         ...expense,
-        createdAt: new Date(expense.createdAt),
         expenseDate: new Date(expense.expenseDate),
       })),
       hasMore: !!expenses[limit],

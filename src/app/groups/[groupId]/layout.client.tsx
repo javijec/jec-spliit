@@ -116,12 +116,6 @@ export function GroupLayoutClient({
     const runPrefetch = () => {
       void Promise.allSettled([
         utils.groups.getDetails.prefetch({ groupId }),
-        utils.groups.balances.list.prefetch({ groupId }),
-        utils.groups.expenses.list.prefetchInfinite({
-          groupId,
-          limit: EXPENSE_PREFETCH_LIMIT,
-          filter: '',
-        }),
         utils.categories.list.prefetch(),
         router.prefetch(`/groups/${groupId}/summary`),
         router.prefetch(`/groups/${groupId}/balances`),
