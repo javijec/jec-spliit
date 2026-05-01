@@ -2,20 +2,20 @@ import { ApplePwaSplash } from '@/app/apple-pwa-splash'
 import { AuthNav } from '@/components/auth-nav'
 import { ConditionalFooter } from '@/components/conditional-footer'
 import { LocaleSwitcher } from '@/components/locale-switcher'
-import { PwaInstallButton } from '@/components/pwa-install-button'
 import { ProgressBar } from '@/components/progress-bar'
+import { PwaInstallButton } from '@/components/pwa-install-button'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Toaster } from '@/components/ui/toaster'
-import { env } from '@/lib/env'
 import { getCurrentAuthSession } from '@/lib/auth'
+import { env } from '@/lib/env'
 import { TRPCProvider } from '@/trpc/client'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { FolderKanban } from 'lucide-react'
 import type { Metadata, Viewport } from 'next'
-import Image from 'next/image'
 import { NextIntlClientProvider, useTranslations } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import './globals.css'
@@ -80,13 +80,13 @@ function Content({
   const t = useTranslations('Layout')
   return (
     <TRPCProvider>
-      <header className="fixed left-0 right-0 top-0 z-50 border-b bg-background pt-[env(safe-area-inset-top)]">
-        <div className="mx-auto flex h-16 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:px-4 lg:px-8">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/80 bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+        <div className="mx-auto flex h-14 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:h-16 sm:px-4 lg:px-8">
           <Link
-            className="flex items-center gap-3 rounded-md px-1 py-1 transition-colors hover:bg-secondary"
+            className="flex min-w-0 items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-secondary/70 sm:gap-3"
             href="/"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-md border bg-card">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/90 bg-card sm:h-9 sm:w-9">
               <Image
                 src="/logo.svg"
                 className="h-5 w-5 object-contain sm:h-6 sm:w-6"
@@ -95,7 +95,7 @@ function Content({
                 alt="NexoGastos"
               />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 leading-none">
               <p className="truncate text-sm font-semibold tracking-tight sm:text-base">
                 NexoGastos
               </p>
@@ -104,9 +104,17 @@ function Content({
               </p>
             </div>
           </Link>
-          <div role="navigation" aria-label="Menu" className="flex items-center gap-2">
+          <div
+            role="navigation"
+            aria-label="Menu"
+            className="flex items-center gap-1.5 sm:gap-2"
+          >
             <ButtonLink
-              href={isAuthenticated ? '/groups' : '/auth/login?connection=google-oauth2'}
+              href={
+                isAuthenticated
+                  ? '/groups'
+                  : '/auth/login?connection=google-oauth2'
+              }
               label={t('groupsCta')}
             />
             <AuthNav />
@@ -125,8 +133,10 @@ function Content({
         </div>
       </header>
 
-      <div className="app-shell box-border flex min-h-[100dvh] flex-col pt-[calc(4rem+env(safe-area-inset-top))]">
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col">{children}</div>
+      <div className="app-shell box-border flex min-h-[100dvh] flex-col pt-[calc(3.5rem+env(safe-area-inset-top))] sm:pt-[calc(4rem+env(safe-area-inset-top))]">
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+          {children}
+        </div>
       </div>
 
       <ConditionalFooter footerDescription={t('footerDescription')} />
@@ -139,7 +149,7 @@ function ButtonLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="hidden items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm text-foreground transition-colors hover:bg-secondary sm:inline-flex"
+      className="hidden items-center gap-2 rounded-md border border-border/90 bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 sm:inline-flex"
     >
       <FolderKanban className="h-4 w-4 text-primary" />
       <span>{label}</span>

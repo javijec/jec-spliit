@@ -19,22 +19,22 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <section
-      className={cn('border-b border-border/70 pb-4 sm:pb-5', className)}
+      className={cn('border-b border-border/70 pb-4 sm:pb-6', className)}
       {...props}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-2">
+        <div className="min-w-0 space-y-2.5">
           {meta ? (
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               {meta}
             </div>
           ) : null}
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-[2rem]">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-[2.15rem]">
               {title}
             </h1>
             {description ? (
-              <p className="max-w-2xl text-sm text-muted-foreground sm:text-[0.95rem]">
+              <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
                 {description}
               </p>
             ) : null}

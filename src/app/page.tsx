@@ -2,63 +2,198 @@ import { Button } from '@/components/ui/button'
 import { getCurrentAuthSession } from '@/lib/auth'
 import {
   ArrowRight,
+  CheckCircle2,
   FolderKanban,
+  HandCoins,
+  ReceiptText,
+  Users,
 } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
+import type { ComponentType } from 'react'
 
 export default async function HomePage() {
   const t = await getTranslations()
   const session = await getCurrentAuthSession()
-  const groupsHref = session ? '/groups' : '/auth/login?connection=google-oauth2'
-  const primaryCta = session ? t('Homepage.button.groups') : 'Ingresar con Google'
+  const groupsHref = session
+    ? '/groups'
+    : '/auth/login?connection=google-oauth2'
+  const primaryCta = session
+    ? t('Homepage.button.groups')
+    : 'Ingresar con Google'
 
   return (
-    <main className="relative overflow-hidden px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-8rem] top-8 h-56 w-56 rounded-full bg-primary/12 blur-3xl sm:h-72 sm:w-72" />
-        <div className="absolute right-[-5rem] top-36 h-48 w-48 rounded-full bg-emerald-300/20 blur-3xl dark:bg-emerald-400/10" />
-        <div className="absolute bottom-8 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-secondary/70 blur-3xl" />
-      </div>
+    <main className="relative overflow-hidden px-3 pb-5 pt-3 sm:px-6 sm:pb-8 sm:pt-5">
+      <div className="relative mx-auto w-full max-w-screen-xl">
+        <section className="grid min-h-[calc(100dvh-8rem)] items-center gap-8 py-6 sm:min-h-[calc(100dvh-10rem)] lg:grid-cols-[0.92fr_1.08fr] lg:gap-10">
+          <div className="max-w-2xl">
+            <div className="space-y-4 sm:space-y-5">
+              <h1 className="landing-header max-w-[12ch] text-balance text-[2.7rem] font-semibold leading-[0.93] tracking-tight sm:text-[4.4rem] lg:text-[5.2rem]">
+                {t.rich('Homepage.title', {
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
+              </h1>
 
-      <div className="relative mx-auto flex w-full max-w-screen-xl flex-col">
-    <section className="relative overflow-hidden rounded-[1.75rem] border border-border/80 bg-card shadow-[0_24px_80px_hsl(var(--foreground)/0.08)]">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <div className="px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
-            <div className="relative z-10 mx-auto max-w-[42rem] text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-xs font-medium text-primary sm:text-sm">
-                <FolderKanban className="h-3.5 w-3.5" />
-                <span>{t('Layout.groupsCta')}</span>
+              <p className="max-w-[34rem] text-pretty text-base text-muted-foreground sm:text-lg">
+                {t.rich('Homepage.description', {
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button asChild className="h-11 w-full sm:w-auto sm:min-w-44">
+                <Link href={groupsHref}>
+                  {!session && <GoogleMark />}
+                  {primaryCta}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-11 w-full sm:w-auto sm:min-w-36"
+              >
+                <Link href={session ? '/groups/create' : groupsHref}>
+                  <FolderKanban className="h-4 w-4" />
+                  {t('Homepage.secondaryCta')}
+                </Link>
+              </Button>
+            </div>
+
+            <div className="mt-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
+              <Feature
+                icon={ReceiptText}
+                label={t('Homepage.features.clearExpenses.title')}
+              />
+              <Feature
+                icon={HandCoins}
+                label={t('Homepage.features.fastBalances.title')}
+              />
+              <Feature
+                icon={Users}
+                label={t('Homepage.features.simpleFlow.title')}
+              />
+            </div>
+          </div>
+
+          <div className="relative min-w-0">
+            <div className="overflow-hidden rounded-xl border border-border/90 bg-card shadow-sm">
+              <div className="flex items-center justify-between border-b border-border/80 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">
+                    Viaje a Mendoza
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    4 participantes
+                  </p>
+                </div>
+                <div className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                  ARS
+                </div>
               </div>
-
-              <div className="mt-4 space-y-3 sm:mt-5 sm:space-y-4">
-                <h1 className="landing-header mx-auto max-w-[11ch] text-balance text-[2.4rem] font-semibold leading-[0.92] tracking-[-0.04em] sm:text-[3.3rem] lg:text-[4rem]">
-                  {t.rich('Homepage.title', {
-                    strong: (chunks) => <strong>{chunks}</strong>,
-                  })}
-                </h1>
-
-                <p className="mx-auto max-w-[34rem] text-pretty text-sm text-muted-foreground sm:text-base">
-                  {t.rich('Homepage.description', {
-                    strong: (chunks) => <strong>{chunks}</strong>,
-                  })}
-                </p>
-              </div>
-
-              <div className="mt-5 flex justify-center sm:mt-6">
-                <Button asChild className="h-11 min-w-full sm:min-w-44">
-                  <Link href={groupsHref}>
-                    {!session && <GoogleMark />}
-                    {primaryCta}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+              <div className="grid gap-0 lg:grid-cols-[1fr_15rem]">
+                <div className="divide-y divide-border/70">
+                  <ExpensePreview
+                    title="Cena del viernes"
+                    person="Pago: Juli"
+                    amount="$ 48.200"
+                  />
+                  <ExpensePreview
+                    title="Nafta ruta 7"
+                    person="Pago: Nico"
+                    amount="$ 36.900"
+                  />
+                  <ExpensePreview
+                    title="Supermercado"
+                    person="Pago: Ana"
+                    amount="$ 29.540"
+                  />
+                  <ExpensePreview
+                    title="Cabaña"
+                    person="Pago: Tomi"
+                    amount="$ 180.000"
+                  />
+                </div>
+                <div className="border-t border-border/80 bg-secondary/35 p-4 lg:border-l lg:border-t-0">
+                  <p className="text-sm font-semibold">Balances</p>
+                  <div className="mt-4 space-y-3">
+                    <BalancePreview name="Ana" value="+$ 18.320" positive />
+                    <BalancePreview name="Juli" value="+$ 9.100" positive />
+                    <BalancePreview name="Nico" value="-$ 11.740" />
+                    <BalancePreview name="Tomi" value="-$ 15.680" />
+                  </div>
+                  <div className="mt-5 flex items-center gap-2 rounded-md border border-border/80 bg-card px-3 py-2 text-xs text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    Listo para liquidar
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
       </div>
     </main>
+  )
+}
+
+function Feature({
+  icon: Icon,
+  label,
+}: {
+  icon: ComponentType<{ className?: string }>
+  label: string
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Icon className="h-4 w-4 text-primary" />
+      <span>{label}</span>
+    </div>
+  )
+}
+
+function ExpensePreview({
+  title,
+  person,
+  amount,
+}: {
+  title: string
+  person: string
+  amount: string
+}) {
+  return (
+    <div className="flex flex-col items-start gap-1 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:gap-3">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted-foreground">{person}</p>
+      </div>
+      <p className="text-sm font-semibold tabular-nums">{amount}</p>
+    </div>
+  )
+}
+
+function BalancePreview({
+  name,
+  value,
+  positive = false,
+}: {
+  name: string
+  value: string
+  positive?: boolean
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 text-sm">
+      <span className="text-muted-foreground">{name}</span>
+      <span
+        className={
+          positive
+            ? 'font-semibold text-primary'
+            : 'font-semibold text-foreground'
+        }
+      >
+        {value}
+      </span>
+    </div>
   )
 }
 

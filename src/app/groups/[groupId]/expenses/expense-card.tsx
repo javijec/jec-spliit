@@ -61,7 +61,9 @@ function getLabels(locale: string): LocaleLabels {
 }
 
 function resolveDisplayCurrency(expense: Expense, fallbackCurrency: Currency) {
-  return expense.originalCurrency ? getCurrency(expense.originalCurrency) : fallbackCurrency
+  return expense.originalCurrency
+    ? getCurrency(expense.originalCurrency)
+    : fallbackCurrency
 }
 
 function resolveDisplayAmount(expense: Expense) {
@@ -124,18 +126,15 @@ function getDebtorsSummary({
 function LeadingIcon({ expense }: { expense: Expense }) {
   if (expense.isReimbursement) {
     return (
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground">
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground">
         <ArrowRightLeft className="h-3.5 w-3.5" />
       </div>
     )
   }
 
   return (
-    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground">
-      <CategoryIcon
-        category={expense.category}
-        className="h-3.5 w-3.5"
-      />
+    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground">
+      <CategoryIcon category={expense.category} className="h-3.5 w-3.5" />
     </div>
   )
 }
@@ -152,11 +151,7 @@ function AmountColumn({
   locale: string
 }) {
   return (
-    <div
-      className={cn(
-        'shrink-0 text-right',
-      )}
-    >
+    <div className={cn('shrink-0 text-right')}>
       <div
         className={cn(
           'tabular-nums whitespace-nowrap text-sm font-bold leading-none sm:text-base',
@@ -196,13 +191,15 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
       }),
     [displayAmount, displayCurrency, expense, labels.nobody, locale],
   )
-  const summaryTitle = expense.isReimbursement ? labels.settlement : expense.title
+  const summaryTitle = expense.isReimbursement
+    ? labels.settlement
+    : expense.title
   const href = `/groups/${groupId}/expenses/${expense.id}/edit`
 
   return (
     <div
       className={cn(
-        'mx-2 my-2 overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm shadow-black/5 sm:mx-3',
+        'mx-2 my-2 overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm shadow-black/5 sm:mx-3',
         expense.isReimbursement && 'border-border/80 bg-secondary/20',
       )}
     >
@@ -235,9 +232,12 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
           </div>
         </div>
         <div className="pt-0.5 text-muted-foreground">
-            <ChevronDown
-              className={cn('h-3.5 w-3.5 transition-transform duration-150', expanded && 'rotate-180')}
-            />
+          <ChevronDown
+            className={cn(
+              'h-3.5 w-3.5 transition-transform duration-150',
+              expanded && 'rotate-180',
+            )}
+          />
         </div>
       </button>
 
@@ -251,11 +251,17 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
             ) : (
               <p className="text-sm leading-5 text-muted-foreground">
                 <span>{labels.owes}</span>{' '}
-                <strong className="font-medium text-foreground">{debtorSummary}</strong>
+                <strong className="font-medium text-foreground">
+                  {debtorSummary}
+                </strong>
               </p>
             )}
 
-            <ActiveUserBalance groupId={groupId} currency={currency} expense={expense} />
+            <ActiveUserBalance
+              groupId={groupId}
+              currency={currency}
+              expense={expense}
+            />
 
             <div className="flex flex-wrap items-center gap-2">
               {expense.isReimbursement && (
@@ -265,7 +271,10 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
               )}
               {expense._count.documents > 0 && (
                 <Badge variant="outline" className="text-[0.7rem]">
-                  {labels.documents}: <span className="ml-1 tabular-nums">{expense._count.documents}</span>
+                  {labels.documents}:{' '}
+                  <span className="ml-1 tabular-nums">
+                    {expense._count.documents}
+                  </span>
                 </Badge>
               )}
             </div>

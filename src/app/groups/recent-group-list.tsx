@@ -6,7 +6,6 @@ import {
   getStarredGroups,
 } from '@/app/groups/recent-groups-helpers'
 import { Button } from '@/components/ui/button'
-import { PageHeader } from '@/components/ui/page-header'
 import {
   GroupSectionCard,
   GroupSectionContent,
@@ -14,6 +13,7 @@ import {
   GroupSectionHeader,
   GroupSectionTitle,
 } from '@/components/ui/group-section-card'
+import { PageHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getGroups } from '@/lib/api'
 import { trpc } from '@/trpc/client'
@@ -66,7 +66,7 @@ function sortGroups({
     groupInfo,
     archivedGroupInfo,
   }
-    }
+}
 
 const MY_GROUPS_CACHE_KEY = 'nexogastos.groups.mine.v1'
 
@@ -163,7 +163,11 @@ export function RecentGroupList() {
   }, [myGroupsData?.groups, viewerData?.user])
 
   useEffect(() => {
-    if (!isAuthenticated || state.status === 'pending' || hasSyncedLegacyGroups.current) {
+    if (
+      !isAuthenticated ||
+      state.status === 'pending' ||
+      hasSyncedLegacyGroups.current
+    ) {
       return
     }
     if (legacySyncKey && localStorage.getItem(legacySyncKey) === '1') {
@@ -304,7 +308,10 @@ function RecentGroupList_({
     )
   }
 
-  if (loading || (groups.length > 0 && !groupsDetails && (isLoading || !data))) {
+  if (
+    loading ||
+    (groups.length > 0 && !groupsDetails && (isLoading || !data))
+  ) {
     return (
       <GroupsPage reload={refreshGroupsFromStorage}>
         <GroupListSkeleton />
@@ -373,7 +380,9 @@ function RecentGroupList_({
 
       {archivedGroupInfo.length > 0 && (
         <>
-          <SectionHeading className="mt-6 opacity-60">{t('archived')}</SectionHeading>
+          <SectionHeading className="mt-6 opacity-60">
+            {t('archived')}
+          </SectionHeading>
           <div className="opacity-75">
             <GroupList
               groups={archivedGroupInfo}
@@ -453,9 +462,7 @@ function SignInCard() {
       </GroupSectionHeader>
       <GroupSectionContent className="pt-0">
         <Button asChild className="w-full sm:w-auto">
-          <Link href="/auth/login?connection=google-oauth2">
-            {t('action')}
-          </Link>
+          <Link href="/auth/login?connection=google-oauth2">{t('action')}</Link>
         </Button>
       </GroupSectionContent>
     </GroupSectionCard>
@@ -468,7 +475,7 @@ function GroupsPage({
 }: PropsWithChildren<{ reload?: () => void; isAuthenticated?: boolean }>) {
   const t = useTranslations('Groups')
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title={<Link href="/groups">{t('myGroups')}</Link>}
         description={t('groupsHeroDescription')}
@@ -487,7 +494,7 @@ function GroupsPage({
         }
       />
 
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-5">{children}</div>
     </div>
   )
 }
@@ -498,10 +505,8 @@ function SectionHeading({
 }: PropsWithChildren<{ className?: string }>) {
   return (
     <div className={`mb-2 flex items-center gap-3 ${className}`}>
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {children}
-      </h2>
-      <div className="h-px flex-1 bg-border/70" />
+      <h2 className="text-sm font-semibold text-foreground">{children}</h2>
+      <div className="h-px flex-1 bg-border/80" />
     </div>
   )
 }
@@ -531,7 +536,7 @@ function GroupListSkeleton() {
 
 function GroupCardSkeleton() {
   return (
-    <div className="rounded-xl border border-border/80 bg-card p-4 shadow-sm shadow-black/5">
+    <div className="rounded-lg border border-border/80 bg-card p-4 shadow-sm shadow-black/5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-3">
           <Skeleton className="h-5 w-40 rounded-sm" />

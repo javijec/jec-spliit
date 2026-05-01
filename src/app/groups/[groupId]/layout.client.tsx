@@ -4,6 +4,7 @@ import { ActiveUserModal } from '@/app/groups/[groupId]/expenses/active-user-mod
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { trpc } from '@/trpc/client'
+import { AppRouterOutput } from '@/trpc/routers/_app'
 import {
   ChartColumn,
   HandCoins,
@@ -16,10 +17,9 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { CurrentGroupProvider } from './current-group-context'
-import { loadGroupSnapshot, saveGroupSnapshot } from './group-snapshot'
 import { GroupHeader } from './group-header'
+import { loadGroupSnapshot, saveGroupSnapshot } from './group-snapshot'
 import { SaveGroupLocally } from './save-recent-group'
-import { AppRouterOutput } from '@/trpc/routers/_app'
 
 type Group = AppRouterOutput['groups']['get']['group']
 
@@ -301,7 +301,7 @@ export function GroupLayoutClient({
             <Button
               asChild
               size="icon"
-              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] right-4 z-40 h-12 w-12 rounded-2xl border border-primary/15 shadow-lg shadow-primary/20 sm:hidden"
+              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] right-4 z-40 h-12 w-12 rounded-lg border border-primary/15 shadow-lg shadow-primary/20 sm:hidden"
               onPointerEnter={prefetchCreateExpenseIntent}
               onFocus={prefetchCreateExpenseIntent}
               onTouchStart={prefetchCreateExpenseIntent}
@@ -314,15 +314,15 @@ export function GroupLayoutClient({
               </Link>
             </Button>
           )}
-          <nav className="fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-40 px-3 pb-3 sm:hidden">
-            <div className="grid grid-cols-4 items-center gap-1 rounded-[1.35rem] border border-border/80 bg-card/95 px-2 py-2 shadow-[0_12px_32px_hsl(var(--foreground)/0.14)] backdrop-blur">
+          <nav className="fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-40 border-t border-border/80 bg-card/95 px-2 py-2 shadow-[0_-8px_20px_hsl(var(--foreground)/0.08)] backdrop-blur sm:hidden">
+            <div className="mx-auto grid max-w-md grid-cols-4 items-center gap-1">
               {tabs.map((tab) => (
                 <Button
                   key={tab.key}
                   asChild
                   variant={tab.active ? 'secondary' : 'ghost'}
                   size="sm"
-                  className={`h-11 flex-col gap-1 rounded-xl ${
+                  className={`h-11 flex-col gap-1 rounded-md ${
                     tab.active
                       ? 'border border-border/70 bg-secondary text-foreground shadow-sm'
                       : 'text-muted-foreground'

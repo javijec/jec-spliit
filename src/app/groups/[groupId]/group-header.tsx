@@ -13,7 +13,7 @@ export const GroupHeader = () => {
 
   return (
     <div className="mb-3">
-      <div className="min-w-0 flex items-center justify-between gap-2 rounded-xl border border-border/80 bg-card px-4 py-4 shadow-sm shadow-black/5 sm:px-5">
+      <div className="min-w-0 flex items-center justify-between gap-2 rounded-lg border border-border/80 bg-card px-4 py-4 shadow-sm shadow-black/5 sm:px-5">
         <div className="min-w-0 flex-1">
           {isLoading ? (
             <div className="mb-2.5 flex flex-wrap gap-2">
@@ -38,7 +38,7 @@ export const GroupHeader = () => {
               </div>
             )
           )}
-          <h1 className="min-w-0 text-xl font-semibold leading-tight tracking-tight sm:text-[1.75rem]">
+          <h1 className="min-w-0 text-xl font-semibold leading-tight tracking-tight sm:text-[1.65rem]">
             <Link
               href={`/groups/${groupId}/summary`}
               className="inline-block max-w-full"

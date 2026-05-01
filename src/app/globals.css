@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 42 20% 96%;
-    --foreground: 176 10% 18%;
+    --background: 48 29% 97%;
+    --foreground: 180 13% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 176 10% 18%;
+    --card-foreground: 180 13% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 176 10% 18%;
-    --primary: 164 56% 30%;
+    --popover-foreground: 180 13% 14%;
+    --primary: 166 55% 24%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 40 14% 92%;
-    --secondary-foreground: 176 10% 24%;
-    --muted: 40 12% 93%;
-    --muted-foreground: 176 8% 38%;
-    --accent: 40 16% 90%;
-    --accent-foreground: 176 10% 24%;
+    --secondary: 45 22% 92%;
+    --secondary-foreground: 180 12% 20%;
+    --muted: 45 18% 92%;
+    --muted-foreground: 180 7% 39%;
+    --accent: 43 28% 89%;
+    --accent-foreground: 180 12% 20%;
     --destructive: 8 72% 48%;
     --destructive-foreground: 0 0% 98%;
-    --border: 38 12% 82%;
-    --input: 38 12% 78%;
-    --ring: 164 56% 30%;
+    --border: 42 15% 82%;
+    --input: 42 14% 78%;
+    --ring: 166 55% 24%;
     --radius: 0.5rem;
   }
 
@@ -61,8 +61,25 @@
   body {
     @apply text-[15px] leading-6 text-foreground sm:text-base;
     background-color: hsl(var(--background));
+    background-image:
+      linear-gradient(180deg, hsl(48 36% 98%) 0%, hsl(var(--background)) 34rem),
+      radial-gradient(
+        circle at 18% 0%,
+        hsl(var(--primary) / 0.08),
+        transparent 24rem
+      );
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  .dark body {
+    background-image:
+      linear-gradient(180deg, hsl(0 0% 7%) 0%, hsl(var(--background)) 34rem),
+      radial-gradient(
+        circle at 18% 0%,
+        hsl(var(--primary) / 0.12),
+        transparent 24rem
+      );
   }
 
   h1 {
@@ -105,10 +122,24 @@
   min-height: 100%;
 }
 
+.app-shell::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(90deg, hsl(var(--border) / 0.28) 1px, transparent 1px),
+    linear-gradient(180deg, hsl(var(--border) / 0.22) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  mask-image: linear-gradient(to bottom, black, transparent 44rem);
+  opacity: 0.42;
+}
+
 .app-shell [data-slot='card'] {
   background-color: hsl(var(--card));
   border-color: hsl(var(--border));
-  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.05);
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.04);
 }
 
 .dark .app-shell [data-slot='card'] {
