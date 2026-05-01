@@ -72,20 +72,20 @@ export function SummaryPageClient() {
     <div className="space-y-3">
       <GroupSectionCard>
         <GroupSectionContent>
-          <div className="mb-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
+          <div className="mb-4 grid gap-2 sm:grid-cols-3">
+            <span className="rounded-md border border-border/70 bg-background px-3 py-2 text-xs text-muted-foreground">
               {tSummary('participantsBadge', {
                 count: participantCount,
               })}
             </span>
             {resolvedGroup?.currencyCode ? (
-              <span className="inline-flex items-center rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
+              <span className="rounded-md border border-border/70 bg-background px-3 py-2 text-xs text-muted-foreground">
                 {tSummary('defaultCurrencyBadge', {
                   currencyCode: resolvedGroup.currencyCode,
                 })}
               </span>
             ) : null}
-            <span className="inline-flex items-center rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground">
+            <span className="rounded-md border border-border/70 bg-background px-3 py-2 text-xs text-muted-foreground">
               {tSummary('linkedCountBadge', {
                 count: linkedParticipants.length,
               })}

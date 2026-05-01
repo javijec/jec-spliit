@@ -124,7 +124,7 @@ export function ReimbursementList({
         icon={CheckCircle2}
         title={t('noImbursements')}
         description={t('noPendingDebtsDescription')}
-        className="mb-2"
+        className="mb-2 rounded-lg border-border/70 bg-card p-6"
       />
     )
   }
@@ -200,14 +200,14 @@ export function ReimbursementList({
       <div className="space-y-2">
         {groupedReimbursements.map((pair) => (
           <div
-            className="rounded-lg border border-border/70 bg-card p-3 shadow-sm shadow-black/5"
+            className="rounded-lg border border-border/70 bg-card p-3"
             key={`${pair.from}-${pair.to}`}
           >
-            <div className="mb-2 flex items-center gap-1.5 text-sm leading-tight">
+            <div className="mb-2 grid grid-cols-[minmax(0,1fr)_1.5rem_minmax(0,1fr)] items-center gap-2 text-sm leading-tight">
               <strong className="min-w-0 flex-1 truncate font-semibold tracking-tight">
                 {getParticipant(pair.from)?.name ?? ''}
               </strong>
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground">
                 <ArrowRight className="h-3 w-3" />
               </div>
               <strong className="min-w-0 flex-1 truncate text-right font-semibold tracking-tight">
@@ -225,7 +225,7 @@ export function ReimbursementList({
                 return (
                   <div
                     key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                    className="rounded-lg border border-border/70 bg-background px-2.5 py-2"
+                    className="rounded-md border border-border/70 bg-background px-2.5 py-2"
                   >
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="text-[0.75rem] font-medium text-muted-foreground">
@@ -244,7 +244,7 @@ export function ReimbursementList({
                       </div>
                     </div>
 
-                    <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                    <div className="mt-2 grid grid-cols-2 gap-1.5">
                       <Button
                         variant="secondary"
                         className="h-8 rounded-md px-2 text-[11px] font-medium"

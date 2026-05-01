@@ -34,6 +34,7 @@ export function BalancesList({
         icon={Scale}
         title={t('emptyTitle')}
         description={t('emptyDescription')}
+        className="rounded-lg border-border/70 bg-card p-6"
       />
     )
   }
@@ -56,8 +57,11 @@ export function BalancesList({
             : [{ currencyCode: zeroCurrencyCode, total: 0 }]
 
         return (
-          <div key={participant.id} className="finance-shell p-3 sm:p-4">
-            <div className="text-sm font-semibold truncate">
+          <div
+            key={participant.id}
+            className="rounded-lg border border-border/70 bg-card p-3"
+          >
+            <div className="truncate text-sm font-semibold">
               {participant.name}
             </div>
             <div className="mt-2 space-y-1.5">
@@ -69,7 +73,7 @@ export function BalancesList({
                 return (
                   <div
                     key={`${participant.id}-${currencyCode}-${index}`}
-                    className="flex items-center justify-between gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-2"
+                    className="flex items-center justify-between gap-2 rounded-md border border-border/70 bg-background px-2.5 py-2"
                   >
                     <span className="text-[11px] font-medium text-muted-foreground">
                       {currencyCode}
