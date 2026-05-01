@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
+import type { AppRouterOutput } from '@/trpc/routers/_app'
 import dayjs, { type Dayjs } from 'dayjs'
 import { Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -26,7 +27,10 @@ const EXPENSE_GROUP_ORDER = [
   'older',
 ] as const
 
-type ExpensesType = NonNullable<Awaited<ReturnType<typeof getGroupExpensesAction>>>
+type ExpensesType = NonNullable<
+  Awaited<ReturnType<typeof getGroupExpensesAction>>
+>
+type ExpenseListPage = AppRouterOutput['groups']['expenses']['list']
 type ExpenseGroupKey = (typeof EXPENSE_GROUP_ORDER)[number]
 type GroupedExpenses = Partial<Record<ExpenseGroupKey, ExpensesType>>
 
@@ -42,12 +46,15 @@ function getExpenseGroup(date: Dayjs, today: Dayjs): ExpenseGroupKey {
 
 function groupExpensesByDate(expenses: ExpensesType): GroupedExpenses {
   const today = dayjs()
-  return expenses.reduce((result: GroupedExpenses, expense: ExpensesType[number]) => {
-    const groupKey = getExpenseGroup(dayjs(expense.expenseDate), today)
-    result[groupKey] = result[groupKey] ?? []
-    result[groupKey]!.push(expense)
-    return result
-  }, {})
+  return expenses.reduce(
+    (result: GroupedExpenses, expense: ExpensesType[number]) => {
+      const groupKey = getExpenseGroup(dayjs(expense.expenseDate), today)
+      result[groupKey] = result[groupKey] ?? []
+      result[groupKey]!.push(expense)
+      return result
+    },
+    {},
+  )
 }
 
 function EmptyExpenses({ groupId }: { groupId: string }) {
@@ -156,16 +163,19 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
     [groupId, utils.groups.expenses.list],
   )
 
-  const { data, isLoading: expensesAreLoading, fetchNextPage } =
-    trpc.groups.expenses.list.useInfiniteQuery(
-      { groupId, limit: PAGE_SIZE, filter: '' },
-      {
-        getNextPageParam: ({ nextCursor }) => nextCursor,
-        placeholderData: cachedExpenses,
-        staleTime: 5 * 60 * 1000,
-        refetchOnMount: false,
-      },
-    )
+  const {
+    data,
+    isLoading: expensesAreLoading,
+    fetchNextPage,
+  } = trpc.groups.expenses.list.useInfiniteQuery(
+    { groupId, limit: PAGE_SIZE, filter: '' },
+    {
+      getNextPageParam: (page: ExpenseListPage) => page.nextCursor,
+      placeholderData: cachedExpenses,
+      staleTime: 5 * 60 * 1000,
+      refetchOnMount: false,
+    },
+  )
 
   const expenses = data?.pages.flatMap((page) => page.expenses)
   const hasMore = data?.pages.at(-1)?.hasMore ?? false

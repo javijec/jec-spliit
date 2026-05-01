@@ -414,10 +414,14 @@ export async function backfillLegacyGroupMemberships(groupId: string) {
       ])
     }
 
-    const membershipByUser = new Map(memberships.map((membership) => [membership.userId, membership]))
+    const membershipByUser = new Map(
+      memberships.map((membership) => [membership.userId, membership]),
+    )
     const updates: Array<Promise<unknown>> = []
 
-    for (const [userId, participantIds] of participantIdsByUser) {
+    for (const [userId, participantIds] of Array.from(
+      participantIdsByUser.entries(),
+    )) {
       if (participantIds.length !== 1) continue
 
       const participantId = participantIds[0]!

@@ -21,7 +21,7 @@ import { GroupHeader } from './group-header'
 import { loadGroupSnapshot, saveGroupSnapshot } from './group-snapshot'
 import { SaveGroupLocally } from './save-recent-group'
 
-type Group = AppRouterOutput['groups']['get']['group']
+type Group = NonNullable<AppRouterOutput['groups']['get']['group']>
 
 const EXPENSE_PREFETCH_LIMIT = 20
 

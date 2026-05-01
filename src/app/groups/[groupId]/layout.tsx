@@ -49,12 +49,12 @@ export default async function GroupLayout({
   }
 
   const group = await cached.getGroup(groupId)
+  if (!group) {
+    notFound()
+  }
 
   return (
-    <GroupLayoutClient
-      groupId={groupId}
-      initialGroup={group}
-    >
+    <GroupLayoutClient groupId={groupId} initialGroup={group}>
       {children}
     </GroupLayoutClient>
   )
