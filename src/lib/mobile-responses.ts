@@ -63,7 +63,18 @@ export function createEvenSplitExpensePayload(input: {
   splitBetween: string[]
   currencyCode?: string | null
   expenseDate?: Date
+  splitMode?: SplitMode
 }): ExpenseFormValues {
+  const paidFor =
+    input.splitMode === SplitMode.BY_PERCENTAGE
+      ? createPercentagePaidFor(input.splitBetween)
+      : input.splitMode === SplitMode.BY_AMOUNT
+        ? createAmountPaidFor(input.splitBetween, input.amount)
+        : input.splitBetween.map((participantId) => ({
+            participant: participantId,
+            shares: 1,
+          }))
+
   return {
     amount: input.amount,
     category: 0,
@@ -75,13 +86,10 @@ export function createEvenSplitExpensePayload(input: {
     originalAmount: undefined,
     originalCurrency: input.currencyCode ?? '',
     paidBy: input.paidBy,
-    paidFor: input.splitBetween.map((participantId) => ({
-      participant: participantId,
-      shares: 1,
-    })),
+    paidFor,
     recurrenceRule: RecurrenceRule.NONE,
     saveDefaultSplittingOptions: false,
-    splitMode: SplitMode.EVENLY,
+    splitMode: input.splitMode ?? SplitMode.EVENLY,
     title: input.title,
   }
 }
@@ -139,4 +147,35 @@ export function mapMobileBalances(input: {
     balances,
     reimbursements: input.reimbursements,
   }
+}
+
+function createPercentagePaidFor(splitBetween: string[]) {
+  if (splitBetween.length === 0) return []
+  const total = 10000
+  const base = Math.floor(total / splitBetween.length)
+  let remainder = total - base * splitBetween.length
+
+  return splitBetween.map((participantId) => {
+    const extra = remainder > 0 ? 1 : 0
+    remainder -= extra
+    return {
+      participant: participantId,
+      shares: base + extra,
+    }
+  })
+}
+
+function createAmountPaidFor(splitBetween: string[], amount: number) {
+  if (splitBetween.length === 0) return []
+  const base = Math.floor(amount / splitBetween.length)
+  let remainder = amount - base * splitBetween.length
+
+  return splitBetween.map((participantId) => {
+    const extra = remainder > 0 ? 1 : 0
+    remainder -= extra
+    return {
+      participant: participantId,
+      shares: base + extra,
+    }
+  })
 }

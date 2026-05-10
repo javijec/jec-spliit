@@ -9,6 +9,7 @@ import {
 import { requireGroupMembership } from '@/trpc/routers/groups/authorization'
 import { TRPCError } from '@trpc/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { SplitMode } from '@prisma/client'
 
 export const runtime = 'nodejs'
 
@@ -70,6 +71,9 @@ export async function POST(
       | {
           title: string
           amount: number
+          currencyCode?: string
+          expenseDate?: string
+          splitMode?: keyof typeof SplitMode
           paidBy: string
           splitBetween: string[]
         }
@@ -93,7 +97,12 @@ export async function POST(
             amount: body.amount,
             paidBy: body.paidBy,
             splitBetween: body.splitBetween,
-            currencyCode: group.currencyCode,
+            currencyCode: body.currencyCode ?? group.currencyCode,
+            expenseDate: body.expenseDate ? new Date(body.expenseDate) : undefined,
+            splitMode:
+              body.splitMode && body.splitMode in SplitMode
+                ? SplitMode[body.splitMode]
+                : SplitMode.EVENLY,
           })
 
     const expense = await createExpense(payload, groupId)
