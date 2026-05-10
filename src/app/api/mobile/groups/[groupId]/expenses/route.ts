@@ -2,7 +2,11 @@ import { createExpense, getGroupExpenses } from '@/lib/expenses'
 import { getGroup } from '@/lib/groups'
 import { requireMobileAppUser, MobileAuthError } from '@/lib/mobile-auth'
 import {
+<<<<<<< HEAD
   createMobileExpensePayload,
+=======
+  createEvenSplitExpensePayload,
+>>>>>>> 2ea81d6525d0b6f91981984d98886aaa49b53b3f
   createReimbursementPayload,
   mapMobileExpense,
 } from '@/lib/mobile-responses'
@@ -75,11 +79,15 @@ export async function POST(
           expenseDate?: string
           splitMode?: keyof typeof SplitMode
           paidBy: string
+<<<<<<< HEAD
           paidFor?: Array<{
             participantId: string
             shares: number
           }>
           splitBetween?: string[]
+=======
+          splitBetween: string[]
+>>>>>>> 2ea81d6525d0b6f91981984d98886aaa49b53b3f
         }
       | {
           reimbursement: true
@@ -96,6 +104,7 @@ export async function POST(
             toParticipantId: body.toParticipantId,
             currencyCode: group.currencyCode,
           })
+<<<<<<< HEAD
         : createMobileExpensePayload({
             title: body.title,
             amount: body.amount,
@@ -107,6 +116,13 @@ export async function POST(
                 shares: 1,
               })) ??
               [],
+=======
+        : createEvenSplitExpensePayload({
+            title: body.title,
+            amount: body.amount,
+            paidBy: body.paidBy,
+            splitBetween: body.splitBetween,
+>>>>>>> 2ea81d6525d0b6f91981984d98886aaa49b53b3f
             currencyCode: body.currencyCode ?? group.currencyCode,
             expenseDate: body.expenseDate ? new Date(body.expenseDate) : undefined,
             splitMode:
