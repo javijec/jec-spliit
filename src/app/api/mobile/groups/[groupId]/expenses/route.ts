@@ -14,6 +14,27 @@ import { requireGroupMembership } from '@/trpc/routers/groups/authorization'
 
 export const runtime = 'nodejs'
 
+type MobileExpenseRequestBody = {
+  title: string
+  amount: number
+  currencyCode?: string
+  expenseDate?: string
+  splitMode?: keyof typeof SplitMode
+  paidBy: string
+  paidFor?: Array<{
+    participantId: string
+    shares: number
+  }>
+  splitBetween?: string[]
+}
+
+type MobileReimbursementRequestBody = {
+  reimbursement: true
+  amount: number
+  fromParticipantId: string
+  toParticipantId: string
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ groupId: string }> },
@@ -69,57 +90,17 @@ export async function POST(
     }
 
     const body = (await request.json()) as
-      | {
-          title: string
-          amount: number
-          currencyCode?: string
-          expenseDate?: string
-          splitMode?: keyof typeof SplitMode
-          paidBy: string
-          paidFor?: Array<{
-            participantId: string
-            shares: number
-          }>
-          splitBetween?: string[]
-        }
-      | {
-          reimbursement: true
-          amount: number
-          fromParticipantId: string
-          toParticipantId: string
-        }
+      | MobileExpenseRequestBody
+      | MobileReimbursementRequestBody
 
-    const payload =
-      'reimbursement' in body && body.reimbursement
-        ? createReimbursementPayload({
-            amount: body.amount,
-            fromParticipantId: body.fromParticipantId,
-            toParticipantId: body.toParticipantId,
-            currencyCode: group.currencyCode,
-          })
-        : (() => {
-            const expenseBody = body
-            return createMobileExpensePayload({
-              title: expenseBody.title,
-              amount: expenseBody.amount,
-              paidBy: expenseBody.paidBy,
-              paidFor:
-                expenseBody.paidFor ??
-                expenseBody.splitBetween?.map((participantId: string) => ({
-                  participantId,
-                  shares: 1,
-                })) ??
-                [],
-              currencyCode: expenseBody.currencyCode ?? group.currencyCode,
-              expenseDate: expenseBody.expenseDate
-                ? new Date(expenseBody.expenseDate)
-                : undefined,
-              splitMode:
-                expenseBody.splitMode && expenseBody.splitMode in SplitMode
-                  ? SplitMode[expenseBody.splitMode]
-                  : SplitMode.EVENLY,
-            })
-          })()
+    const payload = ifReimbursement(body)
+      ? createReimbursementPayload({
+          amount: body.amount,
+          fromParticipantId: body.fromParticipantId,
+          toParticipantId: body.toParticipantId,
+          currencyCode: group.currencyCode,
+        })
+      : createMobileExpensePayloadFromBody(body, group.currencyCode)
 
     const expense = await createExpense(payload, groupId)
 
@@ -142,4 +123,34 @@ export async function POST(
       { status: 500 },
     )
   }
+}
+
+function ifReimbursement(
+  body: MobileExpenseRequestBody | MobileReimbursementRequestBody,
+): body is MobileReimbursementRequestBody {
+  return 'reimbursement' in body && body.reimbursement === true
+}
+
+function createMobileExpensePayloadFromBody(
+  body: MobileExpenseRequestBody,
+  groupCurrencyCode: string | null,
+) {
+  return createMobileExpensePayload({
+    title: body.title,
+    amount: body.amount,
+    paidBy: body.paidBy,
+    paidFor:
+      body.paidFor ??
+      body.splitBetween?.map((participantId) => ({
+        participantId,
+        shares: 1,
+      })) ??
+      [],
+    currencyCode: body.currencyCode ?? groupCurrencyCode,
+    expenseDate: body.expenseDate ? new Date(body.expenseDate) : undefined,
+    splitMode:
+      body.splitMode && body.splitMode in SplitMode
+        ? SplitMode[body.splitMode]
+        : SplitMode.EVENLY,
+  })
 }
