@@ -1,19 +1,16 @@
+import { SplitMode } from '@prisma/client'
+import { TRPCError } from '@trpc/server'
+import { NextRequest, NextResponse } from 'next/server'
+
 import { createExpense, getGroupExpenses } from '@/lib/expenses'
 import { getGroup } from '@/lib/groups'
-import { requireMobileAppUser, MobileAuthError } from '@/lib/mobile-auth'
+import { MobileAuthError, requireMobileAppUser } from '@/lib/mobile-auth'
 import {
-<<<<<<< HEAD
   createMobileExpensePayload,
-=======
-  createEvenSplitExpensePayload,
->>>>>>> 2ea81d6525d0b6f91981984d98886aaa49b53b3f
   createReimbursementPayload,
   mapMobileExpense,
 } from '@/lib/mobile-responses'
 import { requireGroupMembership } from '@/trpc/routers/groups/authorization'
-import { TRPCError } from '@trpc/server'
-import { NextRequest, NextResponse } from 'next/server'
-import { SplitMode } from '@prisma/client'
 
 export const runtime = 'nodejs'
 
@@ -79,15 +76,11 @@ export async function POST(
           expenseDate?: string
           splitMode?: keyof typeof SplitMode
           paidBy: string
-<<<<<<< HEAD
           paidFor?: Array<{
             participantId: string
             shares: number
           }>
           splitBetween?: string[]
-=======
-          splitBetween: string[]
->>>>>>> 2ea81d6525d0b6f91981984d98886aaa49b53b3f
         }
       | {
           reimbursement: true
@@ -104,32 +97,29 @@ export async function POST(
             toParticipantId: body.toParticipantId,
             currencyCode: group.currencyCode,
           })
-<<<<<<< HEAD
-        : createMobileExpensePayload({
-            title: body.title,
-            amount: body.amount,
-            paidBy: body.paidBy,
-            paidFor:
-              body.paidFor ??
-              body.splitBetween?.map((participantId) => ({
-                participantId,
-                shares: 1,
-              })) ??
-              [],
-=======
-        : createEvenSplitExpensePayload({
-            title: body.title,
-            amount: body.amount,
-            paidBy: body.paidBy,
-            splitBetween: body.splitBetween,
->>>>>>> 2ea81d6525d0b6f91981984d98886aaa49b53b3f
-            currencyCode: body.currencyCode ?? group.currencyCode,
-            expenseDate: body.expenseDate ? new Date(body.expenseDate) : undefined,
-            splitMode:
-              body.splitMode && body.splitMode in SplitMode
-                ? SplitMode[body.splitMode]
-                : SplitMode.EVENLY,
-          })
+        : (() => {
+            const expenseBody = body
+            return createMobileExpensePayload({
+              title: expenseBody.title,
+              amount: expenseBody.amount,
+              paidBy: expenseBody.paidBy,
+              paidFor:
+                expenseBody.paidFor ??
+                expenseBody.splitBetween?.map((participantId: string) => ({
+                  participantId,
+                  shares: 1,
+                })) ??
+                [],
+              currencyCode: expenseBody.currencyCode ?? group.currencyCode,
+              expenseDate: expenseBody.expenseDate
+                ? new Date(expenseBody.expenseDate)
+                : undefined,
+              splitMode:
+                expenseBody.splitMode && expenseBody.splitMode in SplitMode
+                  ? SplitMode[expenseBody.splitMode]
+                  : SplitMode.EVENLY,
+            })
+          })()
 
     const expense = await createExpense(payload, groupId)
 
