@@ -40,7 +40,7 @@ export function mapMobileExpense(expense: GroupExpense) {
   return {
     id: expense.id,
     title: expense.title,
-    amount: expense.amount,
+    amount: expense.originalAmount ?? expense.amount,
     currency: expense.originalCurrency || null,
     paidBy: {
       id: expense.paidBy.id,
