@@ -1,6 +1,7 @@
 import { acceptInviteForCurrentUser, getGroupInvite } from '@/lib/group-invites'
 import { getCurrentAuthSession } from '@/lib/auth'
 import { auth0Enabled } from '@/lib/env'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
@@ -51,6 +52,10 @@ export default async function InvitePage({
     const accepted = await acceptInviteForCurrentUser(inviteId)
     redirect(`/groups/${accepted.groupId}/summary`)
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+
     const message =
       error instanceof Error ? error.message : 'No pudimos procesar la invitacion.'
 
