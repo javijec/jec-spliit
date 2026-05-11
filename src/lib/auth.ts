@@ -33,31 +33,21 @@ export async function getCurrentAuthUser(): Promise<AuthenticatedUser | null> {
 }
 
 export async function upsertAppUser(authUser: AuthenticatedUser) {
-  const existingUser = await prisma.appUser.findUnique({
+  return prisma.appUser.upsert({
     where: { auth0UserId: authUser.auth0UserId },
-    select: { id: true, displayName: true },
-  })
-
-  if (!existingUser) {
-    return prisma.appUser.create({
-      data: {
-        id: randomId(),
-        auth0UserId: authUser.auth0UserId,
-        email: authUser.email,
-        displayName: authUser.displayName,
-        avatarUrl: authUser.avatarUrl,
-        lastLoginAt: new Date(),
-      },
-    })
-  }
-
-  return prisma.appUser.update({
-    where: { id: existingUser.id },
-    data: {
+    create: {
+      id: randomId(),
+      auth0UserId: authUser.auth0UserId,
       email: authUser.email,
-      displayName: existingUser.displayName ?? authUser.displayName,
+      displayName: authUser.displayName,
       avatarUrl: authUser.avatarUrl,
       lastLoginAt: new Date(),
+    },
+    update: {
+      email: authUser.email,
+      avatarUrl: authUser.avatarUrl,
+      lastLoginAt: new Date(),
+      ...(authUser.displayName ? { displayName: authUser.displayName } : {}),
     },
   })
 }
