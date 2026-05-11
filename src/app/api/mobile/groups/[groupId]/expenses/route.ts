@@ -31,6 +31,7 @@ type MobileExpenseRequestBody = {
 type MobileReimbursementRequestBody = {
   reimbursement: true
   amount: number
+  currencyCode?: string
   fromParticipantId: string
   toParticipantId: string
 }
@@ -98,7 +99,7 @@ export async function POST(
           amount: body.amount,
           fromParticipantId: body.fromParticipantId,
           toParticipantId: body.toParticipantId,
-          currencyCode: group.currencyCode,
+          currencyCode: body.currencyCode ?? group.currencyCode,
         })
       : createMobileExpensePayloadFromBody(body, group.currencyCode)
 
