@@ -46,6 +46,7 @@ export function mapMobileExpense(expense: GroupExpense) {
     title: expense.title,
     amount: expense.originalAmount ?? expense.amount,
     currency: expense.originalCurrency || null,
+    splitMode: expense.splitMode,
     paidBy: {
       id: expense.paidBy.id,
       name: expense.paidBy.name,
