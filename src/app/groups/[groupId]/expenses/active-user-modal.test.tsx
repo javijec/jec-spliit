@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import {
   ActiveUserForm,
+  getAutoSelectableParticipantId,
   shouldPromptForActiveParticipant,
 } from './active-user-modal'
 
@@ -204,5 +205,43 @@ describe('shouldPromptForActiveParticipant', () => {
         currentActiveParticipantId: 'participant-1',
       }),
     ).toBe(false)
+  })
+})
+
+describe('getAutoSelectableParticipantId', () => {
+  it('prefers the participant already linked to the current user', () => {
+    expect(
+      getAutoSelectableParticipantId({
+        currentUserId: 'user-1',
+        participants: [
+          { id: 'participant-1', name: 'Juan', appUserId: 'user-2' },
+          { id: 'participant-2', name: 'Maria', appUserId: 'user-1' },
+        ] as never,
+      }),
+    ).toBe('participant-2')
+  })
+
+  it('auto-selects when only one participant is available', () => {
+    expect(
+      getAutoSelectableParticipantId({
+        currentUserId: 'user-1',
+        participants: [
+          { id: 'participant-1', name: 'Juan', appUserId: 'user-2' },
+          { id: 'participant-2', name: 'Maria', appUserId: null },
+        ] as never,
+      }),
+    ).toBe('participant-2')
+  })
+
+  it('returns null when more than one participant is still possible', () => {
+    expect(
+      getAutoSelectableParticipantId({
+        currentUserId: 'user-1',
+        participants: [
+          { id: 'participant-1', name: 'Juan', appUserId: null },
+          { id: 'participant-2', name: 'Maria', appUserId: null },
+        ] as never,
+      }),
+    ).toBeNull()
   })
 })

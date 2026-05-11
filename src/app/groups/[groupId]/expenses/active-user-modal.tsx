@@ -29,6 +29,37 @@ import { useCurrentGroup } from '../current-group-context'
 
 type Viewer = AppRouterOutput['viewer']['getCurrent']['user']
 
+export function getAutoSelectableParticipantId({
+  participants,
+  currentUserId,
+}: {
+  participants:
+    | NonNullable<AppRouterOutput['groups']['get']['group']>['participants']
+    | undefined
+  currentUserId?: string
+}) {
+  if (!participants?.length || !currentUserId) {
+    return null
+  }
+
+  const linkedToCurrentUser = participants.filter(
+    (participant) => participant.appUserId === currentUserId,
+  )
+  if (linkedToCurrentUser.length === 1) {
+    return linkedToCurrentUser[0]?.id ?? null
+  }
+
+  const availableParticipants = participants.filter(
+    (participant) =>
+      !participant.appUserId || participant.appUserId === currentUserId,
+  )
+  if (availableParticipants.length === 1) {
+    return availableParticipants[0]?.id ?? null
+  }
+
+  return null
+}
+
 export function ActiveUserModal({
   groupId,
   open: controlledOpen,
@@ -65,6 +96,35 @@ export function ActiveUserModal({
   useEffect(() => {
     if (!group) return
 
+    const autoSelectableParticipantId = getAutoSelectableParticipantId({
+      participants: group.participants,
+      currentUserId: viewer?.id,
+    })
+
+    if (
+      shouldPromptForActiveParticipant({
+        isAuthResolved,
+        viewer,
+        currentActiveParticipantId,
+      }) &&
+      autoSelectableParticipantId
+    ) {
+      void setActiveParticipant
+        .mutateAsync({
+          groupId: group.id,
+          participantId: autoSelectableParticipantId,
+        })
+        .then(() => {
+          updateCurrentActiveParticipantCache(
+            utils,
+            group.id,
+            autoSelectableParticipantId,
+          )
+          setOpen(false)
+        })
+      return
+    }
+
     if (
       shouldPromptForActiveParticipant({
         isAuthResolved,
@@ -74,7 +134,15 @@ export function ActiveUserModal({
     ) {
       setOpen(true)
     }
-  }, [currentActiveParticipantId, group, isAuthResolved, setOpen, viewer])
+  }, [
+    currentActiveParticipantId,
+    group,
+    isAuthResolved,
+    setActiveParticipant,
+    setOpen,
+    utils,
+    viewer,
+  ])
 
   function updateOpen(open: boolean) {
     if (!group) return
