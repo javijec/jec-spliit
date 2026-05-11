@@ -19,6 +19,7 @@ model Group {
   recurringSyncAt    DateTime?
   activities         Activity[]
   expenses           Expense[]
+  invites            GroupInvite[]
   memberships        UserGroupMembership[]
   participants       Participant[]
 }
@@ -32,6 +33,8 @@ model AppUser {
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
   lastLoginAt    DateTime?
+   createdInvites GroupInvite[]        @relation("CreatedGroupInvites")
+   acceptedInvites GroupInvite[]       @relation("AcceptedGroupInvites")
   memberships    UserGroupMembership[]
   participants   Participant[]
 }
@@ -45,10 +48,32 @@ model Participant {
   activities      Activity[]
   expensesPaidBy  Expense[]
   expensesPaidFor ExpensePaidFor[]
+  invites         GroupInvite[]
   appUser         AppUser?         @relation(fields: [appUserId], references: [id], onDelete: SetNull)
   group           Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@index([groupId, appUserId])
+}
+
+model GroupInvite {
+  id                 String       @id
+  groupId            String
+  participantId      String?
+  newParticipantName String?
+  createdByUserId    String
+  acceptedByUserId   String?
+  role               GroupRole    @default(MEMBER)
+  createdAt          DateTime     @default(now())
+  expiresAt          DateTime
+  acceptedAt         DateTime?
+  group              Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  participant        Participant? @relation(fields: [participantId], references: [id], onDelete: SetNull)
+  createdByUser      AppUser      @relation("CreatedGroupInvites", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  acceptedByUser     AppUser?     @relation("AcceptedGroupInvites", fields: [acceptedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([groupId, createdAt(sort: Desc)])
+  @@index([participantId])
+  @@index([acceptedByUserId])
 }
 
 model UserGroupMembership {
