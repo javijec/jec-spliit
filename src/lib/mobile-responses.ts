@@ -24,6 +24,9 @@ export function mapMobileGroupSummary(group: GroupListItem) {
 export function mapMobileGroupDetail(
   group: NonNullable<GroupDetails>,
   membership: GroupMembership | null,
+  members: Awaited<
+    ReturnType<typeof import('@/lib/user-memberships').getGroupMembershipUsers>
+  >,
 ) {
   return {
     id: group.id,
@@ -34,6 +37,19 @@ export function mapMobileGroupDetail(
       id: participant.id,
       name: participant.name,
       linkedEmail: participant.appUser?.email ?? null,
+    })),
+    members: members.map((member) => ({
+      userId: member.userId,
+      role: member.role,
+      user: {
+        displayName: member.user.displayName ?? null,
+        email: member.user.email ?? null,
+      },
+      activeParticipant: {
+        id: member.activeParticipant!.id,
+        name: member.activeParticipant!.name,
+        linkedEmail: member.user.email ?? null,
+      },
     })),
     currentActiveParticipantId: membership?.activeParticipantId ?? null,
     currentUserRole: membership?.role ?? null,

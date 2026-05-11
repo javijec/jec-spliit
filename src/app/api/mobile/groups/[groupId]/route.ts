@@ -3,6 +3,7 @@ import { requireMobileAppUser, MobileAuthError } from '@/lib/mobile-auth'
 import { mapMobileGroupDetail } from '@/lib/mobile-responses'
 import {
   backfillLegacyGroupMemberships,
+  getGroupMembershipUsers,
   getUserGroupMembership,
   pruneOrphanedGroupMemberships,
 } from '@/lib/user-memberships'
@@ -24,9 +25,10 @@ export async function GET(
     await backfillLegacyGroupMemberships(groupId)
     await pruneOrphanedGroupMemberships(groupId)
 
-    const [group, membership] = await Promise.all([
+    const [group, membership, members] = await Promise.all([
       getGroup(groupId),
       getUserGroupMembership(user.id, groupId),
+      getGroupMembershipUsers(groupId),
     ])
 
     if (!group) {
@@ -34,7 +36,7 @@ export async function GET(
     }
 
     return NextResponse.json({
-      group: mapMobileGroupDetail(group, membership),
+      group: mapMobileGroupDetail(group, membership, members),
     })
   } catch (error) {
     if (error instanceof MobileAuthError) {
