@@ -33,6 +33,7 @@ export function mapMobileGroupDetail(
     title: group.name,
     description: group.information ?? '',
     currency: group.currencyCode ?? group.currency,
+    defaultSplitMode: group.defaultSplitMode,
     participants: group.participants.map((participant) => ({
       id: participant.id,
       name: participant.name,

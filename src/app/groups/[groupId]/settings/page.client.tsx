@@ -70,6 +70,7 @@ function buildGroupFormValues(
     information: string | null
     currency: string | null
     currencyCode: string | null
+    defaultSplitMode?: GroupFormValues['defaultSplitMode'] | null
   },
   participants: Array<{ id?: string; name: string }>,
 ): GroupFormValues {
@@ -81,6 +82,7 @@ function buildGroupFormValues(
       getCurrency(group.currencyCode ?? process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE ?? 'USD')
         .symbol,
     currencyCode: group.currencyCode ?? '',
+    defaultSplitMode: group.defaultSplitMode ?? 'EVENLY',
     participants,
   }
 }

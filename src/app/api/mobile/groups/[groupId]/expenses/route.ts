@@ -101,7 +101,11 @@ export async function POST(
           toParticipantId: body.toParticipantId,
           currencyCode: body.currencyCode ?? group.currencyCode,
         })
-      : createMobileExpensePayloadFromBody(body, group.currencyCode)
+      : createMobileExpensePayloadFromBody(
+          body,
+          group.currencyCode,
+          group.defaultSplitMode,
+        )
 
     const expense = await createExpense(payload, groupId)
 
@@ -135,6 +139,7 @@ function ifReimbursement(
 function createMobileExpensePayloadFromBody(
   body: MobileExpenseRequestBody,
   groupCurrencyCode: string | null,
+  groupDefaultSplitMode: SplitMode,
 ) {
   return createMobileExpensePayload({
     title: body.title,
@@ -152,6 +157,6 @@ function createMobileExpensePayloadFromBody(
     splitMode:
       body.splitMode && body.splitMode in SplitMode
         ? SplitMode[body.splitMode]
-        : SplitMode.EVENLY,
+        : groupDefaultSplitMode,
   })
 }

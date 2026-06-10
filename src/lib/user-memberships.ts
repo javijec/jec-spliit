@@ -24,6 +24,7 @@ export async function getUserGroups(userId: string) {
             createdAt: true,
             information: true,
             currencyCode: true,
+            defaultSplitMode: true,
             _count: { select: { participants: true } },
           },
         },

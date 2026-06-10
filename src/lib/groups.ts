@@ -1,7 +1,7 @@
 import { randomId } from '@/lib/ids'
 import { prisma } from '@/lib/prisma'
 import { GroupFormValues } from '@/lib/schemas'
-import { ActivityType, GroupRole } from '@prisma/client'
+import { ActivityType, GroupRole, SplitMode } from '@prisma/client'
 
 export async function createGroup(
   groupFormValues: GroupFormValues,
@@ -47,6 +47,7 @@ export async function createGroup(
         information: groupFormValues.information,
         currency: groupFormValues.currency,
         currencyCode: groupFormValues.currencyCode,
+        defaultSplitMode: groupFormValues.defaultSplitMode ?? SplitMode.EVENLY,
         participants: {
           createMany: {
             data: groupFormValues.participants.map(({ name }) => ({
@@ -104,6 +105,7 @@ export async function getGroups(groupIds: string[]) {
         createdAt: true,
         information: true,
         currencyCode: true,
+        defaultSplitMode: true,
         _count: { select: { participants: true } },
       },
     })
@@ -129,6 +131,7 @@ export async function getGroupsForUser(userId: string, groupIds: string[]) {
             createdAt: true,
             information: true,
             currencyCode: true,
+            defaultSplitMode: true,
             _count: { select: { participants: true } },
           },
         },
@@ -176,6 +179,7 @@ export async function updateGroup(
         information: groupFormValues.information,
         currency: groupFormValues.currency,
         currencyCode: groupFormValues.currencyCode,
+        defaultSplitMode: groupFormValues.defaultSplitMode ?? SplitMode.EVENLY,
       },
     })
 
@@ -240,6 +244,7 @@ export async function getGroup(groupId: string) {
       createdAt: true,
       information: true,
       currencyCode: true,
+      defaultSplitMode: true,
       participants: {
         select: {
           id: true,

@@ -20,6 +20,7 @@ type MobileGroupUpdateBody = {
   information?: unknown
   currency?: unknown
   currencyCode?: unknown
+  defaultSplitMode?: unknown
   participants?: unknown
   participantId?: string
 }
@@ -77,6 +78,7 @@ export async function PUT(
       information: payload.information ?? '',
       currency: payload.currency,
       currencyCode: payload.currencyCode,
+      defaultSplitMode: payload.defaultSplitMode,
       participants: payload.participants,
     })
 

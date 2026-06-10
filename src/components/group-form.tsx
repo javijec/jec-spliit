@@ -140,6 +140,7 @@ export function GroupForm({
           information: group.information ?? '',
           currency: group.currency ?? '',
           currencyCode: group.currencyCode ?? '',
+          defaultSplitMode: group.defaultSplitMode ?? 'EVENLY',
           participants: group.participants,
         }
       : {
@@ -150,6 +151,7 @@ export function GroupForm({
             process.env.NEXT_PUBLIC_DEFAULT_CURRENCY_CODE || 'USD',
             locale as Locale,
           ).symbol,
+          defaultSplitMode: 'EVENLY',
           participants: defaultParticipantNames.map((name) => ({ name })),
         },
   })

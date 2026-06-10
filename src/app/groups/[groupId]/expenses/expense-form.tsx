@@ -186,12 +186,24 @@ type FlowStepId = 'details' | 'split' | 'attachments'
 const getDefaultSplittingOptions = (
   group: NonNullable<AppRouterOutput['groups']['get']['group']>,
 ) => {
+  const splitMode = group.defaultSplitMode ?? 'EVENLY'
+  const defaultShares = match(splitMode)
+    .with('BY_PERCENTAGE', () => {
+      const share = group.participants.length > 0 ? 100 / group.participants.length : 0
+      return group.participants.map(({ id }) => ({
+        participant: id,
+        shares: share.toString() as any,
+      }))
+    })
+    .otherwise(() =>
+      group.participants.map(({ id }) => ({
+        participant: id,
+        shares: '1' as any, // Use string to ensure consistent schema handling
+      })),
+    )
   const defaultValue = {
-    splitMode: 'EVENLY' as const,
-    paidFor: group.participants.map(({ id }) => ({
-      participant: id,
-      shares: '1' as any, // Use string to ensure consistent schema handling
-    })),
+    splitMode,
+    paidFor: defaultShares,
   }
 
   if (typeof localStorage === 'undefined') return defaultValue
