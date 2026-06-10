@@ -8,6 +8,11 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
 
+type MobileMembershipUpdateBody = {
+  isArchived?: boolean
+  isStarred?: boolean
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ groupId: string }> },
@@ -15,7 +20,7 @@ export async function PUT(
   try {
     const user = await requireMobileAppUser(request)
     const { groupId } = await params
-    const payload = await request.json()
+    const payload = (await request.json()) as MobileMembershipUpdateBody
 
     const membership = await getUserGroupMembership(user.id, groupId)
     if (!membership) {

@@ -51,10 +51,10 @@ const envSchema = z
       .string()
       .optional()
       .default('dev-group-access-secret'),
-    AUTH0_DOMAIN: z.string().optional(),
-    AUTH0_CLIENT_ID: z.string().optional(),
-    AUTH0_CLIENT_SECRET: z.string().optional(),
-    AUTH0_SECRET: z.string().optional(),
+    BETTER_AUTH_SECRET: z.string().optional().default('dev-better-auth-secret'),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
+    GOOGLE_ANDROID_CLIENT_ID: z.string().optional(),
     APP_BASE_URL: z
       .string()
       .optional()
@@ -80,27 +80,22 @@ const envSchema = z
       })
     }
 
-    const auth0Keys = [
-      env.AUTH0_DOMAIN,
-      env.AUTH0_CLIENT_ID,
-      env.AUTH0_CLIENT_SECRET,
-      env.AUTH0_SECRET,
+    const googleKeys = [
+      env.GOOGLE_CLIENT_ID,
+      env.GOOGLE_CLIENT_SECRET,
     ]
-    const hasAnyAuth0Key = auth0Keys.some(Boolean)
-    const hasAllAuth0Keys = auth0Keys.every(Boolean)
+    const hasAnyGoogleKey = googleKeys.some(Boolean)
+    const hasAllGoogleKeys = googleKeys.every(Boolean)
 
-    if (hasAnyAuth0Key && !hasAllAuth0Keys) {
+    if (hasAnyGoogleKey && !hasAllGoogleKeys) {
       ctx.addIssue({
         code: ZodIssueCode.custom,
         message:
-          'If any AUTH0_* variable is specified, then AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET and AUTH0_SECRET must all be specified',
+          'If any Google auth variable is specified, then GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must both be specified',
       })
     }
   })
 
 export const env = envSchema.parse(normalizedEnv)
-export const auth0Enabled =
-  !!env.AUTH0_DOMAIN &&
-  !!env.AUTH0_CLIENT_ID &&
-  !!env.AUTH0_CLIENT_SECRET &&
-  !!env.AUTH0_SECRET
+export const auth0Enabled = !!env.GOOGLE_CLIENT_ID && !!env.GOOGLE_CLIENT_SECRET
+export const betterAuthEnabled = auth0Enabled

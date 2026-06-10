@@ -1,7 +1,8 @@
-import { auth0 } from '@/lib/auth0'
+import { auth } from '@/lib/better-auth'
 import { prisma } from '@/lib/prisma'
 import { randomId } from '@/lib/ids'
 import { getUniqueParticipantName } from '@/lib/participants'
+import { headers } from 'next/headers'
 
 export interface AuthenticatedUser {
   auth0UserId: string
@@ -11,28 +12,43 @@ export interface AuthenticatedUser {
 }
 
 export async function getCurrentAuthSession() {
-  if (!auth0) return null
-  return auth0.getSession()
+  return auth.api.getSession({
+    headers: await headers(),
+  })
 }
 
 export async function getCurrentAuthUser(): Promise<AuthenticatedUser | null> {
   const session = await getCurrentAuthSession()
-  if (!session?.user.sub) return null
+  if (!session?.user.id) return null
 
   return {
-    auth0UserId: session.user.sub,
+    auth0UserId: `better-auth:${session.user.id}`,
     email:
       typeof session.user.email === 'string' ? session.user.email : undefined,
     displayName:
       typeof session.user.name === 'string' ? session.user.name : undefined,
     avatarUrl:
-      typeof session.user.picture === 'string'
-        ? session.user.picture
-        : undefined,
+      typeof session.user.image === 'string' ? session.user.image : undefined,
   }
 }
 
 export async function upsertAppUser(authUser: AuthenticatedUser) {
+  const existingByEmail = authUser.email
+    ? await prisma.appUser.findUnique({ where: { email: authUser.email } })
+    : null
+
+  if (existingByEmail) {
+    return prisma.appUser.update({
+      where: { id: existingByEmail.id },
+      data: {
+        auth0UserId: authUser.auth0UserId,
+        avatarUrl: authUser.avatarUrl,
+        lastLoginAt: new Date(),
+        ...(authUser.displayName ? { displayName: authUser.displayName } : {}),
+      },
+    })
+  }
+
   return prisma.appUser.upsert({
     where: { auth0UserId: authUser.auth0UserId },
     create: {

@@ -26,7 +26,7 @@ export async function AuthNav() {
         : null)
   const avatarUrl =
     appUser?.avatarUrl ||
-    (typeof session?.user.picture === 'string' ? session.user.picture : null)
+    (typeof session?.user.image === 'string' ? session.user.image : null)
 
   if (!session) return null
 

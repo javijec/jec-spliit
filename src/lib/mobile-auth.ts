@@ -1,6 +1,7 @@
-import { auth0Enabled, env } from '@/lib/env'
+import { env } from '@/lib/env'
 import { AuthenticatedUser, upsertAppUser } from '@/lib/auth'
 import { NextRequest } from 'next/server'
+import { OAuth2Client } from 'google-auth-library'
 
 export class MobileAuthError extends Error {
   constructor(
@@ -20,43 +21,43 @@ function getBearerToken(request: NextRequest) {
   return authorization.slice('Bearer '.length).trim()
 }
 
-async function getAuthUserFromAccessToken(
-  accessToken: string,
+const googleClient = new OAuth2Client()
+
+async function getAuthUserFromGoogleIdToken(
+  idToken: string,
 ): Promise<AuthenticatedUser | null> {
-  if (!auth0Enabled || !env.AUTH0_DOMAIN) {
-    throw new MobileAuthError('Auth0 is not configured.', 503)
+  const audiences = [
+    env.GOOGLE_ANDROID_CLIENT_ID,
+    env.GOOGLE_CLIENT_ID,
+  ].filter((value): value is string => Boolean(value))
+
+  if (audiences.length === 0) {
+    throw new MobileAuthError('Google auth is not configured.', 503)
   }
 
-  const response = await fetch(`https://${env.AUTH0_DOMAIN}/userinfo`, {
-    headers: {
-      authorization: `Bearer ${accessToken}`,
-    },
-    cache: 'no-store',
+  const ticket = await googleClient.verifyIdToken({
+    idToken,
+    audience: audiences,
   })
 
-  if (!response.ok) {
-    throw new MobileAuthError('Invalid access token.', 401)
-  }
+  const payload = ticket.getPayload()
+  const googleUserId = payload?.sub
 
-  const payload = (await response.json()) as Record<string, unknown>
-  const auth0UserId =
-    typeof payload.sub === 'string' ? payload.sub : undefined
-
-  if (!auth0UserId) {
+  if (!googleUserId) {
     return null
   }
 
   return {
-    auth0UserId,
-    email: typeof payload.email === 'string' ? payload.email : undefined,
-    displayName: typeof payload.name === 'string' ? payload.name : undefined,
-    avatarUrl: typeof payload.picture === 'string' ? payload.picture : undefined,
+    auth0UserId: `google:${googleUserId}`,
+    email: payload.email,
+    displayName: payload.name,
+    avatarUrl: payload.picture,
   }
 }
 
 export async function requireMobileAppUser(request: NextRequest) {
-  const accessToken = getBearerToken(request)
-  const authUser = await getAuthUserFromAccessToken(accessToken)
+  const idToken = getBearerToken(request)
+  const authUser = await getAuthUserFromGoogleIdToken(idToken)
 
   if (!authUser) {
     throw new MobileAuthError('Authenticated user not found.', 401)

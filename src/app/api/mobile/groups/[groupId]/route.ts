@@ -15,6 +15,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
 
+type MobileGroupUpdateBody = {
+  name?: unknown
+  information?: unknown
+  currency?: unknown
+  currencyCode?: unknown
+  participants?: unknown
+  participantId?: string
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ groupId: string }> },
@@ -59,7 +68,7 @@ export async function PUT(
   try {
     const user = await requireMobileAppUser(request)
     const { groupId } = await params
-    const payload = await request.json()
+    const payload = (await request.json()) as MobileGroupUpdateBody
 
     await requireGroupOwner(user.id, groupId)
 
