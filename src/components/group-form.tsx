@@ -141,6 +141,9 @@ export function GroupForm({
           currency: group.currency ?? '',
           currencyCode: group.currencyCode ?? '',
           defaultSplitMode: group.defaultSplitMode ?? 'EVENLY',
+          defaultSplitShares: Array.isArray(group.defaultSplitShares)
+            ? (group.defaultSplitShares as GroupFormValues['defaultSplitShares'])
+            : [],
           participants: group.participants,
         }
       : {
@@ -152,6 +155,7 @@ export function GroupForm({
             locale as Locale,
           ).symbol,
           defaultSplitMode: 'EVENLY',
+          defaultSplitShares: [],
           participants: defaultParticipantNames.map((name) => ({ name })),
         },
   })

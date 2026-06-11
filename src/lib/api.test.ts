@@ -54,6 +54,7 @@ const baseGroupFormValues: GroupFormValues = {
   currency: '$',
   currencyCode: 'USD',
   defaultSplitMode: 'EVENLY',
+  defaultSplitShares: [],
   participants: [{ name: 'Juan' }, { name: 'Maria' }, { name: 'Sergio' }],
 }
 
@@ -100,6 +101,7 @@ describe('createGroup', () => {
         currency: '$',
         currencyCode: 'USD',
         defaultSplitMode: 'EVENLY',
+        defaultSplitShares: [],
         participants: {
           createMany: {
             data: [

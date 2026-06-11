@@ -13,6 +13,7 @@ model Group {
   name               String
   currency           String                @default("$")
   defaultSplitMode   SplitMode             @default(EVENLY)
+  defaultSplitShares Json                  @default("[]")
   createdAt          DateTime              @default(now())
   information        String?
   currencyCode       String?

@@ -187,18 +187,33 @@ const getDefaultSplittingOptions = (
   group: NonNullable<AppRouterOutput['groups']['get']['group']>,
 ) => {
   const splitMode = group.defaultSplitMode ?? 'EVENLY'
+  const configuredShares = Array.isArray(group.defaultSplitShares)
+    ? (group.defaultSplitShares as Array<{
+        participantId?: string
+        shares?: number
+      }>)
+    : []
+  const configuredSharesByParticipant = new Map(
+    configuredShares
+      .filter(
+        (item): item is { participantId: string; shares: number } =>
+          typeof item.participantId === 'string' &&
+          typeof item.shares === 'number',
+      )
+      .map((item) => [item.participantId, item.shares]),
+  )
   const defaultShares = match(splitMode)
     .with('BY_PERCENTAGE', () => {
       const share = group.participants.length > 0 ? 100 / group.participants.length : 0
       return group.participants.map(({ id }) => ({
         participant: id,
-        shares: share.toString() as any,
+        shares: (configuredSharesByParticipant.get(id) ?? share).toString() as any,
       }))
     })
     .otherwise(() =>
       group.participants.map(({ id }) => ({
         participant: id,
-        shares: '1' as any, // Use string to ensure consistent schema handling
+        shares: (configuredSharesByParticipant.get(id) ?? 1).toString() as any, // Use string to ensure consistent schema handling
       })),
     )
   const defaultValue = {

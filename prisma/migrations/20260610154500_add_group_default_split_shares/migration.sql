@@ -1,0 +1,2 @@
+ALTER TABLE "Group"
+ADD COLUMN "defaultSplitShares" JSONB NOT NULL DEFAULT '[]';

@@ -48,6 +48,7 @@ export async function createGroup(
         currency: groupFormValues.currency,
         currencyCode: groupFormValues.currencyCode,
         defaultSplitMode: groupFormValues.defaultSplitMode ?? SplitMode.EVENLY,
+        defaultSplitShares: groupFormValues.defaultSplitShares ?? [],
         participants: {
           createMany: {
             data: groupFormValues.participants.map(({ name }) => ({
@@ -106,6 +107,7 @@ export async function getGroups(groupIds: string[]) {
         information: true,
         currencyCode: true,
         defaultSplitMode: true,
+        defaultSplitShares: true,
         _count: { select: { participants: true } },
       },
     })
@@ -132,6 +134,7 @@ export async function getGroupsForUser(userId: string, groupIds: string[]) {
             information: true,
             currencyCode: true,
             defaultSplitMode: true,
+            defaultSplitShares: true,
             _count: { select: { participants: true } },
           },
         },
@@ -180,6 +183,7 @@ export async function updateGroup(
         currency: groupFormValues.currency,
         currencyCode: groupFormValues.currencyCode,
         defaultSplitMode: groupFormValues.defaultSplitMode ?? SplitMode.EVENLY,
+        defaultSplitShares: groupFormValues.defaultSplitShares ?? [],
       },
     })
 
@@ -245,6 +249,7 @@ export async function getGroup(groupId: string) {
       information: true,
       currencyCode: true,
       defaultSplitMode: true,
+      defaultSplitShares: true,
       participants: {
         select: {
           id: true,

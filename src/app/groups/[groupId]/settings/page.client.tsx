@@ -71,6 +71,7 @@ function buildGroupFormValues(
     currency: string | null
     currencyCode: string | null
     defaultSplitMode?: GroupFormValues['defaultSplitMode'] | null
+    defaultSplitShares?: unknown
   },
   participants: Array<{ id?: string; name: string }>,
 ): GroupFormValues {
@@ -83,6 +84,9 @@ function buildGroupFormValues(
         .symbol,
     currencyCode: group.currencyCode ?? '',
     defaultSplitMode: group.defaultSplitMode ?? 'EVENLY',
+    defaultSplitShares: Array.isArray(group.defaultSplitShares)
+      ? (group.defaultSplitShares as GroupFormValues['defaultSplitShares'])
+      : [],
     participants,
   }
 }

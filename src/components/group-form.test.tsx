@@ -230,6 +230,7 @@ describe('GroupForm', () => {
           currency: '$',
           currencyCode: 'USD',
           defaultSplitMode: 'EVENLY',
+          defaultSplitShares: [],
           createdAt: new Date(),
           participants: [
             {
@@ -278,6 +279,7 @@ describe('GroupForm', () => {
           currency: '$',
           currencyCode: 'USD',
           defaultSplitMode: 'EVENLY',
+          defaultSplitShares: [],
           createdAt: new Date(),
           participants: [
             {
