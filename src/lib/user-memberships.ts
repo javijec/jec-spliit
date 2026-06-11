@@ -406,7 +406,6 @@ export async function backfillLegacyGroupMemberships(groupId: string) {
         select: {
           id: true,
           appUserId: true,
-          createdAt: true,
         },
       }),
       tx.userGroupMembership.findMany({
@@ -491,17 +490,16 @@ async function ensureLegacyGroupOwner(
   preferredUserId?: string,
 ) {
   const [linkedParticipants, memberships] = await Promise.all([
-    tx.participant.findMany({
-      where: {
-        groupId,
-        appUserId: { not: null },
-      },
-      select: {
-        id: true,
-        appUserId: true,
-        createdAt: true,
-      },
-    }),
+      tx.participant.findMany({
+        where: {
+          groupId,
+          appUserId: { not: null },
+        },
+        select: {
+          id: true,
+          appUserId: true,
+        },
+      }),
     tx.userGroupMembership.findMany({
       where: { groupId },
       select: {
@@ -542,16 +540,26 @@ async function ensureLegacyGroupOwner(
   const candidate =
     preferredCandidate ??
     eligibleUsers.sort((left, right) => {
-      const leftCreatedAt =
-        linkedParticipants.find(
-          (participant) => participant.appUserId === left[0],
-        )?.createdAt.getTime() ?? Number.MAX_SAFE_INTEGER
-      const rightCreatedAt =
-        linkedParticipants.find(
-          (participant) => participant.appUserId === right[0],
-        )?.createdAt.getTime() ?? Number.MAX_SAFE_INTEGER
+      const leftMembership = memberships.find(
+        (membership) => membership.userId === left[0],
+      )
+      const rightMembership = memberships.find(
+        (membership) => membership.userId === right[0],
+      )
 
-      return leftCreatedAt - rightCreatedAt
+      const leftCreatedAt =
+        leftMembership?.createdAt.getTime() ?? Number.MAX_SAFE_INTEGER
+      const rightCreatedAt =
+        rightMembership?.createdAt.getTime() ?? Number.MAX_SAFE_INTEGER
+
+      if (leftCreatedAt !== rightCreatedAt) {
+        return leftCreatedAt - rightCreatedAt
+      }
+
+      const leftParticipantId = left[1][0] ?? ''
+      const rightParticipantId = right[1][0] ?? ''
+
+      return leftParticipantId.localeCompare(rightParticipantId)
     })[0]
 
   if (!candidate) {
