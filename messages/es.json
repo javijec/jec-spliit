@@ -411,8 +411,9 @@
     "emptyTitle": "No hay saldos pendientes",
     "emptyDescription": "Todos los participantes están al día en todas las monedas.",
     "Reimbursements": {
-      "settlementsTitle": "Liquidaciones",
-      "noPendingDebtsDescription": "No hay deudas pendientes para saldar en este grupo.",
+      "settlementsTitle": "Liquidación inteligente",
+      "description": "La app calcula quién le debe a quién y te propone los pagos mínimos para dejar el grupo en cero.",
+      "noPendingDebtsDescription": "No hace falta mover dinero: el grupo ya quedó saldado.",
       "paymentRegistered": {
         "title": "Pago registrado",
         "description": "La deuda se marcó como pagada."
@@ -434,9 +435,9 @@
         "willRecord": "Vas a registrar",
         "remaining": "Restante"
       },
-      "title": "Reembolsos propuestos",
+      "title": "Liquidaciones sugeridas",
       "description": "He aquí algunas sugerencias para optimizar los reembolsos entre los participantes.",
-      "noImbursements": "Parece que tu grupo no necesita ningún reembolso 😁",
+      "noImbursements": "No hace falta liquidar nada todavía 😁",
       "owes": "<strong>{from}</strong> debe a <strong>{to}</strong>",
       "markAsPaid": "Marcar como pagado"
     }

@@ -2,7 +2,7 @@ import BalancesAndReimbursements from '@/app/groups/[groupId]/balances/balances-
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Liquidaciones',
+  title: 'Liquidación inteligente',
 }
 
 export default async function GroupPage() {

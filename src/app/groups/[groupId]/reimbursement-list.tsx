@@ -225,15 +225,15 @@ export function ReimbursementList({
                 return (
                   <div
                     key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                    className="rounded-md border border-border/70 bg-background px-2.5 py-2"
+                    className="rounded-lg border border-primary/15 bg-primary/5 px-3 py-3 shadow-sm shadow-black/5"
                   >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[0.75rem] font-medium text-muted-foreground">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="rounded-full bg-background px-2.5 py-1 text-[0.7rem] font-medium tracking-wide text-muted-foreground">
                         {reimbursementCurrency.code}
                       </span>
                       <div
                         className={cn(
-                          'text-sm font-semibold tabular-nums whitespace-nowrap text-primary sm:text-[0.95rem]',
+                          'rounded-full bg-background px-3 py-1 text-base font-semibold tabular-nums whitespace-nowrap text-primary sm:text-lg',
                         )}
                       >
                         {formatCurrency(
@@ -244,10 +244,27 @@ export function ReimbursementList({
                       </div>
                     </div>
 
-                    <div className="mt-2 grid grid-cols-2 gap-1.5">
+                    <div className="mt-3 flex items-center gap-2 text-sm">
+                      <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+                        {getParticipant(pair.from)?.name ?? ''}
+                      </span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 flex-1 truncate text-right font-medium text-foreground">
+                        {getParticipant(pair.to)?.name ?? ''}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {t('paymentDescription', {
+                        from: getParticipant(pair.from)?.name ?? '',
+                        to: getParticipant(pair.to)?.name ?? '',
+                        currency: reimbursementCurrency.code,
+                      })}
+                    </p>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2">
                       <Button
                         variant="secondary"
-                        className="h-8 rounded-md px-2 text-[11px] font-medium"
+                        className="h-9 rounded-md px-2 text-[11px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() =>
                           setPaymentDialog({
@@ -263,7 +280,7 @@ export function ReimbursementList({
                       </Button>
                       <Button
                         variant="outline"
-                        className="h-8 rounded-md px-2 text-[11px] font-medium"
+                        className="h-9 rounded-md px-2 text-[11px] font-medium"
                         disabled={createExpense.isPending}
                         onClick={() => {
                           setPartialAmountInput('')

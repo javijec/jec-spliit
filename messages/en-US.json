@@ -411,8 +411,9 @@
     "emptyTitle": "There are no pending balances",
     "emptyDescription": "All participants are up to date across every currency.",
     "Reimbursements": {
-      "settlementsTitle": "Settlements",
-      "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
+      "settlementsTitle": "Smart settlement",
+      "description": "The app figures out who owes whom and suggests the minimum payments to bring the group to zero.",
+      "noPendingDebtsDescription": "No money needs to move here: the group is already settled.",
       "paymentRegistered": {
         "title": "Payment recorded",
         "description": "The debt was marked as paid."
@@ -434,9 +435,9 @@
         "willRecord": "You are about to record",
         "remaining": "Remaining"
       },
-      "title": "Suggested reimbursements",
+      "title": "Suggested settlements",
       "description": "Here are suggestions for optimized reimbursements between participants.",
-      "noImbursements": "It looks like your group doesn’t need any reimbursement 😁",
+      "noImbursements": "There is nothing left to settle yet 😁",
       "owes": "<strong>{from}</strong> owes <strong>{to}</strong>",
       "markAsPaid": "Mark as paid"
     }
