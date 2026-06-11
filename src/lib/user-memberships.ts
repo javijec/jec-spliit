@@ -1,7 +1,7 @@
 import { randomId } from '@/lib/ids'
 import { getUniqueParticipantName } from '@/lib/participants'
 import { prisma } from '@/lib/prisma'
-import { GroupRole } from '@prisma/client'
+import { GroupRole, Prisma } from '@prisma/client'
 
 export async function getUserGroups(userId: string) {
   return (
@@ -306,24 +306,28 @@ export async function backfillLegacyMembershipForUser(
   groupId: string,
 ) {
   return prisma.$transaction(async (tx) => {
-    const membership = await tx.userGroupMembership.findUnique({
-      where: {
-        userId_groupId: {
-          userId,
-          groupId,
+    const fetchMembership = () =>
+      tx.userGroupMembership.findUnique({
+        where: {
+          userId_groupId: {
+            userId,
+            groupId,
+          },
         },
-      },
-      select: {
-        groupId: true,
-        activeParticipantId: true,
-        isArchived: true,
-        isStarred: true,
-        role: true,
-      },
-    })
+        select: {
+          groupId: true,
+          activeParticipantId: true,
+          isArchived: true,
+          isStarred: true,
+          role: true,
+        },
+      })
+
+    const membership = await fetchMembership()
 
     if (membership?.activeParticipantId) {
-      return membership
+      await ensureLegacyGroupOwner(tx, groupId, userId)
+      return fetchMembership()
     }
 
     const linkedParticipants = await tx.participant.findMany({
@@ -337,13 +341,14 @@ export async function backfillLegacyMembershipForUser(
     })
 
     if (linkedParticipants.length !== 1) {
-      return membership
+      await ensureLegacyGroupOwner(tx, groupId, userId)
+      return fetchMembership()
     }
 
     const activeParticipantId = linkedParticipants[0]!.id
 
     if (membership) {
-      return tx.userGroupMembership.update({
+      await tx.userGroupMembership.update({
         where: {
           userId_groupId: {
             userId,
@@ -362,9 +367,11 @@ export async function backfillLegacyMembershipForUser(
           role: true,
         },
       })
+      await ensureLegacyGroupOwner(tx, groupId, userId)
+      return fetchMembership()
     }
 
-    return tx.userGroupMembership.create({
+    await tx.userGroupMembership.create({
       data: {
         id: randomId(),
         userId,
@@ -381,6 +388,10 @@ export async function backfillLegacyMembershipForUser(
         role: true,
       },
     })
+
+    await ensureLegacyGroupOwner(tx, groupId, userId)
+
+    return fetchMembership()
   })
 }
 
@@ -395,6 +406,7 @@ export async function backfillLegacyGroupMemberships(groupId: string) {
         select: {
           id: true,
           appUserId: true,
+          createdAt: true,
         },
       }),
       tx.userGroupMembership.findMany({
@@ -402,6 +414,8 @@ export async function backfillLegacyGroupMemberships(groupId: string) {
         select: {
           userId: true,
           activeParticipantId: true,
+          role: true,
+          createdAt: true,
         },
       }),
     ])
@@ -466,6 +480,125 @@ export async function backfillLegacyGroupMemberships(groupId: string) {
     if (updates.length > 0) {
       await Promise.all(updates)
     }
+
+    await ensureLegacyGroupOwner(tx, groupId)
+  })
+}
+
+async function ensureLegacyGroupOwner(
+  tx: Prisma.TransactionClient,
+  groupId: string,
+  preferredUserId?: string,
+) {
+  const [linkedParticipants, memberships] = await Promise.all([
+    tx.participant.findMany({
+      where: {
+        groupId,
+        appUserId: { not: null },
+      },
+      select: {
+        id: true,
+        appUserId: true,
+        createdAt: true,
+      },
+    }),
+    tx.userGroupMembership.findMany({
+      where: { groupId },
+      select: {
+        userId: true,
+        activeParticipantId: true,
+        role: true,
+        createdAt: true,
+      },
+    }),
+  ])
+
+  if (memberships.some((membership) => membership.role === GroupRole.OWNER)) {
+    return
+  }
+
+  const participantIdsByUser = new Map<string, string[]>()
+  for (const participant of linkedParticipants) {
+    const userId = participant.appUserId
+    if (!userId) continue
+    participantIdsByUser.set(userId, [
+      ...(participantIdsByUser.get(userId) ?? []),
+      participant.id,
+    ])
+  }
+
+  const eligibleUsers = Array.from(participantIdsByUser.entries()).filter(
+    ([, participantIds]) => participantIds.length === 1,
+  )
+
+  if (eligibleUsers.length === 0) {
+    return
+  }
+
+  const preferredCandidate =
+    preferredUserId &&
+    eligibleUsers.find(([userId]) => userId === preferredUserId)
+
+  const candidate =
+    preferredCandidate ??
+    eligibleUsers.sort((left, right) => {
+      const leftCreatedAt =
+        linkedParticipants.find(
+          (participant) => participant.appUserId === left[0],
+        )?.createdAt.getTime() ?? Number.MAX_SAFE_INTEGER
+      const rightCreatedAt =
+        linkedParticipants.find(
+          (participant) => participant.appUserId === right[0],
+        )?.createdAt.getTime() ?? Number.MAX_SAFE_INTEGER
+
+      return leftCreatedAt - rightCreatedAt
+    })[0]
+
+  if (!candidate) {
+    return
+  }
+
+  const [ownerUserId, participantIds] = candidate
+  const participantId = participantIds[0]
+  if (!participantId) {
+    return
+  }
+
+  const existingMembership = memberships.find(
+    (membership) => membership.userId === ownerUserId,
+  )
+
+  if (existingMembership) {
+    if (existingMembership.role === GroupRole.OWNER) {
+      return
+    }
+
+    await tx.userGroupMembership.update({
+      where: {
+        userId_groupId: {
+          userId: ownerUserId,
+          groupId,
+        },
+      },
+      data: {
+        role: GroupRole.OWNER,
+        ...(existingMembership.activeParticipantId === null
+          ? { activeParticipantId: participantId }
+          : {}),
+      },
+    })
+    return
+  }
+
+  await tx.userGroupMembership.create({
+    data: {
+      id: randomId(),
+      userId: ownerUserId,
+      groupId,
+      role: GroupRole.OWNER,
+      activeParticipantId: participantId,
+      lastAccessedAt: new Date(),
+    },
   })
 }
 
