@@ -71,6 +71,8 @@ function sortGroups({
 const MY_GROUPS_CACHE_KEY = 'nexogastos.groups.mine.v1'
 const MY_GROUPS_BACKGROUND_REFRESH_INTERVAL = 15 * 60 * 1000
 
+type MyGroups = AppRouterOutput['groups']['mine']['groups']
+
 export function RecentGroupList() {
   const [state, setState] = useState<RecentGroupsState>({ status: 'pending' })
   const hasSyncedLegacyGroups = useRef(false)
@@ -99,6 +101,43 @@ export function RecentGroupList() {
     },
   })
   const updateMembership = trpc.groups.updateMembership.useMutation({
+    onMutate: async ({ groupId, isArchived, isStarred }) => {
+      await utils.groups.mine.cancel()
+      const previousData = utils.groups.mine.getData()
+
+      utils.groups.mine.setData(undefined, (currentData) => {
+        if (!currentData) return currentData
+
+        return {
+          groups: currentData.groups.map((group) =>
+            group.id === groupId
+              ? {
+                  ...group,
+                  ...(isArchived !== undefined ? { isArchived } : {}),
+                  ...(isStarred !== undefined ? { isStarred } : {}),
+                }
+              : group,
+          ),
+        }
+      })
+
+      setCachedMyGroups((currentGroups) =>
+        currentGroups
+          ? updateCachedGroupMembership(currentGroups, {
+              groupId,
+              isArchived,
+              isStarred,
+            })
+          : currentGroups,
+      )
+
+      return { previousData }
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousData) {
+        utils.groups.mine.setData(undefined, context.previousData)
+      }
+    },
     onSuccess: async () => {
       await utils.groups.mine.invalidate()
     },
@@ -254,6 +293,29 @@ export function RecentGroupList() {
         await removeMembership.mutateAsync({ groupId: group.id })
       }}
     />
+  )
+}
+
+function updateCachedGroupMembership(
+  groups: MyGroups,
+  input: {
+    groupId: string
+    isArchived?: boolean
+    isStarred?: boolean
+  },
+): MyGroups {
+  return groups.map((group) =>
+    group.id === input.groupId
+      ? {
+          ...group,
+          ...(input.isArchived !== undefined
+            ? { isArchived: input.isArchived }
+            : {}),
+          ...(input.isStarred !== undefined
+            ? { isStarred: input.isStarred }
+            : {}),
+        }
+      : group,
   )
 }
 
