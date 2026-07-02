@@ -69,6 +69,7 @@ function sortGroups({
 }
 
 const MY_GROUPS_CACHE_KEY = 'nexogastos.groups.mine.v1'
+const MY_GROUPS_BACKGROUND_REFRESH_INTERVAL = 15 * 60 * 1000
 
 export function RecentGroupList() {
   const [state, setState] = useState<RecentGroupsState>({ status: 'pending' })
@@ -87,8 +88,10 @@ export function RecentGroupList() {
     trpc.groups.mine.useQuery(undefined, {
       enabled: isAuthenticated,
       placeholderData: cachedMyGroups ? { groups: cachedMyGroups } : undefined,
-      staleTime: 15 * 60 * 1000,
-      refetchOnMount: false,
+      staleTime: MY_GROUPS_BACKGROUND_REFRESH_INTERVAL,
+      refetchOnMount: 'always',
+      refetchOnReconnect: 'always',
+      refetchOnWindowFocus: 'always',
     })
   const syncLegacyGroups = trpc.groups.syncLegacy.useMutation({
     onSuccess: async () => {
