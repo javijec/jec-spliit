@@ -1,4 +1,5 @@
 import { createExpense } from '@/lib/expenses'
+import { notifyGroupExpenseCreated } from '@/lib/push-notifications'
 import { expenseFormSchema } from '@/lib/schemas'
 import { protectedProcedure } from '@/trpc/init'
 import { requireGroupMembership } from '../authorization'
@@ -20,6 +21,11 @@ export const createGroupExpenseProcedure = protectedProcedure
         groupId,
         participantId,
       )
+      await notifyGroupExpenseCreated({
+        groupId,
+        expenseId: expense.id,
+        actorUserId: ctx.auth.user.id,
+      })
       return { expenseId: expense.id }
     },
   )

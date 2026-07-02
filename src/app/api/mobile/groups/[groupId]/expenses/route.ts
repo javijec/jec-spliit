@@ -10,6 +10,7 @@ import {
   createReimbursementPayload,
   mapMobileExpense,
 } from '@/lib/mobile-responses'
+import { notifyGroupExpenseCreated } from '@/lib/push-notifications'
 import { requireGroupMembership } from '@/trpc/routers/groups/authorization'
 
 export const runtime = 'nodejs'
@@ -108,6 +109,11 @@ export async function POST(
         )
 
     const expense = await createExpense(payload, groupId)
+    await notifyGroupExpenseCreated({
+      groupId,
+      expenseId: expense.id,
+      actorUserId: user.id,
+    })
 
     return NextResponse.json({
       expenseId: expense.id,

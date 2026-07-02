@@ -39,6 +39,19 @@ model AppUser {
    acceptedInvites GroupInvite[]       @relation("AcceptedGroupInvites")
   memberships    UserGroupMembership[]
   participants   Participant[]
+  pushTokens     MobilePushToken[]
+}
+
+model MobilePushToken {
+  id        String   @id
+  userId    String
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model user {

@@ -141,6 +141,37 @@ Recurring expenses are generated on demand when a user enters a group, but only 
 
 ## Opt-in features
 
+### Mobile push notifications
+
+The Android app can receive push notifications when another group member creates
+an expense or records a reimbursement. Push delivery uses Firebase Cloud
+Messaging (FCM).
+
+Backend setup:
+
+1. Create or reuse a Firebase project.
+2. Create a service account key with permission to send FCM messages.
+3. Add these values locally and in Vercel:
+
+```.env
+FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+Android setup:
+
+1. Add the Android app package `com.jecspliit.app` to the Firebase project.
+2. Download `google-services.json`.
+3. Place it at `app/google-services.json` in the Android project root.
+4. Build the app. The Google Services Gradle plugin is applied only when this
+   file exists, so local builds without Firebase config still compile.
+
+After login, the Android app registers its FCM token through
+`POST /api/mobile/push-token`. When an expense or reimbursement is created from
+the web or mobile API, the backend sends notifications to the other group
+members with a registered device token.
+
 ### Expense documents
 
 Spliit offers users to upload images (to an AWS S3 bucket) and attach them to expenses. To enable this feature:
