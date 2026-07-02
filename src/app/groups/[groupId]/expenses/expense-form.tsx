@@ -1542,7 +1542,7 @@ export function ExpenseForm({
         </div>
 
         <div className="sticky bottom-3 z-20 mt-3 flex flex-col gap-2 rounded-lg border border-border/80 bg-background/95 px-3 py-2.5 shadow-sm backdrop-blur sm:flex-row sm:flex-wrap">
-          {!isDesktopLayout && (
+          {!isDesktopLayout && !isCreate && (
             <ExpenseReviewPanel
               amount={formattedEnteredAmount}
               payerLabel={t('mobile.payer')}
