@@ -2,6 +2,7 @@ import { env } from '@/lib/env'
 import { AuthenticatedUser, upsertAppUser } from '@/lib/auth'
 import { NextRequest } from 'next/server'
 import { OAuth2Client } from 'google-auth-library'
+import { authenticateMobileAccessToken } from '@/lib/mobile-session'
 
 export class MobileAuthError extends Error {
   constructor(
@@ -12,7 +13,7 @@ export class MobileAuthError extends Error {
   }
 }
 
-function getBearerToken(request: NextRequest) {
+export function getBearerToken(request: NextRequest) {
   const authorization = request.headers.get('authorization')
   if (!authorization?.startsWith('Bearer ')) {
     throw new MobileAuthError('Missing bearer token.', 401)
@@ -23,7 +24,7 @@ function getBearerToken(request: NextRequest) {
 
 const googleClient = new OAuth2Client()
 
-async function getAuthUserFromGoogleIdToken(
+export async function getAuthUserFromGoogleIdToken(
   idToken: string,
 ): Promise<AuthenticatedUser | null> {
   const audiences = [
@@ -35,28 +36,41 @@ async function getAuthUserFromGoogleIdToken(
     throw new MobileAuthError('Google auth is not configured.', 503)
   }
 
-  const ticket = await googleClient.verifyIdToken({
-    idToken,
-    audience: audiences,
-  })
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: audiences,
+    })
 
-  const payload = ticket.getPayload()
-  const googleUserId = payload?.sub
+    const payload = ticket.getPayload()
+    const googleUserId = payload?.sub
 
-  if (!googleUserId) {
+    if (!googleUserId) {
+      return null
+    }
+
+    return {
+      auth0UserId: `google:${googleUserId}`,
+      email: payload.email,
+      displayName: payload.name,
+      avatarUrl: payload.picture,
+    }
+  } catch {
     return null
   }
+}
 
-  return {
-    auth0UserId: `google:${googleUserId}`,
-    email: payload.email,
-    displayName: payload.name,
-    avatarUrl: payload.picture,
-  }
+export async function getMobileAppUserFromAccessToken(accessToken: string) {
+  return authenticateMobileAccessToken(accessToken)
 }
 
 export async function requireMobileAppUser(request: NextRequest) {
   const idToken = getBearerToken(request)
+  const mobileUser = await getMobileAppUserFromAccessToken(idToken)
+  if (mobileUser) {
+    return mobileUser
+  }
+
   const authUser = await getAuthUserFromGoogleIdToken(idToken)
 
   if (!authUser) {

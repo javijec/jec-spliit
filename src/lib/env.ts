@@ -55,6 +55,7 @@ const envSchema = z
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     GOOGLE_ANDROID_CLIENT_ID: z.string().optional(),
+    MOBILE_SESSION_SECRET: z.string().optional().default('dev-mobile-session-secret'),
     FIREBASE_PROJECT_ID: z.string().optional(),
     FIREBASE_CLIENT_EMAIL: z.string().optional(),
     FIREBASE_PRIVATE_KEY: z.string().optional(),

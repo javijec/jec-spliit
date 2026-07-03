@@ -35,11 +35,12 @@ model AppUser {
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
   lastLoginAt    DateTime?
-   createdInvites GroupInvite[]        @relation("CreatedGroupInvites")
-   acceptedInvites GroupInvite[]       @relation("AcceptedGroupInvites")
+  createdInvites GroupInvite[]        @relation("CreatedGroupInvites")
+  acceptedInvites GroupInvite[]       @relation("AcceptedGroupInvites")
   memberships    UserGroupMembership[]
   participants   Participant[]
   pushTokens     MobilePushToken[]
+  mobileSessions MobileSession[]
 }
 
 model MobilePushToken {
@@ -52,6 +53,22 @@ model MobilePushToken {
   user      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model MobileSession {
+  id                String   @id
+  userId            String
+  refreshTokenHash  String   @unique
+  refreshTokenExpiresAt DateTime
+  accessTokenExpiresAt   DateTime
+  revokedAt         DateTime?
+  lastSeenAt        DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, refreshTokenExpiresAt])
+  @@index([userId, revokedAt])
 }
 
 model user {
