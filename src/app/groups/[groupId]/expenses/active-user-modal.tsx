@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
 import { AppRouterOutput } from '@/trpc/routers/_app'
 import { useTranslations } from 'next-intl'
-import { ComponentProps, useEffect, useMemo, useState } from 'react'
+import { ComponentProps, useEffect, useMemo, useRef, useState } from 'react'
 import { updateCurrentActiveParticipantCache } from '../group-query-cache'
 import { useCurrentGroup } from '../current-group-context'
 
@@ -82,6 +82,7 @@ export function ActiveUserModal({
   } = useCurrentGroup()
   const utils = trpc.useUtils()
   const setActiveParticipant = trpc.groups.setActiveParticipant.useMutation()
+  const autoSelectRequestKeyRef = useRef<string | null>(null)
   const isControlled = controlledOpen !== undefined
   const open = controlledOpen ?? internalOpen
   const setOpen = useMemo(
@@ -110,6 +111,14 @@ export function ActiveUserModal({
       }) &&
       autoSelectableParticipantId
     ) {
+      const requestKey = `${group.id}:${autoSelectableParticipantId}`
+      if (
+        setActiveParticipant.isPending ||
+        autoSelectRequestKeyRef.current === requestKey
+      ) {
+        return
+      }
+      autoSelectRequestKeyRef.current = requestKey
       void setActiveParticipant
         .mutateAsync({
           groupId: group.id,
@@ -122,6 +131,9 @@ export function ActiveUserModal({
             autoSelectableParticipantId,
           )
           setOpen(false)
+        })
+        .catch(() => {
+          autoSelectRequestKeyRef.current = null
         })
       return
     }
@@ -140,6 +152,7 @@ export function ActiveUserModal({
     group,
     isAuthResolved,
     setActiveParticipant,
+    setActiveParticipant.isPending,
     setOpen,
     utils,
     viewer,
@@ -148,7 +161,7 @@ export function ActiveUserModal({
   function updateOpen(open: boolean) {
     if (!group) return
 
-    if (!open && !currentActiveParticipantId) {
+    if (!open && !currentActiveParticipantId && !setActiveParticipant.isPending) {
       void setActiveParticipant
         .mutateAsync({ groupId: group.id, participantId: null })
         .then(() => {
