@@ -46,6 +46,7 @@ export async function notifyGroupExpenseCreated(input: {
   const expense = await getExpenseForPush(input.expenseId)
   if (!expense) return
 
+  const actorName = await getActorDisplayName(input.actorUserId)
   const recipientTokens = await getRecipientTokens({
     groupId: input.groupId,
     actorUserId: input.actorUserId,
@@ -56,18 +57,29 @@ export async function notifyGroupExpenseCreated(input: {
     recipientTokens.map((recipient) =>
       sendFcmMessage({
         token: recipient.token,
-        title: expense.isReimbursement
-          ? 'Liquidación registrada'
-          : 'Nuevo gasto agregado',
-        body: buildPushBody(expense, recipient.userId),
+        title: buildPushTitle(expense, actorName),
+        body: buildPushBody(expense, recipient.userId, actorName),
         data: {
           groupId: input.groupId,
           expenseId: input.expenseId,
           type: expense.isReimbursement ? 'reimbursement' : 'expense',
+          actorUserId: input.actorUserId,
         },
       }),
     ),
   )
+}
+
+async function getActorDisplayName(userId: string) {
+  const actor = await prisma.appUser.findUnique({
+    where: { id: userId },
+    select: {
+      displayName: true,
+      email: true,
+    },
+  })
+
+  return actor?.displayName?.trim() || actor?.email?.trim() || 'Alguien'
 }
 
 async function getRecipientTokens(input: {
@@ -130,9 +142,19 @@ async function getExpenseForPush(expenseId: string) {
   })
 }
 
-function buildPushBody(expense: NonNullable<PushExpense>, recipientUserId: string) {
+function buildPushTitle(expense: NonNullable<PushExpense>, actorName: string) {
+  return expense.isReimbursement
+    ? `${actorName} registró una liquidación`
+    : `${actorName} agregó un gasto`
+}
+
+function buildPushBody(
+  expense: NonNullable<PushExpense>,
+  recipientUserId: string,
+  actorName: string,
+) {
   if (expense.isReimbursement) {
-    return `${expense.paidBy.name} registró una liquidación en ${expense.group.name}.`
+    return `${expense.paidBy.name} pagó una liquidación en ${expense.group.name}.`
   }
 
   const currency = expense.originalCurrency ?? expense.group.currencyCode ?? ''
@@ -151,7 +173,7 @@ function buildPushBody(expense: NonNullable<PushExpense>, recipientUserId: strin
     return `Debés ${formatMinorAmount(currency, recipientShare)} por ${expense.title}.`
   }
 
-  return `${expense.paidBy.name} agregó ${expense.title} en ${expense.group.name}.`
+  return `${actorName} agregó ${expense.title} en ${expense.group.name}.`
 }
 
 function calculateRecipientShare(
