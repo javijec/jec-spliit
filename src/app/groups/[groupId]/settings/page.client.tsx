@@ -5,6 +5,7 @@ import { ShareButton } from '@/app/groups/[groupId]/share-button'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { ParticipantAvatar } from '@/components/participant-avatar'
 import {
   Dialog,
   DialogClose,
@@ -292,18 +293,21 @@ function ParticipantsManager({
                 index > 0 ? 'border-t border-border/70' : '',
               ].join(' ')}
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{participant.name}</p>
-                  {resolvedAccessInfo ? (
-                    <p className="truncate pt-1 text-[11px] text-muted-foreground">
-                      {resolvedAccessInfo.secondary ?? resolvedAccessInfo.label}
-                    </p>
-                  ) : (
-                    <p className="truncate pt-1 text-[11px] text-muted-foreground">
-                      {t('participantNoAccess')}
-                    </p>
-                  )}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <ParticipantAvatar name={participant.name} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{participant.name}</p>
+                    {resolvedAccessInfo ? (
+                      <p className="truncate pt-1 text-[11px] text-muted-foreground">
+                        {resolvedAccessInfo.secondary ?? resolvedAccessInfo.label}
+                      </p>
+                    ) : (
+                      <p className="truncate pt-1 text-[11px] text-muted-foreground">
+                        {t('participantNoAccess')}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   {canRemoveAccess ? (

@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/drawer'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ParticipantAvatar } from '@/components/participant-avatar'
 import { useMediaQuery } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
@@ -283,13 +284,14 @@ export function ActiveUserForm({
                 />
                 <Label
                   htmlFor={participant.id}
-                  className={cn('flex-1', {
+                  className={cn('flex flex-1 items-center gap-2', {
                     'cursor-not-allowed opacity-50': isLinkedToAnotherUser,
                   })}
                 >
-                  {participant.name}
+                  <ParticipantAvatar name={participant.name} size="sm" />
+                  <span className="flex-1">{participant.name}</span>
                   {isLinkedToAnotherUser && (
-                    <span className="ml-2 text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {linkedUnavailableLabel}
                     </span>
                   )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
+import { ParticipantAvatar } from '@/components/participant-avatar'
 import { Button } from '@/components/ui/button'
 import {
   GroupSectionCard,
@@ -180,8 +181,13 @@ export function SummaryPageClient() {
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {unlinkedParticipants.map((participant) => (
-                  <Badge key={participant.id} variant="outline">
-                    {participant.name}
+                  <Badge
+                    key={participant.id}
+                    variant="outline"
+                    className="gap-2 pr-3"
+                  >
+                    <ParticipantAvatar name={participant.name} size="sm" />
+                    <span>{participant.name}</span>
                   </Badge>
                 ))}
               </div>

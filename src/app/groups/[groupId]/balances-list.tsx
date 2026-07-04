@@ -1,4 +1,5 @@
 import { EmptyState } from '@/components/ui/empty-state'
+import { ParticipantAvatar } from '@/components/participant-avatar'
 import { BalancesByCurrency } from '@/lib/balances'
 import { Currency, getCurrency } from '@/lib/currency'
 import { cn, formatCurrency } from '@/lib/utils'
@@ -61,8 +62,11 @@ export function BalancesList({
             key={participant.id}
             className="rounded-lg border border-border/70 bg-card p-3"
           >
-            <div className="truncate text-sm font-semibold">
-              {participant.name}
+            <div className="flex items-center gap-2">
+              <ParticipantAvatar name={participant.name} size="sm" />
+              <div className="truncate text-sm font-semibold">
+                {participant.name}
+              </div>
             </div>
             <div className="mt-2 space-y-1.5">
               {visibleEntries.map(({ currencyCode, total }, index) => {
