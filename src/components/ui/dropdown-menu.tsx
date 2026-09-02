@@ -197,76 +197,56 @@ const DropdownMenuItem = React.forwardRef<HTMLElement, DropdownMenuItemProps>(
 )
 DropdownMenuItem.displayName = "DropdownMenuItem"
 
-type DropdownMenuCheckboxItemProps =
-  React.ComponentPropsWithoutRef<typeof MenuPrimitive.CheckboxItem> & {
-    asChild?: boolean
-  }
+type DropdownMenuCheckboxItemProps = React.ComponentPropsWithoutRef<
+  typeof MenuPrimitive.CheckboxItem
+>
 
 const DropdownMenuCheckboxItem = React.forwardRef<
   HTMLElement,
   DropdownMenuCheckboxItemProps
 >(
-  ({ asChild = false, className, children, ...props }, ref) => (
+  ({ className, children, ...props }, ref) => (
     <MenuPrimitive.CheckboxItem
       ref={ref}
       className={cn(
         "relative flex min-h-10 cursor-default select-none items-center py-2 pl-8 pr-2 text-sm outline-none transition-colors data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className,
       )}
-      render={
-        asChild
-          ? (React.Children.only(children) as React.ReactElement)
-          : undefined
-      }
       {...props}
     >
-      {asChild ? null : (
-        <>
-          <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-            <MenuPrimitive.CheckboxItemIndicator>
-              <Check className="h-4 w-4" />
-            </MenuPrimitive.CheckboxItemIndicator>
-          </span>
-          {children}
-        </>
-      )}
+      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <MenuPrimitive.CheckboxItemIndicator>
+          <Check className="h-4 w-4" />
+        </MenuPrimitive.CheckboxItemIndicator>
+      </span>
+      {children}
     </MenuPrimitive.CheckboxItem>
   ),
 )
 DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem"
 
-type DropdownMenuRadioItemProps =
-  React.ComponentPropsWithoutRef<typeof MenuPrimitive.RadioItem> & {
-    asChild?: boolean
-  }
+type DropdownMenuRadioItemProps = React.ComponentPropsWithoutRef<
+  typeof MenuPrimitive.RadioItem
+>
 
 const DropdownMenuRadioItem = React.forwardRef<
   HTMLElement,
   DropdownMenuRadioItemProps
->(({ asChild = false, className, children, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <MenuPrimitive.RadioItem
     ref={ref}
     className={cn(
       "relative flex min-h-10 cursor-default select-none items-center py-2 pl-8 pr-2 text-sm outline-none transition-colors data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
-    render={
-      asChild
-        ? (React.Children.only(children) as React.ReactElement)
-        : undefined
-    }
     {...props}
   >
-    {asChild ? null : (
-      <>
-        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-          <MenuPrimitive.RadioItemIndicator>
-            <Circle className="h-2 w-2 fill-current" />
-          </MenuPrimitive.RadioItemIndicator>
-        </span>
-        {children}
-      </>
-    )}
+    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <MenuPrimitive.RadioItemIndicator>
+        <Circle className="h-2 w-2 fill-current" />
+      </MenuPrimitive.RadioItemIndicator>
+    </span>
+    {children}
   </MenuPrimitive.RadioItem>
 ))
 DropdownMenuRadioItem.displayName = "DropdownMenuRadioItem"
