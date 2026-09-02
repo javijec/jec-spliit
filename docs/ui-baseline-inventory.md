@@ -127,7 +127,7 @@ The Phase 0 statement above is historical. Phase 2A added `src/components/ui/too
 
 ## 5. Radix usage
 
-The repository has 12 Radix primitive packages plus the icon package and Slot. All primitive imports are behind local wrappers except `@radix-ui/react-icons` and the `DialogProps` type import used by `command.tsx`. The highest-risk wrappers are Dialog, Select, Drawer, Dropdown Menu, and Slot because they combine focus, portal, form, or composition behavior.
+The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2A, 10 Radix primitive packages remain; all primitive imports are behind local wrappers except `@radix-ui/react-icons` and the `DialogProps` type import used by `command.tsx`. The highest-risk wrappers are Dialog, Select, Drawer, Dropdown Menu, and Slot because they combine focus, portal, form, or composition behavior.
 
 ## 6. Vaul usage
 
