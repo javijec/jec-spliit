@@ -69,8 +69,8 @@ The requested `/groups/<groupId>/information` route exists, but it is not a seco
 | `@radix-ui/react-collapsible` | Account sections and advanced expense options | `collapsible.tsx` | 1 wrapper + 2 consumers | Medium | Low | Base UI `Collapsible` |
 | `@radix-ui/react-radio-group` | Active participant selection | `radio-group.tsx` | 1 wrapper + modal | High | Medium | Base UI `Radio`; preserve controlled value and disabled linked participants |
 | `@radix-ui/react-tabs` | **Phase 0 historical usage; removed in Phase 2F** | `tabs.tsx` | 0 real source imports | Low / legacy candidate | Low | Replaced by Base UI `Tabs` behind the local wrapper; no production consumers; bottom navigation is route navigation, not Tabs |
-| `@radix-ui/react-toast` | Global feedback provider and viewport | `toast.tsx`, `toaster.tsx` | 1 wrapper + layout | High | Medium | Base UI `Toast`; verify viewport stacking above mobile chrome |
-| `@radix-ui/react-hover-card` | Participant help/preview in group form | `hover-card.tsx` | 1 wrapper + group form | Medium | Medium | Base UI `Preview Card` if the interaction remains a preview; verify touch fallback |
+| `@radix-ui/react-toast` | **Phase 0 historical usage; removed in Phase 2H** | `toast.tsx`, `toaster.tsx` | 0 real source imports | High | Medium | Replaced by Base UI `Toast`; the local imperative API and global viewport remain |
+| `@radix-ui/react-hover-card` | **Phase 0 historical usage; removed in Phase 2H** | `hover-card.tsx` | 0 real source imports | Medium | Medium | Replaced by Base UI `Preview Card`; it remains a non-modal pointer/keyboard visual preview with no invented touch semantics |
 | `@radix-ui/react-label` | Form and Label wrappers | `label.tsx`, `form.tsx` | 2 wrappers | Medium | Low | Base UI `Field`/native label strategy; do not change form semantics in Phase 0 |
 | `@radix-ui/react-slot` | Button and Form composition | `button.tsx`, `form.tsx` | 2 wrappers; ~50 `asChild` references | Very high | High | Base UI `render` composition; this is a migration seam, not changed here |
 | `@radix-ui/react-icons` | Theme and starred-group icons | Direct imports | 2 consumers | Low | Low | Not a primitive migration blocker; keep until icon policy is decided |
@@ -103,7 +103,7 @@ The exact Base UI component names above were checked against the current officia
 | `empty-state.tsx` | B visual | Own | Expenses, balances, reimbursements | No | No | Static | Low | Own visual component | N/A |
 | `form.tsx` | C form support | Radix Label + Slot | Group and expense forms | Via Slot | No | React Hook Form integration | High | Base UI Field/Form boundary, later | 2B/2E |
 | `group-section-card.tsx` | F surface/layout | Own | Most top-level sections | No | No | Static | Low | Own surface | N/A |
-| `hover-card.tsx` | A overlay wrapper | Radix Hover Card | Group form | Trigger API | No explicit wrapper portal | Hover/focus preview state | High on touch | Base UI Preview Card or Popover | 2A |
+| `hover-card.tsx` | A overlay wrapper | Base UI Preview Card | Group form | Trigger `render` composition | Yes | Hover/focus preview state | High on touch | Base UI Preview Card | 2H complete |
 | `input.tsx` | C form control | Own | Account, group, expense, share | No | No | Native input | Medium | Own input / Base UI Field composition | 2B |
 | `label.tsx` | C form support | Radix Label | Form and active-user modal | No | No | Native label association | Low | Base UI Field label or native label | 2B |
 | `page-container.tsx` | F layout | Own | Account, groups, material lab | No | No | Static | Low | Own layout | N/A |
@@ -117,8 +117,8 @@ The exact Base UI component names above were checked against the current officia
 | `table.tsx` | G legacy candidate | Own | No consumer found | No | No | Static | Unknown | Keep until removal is verified | N/A |
 | `tabs.tsx` | G legacy candidate | Base UI Tabs | No current production consumers | No | No | Controlled/uncontrolled state, orientation, keyboard focus, active/disabled state | Medium | Base UI Tabs | 2F complete |
 | `textarea.tsx` | C form control | Own | Group form | No | No | Native textarea | Medium | Own textarea / Base UI Field composition | 2B |
-| `toast.tsx` | D feedback overlay | Radix Toast + CVA | Global toaster and upload feedback | No | Viewport is primitive-owned | Provider state; swipe/focus behavior | High; `z-[100]` | Base UI Toast | 2A |
-| `toaster.tsx` | D feedback support | Local composition | Root layout | No | Through Toast viewport | Reads global toast store | High | Own composition over Base UI Toast | 2A |
+| `toast.tsx` | D feedback overlay | Base UI Toast + CVA | Global toaster and upload feedback | No | Base UI Portal + Viewport | Singleton manager; focus, live region, timeout, and stack state managed by Base UI | High; `z-[100]` | Base UI Toast | 2H complete |
+| `toaster.tsx` | D feedback support | Local composition over Base UI | Root layout | No | Through Base UI Toast Portal/Viewport | Renders the reactive singleton manager list | High | Own composition over Base UI Toast | 2H complete |
 
 No `src/components/ui/tooltip.tsx` exists and no Tooltip package/import was found. This is a concrete difference from the roadmap's future component list, not a missing row to invent.
 
@@ -156,9 +156,32 @@ Escape/backdrop/Close dismissal, focus return, and swipe gestures; `VirtualKeybo
 Jest covers the wrapper contract plus mobile CategorySelector/CurrencySelector opening, selection, and closing.
 Authenticated browser verification of gesture physics, scroll locking, mobile keyboard behavior, safe areas, nested
 overlays, and ActiveUserModal at `390x844` remains unknown.
+
+### 2H — Toast / Hover Card cleanup
+
+The Phase 0 rows for `@radix-ui/react-toast` and `@radix-ui/react-hover-card` are historical. Phase 2H migrated
+`src/components/ui/toast.tsx`, `src/components/ui/toaster.tsx`, and `src/components/ui/use-toast.ts` to the current
+Base UI Toast primitive. The local `useToast()` / `toast({...})` contract remains intact for all existing consumers;
+the singleton Base UI manager carries titles, descriptions, default/destructive variants, actions, dismiss, the
+existing five-second timeout semantics, and the one-toast limit. Base UI owns the live region, focus/viewport
+landmark, portal, and stacking state. `@radix-ui/react-toast` was removed from `package.json` and `bun.lock` after
+confirming zero real source imports.
+
+The only production Hover Card consumer is the protected-participant explanation in `src/components/group-form.tsx`.
+Phase 2H migrated `src/components/ui/hover-card.tsx` to Base UI `PreviewCard`, preserving the local exports,
+`align`, `sideOffset`, className, and trigger composition. The consumer uses `render` so the disabled Button is the
+actual trigger rather than an interactive element nested inside Preview Card's default anchor. Preview Card remains
+a non-modal pointer/keyboard visual enhancement; no mobile tap or screen-reader primary flow was invented. Jest covers
+imperative Toast rendering/action/dismiss/limit and Preview Card pointer hover, keyboard focus, and Escape.
+
+Remaining direct Radix source imports are intentionally outside Phase 2H: `@radix-ui/react-label` in
+`src/components/ui/form.tsx` and `src/components/ui/label.tsx`, `@radix-ui/react-slot` in
+`src/components/ui/button.tsx` and `src/components/ui/form.tsx`, and `@radix-ui/react-icons` in
+`src/components/theme-toggle.tsx` and `src/app/groups/recent-group-list-card.tsx`. The remaining legacy
+interactive primitive boundary is therefore Label/Slot; icons remain a separate policy decision.
 ## 5. Radix usage
 
-The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2F, 5 Radix-related packages remain in `package.json` (three primitives plus the icon and Slot packages); all primitive imports are behind local wrappers except `@radix-ui/react-icons`. The highest-risk wrappers are Drawer and Slot because they combine focus, portal, form, or composition behavior; Select and Tabs now use Base UI behind the local boundary.
+The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2H, 3 Radix-related packages remain in `package.json`: `@radix-ui/react-label`, `@radix-ui/react-slot`, and `@radix-ui/react-icons`. Label and Slot remain direct imports behind local wrappers; the icon package remains directly imported by two feature files. The highest-risk remaining boundary is Slot because it combines refs and composition behavior; icons remain a separate cleanup policy decision.
 
 ## 6. Vaul usage
 

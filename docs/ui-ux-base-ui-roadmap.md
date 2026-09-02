@@ -399,6 +399,18 @@ Validar integración con React Hook Form.
 - [ ] Verificar en navegador autenticado y viewport `390x844` los gestos, scroll lock, teclado móvil, safe areas, nesting Dialog/Drawer y el flujo de ActiveUserModal; queda explícitamente pendiente por falta de fixtures/autenticación reproducibles.
 - [ ] Quick Add y nuevas acciones contextuales móviles quedan fuera de esta fase y requieren su prompt propio.
 
+### 2H — Toast / Hover Card cleanup
+
+- [x] Migrar `src/components/ui/toast.tsx` y `src/components/ui/toaster.tsx` de Radix Toast a Base UI Toast, manteniendo la API imperativa local `useToast()` / `toast({...})`.
+- [x] Preservar títulos, descripciones, variantes `default`/`destructive`, acciones, dismiss, timeout de 5 segundos, límite de un toast y el viewport global por encima de los overlays existentes.
+- [x] Usar un `Toast.createToastManager()` singleton para que los consumidores sigan siendo independientes del árbol React; `Toaster` posee el Provider, Portal, Viewport y la lista reactiva.
+- [x] Migrar `src/components/ui/hover-card.tsx` a Base UI `PreviewCard`, manteniendo la frontera local, `align`, `sideOffset` y composición `render`.
+- [x] Corregir el único consumer real de `HoverCard` en `src/components/group-form.tsx` para evitar anidar un `Button` dentro del anchor por defecto de Preview Card.
+- [x] Cubrir en Jest la creación imperativa, copy, variante, acción, dismiss, límite/stacking y la apertura por pointer hover/focus y cierre por Escape.
+- [x] Confirmar cero imports reales y retirar `@radix-ui/react-toast` y `@radix-ui/react-hover-card` de `package.json` y `bun.lock`.
+- [ ] La verificación visual autenticada, viewport `390x844`, safe area real, stacking con Drawer/Dialog y comportamiento táctil de Preview Card requieren un navegador con fixtures disponibles.
+- [ ] Preview Card continúa siendo una mejora visual no modal para pointer/keyboard; no se inventó una interacción primaria equivalente para touch/screen reader.
+
 ## Regla
 
 Cada migración de primitive debe ser un commit separado o grupo pequeño de commits.
