@@ -204,10 +204,13 @@ const getDefaultSplittingOptions = (
   )
   const defaultShares = match(splitMode)
     .with('BY_PERCENTAGE', () => {
-      const share = group.participants.length > 0 ? 100 / group.participants.length : 0
+      const share =
+        group.participants.length > 0 ? 100 / group.participants.length : 0
       return group.participants.map(({ id }) => ({
         participant: id,
-        shares: (configuredSharesByParticipant.get(id) ?? share).toString() as any,
+        shares: (
+          configuredSharesByParticipant.get(id) ?? share
+        ).toString() as any,
       }))
     })
     .otherwise(() =>
@@ -925,6 +928,10 @@ export function ExpenseForm({
                           {t(`${sExpense}.paidByField.label`)}
                         </FormLabel>
                         <Select
+                          items={group.participants.map(({ id, name }) => ({
+                            value: id,
+                            label: name,
+                          }))}
                           onValueChange={field.onChange}
                           defaultValue={getSelectedPayer(field)}
                         >
@@ -1438,6 +1445,24 @@ export function ExpenseForm({
                               <FormLabel>{t('SplitModeField.label')}</FormLabel>
                               <FormControl>
                                 <Select
+                                  items={[
+                                    {
+                                      value: 'EVENLY',
+                                      label: t('SplitModeField.evenly'),
+                                    },
+                                    {
+                                      value: 'BY_SHARES',
+                                      label: t('SplitModeField.byShares'),
+                                    },
+                                    {
+                                      value: 'BY_PERCENTAGE',
+                                      label: t('SplitModeField.byPercentage'),
+                                    },
+                                    {
+                                      value: 'BY_AMOUNT',
+                                      label: t('SplitModeField.byAmount'),
+                                    },
+                                  ]}
                                   onValueChange={(value) => {
                                     form.setValue('splitMode', value as any, {
                                       shouldDirty: true,

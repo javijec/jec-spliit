@@ -82,9 +82,7 @@ describe('overlay contracts', () => {
       </Select>,
     )
 
-    fireEvent.pointerDown(screen.getByRole('combobox', { name: 'Currency' }), {
-      button: 0,
-    })
+    fireEvent.click(screen.getByRole('combobox', { name: 'Currency' }))
 
     expect(await screen.findByRole('listbox')).toBeTruthy()
     expect(screen.getByRole('option', { name: 'USD' })).toBeTruthy()

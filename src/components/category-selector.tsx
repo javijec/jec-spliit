@@ -3,12 +3,15 @@ import { ChevronDown, Loader2 } from 'lucide-react'
 import { CategoryIcon } from '@/app/groups/[groupId]/expenses/category-icon'
 import { Button, ButtonProps } from '@/components/ui/button'
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from '@/components/ui/command'
+  Combobox,
+  ComboboxCollection,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxGroupLabel,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox'
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
 import {
   Popover,
@@ -111,32 +114,42 @@ function CategoryCommand({
   )
 
   return (
-    <Command>
-      <CommandInput placeholder={t('search')} className="text-base" />
-      <CommandEmpty>{t('noCategory')}</CommandEmpty>
-      <div className="w-full max-h-[300px] overflow-y-auto">
+    <Combobox<Category>
+      items={categories}
+      inline
+      open
+      itemToStringLabel={(category) =>
+        `${category.id} ${t(`${category.grouping}.heading`)} ${t(
+          `${category.grouping}.${category.name}`,
+        )}`
+      }
+      onValueChange={(category) => {
+        if (category) onValueChange(category.id)
+      }}
+    >
+      <ComboboxInput
+        aria-label={t('search')}
+        placeholder={t('search')}
+        className="text-base"
+      />
+      <ComboboxEmpty>{t('noCategory')}</ComboboxEmpty>
+      <ComboboxList>
         {Object.entries(categoriesByGroup).map(
           ([group, groupCategories], index) => (
-            <CommandGroup key={index} heading={t(`${group}.heading`)}>
-              {groupCategories.map((category) => (
-                <CommandItem
-                  key={category.id}
-                  value={`${category.id} ${t(
-                    `${category.grouping}.heading`,
-                  )} ${t(`${category.grouping}.${category.name}`)}`}
-                  onSelect={(currentValue) => {
-                    const id = Number(currentValue.split(' ')[0])
-                    onValueChange(id)
-                  }}
-                >
-                  <CategoryLabel category={category} />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            <ComboboxGroup key={index} items={groupCategories}>
+              <ComboboxGroupLabel>{t(`${group}.heading`)}</ComboboxGroupLabel>
+              <ComboboxCollection>
+                {(category) => (
+                  <ComboboxItem key={category.id} value={category}>
+                    <CategoryLabel category={category} />
+                  </ComboboxItem>
+                )}
+              </ComboboxCollection>
+            </ComboboxGroup>
           ),
         )}
-      </div>
-    </Command>
+      </ComboboxList>
+    </Combobox>
   )
 }
 

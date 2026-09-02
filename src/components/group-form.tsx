@@ -196,6 +196,16 @@ export function GroupForm({
         name: watchedParticipants?.[index]?.name ?? '',
       }))
 
+  const activeParticipantSelectItems = [
+    {
+      value: t('Settings.ActiveUserField.none'),
+      label: t('Settings.ActiveUserField.none'),
+    },
+    ...activeParticipantOptions
+      .filter((option) => option.name.trim().length > 0)
+      .map(({ key, name }) => ({ value: key, label: name })),
+  ]
+
   useEffect(() => {
     const availableOptions = activeParticipantOptions.filter(
       (option) => option.name.trim().length > 0,
@@ -780,6 +790,7 @@ export function GroupForm({
                       />
                       <FormControl>
                         <Select
+                          items={activeParticipantSelectItems}
                           onValueChange={(value) => {
                             setActiveParticipantKey(value)
                           }}

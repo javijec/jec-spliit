@@ -2,12 +2,15 @@ import { ChevronDown, Loader2 } from 'lucide-react'
 
 import { Button, ButtonProps } from '@/components/ui/button'
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from '@/components/ui/command'
+  Combobox,
+  ComboboxCollection,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxGroupLabel,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox'
 import {
   Drawer,
   DrawerContent,
@@ -135,29 +138,40 @@ function CurrencyCommand({
   const groupOrder = ['common', 'other', 'custom']
 
   return (
-    <Command>
-      <CommandInput placeholder={t('search')} className="text-base" />
-      <CommandEmpty>{t('noCurrency')}</CommandEmpty>
-      <div className="w-full max-h-[300px] overflow-y-auto">
+    <Combobox<Currency>
+      items={currencies}
+      inline
+      open
+      itemToStringLabel={(currency) =>
+        `${currency.code} ${currency.name} ${currency.symbol}`
+      }
+      onValueChange={(currency) => {
+        if (currency) onValueChange(currency.code)
+      }}
+    >
+      <ComboboxInput
+        aria-label={t('search')}
+        placeholder={t('search')}
+        className="text-base"
+      />
+      <ComboboxEmpty>{t('noCurrency')}</ComboboxEmpty>
+      <ComboboxList>
         {groupOrder
           .filter((group) => (currenciesByGroup[group] ?? []).length > 0)
           .map((group) => (
-            <CommandGroup key={group} heading={t(`${group}.heading`)}>
-              {currenciesByGroup[group].map((currency) => (
-                <CommandItem
-                  key={currency.code}
-                  value={`${currency.code} ${currency.name} ${currency.symbol}`}
-                  onSelect={() => {
-                    onValueChange(currency.code)
-                  }}
-                >
-                  <CurrencyLabel currency={currency} />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            <ComboboxGroup key={group} items={currenciesByGroup[group]}>
+              <ComboboxGroupLabel>{t(`${group}.heading`)}</ComboboxGroupLabel>
+              <ComboboxCollection>
+                {(currency) => (
+                  <ComboboxItem key={currency.code} value={currency}>
+                    <CurrencyLabel currency={currency} />
+                  </ComboboxItem>
+                )}
+              </ComboboxCollection>
+            </ComboboxGroup>
           ))}
-      </div>
-    </Command>
+      </ComboboxList>
+    </Combobox>
   )
 }
 
