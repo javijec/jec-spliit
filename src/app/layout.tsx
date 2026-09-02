@@ -168,23 +168,25 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <ApplePwaSplash icon="/logo.svg" color="#027756" />
-      <body className="flex min-h-[100dvh] flex-col items-stretch overflow-x-hidden">
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Suspense>
-              <ProgressBar />
-            </Suspense>
-            <Content isAuthenticated={!!session}>{children}</Content>
-            <SpeedInsights
-              sampleRate={env.NEXT_PUBLIC_SPEED_INSIGHTS_SAMPLE_RATE}
-            />
-          </ThemeProvider>
-        </NextIntlClientProvider>
+      <body className="relative min-h-[100dvh] overflow-x-hidden">
+        <div className="app-root flex min-h-[100dvh] flex-col items-stretch">
+          <NextIntlClientProvider messages={messages}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Suspense>
+                <ProgressBar />
+              </Suspense>
+              <Content isAuthenticated={!!session}>{children}</Content>
+              <SpeedInsights
+                sampleRate={env.NEXT_PUBLIC_SPEED_INSIGHTS_SAMPLE_RATE}
+              />
+            </ThemeProvider>
+          </NextIntlClientProvider>
+        </div>
       </body>
     </html>
   )

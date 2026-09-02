@@ -139,6 +139,13 @@ Revisar especialmente patrones actuales como:
 
 Durante la migración, definir una convención única para `Button + Link` para no terminar manteniendo simultáneamente APIs incompatibles.
 
+### Convención de composición para las próximas fases
+
+- Las features seguirán importando la API local de `src/components/ui`, no primitives de Base UI directamente.
+- `asChild`/`Slot` continúa siendo la API vigente de los wrappers Radix existentes.
+- Los wrappers que migren a Base UI encapsularán `render`; esa diferencia no se propagará a las features.
+- La primera convergencia pública será `Button + Link`; no se agrega una segunda API de composición durante esta fase.
+
 ## 3.4 Portals y stacking context
 
 Antes de migrar Dialog / Popover / Menu / Select:
@@ -160,6 +167,15 @@ Base UI es headless. JEC Spliit debe conservar Tailwind y construir un design sy
 No intentar que la aplicación “se vea como Base UI”.
 
 La identidad visual debe seguir siendo de JEC Spliit.
+
+## 3.6 Fundación implementada en Fase 1
+
+- `@base-ui/react` queda instalado como dependencia disponible, sin importar sus primitives desde las features.
+- Los estados `success`, `danger`, `warning` y `settled` tienen tokens independientes para tema claro y oscuro, además de mappings `text-*`, `bg-*` y `border-*` de Tailwind.
+- La geometría compartida expone radios para controles, superficies y overlays, un target táctil mínimo de `44px` y separación base de formularios.
+- `ui-focus-ring` centraliza el foco visible de los wrappers nuevos; los controles existentes conservan cualquier matiz visual específico hasta su migración.
+- El root `.app-root` crea un stacking context aislado; `body` conserva posición relativa para la compatibilidad con backdrops y safe areas de PWA.
+- La jerarquía de capas existente se conserva: página, chrome de aplicación, popovers/menús, drawer/dialog y toast. La migración de primitives y cualquier ajuste de `z-index` quedan para fases posteriores.
 
 ---
 
