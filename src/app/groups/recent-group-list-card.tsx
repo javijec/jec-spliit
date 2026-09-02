@@ -105,7 +105,11 @@ export function RecentGroupListCard({
               size="icon"
               variant="ghost"
               className="-my-2 -ml-2 -mr-1 h-9 w-9 rounded-md"
-              aria-label={isStarred ? t('unarchive') : t('starred')}
+              aria-label={
+                isStarred
+                  ? 'Remove group from favorites'
+                  : 'Add group to favorites'
+              }
               onClick={(event) => {
                 event.stopPropagation()
                 if (onToggleStar) {
