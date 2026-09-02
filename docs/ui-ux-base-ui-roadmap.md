@@ -375,9 +375,9 @@ Validar integración con React Hook Form.
 #### Estado de implementación
 
 - [x] `select.tsx` mantiene la API local y encapsula Base UI `Select`, `Portal`, `Positioner`, `Popup`, `List`, `Item` y estados equivalentes; los formularios conservan valores string, `defaultValue`/controlado, `disabled`, `required`, `name` y serialización compatible con React Hook Form.
-- [x] `CategorySelector` y `CurrencySelector` usan el wrapper local `combobox.tsx` con filtrado Base UI mediante `Collection`, manteniendo Popover desktop y Vaul Drawer mobile, incluyendo búsqueda, selección y no-results.
+- [x] `CategorySelector` y `CurrencySelector` usan el wrapper local `combobox.tsx` con filtrado Base UI mediante `Collection`, manteniendo Popover desktop y el Drawer mobile local, incluyendo búsqueda, selección y no-results.
 - [x] Se verificaron apertura, selección, controlled/uncontrolled, disabled, Escape, placeholder/value, retorno de foco y comportamiento de colección en Jest + Testing Library.
-- [x] Se eliminaron las dependencias directas `@radix-ui/react-select` y `cmdk`; `vaul` se conserva hasta la fase 2G.
+- [x] Se eliminaron las dependencias directas `@radix-ui/react-select` y `cmdk`; `vaul` se retiró durante la fase 2G.
 - [ ] La verificación visual, mobile, datos reales y comportamiento browser autenticado requieren un navegador con runtime y fixtures disponibles.
 
 ### 2F — Tabs
@@ -391,9 +391,13 @@ Validar integración con React Hook Form.
 
 ### 2G — Drawer
 
-- [ ] Implementar wrapper Base UI Drawer.
-- [ ] Prepararlo para Quick Add y acciones contextuales móviles.
-- [ ] Evaluar eliminación de `vaul` sólo cuando ya no tenga usos.
+- [x] Migrar `src/components/ui/drawer.tsx` de Vaul a Base UI Drawer, manteniendo la API local y ocultando los detalles de portal, backdrop, viewport y popup de los consumidores.
+- [x] Preservar el bottom sheet móvil: posición inferior, esquinas superiores redondeadas, handle, altura máxima `min(85dvh, 42rem)`, scroll interno, safe-area inferior, Escape, backdrop, cierre explícito, retorno de foco y gestos de swipe mediante la API de Base UI.
+- [x] Mantener `open`/`defaultOpen`/`onOpenChange`, composición `asChild` mediante `render`, y soporte de teclado virtual con `VirtualKeyboardProvider`.
+- [x] Validar en Jest el wrapper y los consumidores móviles CategorySelector y CurrencySelector; ActiveUserModal usa `DrawerDescription` en su rama móvil y ShareButton conserva el contrato local.
+- [x] Confirmar cero imports reales de Vaul y retirar `vaul` de `package.json` y `bun.lock`.
+- [ ] Verificar en navegador autenticado y viewport `390x844` los gestos, scroll lock, teclado móvil, safe areas, nesting Dialog/Drawer y el flujo de ActiveUserModal; queda explícitamente pendiente por falta de fixtures/autenticación reproducibles.
+- [ ] Quick Add y nuevas acciones contextuales móviles quedan fuera de esta fase y requieren su prompt propio.
 
 ## Regla
 

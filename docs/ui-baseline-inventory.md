@@ -61,7 +61,7 @@ The requested `/groups/<groupId>/information` route exists, but it is not a seco
 
 | Package | Real source usage | Local boundary | Approx. source references | Criticality | Migration complexity | Base UI direction / notes |
 |---|---|---|---:|---|---|---|
-| `@radix-ui/react-dialog` | **Phase 0 historical usage; removed in Phase 2D** (it remains transitive through `vaul`) | `src/components/ui/dialog.tsx` | 0 real source imports | High | High | Replaced by Base UI `Dialog`; local wrapper preserves controlled state, focus return, Escape, outside press, and portal behavior |
+| `@radix-ui/react-dialog` | **Phase 0 historical usage; removed in Phase 2D** | `src/components/ui/dialog.tsx` | 0 real source imports | High | High | Replaced by Base UI `Dialog`; local wrapper preserves controlled state, focus return, Escape, outside press, and portal behavior |
 | `@radix-ui/react-dropdown-menu` | **Phase 0 historical usage; removed in Phase 2C** | `dropdown-menu.tsx` | 1 wrapper + 4 main consumers | High | Medium | Replaced by Base UI `Menu`; local wrapper and feature consumers remain |
 | `@radix-ui/react-popover` | Category, currency, share controls | `popover.tsx` | 1 wrapper + 3 consumers | High | Medium | Base UI `Popover`; check positioner/portal and mobile fallback |
 | `@radix-ui/react-select` | **Phase 0 historical usage; removed in Phase 2E** | `select.tsx` | 0 real source imports | High | High | Replaced by Base UI `Select`; local wrapper preserves string values, controlled/uncontrolled state, keyboard behavior, focus return, form names, and option positioning |
@@ -74,7 +74,7 @@ The requested `/groups/<groupId>/information` route exists, but it is not a seco
 | `@radix-ui/react-label` | Form and Label wrappers | `label.tsx`, `form.tsx` | 2 wrappers | Medium | Low | Base UI `Field`/native label strategy; do not change form semantics in Phase 0 |
 | `@radix-ui/react-slot` | Button and Form composition | `button.tsx`, `form.tsx` | 2 wrappers; ~50 `asChild` references | Very high | High | Base UI `render` composition; this is a migration seam, not changed here |
 | `@radix-ui/react-icons` | Theme and starred-group icons | Direct imports | 2 consumers | Low | Low | Not a primitive migration blocker; keep until icon policy is decided |
-| `vaul` | Drawer root, trigger, portal, overlay, content, title/description | `src/components/ui/drawer.tsx` | 1 wrapper + 5 consumers | High on mobile | High | Base UI `Drawer`; preserve gestures, focus lock, scroll, safe-area, and keyboard behavior |
+| `vaul` | **Phase 0 historical usage; removed in Phase 2G** | `src/components/ui/drawer.tsx` | 0 real source imports | High on mobile | High | Replaced by Base UI `Drawer`; local wrapper preserves the bottom sheet API, gestures, focus, scroll, safe-area, and keyboard behavior |
 | `cmdk` | **Phase 0 historical usage; removed in Phase 2E**; no command palette consumer existed | `combobox.tsx` | 0 real source imports | Medium | Medium/High | Replaced by Base UI `Combobox` for category and currency search; no generic command-palette replacement introduced |
 | `@material/web` | Nine custom-element imports in Material Lab | Direct imports from `material-lab-demo.tsx` | 10 references | None in production flows | Low cleanup / high visual verification | Lab-only unless live routing shows otherwise; do not delete now |
 | `lucide-react` | Icons across landing, group, expense, settings, and UI wrappers | Direct imports | ~48 source references | Medium | Low | Keep; unrelated to Base UI primitive replacement |
@@ -98,7 +98,7 @@ The exact Base UI component names above were checked against the current officia
 | `collapsible.tsx` | A headless wrapper | Radix Collapsible | Account, advanced expense options | No | No | Controlled/uncontrolled primitive state | Medium | Base UI Collapsible | 2A |
 | `command.tsx` | Removed in Phase 2E | cmdk | No consumers | No | N/A | N/A | Replaced by `combobox.tsx` | 2E complete |
 | `dialog.tsx` | A overlay wrapper | Base UI Dialog | Account, settings, reimbursements, active user, documents | No | Yes | Controlled/uncontrolled; focus, Escape, outside press, portal, and scroll lock managed by Base UI | High | Base UI Dialog | 2D complete |
-| `drawer.tsx` | A overlay wrapper | Vaul | Active user, share, currency, category | Yes through primitives | Yes | Controlled/uncontrolled; gesture/focus managed by Vaul | Very high | Base UI Drawer | 2G |
+| `drawer.tsx` | A overlay wrapper | Base UI Drawer | Active user, share, currency, category | Yes through primitives | Yes | Controlled/uncontrolled; gesture/focus managed by Base UI | Very high | Base UI Drawer | 2G complete |
 | `dropdown-menu.tsx` | A overlay wrapper | Base UI Menu | Group cards, export, locale, theme | Trigger and item adapters | Yes | Keyboard navigation, focus return, menu state | High | Base UI Menu | 2C complete |
 | `empty-state.tsx` | B visual | Own | Expenses, balances, reimbursements | No | No | Static | Low | Own visual component | N/A |
 | `form.tsx` | C form support | Radix Label + Slot | Group and expense forms | Via Slot | No | React Hook Form integration | High | Base UI Field/Form boundary, later | 2B/2E |
@@ -136,28 +136,40 @@ The Phase 0 row for `@radix-ui/react-dialog` is historical. Phase 2D migrated `s
 
 ### Phase 2E update
 
-The Phase 0 rows for `@radix-ui/react-select` and `cmdk` are historical. Phase 2E migrated `src/components/ui/select.tsx` to Base UI `Select` and added the reusable `src/components/ui/combobox.tsx` boundary for the searchable category and currency selectors. The feature-facing API remains local: group and expense forms still use string-valued Selects, while CategorySelector and CurrencySelector retain desktop Popover and mobile Vaul Drawer composition. Base UI `Collection` is used for grouped filtering, and Select consumers receive `items` so displayed values resolve to their labels.
+The Phase 0 rows for `@radix-ui/react-select` and `cmdk` are historical. Phase 2E migrated `src/components/ui/select.tsx` to Base UI `Select` and added the reusable `src/components/ui/combobox.tsx` boundary for the searchable category and currency selectors. The feature-facing API remains local: group and expense forms still use string-valued Selects, while CategorySelector and CurrencySelector retain desktop Popover and the local mobile Drawer composition. Base UI `Collection` is used for grouped filtering, and Select consumers receive `items` so displayed values resolve to their labels.
 
-No command palette consumer existed, so `cmdk` and `src/components/ui/command.tsx` were removed. `vaul` was intentionally kept because Drawer migration is Phase 2G. Focused Jest coverage now exercises Select opening, selection, controlled state, disabled options, Escape, focus return, Combobox filtering, selection, no-results, and Escape propagation to the surrounding overlay. Browser viewport, authenticated consumer, and real mobile Drawer verification remain unknown.
+No command palette consumer existed, so `cmdk` and `src/components/ui/command.tsx` were removed. `vaul` was intentionally kept until the Drawer migration in Phase 2G. Focused Jest coverage now exercises Select opening, selection, controlled state, disabled options, Escape, focus return, Combobox filtering, selection, no-results, and Escape propagation to the surrounding overlay. Browser viewport, authenticated consumer, and real mobile Drawer verification remain unknown.
 
 ### Phase 2F update
 
 The Phase 0 row for `@radix-ui/react-tabs` is historical. Phase 2F migrated `src/components/ui/tabs.tsx` to Base UI `Tabs.Root`, `Tabs.List`, `Tabs.Tab`, and `Tabs.Panel` while preserving the local `Tabs`, `TabsList`, `TabsTrigger`, and `TabsContent` exports. No current production consumers were found, so the wrapper was migrated for roadmap consistency only and no feature was invented. `TabsList` defaults `activateOnFocus` to `true` to preserve Radix's previous automatic activation behavior; callers can opt into manual activation through the local list props. Focused Jest coverage exercises default and controlled state, click switching, disabled tabs, horizontal/vertical arrows, Home/End, and tab/panel ARIA associations. The bottom navigation was not migrated and remains route-link navigation. `@radix-ui/react-tabs` was removed after the source import check returned zero real imports. Browser visual and authenticated consumer verification remain unknown.
 
+### Phase 2G update
+
+The Phase 0 `vaul` row is historical. Phase 2G migrated `src/components/ui/drawer.tsx` to Base UI Drawer and removed
+`vaul` from `package.json` and `bun.lock` after confirming zero real source imports. The local exports remain `Drawer`,
+`DrawerTrigger`, `DrawerPortal`, `DrawerClose`, `DrawerOverlay`, `DrawerContent`, `DrawerHeader`, `DrawerFooter`,
+`DrawerTitle`, and `DrawerDescription`; feature files continue importing only this boundary. Real consumers are
+CategorySelector, CurrencySelector, ActiveUserModal, and ShareButton. The wrapper preserves controlled/uncontrolled
+state, `asChild` composition through Base UI `render`, bottom-sheet sizing and safe-area styles, internal scroll,
+Escape/backdrop/Close dismissal, focus return, and swipe gestures; `VirtualKeyboardProvider` covers mobile form fields.
+Jest covers the wrapper contract plus mobile CategorySelector/CurrencySelector opening, selection, and closing.
+Authenticated browser verification of gesture physics, scroll locking, mobile keyboard behavior, safe areas, nested
+overlays, and ActiveUserModal at `390x844` remains unknown.
 ## 5. Radix usage
 
 The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2F, 5 Radix-related packages remain in `package.json` (three primitives plus the icon and Slot packages); all primitive imports are behind local wrappers except `@radix-ui/react-icons`. The highest-risk wrappers are Drawer and Slot because they combine focus, portal, form, or composition behavior; Select and Tabs now use Base UI behind the local boundary.
 
 ## 6. Vaul usage
 
-`vaul` has one direct import in `src/components/ui/drawer.tsx`. Consumers are:
+`vaul` is now historical: Phase 2G migrated `src/components/ui/drawer.tsx` to Base UI Drawer and removed the package from `package.json` and `bun.lock` after confirming zero real source imports. The four existing consumers remain behind the local boundary:
 
 - `src/app/groups/[groupId]/expenses/active-user-modal.tsx`;
 - `src/app/groups/[groupId]/share-button.tsx`;
 - `src/components/currency-selector.tsx`;
 - `src/components/category-selector.tsx`.
 
-The test file mocks the Drawer boundary instead of exercising Vaul. Live verification is required for drag gestures, scroll locking, focus return, keyboard-open viewport behavior, and nested Dialog/Drawer interaction on Safari/iOS/PWA.
+`src/components/ui/drawer.test.tsx` covers the wrapper contract and `src/components/drawer-consumers.test.tsx` covers mobile selector opening, selection, and closing with the real local Drawer. Live verification is still required for drag gestures, scroll locking, focus return, keyboard-open viewport behavior, safe areas, and nested Dialog/Drawer interaction on Safari/iOS/PWA.
 
 ## 7. cmdk usage
 
@@ -200,7 +212,7 @@ Keep the local `Button` API as the only application boundary and implement one a
 |---|---|
 | App header | Fixed `z-50`; accounts for `safe-area-inset-top` |
 | Dialog | Base UI Portal; overlay, viewport, and popup `z-50`; content is centered, scrollable, and padded for top/bottom safe areas |
-| Drawer | Vaul Portal; overlay/content `z-50`; bottom sheet max height is `min(85dvh, 42rem)` and includes bottom safe area |
+| Drawer | Base UI Portal; overlay, viewport, popup, and content `z-50`; bottom sheet max height is `min(85dvh, 42rem)` and includes bottom safe area |
 | Dropdown Menu | Base UI Portal + Positioner; content/subcontent `z-50`, max height `80vh` |
 | Popover | Radix Portal; content `z-50` |
 | Select | Base UI Portal + Positioner; popup `z-50`, max height `24rem` |
@@ -215,7 +227,7 @@ Keep the local `Button` API as the only application boundary and implement one a
 
 - There is no isolated `isolation: isolate` stacking root yet; the roadmap explicitly reserves that for the future Base UI foundation phase.
 - Multiple surfaces share `z-50`, while header and overlays can coexist. **UNKNOWN / NEEDS LIVE VERIFICATION:** exact interaction when an overlay opens over mobile chrome and the fixed header.
-- **UNKNOWN / NEEDS LIVE VERIFICATION:** Safari/iOS viewport and keyboard behavior for centered Dialog, Vaul Drawer, Select, and the sticky expense form footer.
+- **UNKNOWN / NEEDS LIVE VERIFICATION:** Safari/iOS viewport and keyboard behavior for centered Dialog, Base UI Drawer, Select, and the sticky expense form footer.
 - **UNKNOWN / NEEDS LIVE VERIFICATION:** whether `backdrop-blur` creates any device-specific stacking/compositing issue with portals.
 - Safe-area handling is present in header, Dialog, Drawer, FAB, and bottom navigation; it has not been verified on a real iOS/PWA install.
 
@@ -296,7 +308,7 @@ The target names below are verified against the current Base UI documentation; e
 | `combobox.tsx` | Base UI Combobox | Category and currency selectors | `Combobox` | High: filtering, selection, mobile rendering | 2E complete |
 | `command.tsx` | **Phase 2E historical cmdk composite; removed** | No consumers | `Combobox` | High: filtering, selection, mobile rendering | 2E complete |
 | `tabs.tsx` | **Phase 2F historical Radix Tabs; removed** | No current consumers | `Tabs` | Low; wrapper-only migration for roadmap consistency | 2F complete |
-| `drawer.tsx` | Vaul Drawer | Mobile selectors, share, active user | `Drawer` | Very high: gestures, scroll, keyboard, safe areas | 2G |
+| `drawer.tsx` | **Phase 2G historical Vaul Drawer; removed** | Mobile selectors, share, active user | `Drawer` | Very high: gestures, scroll, keyboard, safe areas | 2G complete |
 | `toast.tsx` | Radix Toast | Global feedback | `Toast` | High: viewport and timing | 2A |
 | `hover-card.tsx` | Radix Hover Card | Group form | `Preview Card` or `Popover` | Medium: touch semantics | 2A |
 | `button.tsx` / `form.tsx` | Radix Slot composition | Broad | Base UI `render` adapter inside local wrappers | Very high: refs and nested props | 1/2D |
@@ -307,7 +319,7 @@ Bottom navigation is intentionally excluded from the Tabs migration: it changes 
 
 1. The Slot/asChild boundary is broad and affects links, form controls, triggers, and close buttons.
 2. Dialog, Drawer, Select, and mobile chrome share overlapping fixed/portal layers.
-3. Vaul is the only mobile sheet implementation and has no direct interaction tests.
+3. Base UI Drawer is the mobile sheet implementation; its direct Jest contract coverage does not replace real touch/gesture verification.
 4. The former cmdk composite was embedded in two responsive selector implementations; Phase 2E preserves both Popover and Drawer paths through the Base UI Combobox boundary.
 5. `@material/web` is isolated to a public route but may still be externally reachable or bookmarked.
 6. The current install baseline is not reproducible in this environment because `package.json` and `bun.lock` disagree and the dependency tree is incomplete.
