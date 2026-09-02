@@ -12,6 +12,7 @@ import {
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -200,7 +201,7 @@ export function ActiveUserModal({
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle>{t('title')}</DrawerTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
+          <DrawerDescription>{t('description')}</DrawerDescription>
         </DrawerHeader>
         <ActiveUserForm
           className="px-4"

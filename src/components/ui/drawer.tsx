@@ -1,59 +1,104 @@
 "use client"
 
 import * as React from "react"
-import { Drawer as DrawerPrimitive } from "vaul"
+import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
 
 import { cn } from "@/lib/utils"
 
-const Drawer = ({
-  shouldScaleBackground = false,
-  ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root
-    shouldScaleBackground={shouldScaleBackground}
-    {...props}
-  />
+const Drawer = (props: React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Root>) => (
+  <DrawerPrimitive.Root swipeDirection="down" {...props} />
 )
 Drawer.displayName = "Drawer"
 
-const DrawerTrigger = DrawerPrimitive.Trigger
+type DrawerTriggerProps =
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Trigger> & {
+    asChild?: boolean
+  }
+
+const DrawerTrigger = React.forwardRef<HTMLButtonElement, DrawerTriggerProps>(
+  ({ asChild = false, children, ...props }, ref) => (
+    <DrawerPrimitive.Trigger
+      ref={ref}
+      render={
+        asChild
+          ? (React.Children.only(children) as React.ReactElement)
+          : undefined
+      }
+      {...props}
+    >
+      {asChild ? null : children}
+    </DrawerPrimitive.Trigger>
+  ),
+)
+DrawerTrigger.displayName = "DrawerTrigger"
 
 const DrawerPortal = DrawerPrimitive.Portal
 
-const DrawerClose = DrawerPrimitive.Close
+type DrawerCloseProps =
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Close> & {
+    asChild?: boolean
+  }
+
+const DrawerClose = React.forwardRef<HTMLButtonElement, DrawerCloseProps>(
+  ({ asChild = false, children, ...props }, ref) => (
+    <DrawerPrimitive.Close
+      ref={ref}
+      render={
+        asChild
+          ? (React.Children.only(children) as React.ReactElement)
+          : undefined
+      }
+      {...props}
+    >
+      {asChild ? null : children}
+    </DrawerPrimitive.Close>
+  ),
+)
+DrawerClose.displayName = "DrawerClose"
 
 const DrawerOverlay = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Backdrop>
 >(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Overlay
+  <DrawerPrimitive.Backdrop
     ref={ref}
-    className={cn("fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px]", className)}
+    className={cn(
+      "fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 data-[swiping]:transition-none",
+      className,
+    )}
     {...props}
   />
 ))
-DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
+DrawerOverlay.displayName = "DrawerOverlay"
 
 const DrawerContent = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Content>,
+  HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
-  <DrawerPortal>
-    <DrawerOverlay />
-    <DrawerPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto max-h-[min(85dvh,42rem)] flex-col overflow-hidden rounded-t-[1.6rem] border border-border/80 bg-background/98 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_36px_hsl(var(--foreground)/0.14)]",
-        className
-      )}
-      {...props}
-    >
-      <div className="mx-auto mt-3.5 h-1.5 w-14 rounded-full bg-border/90" />
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        {children}
-      </div>
-    </DrawerPrimitive.Content>
-  </DrawerPortal>
+  <DrawerPrimitive.VirtualKeyboardProvider>
+    <DrawerPortal>
+      <DrawerOverlay />
+      <DrawerPrimitive.Viewport className="pointer-events-none fixed inset-0 z-50 flex min-h-full items-end justify-center overflow-y-auto">
+        <DrawerPrimitive.Popup
+          className={cn(
+            "pointer-events-auto relative flex max-h-[min(85dvh,42rem)] w-full flex-col overflow-hidden rounded-t-[1.6rem] border border-border/80 bg-background/98 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_36px_hsl(var(--foreground)/0.14)] transition-transform duration-300 [transform:translateY(calc(var(--drawer-swipe-movement-y,0px)+var(--drawer-snap-point-offset,0px)))] data-[swiping]:transition-none data-[ending-style]:translate-y-full",
+          )}
+        >
+          <div className="mx-auto mt-3.5 h-1.5 w-14 shrink-0 rounded-full bg-border/90" />
+          <DrawerPrimitive.Content
+            ref={ref}
+            className={cn(
+              "min-h-0 flex-1 overflow-y-auto overscroll-contain",
+              className,
+            )}
+            {...props}
+          >
+            {children}
+          </DrawerPrimitive.Content>
+        </DrawerPrimitive.Popup>
+      </DrawerPrimitive.Viewport>
+    </DrawerPortal>
+  </DrawerPrimitive.VirtualKeyboardProvider>
 ))
 DrawerContent.displayName = "DrawerContent"
 
@@ -80,22 +125,22 @@ const DrawerFooter = ({
 DrawerFooter.displayName = "DrawerFooter"
 
 const DrawerTitle = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Title>,
+  HTMLHeadingElement,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
     className={cn(
       "text-lg font-semibold leading-tight tracking-tight",
-      className
+      className,
     )}
     {...props}
   />
 ))
-DrawerTitle.displayName = DrawerPrimitive.Title.displayName
+DrawerTitle.displayName = "DrawerTitle"
 
 const DrawerDescription = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Description>,
+  HTMLParagraphElement,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description>
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Description
@@ -104,7 +149,7 @@ const DrawerDescription = React.forwardRef<
     {...props}
   />
 ))
-DrawerDescription.displayName = DrawerPrimitive.Description.displayName
+DrawerDescription.displayName = "DrawerDescription"
 
 export {
   Drawer,

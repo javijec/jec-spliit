@@ -88,6 +88,7 @@ jest.mock('@/components/ui/dialog', () => ({
 jest.mock('@/components/ui/drawer', () => ({
   Drawer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DrawerContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DrawerDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DrawerFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DrawerHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DrawerTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
