@@ -56,7 +56,7 @@ describe('overlay contracts', () => {
     )
 
     const trigger = screen.getByRole('button', { name: 'Group actions' })
-    fireEvent.pointerDown(trigger, { button: 0 })
+    fireEvent.mouseDown(trigger, { button: 0 })
 
     expect(await screen.findByRole('menu')).toBeTruthy()
     expect(screen.getByRole('menuitem', { name: 'Archive group' })).toBeTruthy()
@@ -66,6 +66,7 @@ describe('overlay contracts', () => {
     await waitFor(() => {
       expect(screen.queryByRole('menu')).toBeNull()
     })
+    expect(document.activeElement).toBe(trigger)
   })
 
   it('exposes Select options through the accessible listbox contract', async () => {
