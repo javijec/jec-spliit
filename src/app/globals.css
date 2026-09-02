@@ -20,10 +20,23 @@
     --accent-foreground: 180 10% 18%;
     --destructive: 8 72% 48%;
     --destructive-foreground: 0 0% 98%;
+    --success: 151 54% 32%;
+    --success-foreground: 0 0% 100%;
+    --danger: 8 72% 48%;
+    --danger-foreground: 0 0% 100%;
+    --warning: 38 94% 40%;
+    --warning-foreground: 0 0% 100%;
+    --settled: 180 6% 38%;
+    --settled-foreground: 0 0% 100%;
     --border: 42 11% 81%;
     --input: 42 10% 76%;
     --ring: 164 54% 25%;
     --radius: 0.5rem;
+    --control-radius: var(--radius);
+    --surface-radius: var(--radius);
+    --overlay-radius: 0.75rem;
+    --touch-target-min: 44px;
+    --form-gap: 1rem;
   }
 
   .dark {
@@ -43,9 +56,22 @@
     --accent-foreground: 44 12% 92%;
     --destructive: 8 68% 62%;
     --destructive-foreground: 0 0% 100%;
+    --success: 151 55% 58%;
+    --success-foreground: 164 33% 8%;
+    --danger: 8 68% 62%;
+    --danger-foreground: 0 0% 100%;
+    --warning: 42 92% 62%;
+    --warning-foreground: 180 12% 12%;
+    --settled: 180 7% 66%;
+    --settled-foreground: 0 0% 5%;
     --border: 0 0% 18%;
     --input: 0 0% 22%;
     --ring: 160 47% 55%;
+    --control-radius: var(--radius);
+    --surface-radius: var(--radius);
+    --overlay-radius: 0.75rem;
+    --touch-target-min: 44px;
+    --form-gap: 1rem;
   }
 }
 
@@ -70,6 +96,10 @@
       );
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  .ui-focus-ring:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
   .dark body {
@@ -105,6 +135,25 @@
   textarea:focus-visible,
   select:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  .app-root {
+    isolation: isolate;
+  }
+}
+
+@layer utilities {
+  .ui-touch-target {
+    min-width: var(--touch-target-min, 44px);
+    min-height: var(--touch-target-min, 44px);
+  }
+
+  .ui-form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--form-gap, 1rem);
   }
 }
 
