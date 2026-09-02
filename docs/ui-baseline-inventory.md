@@ -61,10 +61,10 @@ The requested `/groups/<groupId>/information` route exists, but it is not a seco
 
 | Package | Real source usage | Local boundary | Approx. source references | Criticality | Migration complexity | Base UI direction / notes |
 |---|---|---|---:|---|---|---|
-| `@radix-ui/react-dialog` | **Phase 0 historical usage; removed in Phase 2D** (it remains transitive through `cmdk` and `vaul`) | `src/components/ui/dialog.tsx` | 0 real source imports | High | High | Replaced by Base UI `Dialog`; local wrapper preserves controlled state, focus return, Escape, outside press, and portal behavior |
+| `@radix-ui/react-dialog` | **Phase 0 historical usage; removed in Phase 2D** (it remains transitive through `vaul`) | `src/components/ui/dialog.tsx` | 0 real source imports | High | High | Replaced by Base UI `Dialog`; local wrapper preserves controlled state, focus return, Escape, outside press, and portal behavior |
 | `@radix-ui/react-dropdown-menu` | **Phase 0 historical usage; removed in Phase 2C** | `dropdown-menu.tsx` | 1 wrapper + 4 main consumers | High | Medium | Replaced by Base UI `Menu`; local wrapper and feature consumers remain |
 | `@radix-ui/react-popover` | Category, currency, share controls | `popover.tsx` | 1 wrapper + 3 consumers | High | Medium | Base UI `Popover`; check positioner/portal and mobile fallback |
-| `@radix-ui/react-select` | Group form and expense form | `select.tsx` | 1 wrapper + 2 main consumers | High | High | Base UI `Select`; dependent on form value/keyboard semantics |
+| `@radix-ui/react-select` | **Phase 0 historical usage; removed in Phase 2E** | `select.tsx` | 0 real source imports | High | High | Replaced by Base UI `Select`; local wrapper preserves string values, controlled/uncontrolled state, keyboard behavior, focus return, form names, and option positioning |
 | `@radix-ui/react-checkbox` | Settings and expense participant selection | `checkbox.tsx` | 1 wrapper + 2 consumers | Medium | Medium | Base UI `Checkbox`; preserve form serialization and indeterminate behavior |
 | `@radix-ui/react-collapsible` | Account sections and advanced expense options | `collapsible.tsx` | 1 wrapper + 2 consumers | Medium | Low | Base UI `Collapsible` |
 | `@radix-ui/react-radio-group` | Active participant selection | `radio-group.tsx` | 1 wrapper + modal | High | Medium | Base UI `Radio`; preserve controlled value and disabled linked participants |
@@ -75,7 +75,7 @@ The requested `/groups/<groupId>/information` route exists, but it is not a seco
 | `@radix-ui/react-slot` | Button and Form composition | `button.tsx`, `form.tsx` | 2 wrappers; ~50 `asChild` references | Very high | High | Base UI `render` composition; this is a migration seam, not changed here |
 | `@radix-ui/react-icons` | Theme and starred-group icons | Direct imports | 2 consumers | Low | Low | Not a primitive migration blocker; keep until icon policy is decided |
 | `vaul` | Drawer root, trigger, portal, overlay, content, title/description | `src/components/ui/drawer.tsx` | 1 wrapper + 5 consumers | High on mobile | High | Base UI `Drawer`; preserve gestures, focus lock, scroll, safe-area, and keyboard behavior |
-| `cmdk` | Searchable category and currency selectors | `src/components/ui/command.tsx` | 1 wrapper + 2 selectors | Medium | Medium/High | Base UI `Combobox` is the likely target; confirm whether command-palette semantics are ever needed |
+| `cmdk` | **Phase 0 historical usage; removed in Phase 2E**; no command palette consumer existed | `combobox.tsx` | 0 real source imports | Medium | Medium/High | Replaced by Base UI `Combobox` for category and currency search; no generic command-palette replacement introduced |
 | `@material/web` | Nine custom-element imports in Material Lab | Direct imports from `material-lab-demo.tsx` | 10 references | None in production flows | Low cleanup / high visual verification | Lab-only unless live routing shows otherwise; do not delete now |
 | `lucide-react` | Icons across landing, group, expense, settings, and UI wrappers | Direct imports | ~48 source references | Medium | Low | Keep; unrelated to Base UI primitive replacement |
 | `class-variance-authority` | Alert, Badge, Button, Label, Toast variants | Direct imports in UI wrappers | 5 files | Medium | Low | Keep as styling utility unless a later design-system decision changes it |
@@ -96,7 +96,7 @@ The exact Base UI component names above were checked against the current officia
 | `carousel.tsx` | B visual | Own | Expense documents | No | No | Local carousel state | Medium | Own component | N/A |
 | `checkbox.tsx` | A form primitive | Radix Checkbox | Settings, expense form | No | No | Controlled or uncontrolled Radix state | Medium | Base UI Checkbox | 2B |
 | `collapsible.tsx` | A headless wrapper | Radix Collapsible | Account, advanced expense options | No | No | Controlled/uncontrolled primitive state | Medium | Base UI Collapsible | 2A |
-| `command.tsx` | A composite primitive | cmdk inside the local Dialog boundary | CategorySelector, CurrencySelector | No | Via parent dialog/popover/drawer | High | Base UI Combobox where appropriate | 2E |
+| `command.tsx` | Removed in Phase 2E | cmdk | No consumers | No | N/A | N/A | Replaced by `combobox.tsx` | 2E complete |
 | `dialog.tsx` | A overlay wrapper | Base UI Dialog | Account, settings, reimbursements, active user, documents | No | Yes | Controlled/uncontrolled; focus, Escape, outside press, portal, and scroll lock managed by Base UI | High | Base UI Dialog | 2D complete |
 | `drawer.tsx` | A overlay wrapper | Vaul | Active user, share, currency, category | Yes through primitives | Yes | Controlled/uncontrolled; gesture/focus managed by Vaul | Very high | Base UI Drawer | 2G |
 | `dropdown-menu.tsx` | A overlay wrapper | Base UI Menu | Group cards, export, locale, theme | Trigger and item adapters | Yes | Keyboard navigation, focus return, menu state | High | Base UI Menu | 2C complete |
@@ -111,7 +111,8 @@ The exact Base UI component names above were checked against the current officia
 | `popover.tsx` | A overlay wrapper | Radix Popover | Category, currency, share | Trigger API | Yes | Controlled in selectors | High on mobile; drawer fallback | Base UI Popover | 2A |
 | `radio-group.tsx` | A form primitive | Radix Radio Group | Active user modal | No | No | Controlled value in modal | High | Base UI Radio | 2B |
 | `search-bar.tsx` | G legacy candidate | Own | No consumer found | No | No | Local input state | Unknown | Keep until removal is verified | N/A |
-| `select.tsx` | A form primitive | Radix Select | Group and expense forms | Internal icon `asChild` | Yes | Default/controlled value; keyboard state | High | Base UI Select | 2E |
+| `select.tsx` | A form primitive | Base UI Select | Group and expense forms | No | Yes | Default/controlled value; keyboard state; form serialization | High | Base UI Select | 2E complete |
+| `combobox.tsx` | A composite form primitive | Base UI Combobox | CategorySelector, CurrencySelector | No | No | Inline filtering, controlled selection, keyboard state | High | Base UI Combobox | 2E complete |
 | `skeleton.tsx` | B feedback visual | Own | Loading states across routes | No | No | Static | Low | Own visual component | N/A |
 | `table.tsx` | G legacy candidate | Own | No consumer found | No | No | Static | Unknown | Keep until removal is verified | N/A |
 | `tabs.tsx` | G legacy candidate | Radix Tabs | No consumer found | No | No | Primitive state | Medium | Base UI Tabs only with real consumer | 2F |
@@ -133,9 +134,15 @@ The Phase 0 row for `@radix-ui/react-dropdown-menu` is historical. Phase 2C migr
 
 The Phase 0 row for `@radix-ui/react-dialog` is historical. Phase 2D migrated `src/components/ui/dialog.tsx` to Base UI `Dialog`, removed the direct package after the source import check returned zero real imports, and kept `Dialog`, `DialogTrigger`, `DialogPortal`, `DialogOverlay`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription`, and `DialogClose` as the local feature-facing API. `DialogTrigger asChild` and `DialogClose asChild` adapt to Base UI `render`; `DialogContent` owns the portal/backdrop/viewport/popup composition. Focus, Escape, outside press, controlled state, explicit close, title/description, and scroll lock are covered by Jest. Authenticated consumer and real mobile/browser verification remain unknown.
 
+### Phase 2E update
+
+The Phase 0 rows for `@radix-ui/react-select` and `cmdk` are historical. Phase 2E migrated `src/components/ui/select.tsx` to Base UI `Select` and added the reusable `src/components/ui/combobox.tsx` boundary for the searchable category and currency selectors. The feature-facing API remains local: group and expense forms still use string-valued Selects, while CategorySelector and CurrencySelector retain desktop Popover and mobile Vaul Drawer composition. Base UI `Collection` is used for grouped filtering, and Select consumers receive `items` so displayed values resolve to their labels.
+
+No command palette consumer existed, so `cmdk` and `src/components/ui/command.tsx` were removed. `vaul` was intentionally kept because Drawer migration is Phase 2G. Focused Jest coverage now exercises Select opening, selection, controlled state, disabled options, Escape, focus return, Combobox filtering, selection, no-results, and Escape propagation to the surrounding overlay. Browser viewport, authenticated consumer, and real mobile Drawer verification remain unknown.
+
 ## 5. Radix usage
 
-The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2D, 7 Radix-related packages remain in `package.json` (five primitives plus the icon and Slot packages); all primitive imports are behind local wrappers except `@radix-ui/react-icons`. The highest-risk wrappers are Select, Drawer, and Slot because they combine focus, portal, form, or composition behavior.
+The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2E, 6 Radix-related packages remain in `package.json` (four primitives plus the icon and Slot packages); all primitive imports are behind local wrappers except `@radix-ui/react-icons`. The highest-risk wrappers are Drawer and Slot because they combine focus, portal, form, or composition behavior; Select now uses Base UI behind the local boundary.
 
 ## 6. Vaul usage
 
@@ -150,7 +157,7 @@ The test file mocks the Drawer boundary instead of exercising Vaul. Live verific
 
 ## 7. cmdk usage
 
-`cmdk` is wrapped by `src/components/ui/command.tsx` and is used by exactly two searchable selectors: `CategorySelector` and `CurrencySelector`. Both select Popover on desktop and Drawer on mobile based on `useMediaQuery`. No command palette consumer was found. Migration should therefore evaluate Base UI `Combobox` rather than assume a generic command palette replacement.
+`cmdk` was previously wrapped by `src/components/ui/command.tsx` and used by exactly two searchable selectors: `CategorySelector` and `CurrencySelector`. No command palette consumer was found. Phase 2E removed `cmdk` and `command.tsx`; both selectors now use the local `src/components/ui/combobox.tsx` Base UI boundary while retaining Popover on desktop and Vaul Drawer on mobile.
 
 ## 8. @material/web usage
 
@@ -166,7 +173,7 @@ The test file mocks the Drawer boundary instead of exercising Vaul. Live verific
 - `DrawerTrigger asChild` wraps currency/category/share buttons.
 - `DialogClose asChild` wraps buttons in account/settings flows.
 - `CollapsibleTrigger asChild` wraps the advanced expense-options control.
-- Radix Select's internal icon uses `asChild` for the Lucide chevron.
+- The migrated Select and Combobox wrappers use Base UI composition; no feature imports Base UI primitives directly.
 
 There are approximately 50 `asChild` source references and six `Slot`/`react-slot` references, including wrapper declarations. The most migration-sensitive routes are landing, groups, group settings, expense creation/edit, category/currency selectors, and the group mobile chrome.
 
@@ -192,7 +199,7 @@ Keep the local `Button` API as the only application boundary and implement one a
 | Drawer | Vaul Portal; overlay/content `z-50`; bottom sheet max height is `min(85dvh, 42rem)` and includes bottom safe area |
 | Dropdown Menu | Base UI Portal + Positioner; content/subcontent `z-50`, max height `80vh` |
 | Popover | Radix Portal; content `z-50` |
-| Select | Radix Portal; content `z-50`, max height `24rem` |
+| Select | Base UI Portal + Positioner; popup `z-50`, max height `24rem` |
 | Toast | Toast viewport `z-[100]`; top on mobile and bottom/right on larger screens |
 | Expense flow header | Sticky `z-30` |
 | Mobile FAB | Fixed `z-40`, above the bottom nav by `5.25rem` plus bottom safe area |
@@ -259,11 +266,12 @@ There is no Jest setup file, no `jest-axe`, no accessibility matcher setup, no P
 
 ## 14. New smoke coverage
 
-Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, and `src/components/ui/dialog.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
+Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
 
 - Dialog opens from its trigger, exposes title/description, supports controlled state, closes with Escape, outside press, or an explicit Close, and returns focus to the trigger.
 - Dropdown menu opens from its trigger and closes with Escape; the dedicated menu suite also covers keyboard activation emulation, navigation, focus return, disabled items, checkbox/radio state, `asChild` links, and nested menus.
-- Select opens and exposes its option list through the accessible role.
+- Select opens, exposes its option list, selects controlled and uncontrolled values, preserves disabled options, handles Escape, and returns focus to its trigger.
+- Combobox filters through Base UI's data collection, selects a result, reports no results, and keeps Escape available to the surrounding Popover/Drawer in inline mode.
 
 La suite enfocada de Dropdown Menu pasa en Jest con JSDOM. La suite completa de Jest conserva seis fallos no relacionados y `bun test` directo no configura JSDOM ni las APIs de Jest; no se modificó la infraestructura de tests en esta fase. No se introdujo un framework nuevo ni una suite de snapshots.
 
@@ -280,8 +288,9 @@ The target names below are verified against the current Base UI documentation; e
 | `checkbox.tsx` | Radix Checkbox | Expense form, settings | `Checkbox` | Medium: form values | 2B |
 | `radio-group.tsx` | Radix Radio Group | Active user modal | `Radio` | Medium: controlled selection and disabled state | 2B |
 | `collapsible.tsx` | Radix Collapsible | Account, expense advanced options | `Collapsible` | Low/medium: height animation | 2A |
-| `select.tsx` | Radix Select | Group and expense forms | `Select` | High: keyboard/value/form behavior | 2E |
-| `command.tsx` | cmdk composite inside Popover/Drawer | Category and currency selectors | `Combobox` | High: filtering, selection, mobile rendering | 2E |
+| `select.tsx` | **Phase 2E historical Radix Select; removed** | Group and expense forms | `Select` | High: keyboard/value/form behavior | 2E complete |
+| `combobox.tsx` | Base UI Combobox | Category and currency selectors | `Combobox` | High: filtering, selection, mobile rendering | 2E complete |
+| `command.tsx` | **Phase 2E historical cmdk composite; removed** | No consumers | `Combobox` | High: filtering, selection, mobile rendering | 2E complete |
 | `tabs.tsx` | Radix Tabs | No current consumers | `Tabs` | Low until used | 2F |
 | `drawer.tsx` | Vaul Drawer | Mobile selectors, share, active user | `Drawer` | Very high: gestures, scroll, keyboard, safe areas | 2G |
 | `toast.tsx` | Radix Toast | Global feedback | `Toast` | High: viewport and timing | 2A |
@@ -295,7 +304,7 @@ Bottom navigation is intentionally excluded from the Tabs migration: it changes 
 1. The Slot/asChild boundary is broad and affects links, form controls, triggers, and close buttons.
 2. Dialog, Drawer, Select, and mobile chrome share overlapping fixed/portal layers.
 3. Vaul is the only mobile sheet implementation and has no direct interaction tests.
-4. cmdk is embedded in two responsive selector implementations, so a Combobox migration must preserve both Popover and Drawer paths.
+4. The former cmdk composite was embedded in two responsive selector implementations; Phase 2E preserves both Popover and Drawer paths through the Base UI Combobox boundary.
 5. `@material/web` is isolated to a public route but may still be externally reachable or bookmarked.
 6. The current install baseline is not reproducible in this environment because `package.json` and `bun.lock` disagree and the dependency tree is incomplete.
 7. There is no committed browser harness, so visual and viewport regressions cannot yet be detected automatically.

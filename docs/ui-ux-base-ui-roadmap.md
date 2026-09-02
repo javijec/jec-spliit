@@ -368,9 +368,17 @@ Validar integración con React Hook Form.
 
 ### 2E — Select / Combobox
 
-- [ ] Migrar Select.
-- [ ] Evaluar reemplazo de combinaciones `cmdk + Popover` por Base UI Combobox o Autocomplete donde corresponda.
-- [ ] No reemplazar `cmdk` si todavía existen command palettes para las que sea claramente mejor mantenerlo.
+- [x] Migrar Select.
+- [x] Evaluar y reemplazar las combinaciones `cmdk + Popover/Drawer` de CategorySelector y CurrencySelector por Base UI Combobox donde corresponde.
+- [x] Confirmar que no existen command palettes reales; retirar `cmdk` y `command.tsx` sin reemplazar una superficie que no existe.
+
+#### Estado de implementación
+
+- [x] `select.tsx` mantiene la API local y encapsula Base UI `Select`, `Portal`, `Positioner`, `Popup`, `List`, `Item` y estados equivalentes; los formularios conservan valores string, `defaultValue`/controlado, `disabled`, `required`, `name` y serialización compatible con React Hook Form.
+- [x] `CategorySelector` y `CurrencySelector` usan el wrapper local `combobox.tsx` con filtrado Base UI mediante `Collection`, manteniendo Popover desktop y Vaul Drawer mobile, incluyendo búsqueda, selección y no-results.
+- [x] Se verificaron apertura, selección, controlled/uncontrolled, disabled, Escape, placeholder/value, retorno de foco y comportamiento de colección en Jest + Testing Library.
+- [x] Se eliminaron las dependencias directas `@radix-ui/react-select` y `cmdk`; `vaul` se conserva hasta la fase 2G.
+- [ ] La verificación visual, mobile, datos reales y comportamiento browser autenticado requieren un navegador con runtime y fixtures disponibles.
 
 ### 2F — Tabs
 
