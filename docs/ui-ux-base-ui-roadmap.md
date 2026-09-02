@@ -301,9 +301,16 @@ Migrar de menor riesgo a mayor riesgo.
 
 ### 2A — Tooltip / Popover / Collapsible
 
-- [ ] `tooltip.tsx` → Base UI Tooltip.
-- [ ] `popover.tsx` → Base UI Popover.
-- [ ] `collapsible.tsx` → Base UI Collapsible.
+- [x] `tooltip.tsx` → Base UI Tooltip.
+- [x] `popover.tsx` → Base UI Popover.
+- [x] `collapsible.tsx` → Base UI Collapsible.
+
+#### Estado de implementación
+
+- [x] `tooltip.tsx`, `popover.tsx` y `collapsible.tsx` mantienen la frontera local y usan Base UI internamente.
+- [x] Los wrappers adaptan `asChild` a `render` sin propagar la API de Base UI a las features.
+- [x] Las animaciones usan los atributos `data-starting-style` y `data-ending-style` de Base UI.
+- [ ] La verificación visual y mobile de consumidores reales requiere un navegador con datos de la aplicación.
 
 Validar:
 

@@ -121,6 +121,10 @@ The exact Base UI component names above were checked against the current officia
 
 No `src/components/ui/tooltip.tsx` exists and no Tooltip package/import was found. This is a concrete difference from the roadmap's future component list, not a missing row to invent.
 
+### Phase 2A update
+
+The Phase 0 statement above is historical. Phase 2A added `src/components/ui/tooltip.tsx` as a Base UI wrapper even though no production consumer currently exists. The Popover and Collapsible wrappers were migrated in place; their existing feature imports remain local and their Radix packages were removed only after the global import check returned zero real imports.
+
 ## 5. Radix usage
 
 The repository has 12 Radix primitive packages plus the icon package and Slot. All primitive imports are behind local wrappers except `@radix-ui/react-icons` and the `DialogProps` type import used by `command.tsx`. The highest-risk wrappers are Dialog, Select, Drawer, Dropdown Menu, and Slot because they combine focus, portal, form, or composition behavior.
