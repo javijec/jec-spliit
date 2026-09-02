@@ -382,8 +382,12 @@ Validar integración con React Hook Form.
 
 ### 2F — Tabs
 
-- [ ] Migrar tabs internos que utilicen Radix.
-- [ ] NO reemplazar automáticamente la bottom navigation móvil por Tabs si semánticamente sigue siendo navegación entre rutas.
+- [x] Migrar el wrapper local `tabs.tsx` de Radix Tabs a Base UI Tabs; no existen consumidores de producción actuales.
+- [x] Preservar `Tabs`, `TabsList`, `TabsTrigger` y `TabsContent`, incluyendo valores controlados/no controlados, orientación horizontal/vertical, estados visuales y asociaciones ARIA.
+- [x] Mantener activación automática al enfocar mediante `TabsList activateOnFocus={true}` por defecto, equivalente al comportamiento previo de Radix; se puede solicitar activación manual explícitamente.
+- [x] Eliminar `@radix-ui/react-tabs` después de confirmar cero imports reales.
+- [x] NO reemplazar la bottom navigation móvil por Tabs: sigue siendo navegación entre rutas reales.
+- [ ] La verificación visual, mobile y browser autenticado requiere un runtime con fixtures disponibles.
 
 ### 2G — Drawer
 

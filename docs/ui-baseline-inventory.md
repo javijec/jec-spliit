@@ -68,7 +68,7 @@ The requested `/groups/<groupId>/information` route exists, but it is not a seco
 | `@radix-ui/react-checkbox` | Settings and expense participant selection | `checkbox.tsx` | 1 wrapper + 2 consumers | Medium | Medium | Base UI `Checkbox`; preserve form serialization and indeterminate behavior |
 | `@radix-ui/react-collapsible` | Account sections and advanced expense options | `collapsible.tsx` | 1 wrapper + 2 consumers | Medium | Low | Base UI `Collapsible` |
 | `@radix-ui/react-radio-group` | Active participant selection | `radio-group.tsx` | 1 wrapper + modal | High | Medium | Base UI `Radio`; preserve controlled value and disabled linked participants |
-| `@radix-ui/react-tabs` | Wrapper exists but no consumer import was found | `tabs.tsx` | 1 wrapper, 0 consumers | Low / legacy candidate | Low | Base UI `Tabs` only if a real same-page tab use appears; bottom navigation is route navigation, not Tabs |
+| `@radix-ui/react-tabs` | **Phase 0 historical usage; removed in Phase 2F** | `tabs.tsx` | 0 real source imports | Low / legacy candidate | Low | Replaced by Base UI `Tabs` behind the local wrapper; no production consumers; bottom navigation is route navigation, not Tabs |
 | `@radix-ui/react-toast` | Global feedback provider and viewport | `toast.tsx`, `toaster.tsx` | 1 wrapper + layout | High | Medium | Base UI `Toast`; verify viewport stacking above mobile chrome |
 | `@radix-ui/react-hover-card` | Participant help/preview in group form | `hover-card.tsx` | 1 wrapper + group form | Medium | Medium | Base UI `Preview Card` if the interaction remains a preview; verify touch fallback |
 | `@radix-ui/react-label` | Form and Label wrappers | `label.tsx`, `form.tsx` | 2 wrappers | Medium | Low | Base UI `Field`/native label strategy; do not change form semantics in Phase 0 |
@@ -115,7 +115,7 @@ The exact Base UI component names above were checked against the current officia
 | `combobox.tsx` | A composite form primitive | Base UI Combobox | CategorySelector, CurrencySelector | No | No | Inline filtering, controlled selection, keyboard state | High | Base UI Combobox | 2E complete |
 | `skeleton.tsx` | B feedback visual | Own | Loading states across routes | No | No | Static | Low | Own visual component | N/A |
 | `table.tsx` | G legacy candidate | Own | No consumer found | No | No | Static | Unknown | Keep until removal is verified | N/A |
-| `tabs.tsx` | G legacy candidate | Radix Tabs | No consumer found | No | No | Primitive state | Medium | Base UI Tabs only with real consumer | 2F |
+| `tabs.tsx` | G legacy candidate | Base UI Tabs | No current production consumers | No | No | Controlled/uncontrolled state, orientation, keyboard focus, active/disabled state | Medium | Base UI Tabs | 2F complete |
 | `textarea.tsx` | C form control | Own | Group form | No | No | Native textarea | Medium | Own textarea / Base UI Field composition | 2B |
 | `toast.tsx` | D feedback overlay | Radix Toast + CVA | Global toaster and upload feedback | No | Viewport is primitive-owned | Provider state; swipe/focus behavior | High; `z-[100]` | Base UI Toast | 2A |
 | `toaster.tsx` | D feedback support | Local composition | Root layout | No | Through Toast viewport | Reads global toast store | High | Own composition over Base UI Toast | 2A |
@@ -140,9 +140,13 @@ The Phase 0 rows for `@radix-ui/react-select` and `cmdk` are historical. Phase 2
 
 No command palette consumer existed, so `cmdk` and `src/components/ui/command.tsx` were removed. `vaul` was intentionally kept because Drawer migration is Phase 2G. Focused Jest coverage now exercises Select opening, selection, controlled state, disabled options, Escape, focus return, Combobox filtering, selection, no-results, and Escape propagation to the surrounding overlay. Browser viewport, authenticated consumer, and real mobile Drawer verification remain unknown.
 
+### Phase 2F update
+
+The Phase 0 row for `@radix-ui/react-tabs` is historical. Phase 2F migrated `src/components/ui/tabs.tsx` to Base UI `Tabs.Root`, `Tabs.List`, `Tabs.Tab`, and `Tabs.Panel` while preserving the local `Tabs`, `TabsList`, `TabsTrigger`, and `TabsContent` exports. No current production consumers were found, so the wrapper was migrated for roadmap consistency only and no feature was invented. `TabsList` defaults `activateOnFocus` to `true` to preserve Radix's previous automatic activation behavior; callers can opt into manual activation through the local list props. Focused Jest coverage exercises default and controlled state, click switching, disabled tabs, horizontal/vertical arrows, Home/End, and tab/panel ARIA associations. The bottom navigation was not migrated and remains route-link navigation. `@radix-ui/react-tabs` was removed after the source import check returned zero real imports. Browser visual and authenticated consumer verification remain unknown.
+
 ## 5. Radix usage
 
-The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2E, 6 Radix-related packages remain in `package.json` (four primitives plus the icon and Slot packages); all primitive imports are behind local wrappers except `@radix-ui/react-icons`. The highest-risk wrappers are Drawer and Slot because they combine focus, portal, form, or composition behavior; Select now uses Base UI behind the local boundary.
+The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2F, 5 Radix-related packages remain in `package.json` (three primitives plus the icon and Slot packages); all primitive imports are behind local wrappers except `@radix-ui/react-icons`. The highest-risk wrappers are Drawer and Slot because they combine focus, portal, form, or composition behavior; Select and Tabs now use Base UI behind the local boundary.
 
 ## 6. Vaul usage
 
@@ -291,7 +295,7 @@ The target names below are verified against the current Base UI documentation; e
 | `select.tsx` | **Phase 2E historical Radix Select; removed** | Group and expense forms | `Select` | High: keyboard/value/form behavior | 2E complete |
 | `combobox.tsx` | Base UI Combobox | Category and currency selectors | `Combobox` | High: filtering, selection, mobile rendering | 2E complete |
 | `command.tsx` | **Phase 2E historical cmdk composite; removed** | No consumers | `Combobox` | High: filtering, selection, mobile rendering | 2E complete |
-| `tabs.tsx` | Radix Tabs | No current consumers | `Tabs` | Low until used | 2F |
+| `tabs.tsx` | **Phase 2F historical Radix Tabs; removed** | No current consumers | `Tabs` | Low; wrapper-only migration for roadmap consistency | 2F complete |
 | `drawer.tsx` | Vaul Drawer | Mobile selectors, share, active user | `Drawer` | Very high: gestures, scroll, keyboard, safe areas | 2G |
 | `toast.tsx` | Radix Toast | Global feedback | `Toast` | High: viewport and timing | 2A |
 | `hover-card.tsx` | Radix Hover Card | Group form | `Preview Card` or `Popover` | Medium: touch semantics | 2A |
