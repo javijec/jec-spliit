@@ -123,11 +123,11 @@ No `src/components/ui/tooltip.tsx` exists and no Tooltip package/import was foun
 
 ### Phase 2A update
 
-The Phase 0 statement above is historical. Phase 2A added `src/components/ui/tooltip.tsx` as a Base UI wrapper even though no production consumer currently exists. The Popover and Collapsible wrappers were migrated in place; their existing feature imports remain local and their Radix packages were removed only after the global import check returned zero real imports.
+The Phase 0 statement above is historical. Phase 2A added `src/components/ui/tooltip.tsx` as a Base UI wrapper even though no production consumer currently exists. The Popover and Collapsible wrappers were migrated in place; their existing feature imports remain local and their Radix packages were removed only after the global import check returned zero real imports. Phase 2B subsequently migrated Checkbox and Radio Group with the same local-wrapper boundary; Switch has no wrapper or production consumer.
 
 ## 5. Radix usage
 
-The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2A, 10 Radix primitive packages remain; all primitive imports are behind local wrappers except `@radix-ui/react-icons` and the `DialogProps` type import used by `command.tsx`. The highest-risk wrappers are Dialog, Select, Drawer, Dropdown Menu, and Slot because they combine focus, portal, form, or composition behavior.
+The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2B, 8 Radix primitive packages remain; all primitive imports are behind local wrappers except `@radix-ui/react-icons` and the `DialogProps` type import used by `command.tsx`. The highest-risk wrappers are Dialog, Select, Drawer, Dropdown Menu, and Slot because they combine focus, portal, form, or composition behavior.
 
 ## 6. Vaul usage
 

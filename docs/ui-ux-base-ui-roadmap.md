@@ -322,9 +322,16 @@ Validar:
 
 ### 2B — Checkbox / Radio / Switch
 
-- [ ] Checkbox.
-- [ ] Radio Group.
-- [ ] Switch si existe.
+- [x] Checkbox.
+- [x] Radio Group.
+- [x] Switch: no existe wrapper ni consumer en el repositorio; no migrado.
+
+#### Estado de implementación
+
+- [x] `checkbox.tsx` y `radio-group.tsx` mantienen la frontera local y usan Base UI internamente.
+- [x] Se preservan estados controlados/no controlados, disabled, required, name/value, labels y `indeterminate` del checkbox.
+- [x] La integración booleana de Checkbox con React Hook Form está cubierta mediante `Controller`.
+- [x] La navegación por flechas del Radio Group y los estados disabled/controlado están cubiertos.
 
 Validar integración con React Hook Form.
 
