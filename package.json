@@ -17,6 +17,7 @@
     "generate-currency-data": "ts-node -T ./src/scripts/generateCurrencyData.ts"
   },
   "dependencies": {
+    "@base-ui/react": "^1.7.0",
     "@better-auth/prisma-adapter": "^1.6.16",
     "@formatjs/intl-localematcher": "^0.5.4",
     "@hookform/resolvers": "^3.3.2",
