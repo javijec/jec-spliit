@@ -62,7 +62,7 @@ The requested `/groups/<groupId>/information` route exists, but it is not a seco
 | Package | Real source usage | Local boundary | Approx. source references | Criticality | Migration complexity | Base UI direction / notes |
 |---|---|---|---:|---|---|---|
 | `@radix-ui/react-dialog` | Dialog wrapper, plus `DialogProps` in `command.tsx` | `src/components/ui/dialog.tsx` | 2 importing files | High | High | Base UI `Dialog`; preserve controlled state, focus return, Escape, and portal behavior |
-| `@radix-ui/react-dropdown-menu` | Group-card actions, export, locale, theme | `dropdown-menu.tsx` | 1 wrapper + 4 main consumers | High | Medium | Base UI `Menu`; current menu exposes checkbox/radio/submenu parts |
+| `@radix-ui/react-dropdown-menu` | **Phase 0 historical usage; removed in Phase 2C** | `dropdown-menu.tsx` | 1 wrapper + 4 main consumers | High | Medium | Replaced by Base UI `Menu`; local wrapper and feature consumers remain |
 | `@radix-ui/react-popover` | Category, currency, share controls | `popover.tsx` | 1 wrapper + 3 consumers | High | Medium | Base UI `Popover`; check positioner/portal and mobile fallback |
 | `@radix-ui/react-select` | Group form and expense form | `select.tsx` | 1 wrapper + 2 main consumers | High | High | Base UI `Select`; dependent on form value/keyboard semantics |
 | `@radix-ui/react-checkbox` | Settings and expense participant selection | `checkbox.tsx` | 1 wrapper + 2 consumers | Medium | Medium | Base UI `Checkbox`; preserve form serialization and indeterminate behavior |
@@ -99,7 +99,7 @@ The exact Base UI component names above were checked against the current officia
 | `command.tsx` | A composite primitive | cmdk + Radix Dialog type | CategorySelector, CurrencySelector | No | Via parent dialog/popover/drawer | High | Base UI Combobox where appropriate | 2E |
 | `dialog.tsx` | A overlay wrapper | Radix Dialog | Account, settings, reimbursements, active user, documents | No | Yes | Controlled/uncontrolled; focus managed by Radix | High | Base UI Dialog | 2D |
 | `drawer.tsx` | A overlay wrapper | Vaul | Active user, share, currency, category | Yes through primitives | Yes | Controlled/uncontrolled; gesture/focus managed by Vaul | Very high | Base UI Drawer | 2G |
-| `dropdown-menu.tsx` | A overlay wrapper | Radix Dropdown Menu | Group cards, export, locale, theme | Trigger API | Yes | Keyboard roving focus; menu state | High | Base UI Menu | 2C |
+| `dropdown-menu.tsx` | A overlay wrapper | Base UI Menu | Group cards, export, locale, theme | Trigger and item adapters | Yes | Keyboard navigation, focus return, menu state | High | Base UI Menu | 2C complete |
 | `empty-state.tsx` | B visual | Own | Expenses, balances, reimbursements | No | No | Static | Low | Own visual component | N/A |
 | `form.tsx` | C form support | Radix Label + Slot | Group and expense forms | Via Slot | No | React Hook Form integration | High | Base UI Field/Form boundary, later | 2B/2E |
 | `group-section-card.tsx` | F surface/layout | Own | Most top-level sections | No | No | Static | Low | Own surface | N/A |
@@ -125,9 +125,13 @@ No `src/components/ui/tooltip.tsx` exists and no Tooltip package/import was foun
 
 The Phase 0 statement above is historical. Phase 2A added `src/components/ui/tooltip.tsx` as a Base UI wrapper even though no production consumer currently exists. The Popover and Collapsible wrappers were migrated in place; their existing feature imports remain local and their Radix packages were removed only after the global import check returned zero real imports. Phase 2B subsequently migrated Checkbox and Radio Group with the same local-wrapper boundary; Switch has no wrapper or production consumer.
 
+### Phase 2C update
+
+The Phase 0 row for `@radix-ui/react-dropdown-menu` is historical. Phase 2C migrated `src/components/ui/dropdown-menu.tsx` to Base UI `Menu` and removed the package after the source import check returned zero real imports. The wrapper preserves all existing local exports, adapts `asChild` to `render`, keeps portal/positioning internals hidden from features, and covers group-card/export/locale/theme consumers without direct Base UI imports. Jest covers the wrapper's keyboard dismissal/focus return, disabled and destructive items, checkbox/radio items, submenu, and `asChild` link composition. Browser viewport verification remains unknown because this checkout has no reproducible authenticated E2E harness.
+
 ## 5. Radix usage
 
-The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2B, 8 Radix primitive packages remain; all primitive imports are behind local wrappers except `@radix-ui/react-icons` and the `DialogProps` type import used by `command.tsx`. The highest-risk wrappers are Dialog, Select, Drawer, Dropdown Menu, and Slot because they combine focus, portal, form, or composition behavior.
+The Phase 0 inventory recorded 12 Radix primitive packages plus the icon package and Slot. After Phase 2C, 8 Radix-related packages remain in `package.json` (six primitives plus the icon and Slot packages); all primitive imports are behind local wrappers except `@radix-ui/react-icons` and the `DialogProps` type import used by `command.tsx`. The highest-risk wrappers are Dialog, Select, Drawer, and Slot because they combine focus, portal, form, or composition behavior.
 
 ## 6. Vaul usage
 
@@ -182,7 +186,7 @@ Keep the local `Button` API as the only application boundary and implement one a
 | App header | Fixed `z-50`; accounts for `safe-area-inset-top` |
 | Dialog | Radix Portal; overlay and content `z-50`; content is centered, scrollable, and padded for top/bottom safe areas |
 | Drawer | Vaul Portal; overlay/content `z-50`; bottom sheet max height is `min(85dvh, 42rem)` and includes bottom safe area |
-| Dropdown Menu | Radix Portal; content/subcontent `z-50`, max height `80vh` |
+| Dropdown Menu | Base UI Portal + Positioner; content/subcontent `z-50`, max height `80vh` |
 | Popover | Radix Portal; content `z-50` |
 | Select | Radix Portal; content `z-50`, max height `24rem` |
 | Toast | Toast viewport `z-[100]`; top on mobile and bottom/right on larger screens |
@@ -226,7 +230,7 @@ No stacking root, token, overlay, or CSS change was made in this phase.
 | Edit expense | Expense card Link → edit form | No UI smoke | Existing expense id |
 | Balances | `groups.balances.list` → reimbursements | Existing balance/reimbursement code; no E2E | Group with expenses |
 | Change active participant | ActiveUser Dialog on desktop / Drawer on mobile | Existing `active-user-modal.test.tsx`; wrapper behavior not tested before this phase | Auth and group participants |
-| Group context menu | Card Dropdown Menu | New wrapper smoke contract added; browser menu still unverified | `/groups` data |
+| Group context menu | Card Dropdown Menu | Jest wrapper/overlay contracts and consumer wiring; browser menu still unverified | `/groups` data |
 | Pin/unpin | Group card menu → `updateMembership` or local helper | Existing unit/procedure coverage; no E2E | Persisted membership or local guest state |
 | Archive/unarchive | Group card menu → same membership mutation/local helper | Existing helper/procedure coverage; no E2E | Group membership |
 | Delete/leave membership | Group settings mutation or group-card remove path | Existing backend coverage for removal; exact UI semantics need live verification | Membership role and group state |
@@ -251,13 +255,13 @@ There is no Jest setup file, no `jest-axe`, no accessibility matcher setup, no P
 
 ## 14. New smoke coverage
 
-Added `src/components/ui/overlay-smoke.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
+Added `src/components/ui/overlay-smoke.test.tsx` and `src/components/ui/dropdown-menu.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
 
 - Dialog opens from its trigger, closes with Escape, and returns focus to the trigger.
-- Dropdown menu opens from its trigger and closes with Escape.
+- Dropdown menu opens from its trigger and closes with Escape; the dedicated menu suite also covers keyboard activation emulation, navigation, focus return, disabled items, checkbox/radio state, `asChild` links, and nested menus.
 - Select opens and exposes its option list through the accessible role.
 
-Execution is **BLOCKED / ENVIRONMENT** until dependency installation and Prisma client generation complete. No new test framework or snapshot suite was introduced.
+La suite enfocada de Dropdown Menu pasa en Jest con JSDOM. La suite completa de Jest conserva seis fallos no relacionados y `bun test` directo no configura JSDOM ni las APIs de Jest; no se modificó la infraestructura de tests en esta fase. No se introdujo un framework nuevo ni una suite de snapshots.
 
 ## 15. Base UI migration matrix
 

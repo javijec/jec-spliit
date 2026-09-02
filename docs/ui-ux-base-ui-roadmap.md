@@ -337,10 +337,19 @@ Validar integración con React Hook Form.
 
 ### 2C — Dropdown Menu
 
-- [ ] Migrar `src/components/ui/dropdown-menu.tsx`.
-- [ ] Validar el menú de cards de grupos.
-- [ ] Validar destructive actions.
+- [x] Migrar `src/components/ui/dropdown-menu.tsx`.
+- [x] Validar el menú de cards de grupos.
+- [x] Validar destructive actions.
 - [ ] Verificar mobile touch targets.
+
+#### Estado de implementación
+
+- [x] `dropdown-menu.tsx` mantiene la frontera local y usa `Menu.Root`, `Trigger`, `Portal`, `Positioner`, `Popup`, `Item`, `CheckboxItem`, `RadioGroup`, `RadioItem`, `Group`, `GroupLabel`, `Separator`, `SubmenuRoot` y `SubmenuTrigger` de Base UI.
+- [x] `asChild` se conserva en los wrappers públicos relevantes y se adapta internamente a `render`; las features no importan Base UI directamente.
+- [x] Se preservan las exportaciones locales, el posicionamiento `side`/`align`/`sideOffset`, el portal, los estados destructivos y la composición de links del menú de exportación.
+- [x] Los items del menú conservan un target táctil mínimo de `40px`; el trigger de la card mantiene su clase histórica `h-9 w-9` y requiere una decisión visual específica antes de ampliarlo.
+- [x] La cobertura Jest verifica apertura, navegación, Escape, retorno de foco, disabled, click handlers, checkbox, radio, composición `asChild` y submenú.
+- [ ] La verificación visual, mobile y de datos reales requiere un navegador autenticado.
 
 ### 2D — Dialog
 
