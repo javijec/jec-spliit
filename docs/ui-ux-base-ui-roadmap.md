@@ -353,10 +353,18 @@ Validar integración con React Hook Form.
 
 ### 2D — Dialog
 
-- [ ] Migrar `dialog.tsx`.
-- [ ] Revisar ActiveUserModal.
-- [ ] Revisar confirmaciones destructivas.
-- [ ] Revisar nested dialogs si existen.
+- [x] Migrar `dialog.tsx`.
+- [x] Revisar ActiveUserModal.
+- [x] Revisar confirmaciones destructivas.
+- [x] Revisar nested dialogs si existen; no existen consumidores nested en el inventario actual.
+
+#### Estado de implementación
+
+- [x] `dialog.tsx` mantiene la frontera local y usa `Dialog.Root`, `Trigger`, `Portal`, `Backdrop`, `Viewport`, `Popup`, `Title`, `Description` y `Close` de Base UI.
+- [x] `asChild` se conserva en `DialogTrigger` y `DialogClose` y se adapta internamente a `render`; las features no importan Base UI directamente.
+- [x] Se preservan las exportaciones locales, el cierre por Escape/overlay/acción explícita, el retorno de foco, el scroll lock, el portal y el padding responsive de safe area.
+- [x] La cobertura Jest verifica apertura, título/descripción accesibles, controlado, Escape, outside press, cierre explícito y retorno de foco.
+- [ ] La verificación visual, mobile, ActiveUserModal autenticado, reembolsos y datos reales requiere un navegador autenticado.
 
 ### 2E — Select / Combobox
 
