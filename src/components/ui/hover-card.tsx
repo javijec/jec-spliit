@@ -1,29 +1,33 @@
 "use client"
 
 import * as React from "react"
-import * as HoverCardPrimitive from "@radix-ui/react-hover-card"
+import { PreviewCard } from "@base-ui/react/preview-card"
 
 import { cn } from "@/lib/utils"
 
-const HoverCard = HoverCardPrimitive.Root
-
-const HoverCardTrigger = HoverCardPrimitive.Trigger
+const HoverCard = PreviewCard.Root
+const HoverCardTrigger = PreviewCard.Trigger
 
 const HoverCardContent = React.forwardRef<
-  React.ElementRef<typeof HoverCardPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Content>
+  React.ElementRef<typeof PreviewCard.Popup>,
+  React.ComponentPropsWithoutRef<typeof PreviewCard.Popup> & {
+    align?: React.ComponentPropsWithoutRef<typeof PreviewCard.Positioner>["align"]
+    sideOffset?: React.ComponentPropsWithoutRef<typeof PreviewCard.Positioner>["sideOffset"]
+  }
 >(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
-  <HoverCardPrimitive.Content
-    ref={ref}
-    align={align}
-    sideOffset={sideOffset}
-    className={cn(
-      "z-50 w-64 border bg-popover p-4 text-popover-foreground shadow-sm outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
-    {...props}
-  />
+  <PreviewCard.Portal>
+    <PreviewCard.Positioner align={align} sideOffset={sideOffset}>
+      <PreviewCard.Popup
+        ref={ref}
+        className={cn(
+          "z-50 w-64 border bg-popover p-4 text-popover-foreground shadow-sm outline-none data-[open]:animate-in data-[open]:fade-in-0",
+          className
+        )}
+        {...props}
+      />
+    </PreviewCard.Positioner>
+  </PreviewCard.Portal>
 ))
-HoverCardContent.displayName = HoverCardPrimitive.Content.displayName
+HoverCardContent.displayName = "HoverCardContent"
 
 export { HoverCard, HoverCardTrigger, HoverCardContent }

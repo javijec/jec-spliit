@@ -550,16 +550,18 @@ export function GroupForm({
                                       )) ||
                                     (!group && index === 0) ? (
                                       <HoverCard>
-                                        <HoverCardTrigger>
-                                          <Button
-                                            variant="ghost"
-                                            className="text-destructive"
-                                            type="button"
-                                            size="icon"
-                                            disabled
-                                          >
-                                            <Trash2 className="w-4 h-4 text-destructive opacity-50" />
-                                          </Button>
+                                        <HoverCardTrigger
+                                          render={
+                                            <Button
+                                              variant="ghost"
+                                              className="text-destructive"
+                                              type="button"
+                                              size="icon"
+                                              disabled
+                                            />
+                                          }
+                                        >
+                                          <Trash2 className="w-4 h-4 text-destructive opacity-50" />
                                         </HoverCardTrigger>
                                         <HoverCardContent
                                           align="end"
