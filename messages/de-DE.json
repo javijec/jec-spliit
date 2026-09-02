@@ -66,6 +66,8 @@
     },
     "recent": "Letzte Gruppen",
     "starred": "Favorisierte Gruppen",
+    "addToFavorites": "Gruppe zu Favoriten hinzufügen",
+    "removeFromFavorites": "Gruppe aus Favoriten entfernen",
     "archived": "Archivierte Gruppen",
     "archive": "Gruppe archivieren",
     "unarchive": "Gruppe wiederherstellen",

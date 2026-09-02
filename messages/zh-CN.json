@@ -66,6 +66,8 @@
     },
     "recent": "最近的群组",
     "starred": "已收藏的群组",
+    "addToFavorites": "将群组添加到收藏夹",
+    "removeFromFavorites": "将群组从收藏夹中移除",
     "archived": "已归档的群组",
     "archive": "归档群组",
     "unarchive": "取消归档群组",

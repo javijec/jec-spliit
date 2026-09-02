@@ -63,6 +63,8 @@
     },
     "recent": "Äskettäiset",
     "starred": "Suosikit",
+    "addToFavorites": "Lisää ryhmä suosikkeihin",
+    "removeFromFavorites": "Poista ryhmä suosikeista",
     "archived": "Arkistoidut",
     "archive": "Arkistoi ryhmä",
     "unarchive": "Palauta ryhmä arkistosta",

@@ -66,6 +66,8 @@
     },
     "recent": "Azken taldeak",
     "starred": "Gogoko taldeak",
+    "addToFavorites": "Gehitu taldea gogokoetara",
+    "removeFromFavorites": "Kendu taldea gogokoetatik",
     "archived": "Gordetako taldeak",
     "archive": "Gorde taldea",
     "unarchive": "Kendu taldea artxibotik",

@@ -63,6 +63,8 @@
     },
     "recent": "Ultimele grupuri",
     "starred": "Grupuri favorite",
+    "addToFavorites": "Adaugă grupul la favorite",
+    "removeFromFavorites": "Elimină grupul de la favorite",
     "archived": "Grupuri arhivate",
     "archive": "Arhivează grupul",
     "unarchive": "Dezarhivează grupul",

@@ -43,6 +43,8 @@
     },
     "recent": "최근 그룹",
     "starred": "즐겨찾기 그룹",
+    "addToFavorites": "그룹을 즐겨찾기에 추가",
+    "removeFromFavorites": "그룹을 즐겨찾기에서 제거",
     "archived": "아카이브된 그룹",
     "archive": "그룹 아카이브하기",
     "RecentRemovedToast": {

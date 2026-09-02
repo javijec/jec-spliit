@@ -66,6 +66,8 @@
     },
     "recent": "Grups recents",
     "starred": "Grups preferits",
+    "addToFavorites": "Afegir el grup als preferits",
+    "removeFromFavorites": "Treure el grup dels preferits",
     "archived": "Grups arxivats",
     "archive": "Arxivar el grup",
     "unarchive": "Desarxivar el grup",

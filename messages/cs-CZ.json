@@ -64,6 +64,8 @@
     },
     "recent": "Nedávné skupiny",
     "starred": "Oblíbené skupiny",
+    "addToFavorites": "Přidat skupinu do oblíbených",
+    "removeFromFavorites": "Odebrat skupinu z oblíbených",
     "archived": "Archivované skupiny",
     "archive": "Archivovat skupinu",
     "unarchive": "Zrušit archivaci skupiny",

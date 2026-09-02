@@ -141,6 +141,8 @@
     },
     "recent": "Recent groups",
     "starred": "Starred groups",
+    "addToFavorites": "Add group to favorites",
+    "removeFromFavorites": "Remove group from favorites",
     "archived": "Archived groups",
     "archive": "Archive group",
     "unarchive": "Unarchive group",

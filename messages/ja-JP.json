@@ -66,6 +66,8 @@
     },
     "recent": "最近のグループ",
     "starred": "スター付きグループ",
+    "addToFavorites": "グループをお気に入りに追加",
+    "removeFromFavorites": "グループをお気に入りから削除",
     "archived": "アーカイブ済みグループ",
     "archive": "グループをアーカイブ",
     "unarchive": "グループのアーカイブを解除",

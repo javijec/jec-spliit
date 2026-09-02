@@ -66,6 +66,8 @@
     },
     "recent": "Grup terbaru",
     "starred": "Grup berbintang",
+    "addToFavorites": "Tambahkan grup ke favorit",
+    "removeFromFavorites": "Hapus grup dari favorit",
     "archived": "Grup terarsipkan",
     "archive": "Arsipkan grup",
     "unarchive": "Batalkan pengarsipan grup",

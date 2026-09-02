@@ -63,6 +63,8 @@
     },
     "recent": "最近的群組",
     "starred": "已加星標的群組",
+    "addToFavorites": "將群組加到收藏夾",
+    "removeFromFavorites": "將群組從收藏夾移除",
     "archived": "已封存的群組",
     "archive": "將群組封存",
     "unarchive": "取消封存群組",

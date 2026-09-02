@@ -66,6 +66,8 @@
     },
     "recent": "Recente groepen",
     "starred": "Favoriete groepen",
+    "addToFavorites": "Groep aan favorieten toevoegen",
+    "removeFromFavorites": "Groep uit favorieten verwijderen",
     "archived": "Gearchiveerde groepen",
     "archive": "Archiveer groep",
     "unarchive": "Herstel groep",

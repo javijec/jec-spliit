@@ -63,6 +63,8 @@
     },
     "recent": "Son gruplar",
     "starred": "Yıldızlı gruplar",
+    "addToFavorites": "Grubu favorilere ekle",
+    "removeFromFavorites": "Grubu favorilerden kaldır",
     "archived": "Arşivlenmiş gruplar",
     "archive": "Grubu arşivle",
     "unarchive": "Arşivden çıkar",
