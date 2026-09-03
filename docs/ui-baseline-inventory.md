@@ -441,6 +441,30 @@ human translations are available. Authenticated browser verification at 390px,
 VERIFICATION** because this checkout has no reproducible authenticated fixture.
 Phase 5 and Phase 6 reimbursement behavior remain complete and untouched.
 
+## 14.5 Phase 8 expense list contract
+
+`/groups/[groupId]/expenses` keeps the existing group-wide infinite query and
+its expense-date ordering. Each row now prioritizes title, amount in the
+expense's original currency, payer, date, and the active participant's personal
+share. The share is derived from the existing `calculateShare` helper using
+the already-loaded `paidFor` payload; no query is performed per row and no
+cross-currency conversion is introduced.
+
+Rows use the existing category icon, distinguish reimbursement expenses as
+localized `Payment`/`Registered payment` entries, keep the expandable detail,
+attachments indicator, and edit link, and show a localized excluded state when
+the active participant is not included. With no active participant selected,
+the list omits personal-share copy rather than fabricating a value. Loading and
+empty states remain group-level and Quick Add remains the Expenses entry point.
+
+The new `ExpenseCard` labels are present in every locale file; non-English
+locales follow the repository's current English fallback policy until human
+translations are available. Focused helper coverage covers even, shares,
+percentage, amount, excluded, missing-participant, and reimbursement states.
+Authenticated visual verification for 390px, 430px, desktop, multi-currency,
+long content, and attachments remains **UNKNOWN / NEEDS LIVE VERIFICATION**.
+The previously reported `min0` issue was intentionally not changed in Phase 8.
+
 ## 15. New smoke coverage
 
 Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:

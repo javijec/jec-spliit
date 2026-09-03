@@ -1,16 +1,17 @@
 'use client'
 
-import { ActiveUserBalance } from '@/app/groups/[groupId]/expenses/active-user-balance'
 import { CategoryIcon } from '@/app/groups/[groupId]/expenses/category-icon'
+import { getPersonalExpenseShare } from '@/app/groups/[groupId]/expenses/expense-row-utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getGroupExpenses } from '@/lib/api'
 import { Currency, getCurrency } from '@/lib/currency'
 import { cn, formatCurrency, formatDateOnly } from '@/lib/utils'
 import { ArrowRightLeft, ChevronDown, Pencil } from 'lucide-react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { memo, useMemo, useState } from 'react'
+import { useCurrentGroup } from '../current-group-context'
 
 type Expense = Awaited<ReturnType<typeof getGroupExpenses>>[number]
 
@@ -18,15 +19,6 @@ type Props = {
   expense: Expense
   currency: Currency
   groupId: string
-}
-
-type LocaleLabels = {
-  paidBy: string
-  owes: string
-  nobody: string
-  settlement: string
-  documents: string
-  edit: string
 }
 
 type PaidForItem = Expense['paidFor'][number]
@@ -48,18 +40,6 @@ function formatShortParticipantName(name: string) {
   return lastInitial ? `${firstName} ${lastInitial}.` : firstName
 }
 
-function getLabels(locale: string): LocaleLabels {
-  const isSpanish = locale.toLowerCase().startsWith('es')
-  return {
-    paidBy: isSpanish ? 'Pago:' : 'Paid:',
-    owes: isSpanish ? 'Debe:' : 'Owes:',
-    nobody: isSpanish ? 'Nadie' : 'Nobody',
-    settlement: isSpanish ? 'Reembolso' : 'Settlement',
-    documents: isSpanish ? 'Adjuntos' : 'Docs',
-    edit: isSpanish ? 'Editar gasto' : 'Edit expense',
-  }
-}
-
 function resolveDisplayCurrency(expense: Expense, fallbackCurrency: Currency) {
   return expense.originalCurrency
     ? getCurrency(expense.originalCurrency)
@@ -68,17 +48,6 @@ function resolveDisplayCurrency(expense: Expense, fallbackCurrency: Currency) {
 
 function resolveDisplayAmount(expense: Expense) {
   return expense.originalAmount ?? expense.amount
-}
-
-function getSettlementLabel(expense: Expense, locale: string) {
-  const settlementTo =
-    expense.paidFor.length === 1
-      ? expense.paidFor[0].participant.name
-      : expense.paidFor.map((item) => item.participant.name).join(', ')
-  const isSpanish = locale.toLowerCase().startsWith('es')
-  return isSpanish
-    ? `${expense.paidBy.name} pagó a ${settlementTo}`
-    : `${expense.paidBy.name} paid ${settlementTo}`
 }
 
 function getDebtorsSummary({
@@ -166,8 +135,9 @@ function AmountColumn({
 
 function ExpenseCardComponent({ expense, currency, groupId }: Props) {
   const locale = useLocale()
+  const t = useTranslations('ExpenseCard')
+  const { currentActiveParticipantId } = useCurrentGroup()
   const [expanded, setExpanded] = useState(false)
-  const labels = useMemo(() => getLabels(locale), [locale])
   const displayCurrency = useMemo(
     () => resolveDisplayCurrency(expense, currency),
     [currency, expense],
@@ -187,32 +157,57 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
         amount: displayAmount,
         currency: displayCurrency,
         locale,
-        nobodyLabel: labels.nobody,
+        nobodyLabel: t('nobody'),
       }),
-    [displayAmount, displayCurrency, expense, labels.nobody, locale],
+    [displayAmount, displayCurrency, expense, locale, t],
   )
-  const summaryTitle = expense.isReimbursement
-    ? labels.settlement
-    : expense.title
+  const personalShare = useMemo(
+    () =>
+      getPersonalExpenseShare(
+        currentActiveParticipantId,
+        expense,
+        displayAmount,
+      ),
+    [currentActiveParticipantId, displayAmount, expense],
+  )
+  const summaryTitle = expense.isReimbursement ? t('payment') : expense.title
   const href = `/groups/${groupId}/expenses/${expense.id}/edit`
+  const settlementTo = expense.paidFor
+    .map((item) => item.participant.name)
+    .join(', ')
+  const settlementLabel = t('paymentDescription', {
+    payer: expense.paidBy.name,
+    payee: settlementTo,
+  })
+  const personalShareLabel =
+    personalShare === undefined
+      ? null
+      : personalShare === null
+        ? t('notInvolved')
+        : `${t('yourShare')} ${formatCurrency(
+            displayCurrency,
+            personalShare,
+            locale,
+          )}`
 
   return (
     <div
       className={cn(
-        'mx-0 my-0 overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm shadow-black/5 sm:mx-0',
-        expense.isReimbursement && 'border-border/80 bg-secondary/20',
+        'overflow-hidden border-b border-border/60 bg-card/35 first:border-t',
+        expense.isReimbursement && 'bg-secondary/15',
       )}
     >
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        className="flex w-full items-start gap-2 px-3 py-3 text-left transition-colors hover:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:px-4"
+        className="flex min-h-20 w-full items-start gap-3 px-3 py-3 text-left transition-colors hover:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:px-4"
         aria-expanded={expanded}
+        aria-controls={`expense-details-${expense.id}`}
       >
         <LeadingIcon expense={expense} />
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 text-[13px] font-semibold leading-tight break-words text-foreground sm:text-sm">
+            <div className="min-w-0 line-clamp-2 break-words text-[13px] font-semibold leading-tight text-foreground sm:text-sm">
               {summaryTitle}
             </div>
             <AmountColumn
@@ -222,14 +217,28 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
               locale={locale}
             />
           </div>
-          <div className="truncate text-[10px] leading-tight text-muted-foreground sm:text-[11px]">
-            <span>{labels.paidBy}</span>{' '}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] leading-tight text-muted-foreground sm:text-[11px]">
+            <span>{t('paidByLabel')}</span>{' '}
             <strong className="text-foreground">
               {formatShortParticipantName(expense.paidBy.name)}
             </strong>
-            <span className="mx-1.5">·</span>
-            <span>{formattedDate}</span>
+            <span aria-hidden="true">·</span>
+            <time dateTime={expense.expenseDate.toISOString()}>
+              {formattedDate}
+            </time>
           </div>
+          {personalShareLabel && (
+            <div
+              className={cn(
+                'mt-1 text-[11px] font-medium leading-tight sm:text-xs',
+                personalShare === null
+                  ? 'text-muted-foreground'
+                  : 'text-primary',
+              )}
+            >
+              {personalShareLabel}
+            </div>
+          )}
         </div>
         <div className="pt-0.5 text-muted-foreground">
           <ChevronDown
@@ -242,36 +251,39 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
       </button>
 
       {expanded && (
-        <div className="border-t border-border/70 bg-background/80 px-3 py-3 sm:px-4">
+        <div
+          id={`expense-details-${expense.id}`}
+          className="border-t border-border/60 bg-background/80 px-3 py-3 sm:px-4"
+        >
           <div className="space-y-2">
             {expense.isReimbursement ? (
               <p className="text-sm leading-5 text-muted-foreground">
-                {getSettlementLabel(expense, locale)}
+                <span className="font-medium text-foreground">
+                  {t('paymentRecorded')}
+                </span>
+                <span className="mx-1.5" aria-hidden="true">
+                  ·
+                </span>
+                {settlementLabel}
               </p>
             ) : (
               <p className="text-sm leading-5 text-muted-foreground">
-                <span>{labels.owes}</span>{' '}
+                <span>{t('owes')}</span>{' '}
                 <strong className="font-medium text-foreground">
                   {debtorSummary}
                 </strong>
               </p>
             )}
 
-            <ActiveUserBalance
-              groupId={groupId}
-              currency={currency}
-              expense={expense}
-            />
-
             <div className="flex flex-wrap items-center gap-2">
               {expense.isReimbursement && (
                 <Badge variant="outline" className="text-[0.7rem]">
-                  {labels.settlement}
+                  {t('payment')}
                 </Badge>
               )}
               {expense._count.documents > 0 && (
                 <Badge variant="outline" className="text-[0.7rem]">
-                  {labels.documents}:{' '}
+                  {t('documents')}:{' '}
                   <span className="ml-1 tabular-nums">
                     {expense._count.documents}
                   </span>
@@ -283,7 +295,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
               <Button asChild variant="outline" size="sm">
                 <Link href={href}>
                   <Pencil className="h-4 w-4" />
-                  {labels.edit}
+                  {t('edit')}
                 </Link>
               </Button>
             </div>

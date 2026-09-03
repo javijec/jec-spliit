@@ -749,7 +749,7 @@ de reimbursements. La Fase 8 (rediseño de la lista de gastos) no comenzó.
 
 ---
 
-# 12. Fase 8 — Lista de gastos más escaneable
+# 12. Fase 8 — Lista de gastos más escaneable ✅
 
 ## Objetivo
 
@@ -763,15 +763,20 @@ Poder comprender muchos gastos con menos lectura.
     Tu parte: $12.050
 ```
 
-## Tareas
+## Implementación
 
-- [ ] Mostrar categoría con icono coherente.
-- [ ] Resaltar monto total.
-- [ ] Mostrar pagador.
-- [ ] Mostrar fecha relativa cuando sea útil.
-- [ ] Mostrar `Tu parte` cuando el usuario está asociado a un participante.
-- [ ] Mantener accesible el detalle completo.
-- [ ] Reducir borders innecesarios.
+- [x] Mostrar la categoría existente con un icono, o distinguir pagos registrados
+  con el icono de transferencia sin cambiar el modelo.
+- [x] Priorizar el monto total, pagador y fecha en filas compactas y escaneables.
+- [x] Mostrar `Tu parte` usando `calculateShare` y el participante activo del
+  contexto del grupo, sin recalcular balances ni hacer queries por fila.
+- [x] Mostrar `No estás incluido` cuando hay participante activo pero no forma
+  parte del gasto; sin participante activo no se inventa ningún importe.
+- [x] Mantener el detalle expandible, adjuntos y edición existentes.
+- [x] Diferenciar `Payment`/`Registered payment` de un gasto normal sin exponer
+  el nombre técnico `Reimbursement`.
+- [x] Eliminar cards anidadas y bordes redundantes, conservando foco visible y
+  touch targets de la fila.
 - [ ] Añadir búsqueda cuando el grupo tenga suficiente volumen.
 - [ ] Añadir filtros con progressive disclosure.
 
@@ -788,7 +793,11 @@ No mostrar una barra de filtros compleja permanentemente en grupos pequeños.
 
 ## Criterio de aceptación
 
-La lista se puede recorrer visualmente identificando montos, categoría y responsabilidad sin abrir cada gasto.
+La lista se puede recorrer visualmente identificando montos, categoría, pagador,
+fecha y responsabilidad sin abrir cada gasto. La Fase 8 se ejecutó sin tocar
+Summary, Home, Auth, Quick Add, balances ni el flujo persistente de pagos de la
+Fase 6. La verificación visual autenticada en mobile y desktop queda pendiente
+por falta de fixtures reproducibles en este checkout.
 
 ---
 

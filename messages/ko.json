@@ -30,6 +30,7 @@
       "noPending": "There are no pending simplified debts.",
       "owesTo": "owes"
     },
+    "reimbursements": "Reimbursements",
     "noEntriesYet": "There are no entries in this group yet."
   },
   "Groups": {
@@ -394,6 +395,15 @@
     "description": "다른 참가자들이 그룹을 보고 지출을 추가할 수 있도록 URL을 공유해 주세요."
   },
   "ExpenseCard": {
+    "paidByLabel": "Paid by",
+    "yourShare": "Your share",
+    "payment": "Payment",
+    "paymentRecorded": "Registered payment",
+    "paymentDescription": "{payer} paid {payee}",
+    "documents": "Attachments",
+    "edit": "Edit expense",
+    "owes": "Owes",
+    "nobody": "Nobody",
     "paidBy": "<strong>{paidBy}</strong>가 <paidFor></paidFor>를 위해 결제함",
     "everyone": "모두",
     "yourBalance": "내 잔액:",

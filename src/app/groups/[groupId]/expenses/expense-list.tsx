@@ -87,7 +87,7 @@ function ExpenseListSummary({
         {expenseCount} {t('title').toLowerCase()}
       </span>
       <span className="inline-flex items-center rounded-md border border-border/70 bg-background/80 px-3 py-1 text-[0.7rem] font-medium text-muted-foreground">
-        {reimbursementCount} reembolsos
+        {reimbursementCount} {t('reimbursements')}
       </span>
     </div>
   )

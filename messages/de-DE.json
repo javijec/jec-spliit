@@ -46,9 +46,19 @@
       "noPending": "There are no pending simplified debts.",
       "owesTo": "owes"
     },
+    "reimbursements": "Reimbursements",
     "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
+    "paidByLabel": "Paid by",
+    "yourShare": "Your share",
+    "payment": "Payment",
+    "paymentRecorded": "Registered payment",
+    "paymentDescription": "{payer} paid {payee}",
+    "documents": "Attachments",
+    "edit": "Edit expense",
+    "owes": "Owes",
+    "nobody": "Nobody",
     "paidBy": "Gezahlt von <strong>{paidBy}</strong> für <paidFor></paidFor>",
     "receivedBy": "Empfangen von <strong>{paidBy}</strong> für <paidFor></paidFor>",
     "yourBalance": "Deine Bilanz:",

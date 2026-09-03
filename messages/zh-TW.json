@@ -45,9 +45,19 @@
       "noPending": "There are no pending simplified debts.",
       "owesTo": "owes"
     },
+    "reimbursements": "Reimbursements",
     "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
+    "paidByLabel": "Paid by",
+    "yourShare": "Your share",
+    "payment": "Payment",
+    "paymentRecorded": "Registered payment",
+    "paymentDescription": "{payer} paid {payee}",
+    "documents": "Attachments",
+    "edit": "Edit expense",
+    "owes": "Owes",
+    "nobody": "Nobody",
     "paidBy": "由 <strong>{paidBy}</strong> 支付 <paidFor></paidFor>。",
     "receivedBy": "由 <strong>{paidBy}</strong> 收取 <paidFor></paidFor>。",
     "yourBalance": "你的餘額："

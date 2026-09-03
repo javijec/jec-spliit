@@ -45,9 +45,19 @@
       "noPending": "There are no pending simplified debts.",
       "owesTo": "owes"
     },
+    "reimbursements": "Reimbursements",
     "noEntriesYet": "There are no entries in this group yet."
   },
   "ExpenseCard": {
+    "paidByLabel": "Paid by",
+    "yourShare": "Your share",
+    "payment": "Payment",
+    "paymentRecorded": "Registered payment",
+    "paymentDescription": "{payer} paid {payee}",
+    "documents": "Attachments",
+    "edit": "Edit expense",
+    "owes": "Owes",
+    "nobody": "Nobody",
     "paidBy": "<strong>{paidBy}</strong> maksoi {forCount, plural, =1 {henkilön} other {henkilöiden}} <paidFor></paidFor> puolesta",
     "receivedBy": "<strong>{paidBy}</strong> sai rahaa {forCount, plural, =1 {henkilön} other {henkilöiden}} <paidFor></paidFor> puolesta",
     "yourBalance": "Saldosi:"
