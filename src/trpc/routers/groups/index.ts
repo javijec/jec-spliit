@@ -12,6 +12,7 @@ import { recordGroupVisitProcedure } from '@/trpc/routers/groups/recordVisit.pro
 import { removeGroupMembershipProcedure } from '@/trpc/routers/groups/removeMembership.procedure'
 import { setGroupActiveParticipantProcedure } from '@/trpc/routers/groups/setActiveParticipant.procedure'
 import { groupStatsRouter } from '@/trpc/routers/groups/stats'
+import { groupReimbursementsRouter } from '@/trpc/routers/groups/reimbursements'
 import { syncLegacyGroupsProcedure } from '@/trpc/routers/groups/syncLegacy.procedure'
 import { updateGroupProcedure } from '@/trpc/routers/groups/update.procedure'
 import { updateGroupMembershipProcedure } from '@/trpc/routers/groups/updateMembership.procedure'
@@ -23,6 +24,7 @@ export const groupsRouter = createTRPCRouter({
   balances: groupBalancesRouter,
   stats: groupStatsRouter,
   activities: activitiesRouter,
+  reimbursements: groupReimbursementsRouter,
 
   get: getGroupProcedure,
   getDetails: getGroupDetailsProcedure,
