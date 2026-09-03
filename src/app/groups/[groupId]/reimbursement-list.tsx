@@ -33,6 +33,7 @@ type Props = {
   participants: Participant[]
   currency: Currency
   groupId: string
+  activeParticipantId?: string | null
 }
 
 type PaymentDialogState = {
@@ -48,13 +49,25 @@ export function ReimbursementList({
   participants,
   currency,
   groupId,
+  activeParticipantId,
 }: Props) {
   const locale = useLocale()
   const t = useTranslations('Balances.Reimbursements')
   const utils = trpc.useUtils()
   const { toast } = useToast()
+  const [paymentDialog, setPaymentDialog] = useState<PaymentDialogState | null>(
+    null,
+  )
+  const [partialAmountInput, setPartialAmountInput] = useState('')
+
+  const closeDialog = () => {
+    setPaymentDialog(null)
+    setPartialAmountInput('')
+  }
+
   const createExpense = trpc.groups.expenses.create.useMutation({
     onSuccess: async () => {
+      closeDialog()
       toast({
         title: t('paymentRegistered.title'),
         description: t('paymentRegistered.description'),
@@ -74,49 +87,37 @@ export function ReimbursementList({
       })
     },
   })
-  const [paymentDialog, setPaymentDialog] = useState<PaymentDialogState | null>(
-    null,
-  )
-  const [partialAmountInput, setPartialAmountInput] = useState('')
 
   const groupedReimbursements = useMemo(() => {
-    const pairMap = new Map<
-      string,
-      {
-        from: string
-        to: string
-        currencies: Map<string, number>
-      }
-    >()
+    const sorted = [...reimbursements].sort((a, b) => {
+      const aInvolvesActive =
+        !!activeParticipantId &&
+        (a.from === activeParticipantId || a.to === activeParticipantId)
+      const bInvolvesActive =
+        !!activeParticipantId &&
+        (b.from === activeParticipantId || b.to === activeParticipantId)
 
-    for (const reimbursement of reimbursements) {
-      const pairKey = `${reimbursement.from}__${reimbursement.to}`
-      if (!pairMap.has(pairKey)) {
-        pairMap.set(pairKey, {
-          from: reimbursement.from,
-          to: reimbursement.to,
-          currencies: new Map<string, number>(),
-        })
-      }
-      const pair = pairMap.get(pairKey)!
-      const previous = pair.currencies.get(reimbursement.currencyCode) ?? 0
-      pair.currencies.set(
-        reimbursement.currencyCode,
-        previous + reimbursement.amount,
+      return (
+        Number(bInvolvesActive) - Number(aInvolvesActive) ||
+        b.amount - a.amount ||
+        a.currencyCode.localeCompare(b.currencyCode) ||
+        a.from.localeCompare(b.from) ||
+        a.to.localeCompare(b.to)
       )
+    })
+
+    const groups = new Map<string, ReimbursementByCurrency[]>()
+    for (const reimbursement of sorted) {
+      const items = groups.get(reimbursement.currencyCode) ?? []
+      items.push(reimbursement)
+      groups.set(reimbursement.currencyCode, items)
     }
 
-    return Array.from(pairMap.values()).map((pair) => ({
-      from: pair.from,
-      to: pair.to,
-      items: Array.from(pair.currencies.entries()).map(
-        ([currencyCode, amount]) => ({
-          currencyCode,
-          amount,
-        }),
-      ),
+    return Array.from(groups.entries()).map(([currencyCode, items]) => ({
+      currencyCode,
+      items,
     }))
-  }, [reimbursements])
+  }, [activeParticipantId, reimbursements])
 
   if (reimbursements.length === 0) {
     return (
@@ -151,11 +152,6 @@ export function ReimbursementList({
       : 0
   const canConfirmPayment =
     !!paymentDialog && (paymentDialog.mode === 'TOTAL' || isValidPartialAmount)
-
-  const closeDialog = () => {
-    setPaymentDialog(null)
-    setPartialAmountInput('')
-  }
 
   const confirmPayment = () => {
     if (!paymentDialog || !dialogCurrency) return
@@ -192,116 +188,141 @@ export function ReimbursementList({
         recurrenceRule: 'NONE',
       },
     })
-    closeDialog()
   }
 
   return (
     <>
       <div className="space-y-2">
-        {groupedReimbursements.map((pair) => (
-          <div
-            className="rounded-lg border border-border/70 bg-card p-3"
-            key={`${pair.from}-${pair.to}`}
-          >
-            <div className="mb-2 grid grid-cols-[minmax(0,1fr)_1.5rem_minmax(0,1fr)] items-center gap-2 text-sm leading-tight">
-              <strong className="min-w-0 flex-1 truncate font-semibold tracking-tight">
-                {getParticipant(pair.from)?.name ?? ''}
-              </strong>
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground">
-                <ArrowRight className="h-3 w-3" />
-              </div>
-              <strong className="min-w-0 flex-1 truncate text-right font-semibold tracking-tight">
-                {getParticipant(pair.to)?.name ?? ''}
-              </strong>
-            </div>
+        {groupedReimbursements.map((group) => {
+          const reimbursementCurrency =
+            group.currencyCode === currency.code
+              ? currency
+              : getCurrency(group.currencyCode)
 
-            <div className="space-y-1.5">
-              {pair.items.map((item) => {
-                const reimbursementCurrency =
-                  item.currencyCode === currency.code
-                    ? currency
-                    : getCurrency(item.currencyCode)
+          return (
+            <section
+              key={group.currencyCode}
+              aria-labelledby={`currency-${group.currencyCode}`}
+            >
+              <h3
+                id={`currency-${group.currencyCode}`}
+                className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+              >
+                {t('currencySectionLabel', { currency: group.currencyCode })}
+              </h3>
+              <div className="space-y-2">
+                {group.items.map((item) => {
+                  const fromName = getParticipant(item.from)?.name ?? ''
+                  const toName = getParticipant(item.to)?.name ?? ''
+                  const involvesActive =
+                    !!activeParticipantId &&
+                    (item.from === activeParticipantId ||
+                      item.to === activeParticipantId)
 
-                return (
-                  <div
-                    key={`${pair.from}-${pair.to}-${item.currencyCode}`}
-                    className="rounded-lg border border-primary/15 bg-primary/5 px-3 py-3 shadow-sm shadow-black/5"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="rounded-full bg-background px-2.5 py-1 text-[0.7rem] font-medium tracking-wide text-muted-foreground">
-                        {reimbursementCurrency.code}
-                      </span>
-                      <div
-                        className={cn(
-                          'rounded-full bg-background px-3 py-1 text-base font-semibold tabular-nums whitespace-nowrap text-primary sm:text-lg',
-                        )}
-                      >
-                        {formatCurrency(
-                          reimbursementCurrency,
-                          item.amount,
-                          locale,
-                        )}
+                  return (
+                    <article
+                      key={`${item.from}-${item.to}-${item.currencyCode}`}
+                      className={cn(
+                        'rounded-lg border border-success/20 bg-success/5 px-3 py-3 shadow-sm shadow-black/5',
+                        involvesActive &&
+                          'border-success/60 ring-1 ring-success/25',
+                      )}
+                      data-active-involved={involvesActive || undefined}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="rounded-full bg-background px-2.5 py-1 text-[0.7rem] font-medium tracking-wide text-muted-foreground">
+                          {reimbursementCurrency.code}
+                        </span>
+                        <div className="rounded-full bg-background px-3 py-1 text-base font-semibold tabular-nums whitespace-nowrap text-success sm:text-lg">
+                          {formatCurrency(
+                            reimbursementCurrency,
+                            item.amount,
+                            locale,
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mt-3 flex items-center gap-2 text-sm">
-                      <span className="min-w-0 flex-1 truncate font-medium text-foreground">
-                        {getParticipant(pair.from)?.name ?? ''}
-                      </span>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      <span className="min-w-0 flex-1 truncate text-right font-medium text-foreground">
-                        {getParticipant(pair.to)?.name ?? ''}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      {t('paymentDescription', {
-                        from: getParticipant(pair.from)?.name ?? '',
-                        to: getParticipant(pair.to)?.name ?? '',
-                        currency: reimbursementCurrency.code,
-                      })}
-                    </p>
+                      <div
+                        className="mt-3 flex items-center gap-2 text-sm"
+                        aria-label={t('paymentDescription', {
+                          from: fromName,
+                          to: toName,
+                          currency: reimbursementCurrency.code,
+                        })}
+                      >
+                        <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+                          {fromName}
+                        </span>
+                        <ArrowRight
+                          className="h-4 w-4 shrink-0 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                        <span className="min-w-0 flex-1 truncate text-right font-medium text-foreground">
+                          {toName}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        {t('paymentDescription', {
+                          from: fromName,
+                          to: toName,
+                          currency: reimbursementCurrency.code,
+                        })}
+                        {activeParticipantId === item.from && (
+                          <span className="ml-1 font-medium text-danger">
+                            {t('youPay')}
+                          </span>
+                        )}
+                        {activeParticipantId === item.to && (
+                          <span className="ml-1 font-medium text-success">
+                            {t('youReceive')}
+                          </span>
+                        )}
+                      </p>
 
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <Button
-                        variant="secondary"
-                        className="h-9 rounded-md px-2 text-[11px] font-medium"
-                        disabled={createExpense.isPending}
-                        onClick={() =>
-                          setPaymentDialog({
-                            from: pair.from,
-                            to: pair.to,
-                            currencyCode: item.currencyCode,
-                            maxAmount: item.amount,
-                            mode: 'TOTAL',
-                          })
-                        }
-                      >
-                        {t('actions.totalPayment')}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="h-9 rounded-md px-2 text-[11px] font-medium"
-                        disabled={createExpense.isPending}
-                        onClick={() => {
-                          setPartialAmountInput('')
-                          setPaymentDialog({
-                            from: pair.from,
-                            to: pair.to,
-                            currencyCode: item.currencyCode,
-                            maxAmount: item.amount,
-                            mode: 'PARTIAL',
-                          })
-                        }}
-                      >
-                        {t('actions.partialPayment')}
-                      </Button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ))}
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <Button
+                          variant="secondary"
+                          className="h-9 rounded-md px-2 text-[11px] font-medium"
+                          disabled={createExpense.isPending}
+                          aria-label={`${t('actions.totalPayment')}: ${fromName} → ${toName}`}
+                          onClick={() =>
+                            setPaymentDialog({
+                              from: item.from,
+                              to: item.to,
+                              currencyCode: item.currencyCode,
+                              maxAmount: item.amount,
+                              mode: 'TOTAL',
+                            })
+                          }
+                        >
+                          {t('actions.totalPayment')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="h-9 rounded-md px-2 text-[11px] font-medium"
+                          disabled={createExpense.isPending}
+                          aria-label={`${t('actions.partialPayment')}: ${fromName} → ${toName}`}
+                          onClick={() => {
+                            setPartialAmountInput('')
+                            setPaymentDialog({
+                              from: item.from,
+                              to: item.to,
+                              currencyCode: item.currencyCode,
+                              maxAmount: item.amount,
+                              mode: 'PARTIAL',
+                            })
+                          }}
+                        >
+                          {t('actions.partialPayment')}
+                        </Button>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            </section>
+          )
+        })}
       </div>
 
       <Dialog
@@ -394,6 +415,7 @@ export function ReimbursementList({
             <Button
               onClick={confirmPayment}
               disabled={!canConfirmPayment || createExpense.isPending}
+              aria-busy={createExpense.isPending}
             >
               {paymentDialog?.mode === 'TOTAL'
                 ? t('confirm.total')

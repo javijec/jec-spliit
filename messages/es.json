@@ -413,6 +413,11 @@
   },
   "Balances": {
     "title": "Balances",
+    "suggestedPaymentsTitle": "Pagos sugeridos",
+    "suggestedPaymentsDescription": "Acciones claras para saldar cada balance pendiente.",
+    "balanceDetails": "Detalle de balances",
+    "balanceDetailsDescription": "Revisa el balance de cada participante por moneda.",
+    "toggleBalanceDetails": "Mostrar u ocultar el detalle de balances",
     "description": "Se trata del importe que ha pagado o ha recibido cada participante.",
     "summary": {
       "pendingPayments": "{count} liquidación(es) pendientes",
@@ -423,6 +428,10 @@
     "emptyDescription": "Todos los participantes están al día en todas las monedas.",
     "Reimbursements": {
       "settlementsTitle": "Liquidación inteligente",
+      "title": "Pagos sugeridos",
+      "currencySectionLabel": "Pagos en {currency}",
+      "youPay": "Pagás vos",
+      "youReceive": "Recibís vos",
       "description": "He aquí algunas sugerencias para optimizar los reembolsos entre los participantes.",
       "noPendingDebtsDescription": "No hace falta mover dinero: el grupo ya quedó saldado.",
       "paymentRegistered": {

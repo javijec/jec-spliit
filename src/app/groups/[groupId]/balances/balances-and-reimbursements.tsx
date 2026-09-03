@@ -4,6 +4,11 @@ import { BalancesList } from '@/app/groups/[groupId]/balances-list'
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import { Badge } from '@/components/ui/badge'
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import {
   GroupSectionCard,
   GroupSectionContent,
   GroupSectionHeader,
@@ -12,13 +17,13 @@ import { SectionHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { Layers3, Scale, Wallet } from 'lucide-react'
+import { ChevronDown, Layers3, Scale, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 
 export default function BalancesAndReimbursements() {
-  const { groupId, group } = useCurrentGroup()
+  const { groupId, group, currentActiveParticipantId } = useCurrentGroup()
   const utils = trpc.useUtils()
   const cachedBalances = useMemo(
     () => utils.groups.balances.list.getData({ groupId }),
@@ -40,17 +45,17 @@ export default function BalancesAndReimbursements() {
 
   const isLoading = balancesAreLoading || !balancesData || !group
   const reimbursementCount = balancesData?.reimbursements.length ?? 0
-  const currencyCount = new Set(
-    balancesData?.reimbursements.map((item) => item.currencyCode) ?? [],
-  ).size
+  const currencyCount = Object.keys(
+    balancesData?.balancesByCurrency ?? {},
+  ).length
 
   return (
     <div className="space-y-3">
       <GroupSectionCard>
         <GroupSectionHeader>
           <SectionHeader
-            title={t('Reimbursements.settlementsTitle')}
-            description={t('Reimbursements.description')}
+            title={t('suggestedPaymentsTitle')}
+            description={t('suggestedPaymentsDescription')}
             meta={
               isLoading ? (
                 <>
@@ -87,41 +92,55 @@ export default function BalancesAndReimbursements() {
               participants={group?.participants}
               currency={getCurrencyFromGroup(group)}
               groupId={groupId}
+              activeParticipantId={currentActiveParticipantId}
             />
           )}
         </GroupSectionContent>
       </GroupSectionCard>
-      <GroupSectionCard>
-        <GroupSectionHeader>
-          <SectionHeader
-            title={t('title')}
-            description={t('description')}
-            meta={
-              isLoading ? (
-                <Skeleton className="h-6 w-36 rounded-sm" />
+      <Collapsible defaultOpen>
+        <GroupSectionCard>
+          <GroupSectionHeader>
+            <div className="flex w-full items-start justify-between gap-3">
+              <SectionHeader
+                title={t('balanceDetails')}
+                description={t('balanceDetailsDescription')}
+                meta={
+                  isLoading ? (
+                    <Skeleton className="h-6 w-36 rounded-sm" />
+                  ) : (
+                    <Badge variant="outline">
+                      <Scale className="h-3.5 w-3.5" />
+                      {tSummary('currenciesInPlay', { count: currencyCount })}
+                    </Badge>
+                  )
+                }
+              />
+              <CollapsibleTrigger
+                className="mt-1 inline-flex shrink-0 items-center gap-1 rounded-md border border-border/70 px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-secondary"
+                aria-label={t('toggleBalanceDetails')}
+              >
+                <span className="sr-only">{t('toggleBalanceDetails')}</span>
+                <ChevronDown className="h-4 w-4 transition-transform [[data-panel-open]_&]:rotate-180" />
+              </CollapsibleTrigger>
+            </div>
+          </GroupSectionHeader>
+          <CollapsibleContent>
+            <GroupSectionContent>
+              {isLoading ? (
+                <ReimbursementsLoading
+                  participantCount={group?.participants.length}
+                />
               ) : (
-                <Badge variant="outline">
-                  <Scale className="h-3.5 w-3.5" />
-                  {tSummary('currenciesInPlay', { count: currencyCount })}
-                </Badge>
-              )
-            }
-          />
-        </GroupSectionHeader>
-        <GroupSectionContent>
-          {isLoading ? (
-            <ReimbursementsLoading
-              participantCount={group?.participants.length}
-            />
-          ) : (
-            <BalancesList
-              balancesByCurrency={balancesData.balancesByCurrency}
-              participants={group.participants}
-              currency={getCurrencyFromGroup(group)}
-            />
-          )}
-        </GroupSectionContent>
-      </GroupSectionCard>
+                <BalancesList
+                  balancesByCurrency={balancesData.balancesByCurrency}
+                  participants={group.participants}
+                  currency={getCurrencyFromGroup(group)}
+                />
+              )}
+            </GroupSectionContent>
+          </CollapsibleContent>
+        </GroupSectionCard>
+      </Collapsible>
     </div>
   )
 }

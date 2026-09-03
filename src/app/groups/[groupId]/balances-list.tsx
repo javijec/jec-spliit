@@ -1,5 +1,5 @@
-import { EmptyState } from '@/components/ui/empty-state'
 import { ParticipantAvatar } from '@/components/participant-avatar'
+import { EmptyState } from '@/components/ui/empty-state'
 import { BalancesByCurrency } from '@/lib/balances'
 import { Currency, getCurrency } from '@/lib/currency'
 import { cn, formatCurrency } from '@/lib/utils'
@@ -85,8 +85,8 @@ export function BalancesList({
                     <span
                       className={cn(
                         'font-semibold tabular-nums',
-                        total > 0 && 'text-primary',
-                        total < 0 && 'text-red-600 dark:text-red-400',
+                        total > 0 && 'text-success',
+                        total < 0 && 'text-danger',
                       )}
                     >
                       {formatCurrency(targetCurrency, total, locale)}

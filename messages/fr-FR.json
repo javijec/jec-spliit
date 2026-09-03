@@ -318,9 +318,18 @@
   },
   "Balances": {
     "title": "Équilibres",
+    "suggestedPaymentsTitle": "Suggested payments",
+    "suggestedPaymentsDescription": "Clear actions for settling each pending balance.",
+    "balanceDetails": "Balance details",
+    "balanceDetailsDescription": "Review each participant balance by currency.",
+    "toggleBalanceDetails": "Toggle balance details",
     "description": "Voici le montant que chaque participant a payé ou doit rembourser.",
     "Reimbursements": {
       "settlementsTitle": "Settlements",
+      "title": "Suggested payments",
+      "currencySectionLabel": "Payments in {currency}",
+      "youPay": "You pay",
+      "youReceive": "You receive",
       "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
       "paymentRegistered": {
         "title": "Payment recorded",

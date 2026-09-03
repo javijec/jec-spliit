@@ -264,9 +264,18 @@
   },
   "Balances": {
     "title": "Балансы",
+    "suggestedPaymentsTitle": "Suggested payments",
+    "suggestedPaymentsDescription": "Clear actions for settling each pending balance.",
+    "balanceDetails": "Balance details",
+    "balanceDetailsDescription": "Review each participant balance by currency.",
+    "toggleBalanceDetails": "Toggle balance details",
     "description": "Это список балансов всех участников группы. Баланс увеличивается у тех, кто оплачивает расход, и уменьшается у тех, между кем он был распределен.",
     "Reimbursements": {
       "settlementsTitle": "Settlements",
+      "title": "Suggested payments",
+      "currencySectionLabel": "Payments in {currency}",
+      "youPay": "You pay",
+      "youReceive": "You receive",
       "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
       "paymentRegistered": {
         "title": "Payment recorded",

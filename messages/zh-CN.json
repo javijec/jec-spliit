@@ -302,9 +302,18 @@
   },
   "Balances": {
     "title": "余额",
+    "suggestedPaymentsTitle": "Suggested payments",
+    "suggestedPaymentsDescription": "Clear actions for settling each pending balance.",
+    "balanceDetails": "Balance details",
+    "balanceDetailsDescription": "Review each participant balance by currency.",
+    "toggleBalanceDetails": "Toggle balance details",
     "description": "这是每位群组成员支付或被支付的金额。",
     "Reimbursements": {
       "settlementsTitle": "Settlements",
+      "title": "Suggested payments",
+      "currencySectionLabel": "Payments in {currency}",
+      "youPay": "You pay",
+      "youReceive": "You receive",
       "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
       "paymentRegistered": {
         "title": "Payment recorded",

@@ -413,6 +413,11 @@
   },
   "Balances": {
     "title": "Balances",
+    "suggestedPaymentsTitle": "Suggested payments",
+    "suggestedPaymentsDescription": "Clear actions for settling each pending balance.",
+    "balanceDetails": "Balance details",
+    "balanceDetailsDescription": "Review each participant balance by currency.",
+    "toggleBalanceDetails": "Toggle balance details",
     "description": "This is the amount that each participant paid or was paid for.",
     "summary": {
       "pendingPayments": "{count} pending settlement(s)",
@@ -423,6 +428,10 @@
     "emptyDescription": "All participants are up to date across every currency.",
     "Reimbursements": {
       "settlementsTitle": "Smart settlement",
+      "title": "Suggested payments",
+      "currencySectionLabel": "Payments in {currency}",
+      "youPay": "You pay",
+      "youReceive": "You receive",
       "description": "Here are suggestions for optimized reimbursements between participants.",
       "noPendingDebtsDescription": "No money needs to move here: the group is already settled.",
       "paymentRegistered": {

@@ -143,8 +143,17 @@
     }
   },
   "Balances": {
+    "suggestedPaymentsTitle": "Pagamentos sugeridos",
+    "suggestedPaymentsDescription": "Ações claras para liquidar cada saldo pendente.",
+    "balanceDetails": "Detalhes dos saldos",
+    "balanceDetailsDescription": "Consulta o saldo de cada participante por moeda.",
+    "toggleBalanceDetails": "Mostrar ou ocultar detalhes dos saldos",
     "Reimbursements": {
       "settlementsTitle": "Settlements",
+      "title": "Suggested payments",
+      "currencySectionLabel": "Payments in {currency}",
+      "youPay": "You pay",
+      "youReceive": "You receive",
       "noPendingDebtsDescription": "There are no pending debts to settle in this group.",
       "paymentRegistered": {
         "title": "Payment recorded",

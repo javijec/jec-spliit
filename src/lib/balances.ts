@@ -54,7 +54,9 @@ function addExpenseToBalances(
       .with('BY_AMOUNT', () => [paidFor.shares, totalPaidForShares])
       .exhaustive()
 
-    const dividedAmount = isLast ? remaining : (amount * shares) / totalShares
+    const dividedAmount = isLast
+      ? remaining
+      : Math.round((amount * shares) / totalShares)
     remaining -= dividedAmount
     getOrCreateBalance(balances, paidFor.participant.id).paidFor +=
       dividedAmount
@@ -71,9 +73,7 @@ function finalizeBalances(balances: Balances) {
   }
 }
 
-export function getBalances(
-  expenses: BalanceExpense[],
-): Balances {
+export function getBalances(expenses: BalanceExpense[]): Balances {
   const balances: Balances = {}
 
   for (const expense of expenses) {
@@ -124,51 +124,52 @@ export function getPublicBalances(reimbursements: Reimbursement[]): Balances {
   return balances
 }
 
-/**
- * A comparator that is stable across reimbursements.
- * This ensures that a participant executing a suggested reimbursement
- * does not result in completely new repayment suggestions.
- */
-function compareBalancesForReimbursements(b1: any, b2: any): number {
-  // positive balances come before negative balances
-  if (b1.total > 0 && 0 > b2.total) {
-    return -1
-  } else if (b2.total > 0 && 0 > b1.total) {
-    return 1
-  }
-  // if signs match, sort based on userid
-  return b1.participantId < b2.participantId ? -1 : 1
+type BalanceParty = {
+  participantId: Participant['id']
+  amount: number
+}
+
+function compareParties(a: BalanceParty, b: BalanceParty): number {
+  return b.amount - a.amount || a.participantId.localeCompare(b.participantId)
 }
 
 export function getSuggestedReimbursements(
   balances: Balances,
 ): Reimbursement[] {
-  const balancesArray = Object.entries(balances)
-    .map(([participantId, { total }]) => ({ participantId, total }))
-    .filter((b) => b.total !== 0)
-  balancesArray.sort(compareBalancesForReimbursements)
-  const reimbursements: Reimbursement[] = []
-  while (balancesArray.length > 1) {
-    const first = balancesArray[0]
-    const last = balancesArray[balancesArray.length - 1]
-    const amount = first.total + last.total
-    if (first.total > -last.total) {
-      reimbursements.push({
-        from: last.participantId,
-        to: first.participantId,
-        amount: -last.total,
-      })
-      first.total = amount
-      balancesArray.pop()
-    } else {
-      reimbursements.push({
-        from: last.participantId,
-        to: first.participantId,
-        amount: first.total,
-      })
-      last.total = amount
-      balancesArray.shift()
-    }
+  const creditors: BalanceParty[] = []
+  const debtors: BalanceParty[] = []
+
+  for (const [participantId, { total }] of Object.entries(balances)) {
+    if (total > 0) creditors.push({ participantId, amount: total })
+    if (total < 0) debtors.push({ participantId, amount: -total })
   }
-  return reimbursements.filter(({ amount }) => Math.round(amount) + 0 !== 0)
+
+  creditors.sort(compareParties)
+  debtors.sort(compareParties)
+
+  const reimbursements: Reimbursement[] = []
+
+  let creditorIndex = 0
+  let debtorIndex = 0
+  while (creditorIndex < creditors.length && debtorIndex < debtors.length) {
+    const creditor = creditors[creditorIndex]
+    const debtor = debtors[debtorIndex]
+    const amount = Math.min(creditor.amount, debtor.amount)
+
+    if (amount > 0) {
+      reimbursements.push({
+        from: debtor.participantId,
+        to: creditor.participantId,
+        amount,
+      })
+    }
+
+    creditor.amount -= amount
+    debtor.amount -= amount
+
+    if (creditor.amount === 0) creditorIndex += 1
+    if (debtor.amount === 0) debtorIndex += 1
+  }
+
+  return reimbursements
 }
