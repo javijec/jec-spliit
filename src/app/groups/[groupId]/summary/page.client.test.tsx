@@ -135,10 +135,10 @@ describe('SummaryPageClient', () => {
     mockExpensesQuery.isError = false
   })
 
-  it('renders totals, personal position, recent expenses, and real links', () => {
+  it('renders personal position, recent expenses, and the expenses link', () => {
     renderSummary()
 
-    expect(screen.getAllByText('$2,946.40')).toHaveLength(2)
+    expect(screen.getByText('$2,946.40')).toBeTruthy()
     expect(screen.getByText('$183.20')).toBeTruthy()
     expect(screen.getByText('Hotel')).toBeTruthy()
     expect(
@@ -146,14 +146,10 @@ describe('SummaryPageClient', () => {
         .getByRole('link', { name: /view all expenses/i })
         .getAttribute('href'),
     ).toBe('/groups/group-1/expenses')
-    expect(
-      screen
-        .getByRole('link', { name: /view suggested payments/i })
-        .getAttribute('href'),
-    ).toBe('/groups/group-1/balances')
+    expect(screen.queryByText(messages.Summary.nextActionTitle)).toBeNull()
   })
 
-  it('keeps multiple currency totals separate', () => {
+  it('keeps multiple currency positions separate', () => {
     mockStatsQuery.data = {
       totalSpentByCurrency: { ARS: 294640, USD: 12000 },
       personalBalanceByCurrency: { ARS: -5000, USD: 0 },
@@ -164,7 +160,8 @@ describe('SummaryPageClient', () => {
 
     expect(screen.getAllByText('ARS').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('USD').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('$120.00')).toBeTruthy()
+    expect(screen.getByText('$0.00')).toBeTruthy()
+    expect(screen.queryByText('$120.00')).toBeNull()
   })
 
   it.each([

@@ -21,7 +21,6 @@ import { AppRouterOutput } from '@/trpc/routers/_app'
 import {
   ArrowRight,
   CircleCheck,
-  HandCoins,
   Plus,
   ReceiptText,
   UserRound,
@@ -45,17 +44,13 @@ type PositionCardsProps = {
 function SummaryLoading() {
   return (
     <div className="space-y-3" aria-busy="true" aria-label="Loading summary">
-      <div className="grid gap-3 lg:grid-cols-2">
-        {Array.from({ length: 2 }).map((_, index) => (
-          <GroupSectionCard key={index}>
-            <GroupSectionContent className="space-y-3">
-              <div className="h-5 w-36 animate-pulse rounded bg-muted" />
-              <div className="h-10 w-48 animate-pulse rounded bg-muted" />
-              <div className="h-4 w-64 animate-pulse rounded bg-muted" />
-            </GroupSectionContent>
-          </GroupSectionCard>
-        ))}
-      </div>
+      <GroupSectionCard>
+        <GroupSectionContent className="space-y-3">
+          <div className="h-5 w-36 animate-pulse rounded bg-muted" />
+          <div className="h-10 w-48 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-64 animate-pulse rounded bg-muted" />
+        </GroupSectionContent>
+      </GroupSectionCard>
       <GroupSectionCard>
         <GroupSectionContent className="space-y-3">
           <div className="h-5 w-40 animate-pulse rounded bg-muted" />
@@ -186,140 +181,55 @@ export function SummaryPageClient() {
     return <SummaryLoading />
   }
 
-  const totalsByCurrency = statsQuery.data?.totalSpentByCurrency ?? {}
   const personalBalanceByCurrency =
     statsQuery.data?.personalBalanceByCurrency ?? {}
-  const currencyEntries = Object.entries(totalsByCurrency).sort(([a], [b]) =>
-    a.localeCompare(b),
-  )
   const hasExpenses = recentExpenses.length > 0
   const hasActiveParticipant = !!currentActiveParticipantId
 
   return (
     <div className="space-y-3">
-      <div className="grid gap-3 lg:grid-cols-2">
-        <GroupSectionCard>
-          <GroupSectionHeader>
-            <GroupSectionTitle>{t('overviewTitle')}</GroupSectionTitle>
-            <GroupSectionDescription>
-              {t('overviewDescription')}
-            </GroupSectionDescription>
-          </GroupSectionHeader>
-          <GroupSectionContent>
-            {statsQuery.isError ? (
-              <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-                {t('financialError')}
-              </p>
-            ) : currencyEntries.length ? (
-              <div className="grid gap-2 sm:grid-cols-2">
-                {currencyEntries.map(([currencyCode, amount]) => (
-                  <div
-                    key={currencyCode}
-                    className="rounded-md border border-border/70 bg-background px-3 py-3"
-                  >
-                    <p className="text-xs font-medium text-muted-foreground">
-                      {currencyCode}
-                    </p>
-                    <p className="mt-1 text-2xl font-semibold tabular-nums">
-                      {formatCurrency(
-                        getCurrency(currencyCode, locale as Locale),
-                        amount,
-                        locale,
-                      )}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {t('noExpensesYet')}
-              </p>
-            )}
-            <p className="mt-3 text-xs text-muted-foreground">
-              {t('participantCount', {
-                count: resolvedGroup.participants.length,
-              })}
-            </p>
-            {statsQuery.data?.lastActivityAt ? (
-              <p className="mt-3 text-xs text-muted-foreground">
-                {t('lastActivity')}:{' '}
-                {formatDateOnly(
-                  new Date(statsQuery.data.lastActivityAt),
-                  locale,
-                )}
-              </p>
-            ) : null}
-          </GroupSectionContent>
-        </GroupSectionCard>
-
-        <GroupSectionCard>
-          <GroupSectionHeader>
-            <GroupSectionTitle>{t('positionTitle')}</GroupSectionTitle>
-            <GroupSectionDescription>
-              {t('positionDescription')}
-            </GroupSectionDescription>
-          </GroupSectionHeader>
-          <GroupSectionContent>
-            {hasActiveParticipant && !statsQuery.isError ? (
-              <PositionCards
-                balances={personalBalanceByCurrency}
-                groupCurrencyCode={resolvedGroup.currencyCode}
-                locale={locale}
-                t={t}
-              />
-            ) : hasActiveParticipant ? (
-              <p className="text-sm text-muted-foreground">
-                {t('financialError')}
-              </p>
-            ) : (
-              <div className="rounded-md border border-dashed border-border/70 bg-background px-3 py-3">
-                <div className="flex items-start gap-3">
-                  <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {t('chooseParticipant')}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {t('chooseParticipantDescription')}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="mt-3"
-                      onClick={() => openActiveUserModal?.()}
-                    >
-                      {t('chooseParticipant')}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </GroupSectionContent>
-        </GroupSectionCard>
-      </div>
-
       <GroupSectionCard>
         <GroupSectionHeader>
-          <GroupSectionTitle>{t('nextActionTitle')}</GroupSectionTitle>
+          <GroupSectionTitle>{t('positionTitle')}</GroupSectionTitle>
+          <GroupSectionDescription>
+            {t('positionDescription')}
+          </GroupSectionDescription>
         </GroupSectionHeader>
-        <GroupSectionContent className="flex flex-wrap gap-2">
-          {hasActiveParticipant ? (
-            <QuickExpenseTrigger>
-              <Plus className="mr-2 h-4 w-4" />
-              {hasExpenses ? t('addExpense') : t('addFirstExpense')}
-            </QuickExpenseTrigger>
+        <GroupSectionContent>
+          {hasActiveParticipant && !statsQuery.isError ? (
+            <PositionCards
+              balances={personalBalanceByCurrency}
+              groupCurrencyCode={resolvedGroup.currencyCode}
+              locale={locale}
+              t={t}
+            />
+          ) : hasActiveParticipant ? (
+            <p className="text-sm text-muted-foreground">
+              {t('financialError')}
+            </p>
           ) : (
-            <Button type="button" onClick={() => openActiveUserModal?.()}>
-              <UserRound className="mr-2 h-4 w-4" />
-              {t('chooseParticipant')}
-            </Button>
+            <div className="rounded-md border border-dashed border-border/70 bg-background px-3 py-3">
+              <div className="flex items-start gap-3">
+                <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">
+                    {t('chooseParticipant')}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t('chooseParticipantDescription')}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3"
+                    onClick={() => openActiveUserModal?.()}
+                  >
+                    {t('chooseParticipant')}
+                  </Button>
+                </div>
+              </div>
+            </div>
           )}
-          <Button asChild variant="outline">
-            <Link href={`/groups/${groupId}/balances`}>
-              <HandCoins className="mr-2 h-4 w-4" />
-              {t('viewSuggestedPayments')}
-            </Link>
-          </Button>
         </GroupSectionContent>
       </GroupSectionCard>
 
