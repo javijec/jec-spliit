@@ -13,9 +13,10 @@ export const listGroupExpensesProcedure = protectedProcedure
       cursor: z.number().optional(),
       limit: z.number().optional(),
       filter: z.string().optional(),
+      sortBy: z.enum(['expenseDate', 'createdAt']).optional(),
     }),
   )
-  .query(async ({ ctx, input: { groupId, cursor = 0, limit = 10, filter } }) => {
+  .query(async ({ ctx, input: { groupId, cursor = 0, limit = 10, filter, sortBy } }) => {
     await requireGroupMembership(ctx.auth.user.id, groupId)
     await syncRecurringExpensesForGroupIfDue(groupId)
 
@@ -23,6 +24,7 @@ export const listGroupExpensesProcedure = protectedProcedure
       offset: cursor,
       length: limit + 1,
       filter,
+      sortBy,
     })
     return {
       expenses: expenses.slice(0, limit).map((expense) => ({

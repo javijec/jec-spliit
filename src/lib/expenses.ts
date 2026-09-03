@@ -351,8 +351,18 @@ export async function updateExpense(
 
 export async function getGroupExpenses(
   groupId: string,
-  options?: { offset?: number; length?: number; filter?: string },
+  options?: {
+    offset?: number
+    length?: number
+    filter?: string
+    sortBy?: 'expenseDate' | 'createdAt'
+  },
 ) {
+  const orderBy: Prisma.ExpenseOrderByWithRelationInput[] =
+    options?.sortBy === 'createdAt'
+      ? [{ createdAt: 'desc' }, { expenseDate: 'desc' }]
+      : [{ expenseDate: 'desc' }, { createdAt: 'desc' }]
+
   return prisma.expense.findMany({
     select: {
       amount: true,
@@ -385,7 +395,7 @@ export async function getGroupExpenses(
         ? { contains: options.filter, mode: 'insensitive' }
         : undefined,
     },
-    orderBy: [{ expenseDate: 'desc' }, { createdAt: 'desc' }],
+    orderBy,
     skip: options?.offset,
     take: options?.length,
   })

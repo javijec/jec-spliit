@@ -165,7 +165,7 @@ export function SummaryPageClient() {
     { staleTime: 300_000, refetchOnMount: false },
   )
   const expensesQuery = trpc.groups.expenses.list.useInfiniteQuery(
-    { groupId, limit: 5, filter: '' },
+    { groupId, limit: 5, filter: '', sortBy: 'createdAt' },
     {
       getNextPageParam: (page) => (page.hasMore ? page.nextCursor : undefined),
       staleTime: 300_000,
