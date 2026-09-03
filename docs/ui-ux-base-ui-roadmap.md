@@ -609,12 +609,24 @@ Para múltiples monedas, agrupar sin crear una card visual completa por cada val
 
 ## Tareas
 
-- [ ] Reutilizar/crear algoritmo de simplificación de deudas.
-- [ ] Agregar tests deterministas para settlement suggestions.
-- [ ] Mostrar `quién paga a quién` antes de saldos técnicos.
-- [ ] Mantener saldos individuales como sección expandible/secundaria.
-- [ ] Usar color semántico success/danger, no `primary`.
-- [ ] Crear empty state especial: `Todos están a mano`.
+- [x] Reutilizar el algoritmo de balances existente y simplificar por moneda con
+  acreedores/deudores ordenados de forma determinista y greedy.
+- [x] Agregar tests deterministas para transferencias, redondeo y separación de
+  monedas.
+- [x] Mostrar `quién paga a quién` antes de los saldos técnicos, agrupado por
+  moneda y con acciones de pago total/parcial.
+- [x] Mantener saldos individuales como sección expandible/secundaria.
+- [x] Usar color semántico success/danger para la lectura financiera.
+- [x] Crear empty state positivo: `Todos están a mano`.
+- [x] Resaltar las sugerencias que involucran al participante activo sin ocultar
+  las demás.
+- [x] Auditar el flujo existente de “marcar como pagado”: registra un gasto de
+  reembolso, conserva la moneda, evita doble envío y mantiene el diálogo abierto
+  hasta éxito o error.
+
+La Fase 5 no agrega una entidad `Settlement`: el registro de pago sigue siendo
+el gasto de reembolso existente. La persistencia y el ciclo de vida explícito de
+settlements quedan para la Fase 6.
 
 ## Estado cero
 
@@ -626,6 +638,11 @@ No quedan pagos pendientes en este grupo.
 ## Criterio de aceptación
 
 El usuario no debe calcular mentalmente qué transferencia realizar.
+
+**Fase 5 completada:** pagos sugeridos accionables por moneda, algoritmo greedy
+determinista con invariantes cubiertas por tests, detalle individual secundario,
+resaltado del participante activo y flujo de reembolso existente con feedback
+de éxito/error.
 
 ---
 

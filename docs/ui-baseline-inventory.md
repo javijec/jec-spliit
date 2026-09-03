@@ -322,6 +322,30 @@ The repository uses Jest through `jest.config.ts` and Next Jest with JSDOM. Exis
 
 There is no Jest setup file, no `jest-axe`, no accessibility matcher setup, no Playwright configuration, and no E2E script in `package.json`. `.playwright-cli/` contains prior captured logs/pages, but it is not a reproducible test harness in this checkout.
 
+## 14.1 Phase 5 actionable balances contract
+
+`groups.balances.list` remains the source of truth for balances and suggested
+reimbursements. The response is interpreted per `currencyCode`; currencies are
+never netted together or transferred across one another. The suggestion
+algorithm partitions positive creditor balances and negative debtor balances,
+sorts both lists deterministically, and emits positive greedy transfers with no
+self-transfers. Its focused tests cover two-party settlement, chains, multiple
+creditors/debtors, settled groups, minor-unit rounding, and currency isolation.
+
+The Balances route now presents “Suggested payments” first as mobile-first cards
+with payer, recipient, amount, currency, and total/partial payment actions. Cards
+involving `currentActiveParticipantId` receive a visual and textual “You pay” or
+“You receive” cue, while all transfers remain visible. Individual balances are
+secondary behind a Base UI Collapsible and retain their per-currency detail.
+
+“Mark as paid” continues to use the existing reimbursement-expense mutation; no
+`Settlement` model or new persistence contract was introduced. The dialog stays
+open while the mutation is pending or fails, prevents duplicate submits, closes
+on success, invalidates related queries, and reports success/error through the
+existing toast manager. Authenticated browser verification at 390x844 and
+desktop remains **UNKNOWN / NEEDS LIVE VERIFICATION** because this checkout has
+no reproducible authenticated fixtures.
+
 ## 15. New smoke coverage
 
 Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
