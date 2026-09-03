@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button'
 import { getCurrentAuthSession } from '@/lib/auth'
 import {
   ArrowRight,
-  CheckCircle2,
   FolderKanban,
   HandCoins,
   ReceiptText,
@@ -10,23 +9,27 @@ import {
 } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import type { ComponentType, ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, ComponentType, ReactNode } from 'react'
+import { forwardRef } from 'react'
 
 export default async function HomePage() {
   const t = await getTranslations()
   const session = await getCurrentAuthSession()
   const groupsHref = session
     ? '/groups'
-    : '/auth/login?connection=google-oauth2'
+    : '/auth/login?connection=google-oauth2&returnTo=%2Fgroups'
+  const createGroupHref = session
+    ? '/groups/create'
+    : '/auth/login?connection=google-oauth2&returnTo=%2Fgroups%2Fcreate'
   const primaryCta = session
     ? t('Homepage.button.groups')
-    : 'Ingresar con Google'
+    : t('Account.signInAction')
 
   return (
     <main className="relative overflow-hidden px-3 pb-5 pt-3 sm:px-6 sm:pb-8 sm:pt-5">
       <div className="relative mx-auto w-full max-w-screen-xl">
-        <section className="grid min-h-[calc(100dvh-8rem)] items-center gap-8 py-6 sm:min-h-[calc(100dvh-10rem)] lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
-          <div className="max-w-2xl">
+        <section className="flex min-h-[calc(100dvh-8rem)] items-center justify-center py-6 sm:min-h-[calc(100dvh-10rem)]">
+          <div className="w-full max-w-2xl">
             <div className="space-y-4 sm:space-y-5">
               <h1 className="landing-header max-w-[12ch] text-balance text-[2.5rem] font-semibold leading-[0.96] tracking-tight sm:text-[4rem] lg:text-[4.8rem]">
                 {t.rich('Homepage.title', {
@@ -54,7 +57,7 @@ export default async function HomePage() {
                 variant="outline"
                 className="h-11 w-full sm:w-auto sm:min-w-36"
               >
-                <NavigationLink href={session ? '/groups/create' : groupsHref}>
+                <NavigationLink href={createGroupHref}>
                   <FolderKanban className="h-4 w-4" />
                   {t('Homepage.secondaryCta')}
                 </NavigationLink>
@@ -76,80 +79,34 @@ export default async function HomePage() {
               />
             </div>
           </div>
-
-          <div className="relative min-w-0">
-            <div className="finance-shell overflow-hidden">
-              <div className="flex items-center justify-between border-b border-border/80 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">
-                    Viaje a Mendoza
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    4 participantes
-                  </p>
-                </div>
-                <div className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-                  ARS
-                </div>
-              </div>
-              <div className="grid gap-0 lg:grid-cols-[1fr_15rem]">
-                <div className="divide-y divide-border/70">
-                  <ExpensePreview
-                    title="Cena del viernes"
-                    person="Pago: Juli"
-                    amount="$ 48.200"
-                  />
-                  <ExpensePreview
-                    title="Nafta ruta 7"
-                    person="Pago: Nico"
-                    amount="$ 36.900"
-                  />
-                  <ExpensePreview
-                    title="Supermercado"
-                    person="Pago: Ana"
-                    amount="$ 29.540"
-                  />
-                  <ExpensePreview
-                    title="Cabaña"
-                    person="Pago: Tomi"
-                    amount="$ 180.000"
-                  />
-                </div>
-                <div className="border-t border-border/80 bg-secondary/35 p-4 lg:border-l lg:border-t-0">
-                  <p className="text-sm font-semibold">Balances</p>
-                  <div className="mt-4 space-y-3">
-                    <BalancePreview name="Ana" value="+$ 18.320" positive />
-                    <BalancePreview name="Juli" value="+$ 9.100" positive />
-                    <BalancePreview name="Nico" value="-$ 11.740" />
-                    <BalancePreview name="Tomi" value="-$ 15.680" />
-                  </div>
-                  <div className="mt-5 flex items-center gap-2 rounded-md border border-border/80 bg-card px-3 py-2 text-xs text-muted-foreground">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Listo para liquidar
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
       </div>
     </main>
   )
 }
 
-function NavigationLink({
-  href,
-  children,
-}: {
+type NavigationLinkProps = Omit<
+  ComponentPropsWithoutRef<'a'>,
+  'href' | 'children'
+> & {
   href: string
   children: ReactNode
-}) {
-  return href.startsWith('/auth/login') ? (
-    <a href={href}>{children}</a>
-  ) : (
-    <Link href={href}>{children}</Link>
-  )
 }
+
+const NavigationLink = forwardRef<HTMLAnchorElement, NavigationLinkProps>(
+  ({ href, children, ...props }, ref) => {
+    return href.startsWith('/auth/login') ? (
+      <a ref={ref} href={href} {...props}>
+        {children}
+      </a>
+    ) : (
+      <Link ref={ref} href={href} {...props}>
+        {children}
+      </Link>
+    )
+  },
+)
+NavigationLink.displayName = 'NavigationLink'
 
 function Feature({
   icon: Icon,
@@ -162,51 +119,6 @@ function Feature({
     <div className="flex items-center gap-2">
       <Icon className="h-4 w-4 text-primary" />
       <span>{label}</span>
-    </div>
-  )
-}
-
-function ExpensePreview({
-  title,
-  person,
-  amount,
-}: {
-  title: string
-  person: string
-  amount: string
-}) {
-  return (
-    <div className="flex flex-col items-start gap-1 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:gap-3">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{person}</p>
-      </div>
-      <p className="text-sm font-semibold tabular-nums">{amount}</p>
-    </div>
-  )
-}
-
-function BalancePreview({
-  name,
-  value,
-  positive = false,
-}: {
-  name: string
-  value: string
-  positive?: boolean
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-sm">
-      <span className="text-muted-foreground">{name}</span>
-      <span
-        className={
-          positive
-            ? 'font-semibold text-primary'
-            : 'font-semibold text-foreground'
-        }
-      >
-        {value}
-      </span>
     </div>
   )
 }
