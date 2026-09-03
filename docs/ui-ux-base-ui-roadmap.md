@@ -801,7 +801,7 @@ por falta de fixtures reproducibles en este checkout.
 
 ---
 
-# 13. Fase 9 — Categorías visuales
+# 13. Fase 9 — Categorías visuales ✅
 
 ## Objetivo
 
@@ -820,14 +820,38 @@ Mejorar reconocimiento visual y análisis.
 
 ## Reglas
 
-- [ ] Mantener el icono como ayuda, no como única señal.
-- [ ] No depender solamente del color.
-- [ ] Permitir categoría vacía / Otros.
-- [ ] Mantener traducciones en `next-intl`.
+- [x] Mantener el icono como ayuda, no como única señal: las filas muestran
+  icono y label visible.
+- [x] No depender solamente del color; no se agregó color específico por
+  categoría.
+- [x] Mantener la categoría vacía mediante el ID existente `0` (`General`) y
+  usar un fallback neutral para IDs legacy o nombres custom desconocidos.
+- [x] Mantener traducciones en `next-intl` para el catálogo integrado en todos
+  los locales existentes.
+
+## Implementación
+
+- [x] Crear un helper compartido para labels localizados, fallback seguro y
+  orden estable del catálogo sin cambiar IDs persistidos.
+- [x] Integrar categoría visible en las filas de gastos de Fase 8 sin
+  desplazar el monto, `Tu parte`, pagador o fecha.
+- [x] Mejorar `CategorySelector` con icono + label, estado seleccionado,
+  búsqueda existente y orden estable; `General` queda al final del grupo de
+  categorías no clasificadas.
+- [x] Conectar el mismo selector al formulario completo de crear/editar para
+  conservar y modificar la categoría sin cambiar la mutation ni el schema.
+- [x] Mantener reimbursements como `Payment`, sin asignarles una categoría
+  artificial; Quick Add continúa dejando la categoría dentro de `Más opciones`.
+- [x] Cubrir categorías conocidas, vacías, custom/legacy desconocidas, orden,
+  selector y presentación de filas.
 
 ## Criterio de aceptación
 
 Las categorías mejoran el escaneo sin agregar pasos obligatorios al Quick Add.
+La Fase 9 quedó completada sin migración destructiva, sin cambios de IDs y sin
+modificar Auth, Summary, Activity, Lifecycle, Landing ni el bug separado `min0`.
+La verificación visual autenticada en mobile y desktop queda pendiente por
+falta de fixtures reproducibles en este checkout.
 
 ---
 

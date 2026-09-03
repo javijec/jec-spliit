@@ -465,6 +465,33 @@ Authenticated visual verification for 390px, 430px, desktop, multi-currency,
 long content, and attachments remains **UNKNOWN / NEEDS LIVE VERIFICATION**.
 The previously reported `min0` issue was intentionally not changed in Phase 8.
 
+## 14.6 Phase 9 visual category contract
+
+Categories remain the existing global, database-backed `Category` catalog.
+`Expense.categoryId` keeps its persisted IDs, including ID `0` for the existing
+`Uncategorized/General` entry; no migration, seed rewrite, deletion, or ID
+reinterpretation was introduced. Reimbursements remain visually classified as
+payments and never receive a fabricated category label.
+
+`src/lib/categories.ts` centralizes the presentation contract: built-in
+categories use the existing `next-intl` keys, empty/ID `0` values resolve to
+the translated General label, and unknown legacy or custom names fall back to
+their stored name (or General when empty). The selector uses a stable group
+order, displays icon plus label, keeps search and keyboard behavior through the
+Base UI Combobox wrapper, and exposes the selected value to assistive
+technology. The full expense form and Quick Add both continue to use the same
+category IDs and existing create/update mutations.
+
+Expense rows add a compact visible category label next to the existing icon;
+the amount remains the primary visual datum. No category fetch is performed per
+row: the existing expense list payload already includes the small category
+projection. Focused tests cover built-in, empty, unknown/custom, ordering,
+selector interaction, reimbursement exclusion, and the existing Phase 8 row
+states. Authenticated visual verification at 390px, 430px, and desktop remains
+**UNKNOWN / NEEDS LIVE VERIFICATION** because this checkout has no reproducible
+authenticated fixture. The previously reported `min0` issue remains outside
+Phase 9 scope.
+
 ## 15. New smoke coverage
 
 Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
