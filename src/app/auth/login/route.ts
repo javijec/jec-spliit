@@ -15,10 +15,23 @@ export async function GET(request: NextRequest) {
       callbackURL: returnTo,
     },
     headers: request.headers,
+    returnHeaders: true,
   })
 
-  if (result.url) {
-    return NextResponse.redirect(result.url)
+  if (result.response.url) {
+    const response = NextResponse.redirect(result.response.url)
+    const headers = result.headers as Headers & {
+      getSetCookie?: () => string[]
+    }
+    const setCookieHeaders =
+      headers.getSetCookie?.() ??
+      (headers.get('set-cookie') ? [headers.get('set-cookie') as string] : [])
+
+    for (const cookie of setCookieHeaders) {
+      response.headers.append('set-cookie', cookie)
+    }
+
+    return response
   }
 
   return NextResponse.redirect(new URL(returnTo, request.url))
