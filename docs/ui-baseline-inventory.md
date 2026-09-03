@@ -409,6 +409,38 @@ state, multi-currency, delete/reverse, network error, and double-click behavior
 remains **UNKNOWN / NEEDS LIVE VERIFICATION** because this checkout has no
 reproducible authenticated fixtures.
 
+## 14.4 Phase 7 Quick Add contract
+
+Quick Add is mounted by `QuickExpenseProvider` in the group layout and exposes
+one `QuickExpenseTrigger` for the mobile FAB, Summary CTA, and Expenses empty
+state. The full route `/groups/[groupId]/expenses/create` remains available
+from the drawer as the advanced fallback; no route or bottom-navigation
+semantics changed.
+
+The drawer reuses `expenseFormSchema`, the generic
+`groups.expenses.create` mutation, group split defaults, group currency, the
+validated `currentActiveParticipantId`, category/date defaults, and the shared
+minor-unit persistence helper. It always submits `isReimbursement = false`.
+Advanced fields (category, date, currency, split, participants, and notes) are
+progressively disclosed through the existing local Collapsible. No second
+schema, mutation, settlement flow, or expense-list redesign was introduced.
+
+Success closes and resets the drawer, shows a toast, and invalidates only the
+related expense, reimbursement, balance, stats, activity, and group-summary
+queries. Errors keep the drawer and draft intact; the pending state disables
+Save and prevents double submission. The Base UI Drawer wrapper preserves
+virtual-keyboard handling, internal scrolling, focus, Escape, swipe, backdrop,
+and safe-area behavior. Automated focused coverage covers defaults, active
+payer, comma-decimal minor units, advanced options, success/error, missing
+payer, pending state, and the full-form link.
+
+All locale files contain the `QuickExpense` namespace. Non-English locales use
+the repository's current English fallback policy for these new keys until
+human translations are available. Authenticated browser verification at 390px,
+360px, desktop, and with the keyboard open remains **UNKNOWN / NEEDS LIVE
+VERIFICATION** because this checkout has no reproducible authenticated fixture.
+Phase 5 and Phase 6 reimbursement behavior remain complete and untouched.
+
 ## 15. New smoke coverage
 
 Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:

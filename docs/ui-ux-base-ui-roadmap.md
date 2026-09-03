@@ -711,85 +711,41 @@ balances ni crear un modelo `Settlement`.
 
 ---
 
-# 11. Fase 7 — Quick Add de gastos con Base UI Drawer
+# 11. Fase 7 — Quick Add de gastos con Base UI Drawer ✅
 
 ## Objetivo
 
 Reducir drásticamente el tiempo necesario para registrar un gasto frecuente.
 
-## FAB
+- `QuickExpenseProvider`, `QuickExpenseTrigger` y `QuickExpenseDrawer` viven en
+  el layout del grupo, de modo que FAB, Summary y Expenses comparten una única
+  superficie sin contaminar `CurrentGroupContext` con un store genérico de UI.
+- El FAB móvil, el CTA primario de Summary y el CTA del empty state de Expenses
+  abren el drawer; `/groups/[groupId]/expenses/create` permanece como fallback
+  de formulario completo y deep link.
+- El drawer reutiliza `expenseFormSchema`, `groups.expenses.create`, los defaults
+  de división del grupo, la moneda del grupo, el participante activo, categoría
+  y fecha actual. Los gastos Quick Add siempre envían `isReimbursement: false`.
+- `Más opciones` contiene categoría, fecha, moneda, split, participantes y
+  notas. La conversión a minor units y la invalidación dirigida viven en helpers
+  compartidos con el formulario completo; no hay mutation ni schema paralelo.
+- El wrapper local Base UI Drawer conserva swipe down, Escape, focus, backdrop,
+  scroll interno, `VirtualKeyboardProvider` y safe-area. El drawer permanece
+  abierto y conserva el draft ante errores; durante la mutation deshabilita
+  Guardar y muestra estado de guardado.
+- Tras éxito cierra, limpia el draft, muestra toast y actualiza expenses,
+  reimbursements, balances, stats, activities y `groups.mine`; la pantalla
+  actual no cambia. La verificación real de teclado y viewport queda pendiente
+  por falta de fixtures autenticados reproducibles.
 
-Cambiar inicialmente:
+## Criterio de aceptación — COMPLETADO
 
-```text
-+
-```
+Un gasto simple se puede registrar sin abandonar la pantalla actual y el mismo
+contrato de creación se mantiene entre Quick Add y el formulario completo.
 
-por:
-
-```text
-+ Gasto
-```
-
-En mobile puede contraerse a icono al hacer scroll sólo si se implementa sin afectar accesibilidad.
-
-## Interacción
-
-Al pulsar `+ Gasto` desde Summary o Expenses:
-
-abrir Base UI Drawer con:
-
-```text
-Nuevo gasto
-
-Descripción
-[ Cena             ]
-
-Monto
-[ $ 45.000         ]
-
-Pagó
-[ Javier         v ]
-
-[Guardar gasto]
-
-Más opciones
-```
-
-## `Más opciones`
-
-Puede expandir o navegar al formulario completo con:
-
-- fecha;
-- categoría;
-- participantes;
-- split personalizado;
-- moneda;
-- notas;
-- adjuntos si existen.
-
-## Reglas
-
-- [ ] No duplicar la lógica de validación del formulario completo.
-- [ ] Extraer schema y mutation compartidos.
-- [ ] Mantener URL `/expenses/create` como fallback y deep link.
-- [ ] Drawer debe respetar teclado virtual móvil.
-- [ ] Focus inicial inteligente: descripción o monto según test UX.
-- [ ] Después de guardar: cerrar drawer y actualizar lista/summary optimísticamente.
-
-## Feedback
-
-Toast recomendado:
-
-```text
-✓ Cena agregada · $45.000
-Tu parte: $11.250
-[Deshacer]
-```
-
-## Criterio de aceptación
-
-Un gasto simple se puede registrar sin abandonar la pantalla actual.
+La Fase 7 se ejecutó después de la Fase 6 por orden operativo. Fase 5 y Fase 6
+permanecen completas; no se modificaron los algoritmos ni el flujo persistente
+de reimbursements. La Fase 8 (rediseño de la lista de gastos) no comenzó.
 
 ---
 
