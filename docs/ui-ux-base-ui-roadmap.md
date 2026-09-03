@@ -520,25 +520,23 @@ existente; no se introdujo un lifecycle `settled` o `finalized`.
 
 ---
 
-# 8. Fase 4 — Dashboard real del grupo
+# 8. Fase 4 — Dashboard real del grupo ✅
 
 ## Objetivo
 
 Hacer que `/summary` responda las preguntas principales sin obligar a navegar a otras pestañas.
 
-## Jerarquía propuesta
+## Jerarquía implementada
 
-### Bloque 1 — Total
+### Bloque 1 — Overview financiero
 
 ```text
-Viaje a Mendoza
-$294.640 gastados
-4 participantes · ARS
+Total gastado por moneda, sin sumar ARS, USD u otras unidades entre sí.
 ```
 
-### Bloque 2 — Tu situación
+### Bloque 2 — Tu posición
 
-Uno de:
+Por moneda, se muestra uno de:
 
 ```text
 Te deben $18.320
@@ -555,28 +553,41 @@ Estás al día
 ### Bloque 3 — Próxima acción
 
 ```text
-Para saldar
-Nico → Ana      $11.740
-Tomi → Juli      $6.580
+Agregar gasto como acción primaria; elegir participante cuando no existe un
+participante activo. Balances queda como acceso secundario y no se duplican aquí
+las transferencias sugeridas de la Fase 5.
 ```
 
 ### Bloque 4 — Gastos recientes
 
 Mostrar 3-5 gastos con acceso a la lista completa.
 
-### Bloque 5 — Actividad reciente (fase posterior habilitable)
+### Bloque 5 — Actividad reciente
 
 ## Tareas
 
-- [ ] Crear un summary query agregado si las consultas actuales requieren múltiples round trips.
-- [ ] Mostrar skeleton estable para evitar layout shift.
-- [ ] Reutilizar datos prefetched actuales.
-- [ ] Mantener bottom navigation actual.
-- [ ] Mantener FAB, pero cambiar su representación según Fase 6.
+- [x] Exponer overview por moneda, posición personal por moneda y última fecha de
+  actividad de gastos en el contrato existente de `groups.stats.get`.
+- [x] Cargar sólo los últimos cinco gastos mediante `groups.expenses.list`,
+  respetando el orden real del backend.
+- [x] Mostrar skeleton estable para evitar layout shift y degradar sólo gastos
+  recientes si esa consulta falla.
+- [x] Reutilizar el flujo existente de `ActiveUserModal` cuando falta el
+  participante activo.
+- [x] Mantener bottom navigation y FAB actuales, incluyendo el espacio de safe
+  area y las rutas existentes.
+- [x] Añadir enlaces a Expenses y Balances sin convertir Summary en una segunda
+  pantalla de pagos.
 
 ## Criterio de aceptación
 
 Un usuario entiende el estado del grupo en menos de unos segundos sin abrir Balances.
+
+**Fase 4 completada:** Summary es ahora el home operativo del grupo: muestra
+total gastado por moneda, posición personal, próxima acción y gastos recientes.
+La implementación se ejecutó después de la Fase 5 por orden operativo; la Fase
+5 permanece completa y no se alteraron sus pagos sugeridos, algoritmo greedy,
+detalle de balances ni flujo de marcar pagos como realizados.
 
 ---
 

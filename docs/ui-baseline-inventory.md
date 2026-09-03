@@ -346,6 +346,38 @@ existing toast manager. Authenticated browser verification at 390x844 and
 desktop remains **UNKNOWN / NEEDS LIVE VERIFICATION** because this checkout has
 no reproducible authenticated fixtures.
 
+## 14.2 Phase 4 summary dashboard contract
+
+`/groups/[groupId]/summary` is the operational group home. Its financial
+overview comes from the existing `groups.stats.get` procedure, extended with
+`totalSpentByCurrency`, `personalBalanceByCurrency`, and `lastActivityAt`.
+Totals are aggregated from the existing balance expense source, excluding
+reimbursements and keeping currencies separate. Personal position reuses
+`getBalancesByCurrency`; Summary does not calculate settlements or render
+from/to transfers.
+
+Recent expenses use one limited `groups.expenses.list` query with a limit of
+five. The backend already orders by `expenseDate desc, createdAt desc`, so no
+client-side resorting or per-row query is introduced. The dashboard has two
+client data queries (stats and the limited list), and the stats procedure keeps
+its database reads parallel; no N+1 or full expense hydration for totals is
+introduced. `lastActivityAt` is the latest recorded expense date, not a complete
+activity-feed timestamp; the full activity feed remains out of scope.
+
+When there is no reliable `currentActiveParticipantId`, Summary invokes the
+layout-owned `ActiveUserModal` through the existing group context. The mobile
+bottom navigation, FAB, safe-area padding, and existing routes remain in the
+group layout. Summary links to Balances for actionable payments and preserves
+the complete Phase 5 reimbursement, greedy algorithm, detail, and regression
+test behavior.
+
+Focused coverage is provided by `src/app/groups/[groupId]/summary/page.client.test.tsx`
+and `src/lib/summary.test.ts`: single and multiple currencies, positive,
+negative, settled and absent participant states, recent expenses, empty state,
+real expense/balance links, and latest activity ordering. Authenticated browser
+verification of `/summary` at desktop and 390px remains **UNKNOWN / NEEDS LIVE
+VERIFICATION** because this checkout has no reproducible authenticated fixture.
+
 ## 15. New smoke coverage
 
 Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
