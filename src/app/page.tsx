@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 export default async function HomePage() {
   const t = await getTranslations()
@@ -43,21 +43,21 @@ export default async function HomePage() {
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Button asChild className="h-11 w-full sm:w-auto sm:min-w-44">
-                <Link href={groupsHref}>
+                <NavigationLink href={groupsHref}>
                   {!session && <GoogleMark />}
                   {primaryCta}
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+                </NavigationLink>
               </Button>
               <Button
                 asChild
                 variant="outline"
                 className="h-11 w-full sm:w-auto sm:min-w-36"
               >
-                <Link href={session ? '/groups/create' : groupsHref}>
+                <NavigationLink href={session ? '/groups/create' : groupsHref}>
                   <FolderKanban className="h-4 w-4" />
                   {t('Homepage.secondaryCta')}
-                </Link>
+                </NavigationLink>
               </Button>
             </div>
 
@@ -134,6 +134,20 @@ export default async function HomePage() {
         </section>
       </div>
     </main>
+  )
+}
+
+function NavigationLink({
+  href,
+  children,
+}: {
+  href: string
+  children: ReactNode
+}) {
+  return href.startsWith('/auth/login') ? (
+    <a href={href}>{children}</a>
+  ) : (
+    <Link href={href}>{children}</Link>
   )
 }
 

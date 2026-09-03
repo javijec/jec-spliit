@@ -527,7 +527,7 @@ function SignInCard() {
       </GroupSectionHeader>
       <GroupSectionContent className="pt-0">
         <Button asChild className="w-full sm:w-auto">
-          <Link href="/auth/login?connection=google-oauth2">{t('action')}</Link>
+          <a href="/auth/login?connection=google-oauth2">{t('action')}</a>
         </Button>
       </GroupSectionContent>
     </GroupSectionCard>
@@ -546,16 +546,16 @@ function GroupsPage({
         description={t('groupsHeroDescription')}
         actions={
           <Button asChild className="w-full sm:w-auto">
-            <Link
-              href={
-                isAuthenticated
-                  ? '/groups/create'
-                  : '/auth/login?connection=google-oauth2'
-              }
-            >
-              {isAuthenticated ? <Plus className="h-4 w-4" /> : null}
-              {isAuthenticated ? t('create') : t('SignIn.action')}
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/groups/create">
+                <Plus className="h-4 w-4" />
+                {t('create')}
+              </Link>
+            ) : (
+              <a href="/auth/login?connection=google-oauth2">
+                {t('SignIn.action')}
+              </a>
+            )}
           </Button>
         }
       />

@@ -149,13 +149,30 @@ function Content({
 }
 
 function ButtonLink({ href, label }: { href: string; label: string }) {
+  const content = (
+    <>
+      <FolderKanban className="h-4 w-4 text-primary" />
+      <span>{label}</span>
+    </>
+  )
+
+  if (href.startsWith('/auth/login')) {
+    return (
+      <a
+        href={href}
+        className="hidden h-9 items-center gap-2 rounded-md border border-border/90 bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 sm:inline-flex"
+      >
+        {content}
+      </a>
+    )
+  }
+
   return (
     <Link
       href={href}
       className="hidden h-9 items-center gap-2 rounded-md border border-border/90 bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 sm:inline-flex"
     >
-      <FolderKanban className="h-4 w-4 text-primary" />
-      <span>{label}</span>
+      {content}
     </Link>
   )
 }
