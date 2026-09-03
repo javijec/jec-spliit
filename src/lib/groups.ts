@@ -1,3 +1,4 @@
+import { parseActivityMetadata } from '@/lib/activity'
 import { randomId } from '@/lib/ids'
 import { prisma } from '@/lib/prisma'
 import { GroupFormValues } from '@/lib/schemas'
@@ -19,13 +20,13 @@ export async function createGroup(
     ]),
   )
   const activeParticipantId = options?.activeParticipantName
-    ? participantIdsByName.get(options.activeParticipantName) ?? null
+    ? (participantIdsByName.get(options.activeParticipantName) ?? null)
     : null
-  const participantNames = new Set(groupFormValues.participants.map((participant) => participant.name))
+  const participantNames = new Set(
+    groupFormValues.participants.map((participant) => participant.name),
+  )
   const linkedParticipantName =
-    options?.userId &&
-    options.linkedUserName &&
-    options.activeParticipantName
+    options?.userId && options.linkedUserName && options.activeParticipantName
       ? (() => {
           const originalName = options.activeParticipantName
           participantNames.delete(originalName)
@@ -278,42 +279,102 @@ export async function getActivities(
 ) {
   const activities = await prisma.activity.findMany({
     where: { groupId },
-    orderBy: [{ time: 'desc' }],
+    orderBy: [{ time: 'desc' }, { id: 'desc' }],
     skip: options?.offset,
     take: options?.length,
+    include: {
+      participant: { select: { id: true, name: true } },
+    },
   })
 
-  const expenseIds = activities.map((activity) => activity.expenseId).filter(Boolean)
-  const expenses = await prisma.expense.findMany({
-    where: {
-      groupId,
-      id: { in: expenseIds },
-    },
-    select: {
-      id: true,
-      title: true,
-      amount: true,
-      originalAmount: true,
-      originalCurrency: true,
-      expenseDate: true,
-      isReimbursement: true,
-      createdAt: true,
-      paidById: true,
-      splitMode: true,
-      categoryId: true,
-      notes: true,
-      recurrenceRule: true,
-    },
-  })
+  const expenseIds = activities
+    .map((activity) => activity.expenseId)
+    .filter((expenseId): expenseId is string => Boolean(expenseId))
+  const expenses = expenseIds.length
+    ? await prisma.expense.findMany({
+        where: {
+          groupId,
+          id: { in: expenseIds },
+        },
+        select: {
+          id: true,
+          title: true,
+          amount: true,
+          originalAmount: true,
+          originalCurrency: true,
+          expenseDate: true,
+          isReimbursement: true,
+          createdAt: true,
+          paidBy: { select: { id: true, name: true } },
+          paidFor: {
+            select: {
+              participant: { select: { id: true, name: true } },
+            },
+          },
+          splitMode: true,
+          categoryId: true,
+          notes: true,
+          recurrenceRule: true,
+        },
+      })
+    : []
   const expensesById = new Map(expenses.map((expense) => [expense.id, expense]))
 
-  return activities.map((activity) => ({
-    ...activity,
-    expense:
-      activity.expenseId !== null
-        ? expensesById.get(activity.expenseId)
-        : undefined,
-  }))
+  const metadataByActivityId = new Map(
+    activities.map((activity) => [
+      activity.id,
+      parseActivityMetadata(activity.data),
+    ]),
+  )
+  const metadataParticipantIds = activities.flatMap((activity) => {
+    const metadata = metadataByActivityId.get(activity.id)
+    return metadata
+      ? [metadata.paidById, ...metadata.paidForParticipantIds].filter(
+          (participantId): participantId is string => Boolean(participantId),
+        )
+      : []
+  })
+  const metadataParticipants = metadataParticipantIds.length
+    ? await prisma.participant.findMany({
+        where: {
+          groupId,
+          id: { in: Array.from(new Set(metadataParticipantIds)) },
+        },
+        select: { id: true, name: true },
+      })
+    : []
+  const metadataParticipantsById = new Map(
+    metadataParticipants.map((participant) => [
+      participant.id,
+      participant.name,
+    ]),
+  )
+
+  return activities.map((activity) => {
+    const { data: _data, ...activityWithoutData } = activity
+    const metadata = metadataByActivityId.get(activity.id)
+    const paidByName = metadata?.paidById
+      ? metadataParticipantsById.get(metadata.paidById)
+      : undefined
+    const paidForName = metadata?.paidForParticipantIds[0]
+      ? metadataParticipantsById.get(metadata.paidForParticipantIds[0])
+      : undefined
+
+    return {
+      ...activityWithoutData,
+      metadata: metadata
+        ? {
+            ...metadata,
+            paidByName,
+            paidForName,
+          }
+        : null,
+      expense:
+        activity.expenseId !== null
+          ? expensesById.get(activity.expenseId)
+          : undefined,
+    }
+  })
 }
 
 export async function logActivity(

@@ -1,6 +1,7 @@
+import { serializeActivityExpenseSnapshot } from '@/lib/activity'
+import { randomId } from '@/lib/ids'
 import { prisma } from '@/lib/prisma'
 import { ExpenseFormValues } from '@/lib/schemas'
-import { randomId } from '@/lib/ids'
 import {
   ActivityType,
   Expense,
@@ -96,6 +97,42 @@ async function logExpenseActivity(
   })
 }
 
+function activityDataFromExpenseValues(expenseFormValues: ExpenseFormValues) {
+  return serializeActivityExpenseSnapshot({
+    title: expenseFormValues.title,
+    amount: expenseFormValues.amount,
+    originalAmount: expenseFormValues.originalAmount ?? null,
+    originalCurrency: expenseFormValues.originalCurrency ?? null,
+    paidById: expenseFormValues.paidBy,
+    paidForParticipantIds: expenseFormValues.paidFor.map(
+      (paidFor) => paidFor.participant,
+    ),
+    isReimbursement: expenseFormValues.isReimbursement,
+  })
+}
+
+function activityDataFromExpense(expense: {
+  title: string
+  amount: number
+  originalAmount: number | null
+  originalCurrency: string | null
+  paidById: string
+  paidFor: Array<{ participantId: string }>
+  isReimbursement: boolean
+}) {
+  return serializeActivityExpenseSnapshot({
+    title: expense.title,
+    amount: expense.amount,
+    originalAmount: expense.originalAmount,
+    originalCurrency: expense.originalCurrency,
+    paidById: expense.paidById,
+    paidForParticipantIds: expense.paidFor.map(
+      (paidFor) => paidFor.participantId,
+    ),
+    isReimbursement: expense.isReimbursement,
+  })
+}
+
 export async function createExpense(
   expenseFormValues: ExpenseFormValues,
   groupId: string,
@@ -173,7 +210,7 @@ export async function createExpense(
         activityType: ActivityType.CREATE_EXPENSE,
         participantId,
         expenseId,
-        data: expenseFormValues.title,
+        data: activityDataFromExpenseValues(expenseFormValues),
       },
     })
 
@@ -190,15 +227,21 @@ export async function deleteExpense(
   if (!existingExpense) {
     throw new Error(`Invalid expense ID: ${expenseId}`)
   }
-  await logExpenseActivity(groupId, ActivityType.DELETE_EXPENSE, {
-    participantId,
-    expenseId,
-    data: existingExpense.title,
-  })
+  await prisma.$transaction(async (transaction) => {
+    await transaction.activity.create({
+      data: {
+        id: randomId(),
+        groupId,
+        activityType: ActivityType.DELETE_EXPENSE,
+        participantId,
+        expenseId,
+        data: activityDataFromExpense(existingExpense),
+      },
+    })
 
-  await prisma.expense.delete({
-    where: { id: expenseId },
-    include: { paidFor: true, paidBy: true },
+    await transaction.expense.delete({
+      where: { id: expenseId },
+    })
   })
 }
 
@@ -243,7 +286,7 @@ export async function updateExpense(
   await logExpenseActivity(groupId, ActivityType.UPDATE_EXPENSE, {
     participantId,
     expenseId,
-    data: expenseFormValues.title,
+    data: activityDataFromExpenseValues(expenseFormValues),
   })
 
   const isDeleteRecurrenceExpenseLink =
@@ -310,7 +353,8 @@ export async function updateExpense(
         deleteMany: existingExpense.paidFor.filter(
           (paidFor) =>
             !expenseFormValues.paidFor.some(
-              (formPaidFor) => formPaidFor.participant === paidFor.participantId,
+              (formPaidFor) =>
+                formPaidFor.participant === paidFor.participantId,
             ),
         ),
       },
@@ -338,7 +382,9 @@ export async function updateExpense(
         deleteMany: existingExpense.documents
           .filter(
             (existingDoc) =>
-              !expenseFormValues.documents.some((doc) => doc.id === existingDoc.id),
+              !expenseFormValues.documents.some(
+                (doc) => doc.id === existingDoc.id,
+              ),
           )
           .map((doc) => ({
             id: doc.id,
@@ -589,9 +635,11 @@ export async function createRecurringExpenses(options?: { groupId?: string }) {
                 },
               },
               documents: {
-                connect: currentExpenseRecord.documents.map((documentRecord) => ({
-                  id: documentRecord.id,
-                })),
+                connect: currentExpenseRecord.documents.map(
+                  (documentRecord) => ({
+                    id: documentRecord.id,
+                  }),
+                ),
               },
               id: newExpenseId,
               expenseDate: newExpenseDate,
