@@ -33,7 +33,7 @@ export function ConditionalFooter({
   return (
     <footer
       id="app-footer"
-      className="relative z-10 mt-8 border-t border-border/80 bg-background/85 sm:mt-10"
+      className="relative z-10 mt-auto border-t border-border/80 bg-background/85 pt-8 sm:pt-10"
     >
       <div className="mx-auto grid w-full max-w-screen-xl gap-6 px-4 py-6 sm:py-8 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

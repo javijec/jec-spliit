@@ -136,7 +136,7 @@ function Content({
         </header>
 
         <div className="app-shell box-border flex min-h-[100dvh] flex-col pt-[calc(3.5rem+env(safe-area-inset-top))] sm:pt-[calc(4rem+env(safe-area-inset-top))]">
-          <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+          <div className="relative z-10 flex min-h-0 flex-col">
             {children}
           </div>
           <ConditionalFooter footerDescription={t('footerDescription')} />
