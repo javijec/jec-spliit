@@ -19,9 +19,12 @@ jest.mock('@/lib/user-memberships', () => ({
   getUserGroups: (...args: unknown[]) => getUserGroupsMock(...args),
   removeUserFromGroup: (...args: unknown[]) => removeGroupMemberMock(...args),
   saveGroupToUser: (...args: unknown[]) => recordVisitMock(...args),
-  setUserActiveParticipant: (...args: unknown[]) => setActiveParticipantMock(...args),
-  syncUserGroupsFromLegacyState: (...args: unknown[]) => syncLegacyMock(...args),
-  updateUserGroupMembership: (...args: unknown[]) => updateMembershipMock(...args),
+  setUserActiveParticipant: (...args: unknown[]) =>
+    setActiveParticipantMock(...args),
+  syncUserGroupsFromLegacyState: (...args: unknown[]) =>
+    syncLegacyMock(...args),
+  updateUserGroupMembership: (...args: unknown[]) =>
+    updateMembershipMock(...args),
 }))
 
 jest.mock('./authorization', () => ({
@@ -105,7 +108,9 @@ describe('groups tRPC procedures', () => {
     const caller = createCaller('user-1')
     const result = await caller.mine()
 
-    expect(getUserGroupsMock).toHaveBeenCalledWith('user-1')
+    expect(getUserGroupsMock).toHaveBeenCalledWith('user-1', {
+      includeFinancialSummary: true,
+    })
     expect(result).toEqual({
       groups: [{ id: 'group-1', name: 'Viaje', isStarred: true }],
     })
@@ -227,10 +232,12 @@ describe('groups tRPC procedures', () => {
     const caller = createCaller()
 
     await expect(caller.mine()).rejects.toBeInstanceOf(TRPCError)
-    await expect(caller.setActiveParticipant({
-      groupId: 'group-1',
-      participantId: 'participant-1',
-    })).rejects.toMatchObject({
+    await expect(
+      caller.setActiveParticipant({
+        groupId: 'group-1',
+        participantId: 'participant-1',
+      }),
+    ).rejects.toMatchObject({
       code: 'UNAUTHORIZED',
     })
   })

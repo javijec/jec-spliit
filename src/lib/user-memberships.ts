@@ -3,41 +3,260 @@ import { getUniqueParticipantName } from '@/lib/participants'
 import { prisma } from '@/lib/prisma'
 import { GroupRole, Prisma } from '@prisma/client'
 
-export async function getUserGroups(userId: string) {
-  return (
-    await prisma.userGroupMembership.findMany({
-      where: { userId },
-      orderBy: [
-        { isStarred: 'desc' },
-        { isArchived: 'asc' },
-        { lastAccessedAt: 'desc' },
-      ],
-      select: {
-        isArchived: true,
-        isStarred: true,
-        lastAccessedAt: true,
-        group: {
-          select: {
-            id: true,
-            name: true,
-            currency: true,
-            createdAt: true,
-            information: true,
-            currencyCode: true,
-            defaultSplitMode: true,
-            defaultSplitShares: true,
-            _count: { select: { participants: true } },
-          },
-        },
+const userGroupSelect = {
+  id: true,
+  name: true,
+  currency: true,
+  createdAt: true,
+  information: true,
+  currencyCode: true,
+  defaultSplitMode: true,
+  defaultSplitShares: true,
+  _count: { select: { participants: true } },
+} satisfies Prisma.GroupSelect
+
+type UserGroupBase = Omit<
+  Prisma.GroupGetPayload<{ select: typeof userGroupSelect }>,
+  'createdAt'
+> & {
+  createdAt: string
+  isArchived: boolean
+  isStarred: boolean
+  lastAccessedAt: string
+}
+
+export type GroupFinancialSummary = {
+  totalSpentByCurrency: Record<string, number>
+  personalBalanceByCurrency: Record<string, number>
+  lastActivityAt: string | null
+}
+
+type UserGroupWithFinancialSummary = UserGroupBase & GroupFinancialSummary
+
+type GroupFinancialSummaryRow = {
+  groupId: string
+  currencyCode: string
+  totalSpent: number
+  personalBalance: number | null
+  lastActivityAt: Date | null
+}
+
+export async function getUserGroups(
+  userId: string,
+  options: { includeFinancialSummary: true },
+): Promise<UserGroupWithFinancialSummary[]>
+export async function getUserGroups(userId: string): Promise<UserGroupBase[]>
+export async function getUserGroups(
+  userId: string,
+  options?: { includeFinancialSummary?: boolean },
+) {
+  const memberships = await prisma.userGroupMembership.findMany({
+    where: { userId },
+    orderBy: [
+      { isStarred: 'desc' },
+      { isArchived: 'asc' },
+      { lastAccessedAt: 'desc' },
+    ],
+    select: {
+      activeParticipantId: true,
+      isArchived: true,
+      isStarred: true,
+      lastAccessedAt: true,
+      group: {
+        select: userGroupSelect,
       },
-    })
-  ).map((membership) => ({
+    },
+  })
+
+  const financialSummaries = options?.includeFinancialSummary
+    ? await getGroupFinancialSummaries(
+        userId,
+        memberships.map((membership) => ({
+          groupId: membership.group.id,
+          activeParticipantId: membership.activeParticipantId,
+        })),
+      )
+    : null
+
+  return memberships.map((membership) => ({
     ...membership.group,
     createdAt: membership.group.createdAt.toISOString(),
     isArchived: membership.isArchived,
     isStarred: membership.isStarred,
     lastAccessedAt: membership.lastAccessedAt.toISOString(),
+    ...(financialSummaries ? financialSummaries.get(membership.group.id) : {}),
   }))
+}
+
+async function getGroupFinancialSummaries(
+  userId: string,
+  memberships: Array<{
+    groupId: string
+    activeParticipantId: string | null
+  }>,
+) {
+  if (memberships.length === 0) return new Map<string, GroupFinancialSummary>()
+
+  const groupIds = Prisma.join(
+    memberships.map((membership) => membership.groupId),
+  )
+  const rows = await prisma.$queryRaw<GroupFinancialSummaryRow[]>(Prisma.sql`
+    WITH membership_groups AS (
+      SELECT
+        m."groupId",
+        m."activeParticipantId",
+        g."currencyCode" AS "groupCurrencyCode",
+        g."currency" AS "groupCurrency"
+      FROM "UserGroupMembership" m
+      INNER JOIN "Group" g ON g."id" = m."groupId"
+      WHERE m."userId" = ${userId}
+        AND m."groupId" IN (${groupIds})
+    ),
+    expense_data AS (
+      SELECT
+        e."id",
+        e."groupId",
+        e."amount",
+        COALESCE(e."originalAmount", e."amount") AS "effectiveAmount",
+        COALESCE(
+          NULLIF(e."originalCurrency", ''),
+          NULLIF(g."currencyCode", ''),
+          g."currency",
+          ''
+        ) AS "currencyCode",
+        e."splitMode",
+        e."paidById",
+        e."isReimbursement"
+      FROM "Expense" e
+      INNER JOIN "Group" g ON g."id" = e."groupId"
+      WHERE e."groupId" IN (${groupIds})
+    ),
+    paid_for_stats AS (
+      SELECT
+        ep."expenseId",
+        SUM(ep."shares") AS "totalShares",
+        COUNT(*) AS "participantCount"
+      FROM "ExpensePaidFor" ep
+      INNER JOIN expense_data ed ON ed."id" = ep."expenseId"
+      GROUP BY ep."expenseId"
+    ),
+    balance_lines AS (
+      SELECT
+        ed."groupId",
+        ed."currencyCode",
+        ed."paidById" AS "participantId",
+        ed."effectiveAmount" AS "paid",
+        0::numeric AS "paidFor"
+      FROM expense_data ed
+
+      UNION ALL
+
+      SELECT
+        ed."groupId",
+        ed."currencyCode",
+        ep."participantId",
+        0::numeric AS "paid",
+        CASE
+          WHEN ed."splitMode" = 'EVENLY' THEN
+            ed."effectiveAmount" / NULLIF(pfs."participantCount", 0)
+          ELSE
+            ed."effectiveAmount" * ep."shares" / NULLIF(pfs."totalShares", 0)
+        END AS "paidFor"
+      FROM expense_data ed
+      INNER JOIN "ExpensePaidFor" ep ON ep."expenseId" = ed."id"
+      INNER JOIN paid_for_stats pfs ON pfs."expenseId" = ed."id"
+    ),
+    balance_totals AS (
+      SELECT
+        bl."groupId",
+        bl."currencyCode",
+        bl."participantId",
+        ROUND(SUM(bl."paid"))::integer - ROUND(SUM(bl."paidFor"))::integer AS "personalBalance"
+      FROM balance_lines bl
+      GROUP BY bl."groupId", bl."currencyCode", bl."participantId"
+    ),
+    expense_totals AS (
+      SELECT
+        ed."groupId",
+        ed."currencyCode",
+        SUM(
+          CASE WHEN ed."isReimbursement" THEN 0 ELSE ed."effectiveAmount" END
+        )::integer AS "totalSpent"
+      FROM expense_data ed
+      GROUP BY ed."groupId", ed."currencyCode"
+    ),
+    currencies AS (
+      SELECT
+        mg."groupId",
+        COALESCE(NULLIF(mg."groupCurrencyCode", ''), mg."groupCurrency", '') AS "currencyCode"
+      FROM membership_groups mg
+
+      UNION
+
+      SELECT et."groupId", et."currencyCode"
+      FROM expense_totals et
+    ),
+    activity_totals AS (
+      SELECT a."groupId", MAX(a."time") AS "lastActivityAt"
+      FROM "Activity" a
+      WHERE a."groupId" IN (${groupIds})
+      GROUP BY a."groupId"
+    )
+    SELECT
+      c."groupId" AS "groupId",
+      c."currencyCode" AS "currencyCode",
+      COALESCE(et."totalSpent", 0)::integer AS "totalSpent",
+      CASE
+        WHEN mg."activeParticipantId" IS NULL THEN NULL
+        ELSE COALESCE(bt."personalBalance", 0)::integer
+      END AS "personalBalance",
+      at."lastActivityAt" AS "lastActivityAt"
+    FROM currencies c
+    INNER JOIN membership_groups mg ON mg."groupId" = c."groupId"
+    LEFT JOIN expense_totals et
+      ON et."groupId" = c."groupId"
+      AND et."currencyCode" = c."currencyCode"
+    LEFT JOIN balance_totals bt
+      ON bt."groupId" = c."groupId"
+      AND bt."currencyCode" = c."currencyCode"
+      AND bt."participantId" = mg."activeParticipantId"
+    LEFT JOIN activity_totals at ON at."groupId" = c."groupId"
+    ORDER BY c."groupId", c."currencyCode"
+  `)
+
+  return mergeGroupFinancialSummaryRows(rows)
+}
+
+export function mergeGroupFinancialSummaryRows(
+  rows: GroupFinancialSummaryRow[],
+) {
+  const summaries = new Map<string, GroupFinancialSummary>()
+
+  for (const row of rows) {
+    const current = summaries.get(row.groupId) ?? {
+      totalSpentByCurrency: {},
+      personalBalanceByCurrency: {},
+      lastActivityAt: null,
+    }
+
+    if (row.totalSpent !== 0) {
+      current.totalSpentByCurrency[row.currencyCode] = row.totalSpent
+    }
+    if (row.personalBalance !== null) {
+      current.personalBalanceByCurrency[row.currencyCode] = row.personalBalance
+    }
+    if (
+      row.lastActivityAt &&
+      (!current.lastActivityAt ||
+        row.lastActivityAt > new Date(current.lastActivityAt))
+    ) {
+      current.lastActivityAt = row.lastActivityAt.toISOString()
+    }
+
+    summaries.set(row.groupId, current)
+  }
+
+  return summaries
 }
 
 export async function getUserGroupMembership(userId: string, groupId: string) {
@@ -184,12 +403,16 @@ export async function updateUserGroupMembership(
       isStarred: input.isStarred ?? false,
       isArchived: input.isArchived ?? false,
       activeParticipantId:
-        input.activeParticipantId === undefined ? null : input.activeParticipantId,
+        input.activeParticipantId === undefined
+          ? null
+          : input.activeParticipantId,
       lastAccessedAt: new Date(),
     },
     update: {
       ...(input.isStarred !== undefined ? { isStarred: input.isStarred } : {}),
-      ...(input.isArchived !== undefined ? { isArchived: input.isArchived } : {}),
+      ...(input.isArchived !== undefined
+        ? { isArchived: input.isArchived }
+        : {}),
       ...(input.activeParticipantId !== undefined
         ? { activeParticipantId: input.activeParticipantId }
         : {}),
@@ -251,7 +474,9 @@ export async function setUserActiveParticipant(
     throw new Error(`Invalid participant ID: ${participantId}`)
   }
   if (participant.appUserId && participant.appUserId !== userId) {
-    throw new Error(`Participant already linked to another user: ${participantId}`)
+    throw new Error(
+      `Participant already linked to another user: ${participantId}`,
+    )
   }
 
   await prisma.$transaction(async (tx) => {
@@ -267,7 +492,12 @@ export async function setUserActiveParticipant(
     })
 
     const uniqueName = linkedUserName
-      ? await getUniqueParticipantName(tx, groupId, participantId, linkedUserName)
+      ? await getUniqueParticipantName(
+          tx,
+          groupId,
+          participantId,
+          linkedUserName,
+        )
       : null
 
     await tx.participant.update({
@@ -490,16 +720,16 @@ async function ensureLegacyGroupOwner(
   preferredUserId?: string,
 ) {
   const [linkedParticipants, memberships] = await Promise.all([
-      tx.participant.findMany({
-        where: {
-          groupId,
-          appUserId: { not: null },
-        },
-        select: {
-          id: true,
-          appUserId: true,
-        },
-      }),
+    tx.participant.findMany({
+      where: {
+        groupId,
+        appUserId: { not: null },
+      },
+      select: {
+        id: true,
+        appUserId: true,
+      },
+    }),
     tx.userGroupMembership.findMany({
       where: { groupId },
       select: {
@@ -688,10 +918,15 @@ export async function getGroupMembershipUsers(groupId: string) {
     },
   })
 
-  return memberships.filter((membership) => membership.activeParticipant !== null)
+  return memberships.filter(
+    (membership) => membership.activeParticipant !== null,
+  )
 }
 
-export async function removeUserGroupMembership(userId: string, groupId: string) {
+export async function removeUserGroupMembership(
+  userId: string,
+  groupId: string,
+) {
   await prisma.userGroupMembership.deleteMany({
     where: {
       userId,
@@ -794,7 +1029,9 @@ export async function addUserToGroupByEmail(
       select: { id: true },
     })
     if (existingLinkedParticipant) {
-      throw new Error('This user is already linked to another participant in the group.')
+      throw new Error(
+        'This user is already linked to another participant in the group.',
+      )
     }
 
     await tx.participant.update({
