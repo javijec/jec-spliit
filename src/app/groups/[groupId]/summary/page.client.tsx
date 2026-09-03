@@ -30,6 +30,7 @@ import Link from 'next/link'
 import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 import { QuickExpenseTrigger } from '../quick-expense-drawer'
+import { ActivityFeed } from './activity-feed'
 
 type RecentExpense =
   AppRouterOutput['groups']['expenses']['list']['expenses'][number]
@@ -172,6 +173,12 @@ export function SummaryPageClient() {
       refetchOnMount: false,
     },
   )
+  const activityQuery = trpc.groups.activities.list.useQuery(
+    { groupId, cursor: 0, limit: 6 },
+    {
+      staleTime: 300_000,
+    },
+  )
   const recentExpenses = useMemo(
     () => expensesQuery.data?.pages.flatMap((page) => page.expenses) ?? [],
     [expensesQuery.data],
@@ -279,6 +286,22 @@ export function SummaryPageClient() {
             />
           )}
         </GroupSectionContent>
+      </GroupSectionCard>
+
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <GroupSectionTitle>{t('recentActivityTitle')}</GroupSectionTitle>
+          <GroupSectionDescription>
+            {t('recentActivityDescription')}
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+        <ActivityFeed
+          activities={activityQuery.data?.activities ?? []}
+          groupId={groupId}
+          groupCurrency={groupCurrency ?? getCurrencyFromGroup(resolvedGroup)}
+          isLoading={activityQuery.isLoading}
+          isError={activityQuery.isError}
+        />
       </GroupSectionCard>
     </div>
   )

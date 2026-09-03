@@ -492,6 +492,35 @@ states. Authenticated visual verification at 390px, 430px, and desktop remains
 authenticated fixture. The previously reported `min0` issue remains outside
 Phase 9 scope.
 
+## 14.7 Phase 10 group activity contract
+
+The group activity feed reuses the existing `Activity` model and the existing
+`CREATE_EXPENSE`, `UPDATE_EXPENSE`, `DELETE_EXPENSE`, and `UPDATE_GROUP` event
+types. The group-scoped activity query is membership-protected, ordered by
+`time DESC` with a deterministic ID tie-breaker, and bounded to at most eight
+items per request. Expense and participant relations are hydrated in bounded
+batch queries; no per-row fetch is performed.
+
+Expense mutations now write a versioned JSON snapshot to `Activity.data`.
+Snapshots preserve the title, minor-unit amount, original currency, payer, and
+payee IDs when the expense is later deleted. The read path resolves those IDs
+against the same group in one query. Existing legacy string data remains safe:
+the feed uses neutral fallbacks instead of exposing technical keys or broken
+links. No `Activity` schema change, audit table, or mass backfill was added.
+
+Summary includes a compact `Recent activity` section with six newest events.
+Expense creation, editing, deletion, payment creation, payment editing, and
+payment deletion use localized human sentences. The actor is the explicitly
+provided participant attached to the activity; if absent, the UI says
+`Someone` rather than attributing the action to the active participant. Existing
+expenses link to their real edit route, while deleted expenses have no link.
+All 23 locale files contain the new Summary activity keys; untranslated locale
+values follow the repository's existing English-fallback policy. Loading,
+empty, and local-error states are covered. Authenticated visual verification at
+390px and desktop remains **UNKNOWN / NEEDS LIVE VERIFICATION** because this
+checkout has no reproducible authenticated fixture. The previously reported
+`min0` issue remains outside Phase 10.
+
 ## 15. New smoke coverage
 
 Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:

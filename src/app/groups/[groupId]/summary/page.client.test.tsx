@@ -42,12 +42,45 @@ const mockExpensesQuery = {
     ],
   },
 }
+const mockActivityQuery = {
+  isLoading: false,
+  isError: false,
+  data: {
+    activities: [
+      {
+        id: 'activity-1',
+        time: new Date('2026-08-30T12:00:00.000Z'),
+        activityType: 'CREATE_EXPENSE',
+        expenseId: 'expense-1',
+        participant: { id: 'participant-1', name: 'Javier' },
+        metadata: null,
+        expense: {
+          id: 'expense-1',
+          title: 'Hotel',
+          amount: 294640,
+          originalAmount: 294640,
+          originalCurrency: 'USD',
+          isReimbursement: false,
+          paidBy: { id: 'participant-1', name: 'Javier' },
+          paidFor: [{ participant: { id: 'participant-1', name: 'Javier' } }],
+        },
+      },
+    ],
+    hasMore: false,
+    nextCursor: 6,
+  },
+} as {
+  isLoading: boolean
+  isError: boolean
+  data: { activities: unknown[]; hasMore: boolean; nextCursor: number }
+}
 
 jest.mock('@/trpc/client', () => ({
   trpc: {
     groups: {
       stats: { get: { useQuery: () => mockStatsQuery } },
       expenses: { list: { useInfiniteQuery: () => mockExpensesQuery } },
+      activities: { list: { useQuery: () => mockActivityQuery } },
     },
   },
 }))
@@ -133,6 +166,8 @@ describe('SummaryPageClient', () => {
       ],
     }
     mockExpensesQuery.isError = false
+    mockActivityQuery.isLoading = false
+    mockActivityQuery.isError = false
   })
 
   it('renders personal position, recent expenses, and the expenses link', () => {
@@ -197,5 +232,70 @@ describe('SummaryPageClient', () => {
 
     expect(screen.getByText(messages.Summary.noExpensesYet)).toBeTruthy()
     expect(screen.getByRole('button', { name: /add expense/i })).toBeTruthy()
+  })
+
+  it('shows recent activity with a localized sentence, timestamp, and resource link', () => {
+    renderSummary()
+
+    expect(screen.getByText(/Javier added Hotel/)).toBeTruthy()
+    expect(screen.getByText(/Aug 30, 2026/)).toBeTruthy()
+    expect(
+      screen
+        .getByRole('link', { name: /Javier added Hotel/i })
+        .getAttribute('href'),
+    ).toBe('/groups/group-1/expenses/expense-1/edit')
+  })
+
+  it('shows a local empty activity state without affecting the summary', () => {
+    mockActivityQuery.data = { activities: [], hasMore: false, nextCursor: 6 }
+
+    renderSummary()
+
+    expect(screen.getByText(messages.Summary.noActivityYet)).toBeTruthy()
+    expect(screen.getByText('Hotel')).toBeTruthy()
+  })
+
+  it('renders payments as payments and does not link deleted resources', () => {
+    mockActivityQuery.data = {
+      activities: [
+        {
+          id: 'activity-payment-delete',
+          time: new Date('2026-08-30T12:00:00.000Z'),
+          activityType: 'DELETE_EXPENSE',
+          expenseId: 'deleted-payment',
+          participant: { id: 'participant-1', name: 'Javier' },
+          metadata: {
+            version: 1,
+            kind: 'payment',
+            title: 'Reimbursement',
+            amount: 15680,
+            originalAmount: 15680,
+            originalCurrency: 'ARS',
+            paidById: 'participant-1',
+            paidForParticipantIds: ['participant-2'],
+            paidByName: 'Javier',
+            paidForName: 'Ana',
+          },
+        },
+      ],
+      hasMore: false,
+      nextCursor: 6,
+    }
+
+    renderSummary()
+
+    expect(screen.getByText(/Javier deleted a payment of/)).toBeTruthy()
+    expect(
+      screen.queryByRole('link', { name: /deleted a payment/i }),
+    ).toBeNull()
+  })
+
+  it('keeps activity failures local to the activity section', () => {
+    mockActivityQuery.isError = true
+
+    renderSummary()
+
+    expect(screen.getByText(messages.Summary.activityError)).toBeTruthy()
+    expect(screen.getByText('Hotel')).toBeTruthy()
   })
 })

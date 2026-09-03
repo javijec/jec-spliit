@@ -855,7 +855,7 @@ falta de fixtures reproducibles en este checkout.
 
 ---
 
-# 14. Fase 10 — Actividad del grupo
+# 14. Fase 10 — Actividad del grupo ✅
 
 ## Objetivo
 
@@ -872,15 +872,25 @@ Tomi pagó $15.680 a Ana
 
 ## Tareas
 
-- [ ] Definir eventos relevantes.
-- [ ] Evitar loguear ruido técnico.
-- [ ] Mostrar actividad reciente en Summary.
-- [ ] Permitir abrir el recurso relacionado.
-- [ ] Considerar paginación sólo si realmente es necesaria.
+- [x] Reutilizar `Activity` como fuente de verdad para gastos creados/editados/
+  eliminados y pagos registrados/eliminados.
+- [x] Humanizar los eventos en UI con actor neutral cuando el actor no está
+  disponible; no mostrar enums ni IDs técnicos.
+- [x] Mostrar actividad reciente acotada a seis eventos en Summary, ordenada por
+  fecha descendente, con loading, empty state y error local.
+- [x] Permitir abrir el gasto existente desde la actividad; los gastos
+  eliminados no generan enlaces rotos.
+- [x] Agregar snapshots JSON versionados en `Activity.data` para conservar
+  título, importe, moneda y participantes al eliminar gastos/pagos, sin una
+  tabla ni migración nuevas.
 
 ## Criterio de aceptación
 
-Ante un cambio inesperado, el grupo puede comprender qué ocurrió sin preguntar externamente.
+Ante un cambio inesperado, el grupo puede comprender qué ocurrió sin preguntar
+externamente. La Fase 10 se completó sobre el modelo `Activity` existente, sin
+crear un sistema de auditoría paralelo, y preservando las Fases 5–9. La
+verificación visual autenticada queda pendiente por falta de fixtures
+reproducibles en este checkout.
 
 ---
 
