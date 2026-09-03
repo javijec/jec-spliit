@@ -2,6 +2,7 @@
 
 import { CategoryIcon } from '@/app/groups/[groupId]/expenses/category-icon'
 import { getPersonalExpenseShare } from '@/app/groups/[groupId]/expenses/expense-row-utils'
+import { CategoryName } from '@/components/category-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getGroupExpenses } from '@/lib/api'
@@ -103,7 +104,11 @@ function LeadingIcon({ expense }: { expense: Expense }) {
 
   return (
     <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground">
-      <CategoryIcon category={expense.category} className="h-3.5 w-3.5" />
+      <CategoryIcon
+        category={expense.category}
+        className="h-3.5 w-3.5"
+        aria-hidden="true"
+      />
     </div>
   )
 }
@@ -226,6 +231,15 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
             <time dateTime={expense.expenseDate.toISOString()}>
               {formattedDate}
             </time>
+            {!expense.isReimbursement && (
+              <>
+                <span aria-hidden="true">·</span>
+                <CategoryName
+                  category={expense.category}
+                  className="max-w-[42%] truncate"
+                />
+              </>
+            )}
           </div>
           {personalShareLabel && (
             <div

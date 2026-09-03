@@ -46,7 +46,7 @@ import {
 export function CategoryIcon({
   category,
   ...props
-}: { category: Category | null } & LucideProps) {
+}: { category: Category | null | undefined } & LucideProps) {
   const Icon = getCategoryIcon(`${category?.grouping}/${category?.name}`)
   // eslint-disable-next-line react-hooks/static-components
   return <Icon {...props} />

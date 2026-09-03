@@ -254,5 +254,74 @@
     "expenseError": "Could not add expense",
     "invalidForm": "Check the required fields.",
     "close": "Close quick add"
+  },
+  "Categories": {
+    "search": "Pesquisar categoria...",
+    "noCategory": "Nenhuma categoria encontrada.",
+    "Uncategorized": {
+      "heading": "Sem categoria",
+      "General": "Geral",
+      "Payment": "Pagamento"
+    },
+    "Entertainment": {
+      "heading": "Entretenimento",
+      "Entertainment": "Entretenimento",
+      "Games": "Jogos",
+      "Movies": "Filmes",
+      "Music": "Música",
+      "Sports": "Esportes"
+    },
+    "Food and Drink": {
+      "heading": "Comida e bebida",
+      "Food and Drink": "Comida e bebida",
+      "Dining Out": "Comer fora",
+      "Groceries": "Mercearia",
+      "Liquor": "Bebidas alcoólicas"
+    },
+    "Home": {
+      "heading": "Casa",
+      "Home": "Casa",
+      "Electronics": "Eletrônicos",
+      "Furniture": "Móveis",
+      "Household Supplies": "Suprimentos domésticos",
+      "Maintenance": "Manutenção",
+      "Mortgage": "Financiamento habitacional",
+      "Pets": "Animais de estimação",
+      "Rent": "Aluguel",
+      "Services": "Serviços"
+    },
+    "Life": {
+      "heading": "Vida",
+      "Childcare": "Cuidados infantis",
+      "Clothing": "Roupas",
+      "Education": "Educação",
+      "Gifts": "Presentes",
+      "Insurance": "Seguro",
+      "Medical Expenses": "Despesas médicas",
+      "Taxes": "Impostos",
+      "Donation": "Doação"
+    },
+    "Transportation": {
+      "heading": "Transporte",
+      "Transportation": "Transporte",
+      "Bicycle": "Bicicleta",
+      "Bus/Train": "Ônibus/Trem",
+      "Car": "Carro",
+      "Gas/Fuel": "Gasolina/Combustível",
+      "Hotel": "Hotel",
+      "Parking": "Estacionamento",
+      "Plane": "Avião",
+      "Taxi": "Táxi"
+    },
+    "Utilities": {
+      "heading": "Utilitários",
+      "Utilities": "Utilitários",
+      "Cleaning": "Limpeza",
+      "Electricity": "Eletricidade",
+      "Heat/Gas": "Calor/Gás",
+      "Trash": "Lixo",
+      "TV/Phone/Internet": "TV/Telefone/Internet",
+      "Water": "Água"
+    }
   }
 }

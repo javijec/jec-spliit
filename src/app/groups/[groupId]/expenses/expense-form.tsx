@@ -1,3 +1,4 @@
+import { CategorySelector } from '@/components/category-selector'
 import { CurrencySelector } from '@/components/currency-selector'
 import { ExpenseDocumentsInput } from '@/components/expense-documents-input'
 import { SubmitButton } from '@/components/submit-button'
@@ -818,6 +819,25 @@ export function ExpenseForm({
                                 placeholder={group.currency}
                               />
                             )}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('categoryField.label')}</FormLabel>
+                          <FormControl>
+                            <CategorySelector
+                              categories={categories}
+                              defaultValue={field.value}
+                              isLoading={false}
+                              onValueChange={field.onChange}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

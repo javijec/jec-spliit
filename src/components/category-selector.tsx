@@ -1,6 +1,6 @@
 import { ChevronDown, Loader2 } from 'lucide-react'
 
-import { CategoryIcon } from '@/app/groups/[groupId]/expenses/category-icon'
+import { CategoryDisplay } from '@/components/category-display'
 import { Button, ButtonProps } from '@/components/ui/button'
 import {
   Combobox,
@@ -18,10 +18,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import {
+  getCategoryGroupLabel,
+  getCategoryLabel,
+  sortCategories,
+} from '@/lib/categories'
 import { useMediaQuery } from '@/lib/hooks'
 import { Category } from '@prisma/client'
 import { useTranslations } from 'next-intl'
-import { forwardRef, useEffect, useState } from 'react'
+import { forwardRef, useEffect, useMemo, useState } from 'react'
 
 type Props = {
   categories: Category[]
@@ -40,15 +45,20 @@ export function CategorySelector({
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState<number>(defaultValue)
   const isDesktop = useMediaQuery('(min-width: 768px)')
+  const orderedCategories = useMemo(
+    () => sortCategories(categories),
+    [categories],
+  )
 
   // allow overwriting currently selected category from outside
   useEffect(() => {
     setValue(defaultValue)
-    onValueChange(defaultValue)
-  }, [defaultValue, onValueChange])
+  }, [defaultValue])
 
   const selectedCategory =
-    categories.find((category) => category.id === value) ?? categories[0]
+    orderedCategories.find((category) => category.id === value) ??
+    orderedCategories.find((category) => category.id === 0) ??
+    orderedCategories[0]
 
   if (isDesktop) {
     return (
@@ -62,7 +72,8 @@ export function CategorySelector({
         </PopoverTrigger>
         <PopoverContent className="p-0" align="start">
           <CategoryCommand
-            categories={categories}
+            categories={orderedCategories}
+            selectedCategory={selectedCategory}
             onValueChange={(id) => {
               setValue(id)
               onValueChange(id)
@@ -85,7 +96,8 @@ export function CategorySelector({
       </DrawerTrigger>
       <DrawerContent className="p-0">
         <CategoryCommand
-          categories={categories}
+          categories={orderedCategories}
+          selectedCategory={selectedCategory}
           onValueChange={(id) => {
             setValue(id)
             onValueChange(id)
@@ -99,9 +111,11 @@ export function CategorySelector({
 
 function CategoryCommand({
   categories,
+  selectedCategory,
   onValueChange,
 }: {
   categories: Category[]
+  selectedCategory?: Category
   onValueChange: (categoryId: Category['id']) => void
 }) {
   const t = useTranslations('Categories')
@@ -118,10 +132,9 @@ function CategoryCommand({
       items={categories}
       inline
       open
+      value={selectedCategory}
       itemToStringLabel={(category) =>
-        `${category.id} ${t(`${category.grouping}.heading`)} ${t(
-          `${category.grouping}.${category.name}`,
-        )}`
+        `${category.id} ${getCategoryGroupLabel(category.grouping, t)} ${getCategoryLabel(category, t)}`
       }
       onValueChange={(category) => {
         if (category) onValueChange(category.id)
@@ -137,11 +150,16 @@ function CategoryCommand({
         {Object.entries(categoriesByGroup).map(
           ([group, groupCategories], index) => (
             <ComboboxGroup key={index} items={groupCategories}>
-              <ComboboxGroupLabel>{t(`${group}.heading`)}</ComboboxGroupLabel>
+              <ComboboxGroupLabel>
+                {getCategoryGroupLabel(group, t)}
+              </ComboboxGroupLabel>
               <ComboboxCollection>
                 {(category) => (
                   <ComboboxItem key={category.id} value={category}>
-                    <CategoryLabel category={category} />
+                    <CategoryDisplay
+                      category={category}
+                      className="flex min-w-0 items-center gap-3"
+                    />
                   </ComboboxItem>
                 )}
               </ComboboxCollection>
@@ -154,7 +172,7 @@ function CategoryCommand({
 }
 
 type CategoryButtonProps = {
-  category: Category
+  category?: Category
   open: boolean
   isLoading: boolean
 }
@@ -173,7 +191,10 @@ const CategoryButton = forwardRef<HTMLButtonElement, CategoryButtonProps>(
         ref={ref}
         {...props}
       >
-        <CategoryLabel category={category} />
+        <CategoryDisplay
+          category={category}
+          className="flex min-w-0 items-center gap-3"
+        />
         {isLoading ? (
           <Loader2 className={`animate-spin ${iconClassName}`} />
         ) : (
@@ -184,15 +205,3 @@ const CategoryButton = forwardRef<HTMLButtonElement, CategoryButtonProps>(
   },
 )
 CategoryButton.displayName = 'CategoryButton'
-
-function CategoryLabel({ category }: { category: Category }) {
-  const t = useTranslations('Categories')
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-8 w-8 items-center justify-center border bg-muted/20">
-        <CategoryIcon category={category} className="h-4 w-4" />
-      </div>
-      {t(`${category.grouping}.${category.name}`)}
-    </div>
-  )
-}
