@@ -28,7 +28,7 @@ export default async function HomePage() {
   return (
     <main className="relative overflow-hidden px-3 pb-5 pt-3 sm:px-6 sm:pb-8 sm:pt-5">
       <div className="relative mx-auto w-full max-w-screen-xl">
-        <section className="flex min-h-[calc(100dvh-8rem)] items-center justify-center py-6 sm:min-h-[calc(100dvh-10rem)]">
+        <section className="flex items-start justify-center py-6">
           <div className="w-full max-w-2xl">
             <div className="space-y-4 sm:space-y-5">
               <h1 className="landing-header max-w-[12ch] text-balance text-[2.5rem] font-semibold leading-[0.96] tracking-tight sm:text-[4rem] lg:text-[4.8rem]">
