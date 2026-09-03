@@ -13,12 +13,13 @@ jest.mock('@/trpc/client', () => ({
       groups: {
         balances: { list: { invalidate: jest.fn() } },
         expenses: { list: { invalidate: jest.fn() } },
+        reimbursements: { list: { invalidate: jest.fn() } },
         stats: { get: { invalidate: jest.fn() } },
         activities: { list: { invalidate: jest.fn() } },
       },
     }),
     groups: {
-      expenses: {
+      reimbursements: {
         create: {
           useMutation: (options: any) => {
             mockMutationOptions = options
@@ -156,5 +157,46 @@ describe('ReimbursementList', () => {
       await mockMutationOptions.onSuccess()
     })
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+  })
+
+  it('rejects a partial amount above the remaining debt without mutating', () => {
+    renderList([{ from: 'bob', to: 'alice', amount: 100, currencyCode: 'USD' }])
+    fireEvent.click(
+      screen.getByRole('button', { name: /Partial payment: Bob → Alice/ }),
+    )
+    fireEvent.change(screen.getByLabelText('Partial payment amount'), {
+      target: { value: '1.01' },
+    })
+
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Amount cannot exceed the remaining debt.',
+    )
+    expect(
+      (
+        screen.getByRole('button', {
+          name: 'Confirm partial payment',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true)
+    expect(mockMutate).not.toHaveBeenCalled()
+  })
+
+  it('accepts comma decimal input for a valid partial payment', () => {
+    renderList([
+      { from: 'bob', to: 'alice', amount: 1000, currencyCode: 'USD' },
+    ])
+    fireEvent.click(
+      screen.getByRole('button', { name: /Partial payment: Bob → Alice/ }),
+    )
+    fireEvent.change(screen.getByLabelText('Partial payment amount'), {
+      target: { value: '5,50' },
+    })
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirm partial payment' }),
+    )
+
+    expect(mockMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 550, from: 'bob', to: 'alice' }),
+    )
   })
 })

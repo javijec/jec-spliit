@@ -1,6 +1,7 @@
 'use client'
 
 import { BalancesList } from '@/app/groups/[groupId]/balances-list'
+import { RegisteredPaymentHistory } from '@/app/groups/[groupId]/registered-payment-history'
 import { ReimbursementList } from '@/app/groups/[groupId]/reimbursement-list'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -141,6 +142,17 @@ export default function BalancesAndReimbursements() {
           </CollapsibleContent>
         </GroupSectionCard>
       </Collapsible>
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <SectionHeader
+            title={t('registeredPaymentsTitle')}
+            description={t('registeredPaymentsDescription')}
+          />
+        </GroupSectionHeader>
+        <GroupSectionContent>
+          <RegisteredPaymentHistory />
+        </GroupSectionContent>
+      </GroupSectionCard>
     </div>
   )
 }

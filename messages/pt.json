@@ -143,6 +143,13 @@
     }
   },
   "Balances": {
+    "registeredPaymentsTitle": "Registered payments",
+    "registeredPaymentsDescription": "Payments already recorded in this group.",
+    "noRegisteredPayments": "No registered payments yet.",
+    "registeredPaymentsError": "We couldn't load registered payments.",
+    "registeredPaymentDescription": "{payer} paid {amount} to {payee}",
+    "paymentByYou": "You paid",
+    "paymentToYou": "You received",
     "suggestedPaymentsTitle": "Pagamentos sugeridos",
     "suggestedPaymentsDescription": "Ações claras para liquidar cada saldo pendente.",
     "balanceDetails": "Detalhes dos saldos",
@@ -150,6 +157,9 @@
     "toggleBalanceDetails": "Mostrar ou ocultar detalhes dos saldos",
     "Reimbursements": {
       "settlementsTitle": "Settlements",
+      "maximumAmount": "Maximum: {amount}",
+      "amountExceedsRemaining": "Amount cannot exceed the remaining debt.",
+      "invalidAmount": "Enter a valid amount.",
       "title": "Suggested payments",
       "currencySectionLabel": "Payments in {currency}",
       "youPay": "You pay",

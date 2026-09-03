@@ -2,13 +2,13 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useToast } from '@/components/ui/use-toast'
 import { RuntimeFeatureFlags } from '@/lib/featureFlags'
 import { trpc } from '@/trpc/client'
-import { useToast } from '@/components/ui/use-toast'
+import { ReceiptText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCurrentGroup } from '../current-group-context'
 import { ExpenseForm } from './expense-form'
-import { ReceiptText } from 'lucide-react'
 
 async function invalidateExpenseData(
   utils: ReturnType<typeof trpc.useUtils>,
@@ -16,6 +16,7 @@ async function invalidateExpenseData(
 ) {
   await Promise.all([
     utils.groups.expenses.list.invalidate({ groupId }),
+    utils.groups.reimbursements.list.invalidate({ groupId }),
     utils.groups.balances.list.invalidate({ groupId }),
     utils.groups.stats.get.invalidate({ groupId }),
     utils.groups.activities.list.invalidate({ groupId }),

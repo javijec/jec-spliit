@@ -413,6 +413,13 @@
   },
   "Balances": {
     "title": "Balances",
+    "registeredPaymentsTitle": "Pagos registrados",
+    "registeredPaymentsDescription": "Pagos ya registrados en este grupo.",
+    "noRegisteredPayments": "Todavía no hay pagos registrados.",
+    "registeredPaymentsError": "No se pudieron cargar los pagos registrados.",
+    "registeredPaymentDescription": "{payer} pagó {amount} a {payee}",
+    "paymentByYou": "Pagaste vos",
+    "paymentToYou": "Recibiste vos",
     "suggestedPaymentsTitle": "Pagos sugeridos",
     "suggestedPaymentsDescription": "Acciones claras para saldar cada balance pendiente.",
     "balanceDetails": "Detalle de balances",
@@ -450,6 +457,9 @@
       },
       "paymentDescription": "{from} le paga a {to} en {currency}.",
       "partialAmountLabel": "Monto del pago parcial",
+      "maximumAmount": "Máximo: {amount}",
+      "amountExceedsRemaining": "El monto no puede superar la deuda restante.",
+      "invalidAmount": "Ingresá un monto válido.",
       "summary": {
         "currentDebt": "Deuda actual",
         "willRecord": "Vas a registrar",

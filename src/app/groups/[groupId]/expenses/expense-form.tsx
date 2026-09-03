@@ -423,7 +423,7 @@ export function ExpenseForm({
   })
 
   const submit = async (values: ExpenseFormValues) => {
-    values.isReimbursement = false
+    values.isReimbursement = expense?.isReimbursement ?? false
     values.recurrenceRule = RecurrenceRule.NONE
     await persistDefaultSplittingOptions(group.id, values)
     const valuesCurrency = resolveExpenseCurrency(values.originalCurrency)

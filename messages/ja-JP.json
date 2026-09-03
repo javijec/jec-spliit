@@ -310,6 +310,13 @@
   },
   "Balances": {
     "title": "残高",
+    "registeredPaymentsTitle": "Registered payments",
+    "registeredPaymentsDescription": "Payments already recorded in this group.",
+    "noRegisteredPayments": "No registered payments yet.",
+    "registeredPaymentsError": "We couldn't load registered payments.",
+    "registeredPaymentDescription": "{payer} paid {amount} to {payee}",
+    "paymentByYou": "You paid",
+    "paymentToYou": "You received",
     "suggestedPaymentsTitle": "Suggested payments",
     "suggestedPaymentsDescription": "Clear actions for settling each pending balance.",
     "balanceDetails": "Balance details",
@@ -318,6 +325,9 @@
     "description": "これは各参加者が支払ったまたは支払われた金額です。",
     "Reimbursements": {
       "settlementsTitle": "Settlements",
+      "maximumAmount": "Maximum: {amount}",
+      "amountExceedsRemaining": "Amount cannot exceed the remaining debt.",
+      "invalidAmount": "Enter a valid amount.",
       "title": "Suggested payments",
       "currencySectionLabel": "Payments in {currency}",
       "youPay": "You pay",

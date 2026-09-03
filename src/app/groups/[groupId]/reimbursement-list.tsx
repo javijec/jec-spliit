@@ -65,7 +65,7 @@ export function ReimbursementList({
     setPartialAmountInput('')
   }
 
-  const createExpense = trpc.groups.expenses.create.useMutation({
+  const createReimbursement = trpc.groups.reimbursements.create.useMutation({
     onSuccess: async () => {
       closeDialog()
       toast({
@@ -75,6 +75,7 @@ export function ReimbursementList({
       await Promise.all([
         utils.groups.balances.list.invalidate({ groupId }),
         utils.groups.expenses.list.invalidate({ groupId }),
+        utils.groups.reimbursements.list.invalidate({ groupId }),
         utils.groups.stats.get.invalidate({ groupId }),
         utils.groups.activities.list.invalidate({ groupId }),
       ])
@@ -139,54 +140,46 @@ export function ReimbursementList({
   const parsedPartialAmount = Number(partialAmountInput.replace(',', '.'))
   const isValidPartialAmount =
     Number.isFinite(parsedPartialAmount) && parsedPartialAmount > 0
+  const hasValidDecimalPrecision =
+    paymentDialog?.mode !== 'PARTIAL' ||
+    (partialAmountInput.trim().split(/[.,]/)[1]?.length ?? 0) <=
+      (dialogCurrency?.decimal_digits ?? 0)
   const selectedMinorUnits =
     paymentDialog && dialogCurrency
       ? paymentDialog.mode === 'TOTAL'
         ? paymentDialog.maxAmount
         : isValidPartialAmount
-          ? Math.min(
-              paymentDialog.maxAmount,
-              amountAsMinorUnits(parsedPartialAmount, dialogCurrency),
-            )
+          ? amountAsMinorUnits(parsedPartialAmount, dialogCurrency)
           : 0
       : 0
+  const exceedsRemainingDebt =
+    paymentDialog?.mode === 'PARTIAL' &&
+    selectedMinorUnits > (paymentDialog?.maxAmount ?? 0)
   const canConfirmPayment =
-    !!paymentDialog && (paymentDialog.mode === 'TOTAL' || isValidPartialAmount)
+    !!paymentDialog &&
+    (paymentDialog.mode === 'TOTAL' ||
+      (isValidPartialAmount &&
+        hasValidDecimalPrecision &&
+        !exceedsRemainingDebt))
 
   const confirmPayment = () => {
     if (!paymentDialog || !dialogCurrency) return
-    if (paymentDialog.mode === 'PARTIAL' && !isValidPartialAmount) return
+    if (
+      paymentDialog.mode === 'PARTIAL' &&
+      (!isValidPartialAmount ||
+        !hasValidDecimalPrecision ||
+        exceedsRemainingDebt ||
+        selectedMinorUnits <= 0)
+    )
+      return
 
-    createExpense.mutate({
+    createReimbursement.mutate({
       groupId,
-      expenseFormValues: {
-        title: 'Reimbursement',
-        expenseDate: new Date(),
-        amount: selectedMinorUnits,
-        originalCurrency:
-          paymentDialog.currencyCode === currency.code
-            ? currency.code
-            : paymentDialog.currencyCode,
-        originalAmount:
-          paymentDialog.currencyCode === currency.code
-            ? undefined
-            : selectedMinorUnits,
-        conversionRate: undefined,
-        category: 1,
-        paidBy: paymentDialog.from,
-        paidFor: [
-          {
-            participant: paymentDialog.to,
-            shares: 1,
-          },
-        ],
-        isReimbursement: true,
-        splitMode: 'EVENLY',
-        saveDefaultSplittingOptions: false,
-        documents: [],
-        notes: '',
-        recurrenceRule: 'NONE',
-      },
+      from: paymentDialog.from,
+      to: paymentDialog.to,
+      currencyCode: paymentDialog.currencyCode,
+      amount: selectedMinorUnits,
+      participantId: activeParticipantId ?? undefined,
     })
   }
 
@@ -283,7 +276,7 @@ export function ReimbursementList({
                         <Button
                           variant="secondary"
                           className="h-9 rounded-md px-2 text-[11px] font-medium"
-                          disabled={createExpense.isPending}
+                          disabled={createReimbursement.isPending}
                           aria-label={`${t('actions.totalPayment')}: ${fromName} → ${toName}`}
                           onClick={() =>
                             setPaymentDialog({
@@ -300,7 +293,7 @@ export function ReimbursementList({
                         <Button
                           variant="outline"
                           className="h-9 rounded-md px-2 text-[11px] font-medium"
-                          disabled={createExpense.isPending}
+                          disabled={createReimbursement.isPending}
                           aria-label={`${t('actions.partialPayment')}: ${fromName} → ${toName}`}
                           onClick={() => {
                             setPartialAmountInput('')
@@ -353,9 +346,15 @@ export function ReimbursementList({
               {paymentDialog.mode === 'PARTIAL' && (
                 <div className="space-y-1.5">
                   <div className="text-sm font-medium">
-                    {t('partialAmountLabel')}
+                    <label
+                      htmlFor="partial-payment-amount"
+                      className="text-sm font-medium"
+                    >
+                      {t('partialAmountLabel')}
+                    </label>
                   </div>
                   <Input
+                    id="partial-payment-amount"
                     value={partialAmountInput}
                     onChange={(event) =>
                       setPartialAmountInput(event.target.value)
@@ -367,7 +366,34 @@ export function ReimbursementList({
                     ).toString()}
                     inputMode="decimal"
                     step={10 ** -dialogCurrency.decimal_digits}
+                    aria-invalid={
+                      partialAmountInput.length > 0 && !canConfirmPayment
+                    }
+                    aria-describedby="partial-payment-max partial-payment-error"
                   />
+                  <p
+                    id="partial-payment-max"
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t('maximumAmount', {
+                      amount: formatCurrency(
+                        dialogCurrency,
+                        paymentDialog.maxAmount,
+                        locale,
+                      ),
+                    })}
+                  </p>
+                  {partialAmountInput.length > 0 && !canConfirmPayment && (
+                    <p
+                      id="partial-payment-error"
+                      role="alert"
+                      className="text-xs text-danger"
+                    >
+                      {exceedsRemainingDebt
+                        ? t('amountExceedsRemaining')
+                        : t('invalidAmount')}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -414,8 +440,8 @@ export function ReimbursementList({
             </Button>
             <Button
               onClick={confirmPayment}
-              disabled={!canConfirmPayment || createExpense.isPending}
-              aria-busy={createExpense.isPending}
+              disabled={!canConfirmPayment || createReimbursement.isPending}
+              aria-busy={createReimbursement.isPending}
             >
               {paymentDialog?.mode === 'TOTAL'
                 ? t('confirm.total')
