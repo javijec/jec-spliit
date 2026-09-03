@@ -6,6 +6,7 @@ import { ProgressBar } from '@/components/progress-bar'
 import { PwaInstallButton } from '@/components/pwa-install-button'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { ToastProvider } from '@/components/ui/toast-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { getCurrentAuthSession } from '@/lib/auth'
 import { env } from '@/lib/env'
@@ -80,67 +81,69 @@ function Content({
   const t = useTranslations('Layout')
   return (
     <TRPCProvider>
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/80 bg-background/92 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
-        <div className="mx-auto flex h-14 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:h-16 sm:px-4 lg:px-8">
-          <Link
-            className="flex min-w-0 items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-secondary/70 sm:gap-3"
-            href="/"
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/90 bg-card sm:h-9 sm:w-9">
-              <Image
-                src="/logo.svg"
-                className="h-5 w-5 object-contain sm:h-6 sm:w-6"
-                width={24}
-                height={24}
-                alt="NexoGastos"
+      <ToastProvider>
+        <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/80 bg-background/92 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+          <div className="mx-auto flex h-14 w-full max-w-screen-xl items-center justify-between gap-3 px-3 sm:h-16 sm:px-4 lg:px-8">
+            <Link
+              className="flex min-w-0 items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-secondary/70 sm:gap-3"
+              href="/"
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/90 bg-card sm:h-9 sm:w-9">
+                <Image
+                  src="/logo.svg"
+                  className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+                  width={24}
+                  height={24}
+                  alt="NexoGastos"
+                />
+              </div>
+              <div className="min-w-0 leading-none">
+                <p className="truncate text-sm font-semibold tracking-tight sm:text-base">
+                  NexoGastos
+                </p>
+                <p className="hidden text-xs text-muted-foreground sm:block">
+                  {t('tagline')}
+                </p>
+              </div>
+            </Link>
+            <div
+              role="navigation"
+              aria-label="Menu"
+              className="flex items-center gap-1.5 sm:gap-2"
+            >
+              <ButtonLink
+                href={
+                  isAuthenticated
+                    ? '/groups'
+                    : '/auth/login?connection=google-oauth2'
+                }
+                label={t('groupsCta')}
               />
+              <AuthNav />
+              <ul className="flex items-center gap-0.5 border-l border-border/70 pl-1 text-sm sm:gap-1 sm:pl-2">
+                <li>
+                  <PwaInstallButton />
+                </li>
+                <li>
+                  <LocaleSwitcher />
+                </li>
+                <li>
+                  <ThemeToggle />
+                </li>
+              </ul>
             </div>
-            <div className="min-w-0 leading-none">
-              <p className="truncate text-sm font-semibold tracking-tight sm:text-base">
-                NexoGastos
-              </p>
-              <p className="hidden text-xs text-muted-foreground sm:block">
-                {t('tagline')}
-              </p>
-            </div>
-          </Link>
-          <div
-            role="navigation"
-            aria-label="Menu"
-            className="flex items-center gap-1.5 sm:gap-2"
-          >
-            <ButtonLink
-              href={
-                isAuthenticated
-                  ? '/groups'
-                  : '/auth/login?connection=google-oauth2'
-              }
-              label={t('groupsCta')}
-            />
-            <AuthNav />
-            <ul className="flex items-center gap-0.5 border-l border-border/70 pl-1 text-sm sm:gap-1 sm:pl-2">
-              <li>
-                <PwaInstallButton />
-              </li>
-              <li>
-                <LocaleSwitcher />
-              </li>
-              <li>
-                <ThemeToggle />
-              </li>
-            </ul>
+          </div>
+        </header>
+
+        <div className="app-shell box-border flex min-h-[100dvh] flex-col pt-[calc(3.5rem+env(safe-area-inset-top))] sm:pt-[calc(4rem+env(safe-area-inset-top))]">
+          <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+            {children}
           </div>
         </div>
-      </header>
 
-      <div className="app-shell box-border flex min-h-[100dvh] flex-col pt-[calc(3.5rem+env(safe-area-inset-top))] sm:pt-[calc(4rem+env(safe-area-inset-top))]">
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-          {children}
-        </div>
-      </div>
-
-      <ConditionalFooter footerDescription={t('footerDescription')} />
-      <Toaster />
+        <ConditionalFooter footerDescription={t('footerDescription')} />
+        <Toaster />
+      </ToastProvider>
     </TRPCProvider>
   )
 }

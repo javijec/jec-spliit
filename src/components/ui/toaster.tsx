@@ -6,11 +6,9 @@ import {
   Toast,
   ToastClose,
   ToastDescription,
-  ToastProvider,
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
-import { TOAST_LIMIT, toastManager } from "@/components/ui/use-toast"
 
 function ToastList() {
   const { toasts } = ToastPrimitives.useToastManager()
@@ -37,12 +35,10 @@ function ToastList() {
 
 export function Toaster() {
   return (
-    <ToastProvider toastManager={toastManager} limit={TOAST_LIMIT}>
-      <ToastPrimitives.Portal>
-        <ToastViewport>
-          <ToastList />
-        </ToastViewport>
-      </ToastPrimitives.Portal>
-    </ToastProvider>
+    <ToastPrimitives.Portal>
+      <ToastViewport>
+        <ToastList />
+      </ToastViewport>
+    </ToastPrimitives.Portal>
   )
 }

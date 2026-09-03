@@ -1,8 +1,22 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 
 import { ToastAction } from './toast'
+import { ToastProvider } from './toast-provider'
 import { Toaster } from './toaster'
-import { toast, toastManager } from './use-toast'
+import { toast, toastManager, useToast } from './use-toast'
+
+function ToastConsumer() {
+  const { toast: createToast } = useToast()
+
+  return (
+    <button
+      type="button"
+      onClick={() => createToast({ title: 'Hook toast', duration: 0 })}
+    >
+      Create hook toast
+    </button>
+  )
+}
 
 describe('Toast', () => {
   afterEach(() => {
@@ -10,7 +24,11 @@ describe('Toast', () => {
   })
 
   it('renders imperative title, description, variant, and action', async () => {
-    render(<Toaster />)
+    render(
+      <ToastProvider>
+        <Toaster />
+      </ToastProvider>,
+    )
 
     await act(async () => {
       toast({
@@ -35,7 +53,11 @@ describe('Toast', () => {
   })
 
   it('dismisses through the returned imperative handle and close button', async () => {
-    render(<Toaster />)
+    render(
+      <ToastProvider>
+        <Toaster />
+      </ToastProvider>,
+    )
 
     let created: ReturnType<typeof toast> | undefined
     await act(async () => {
@@ -55,7 +77,11 @@ describe('Toast', () => {
   })
 
   it('keeps only the newest toast visible at the configured limit', async () => {
-    render(<Toaster />)
+    render(
+      <ToastProvider>
+        <Toaster />
+      </ToastProvider>,
+    )
 
     await act(async () => {
       toast({ title: 'First toast', duration: 0 })
@@ -64,5 +90,18 @@ describe('Toast', () => {
 
     expect(await screen.findByText('Second toast')).toBeTruthy()
     expect(screen.getByText('First toast').closest('[data-limited]')).toBeTruthy()
+  })
+
+  it('makes useToast available to descendants of the shared provider', async () => {
+    render(
+      <ToastProvider>
+        <ToastConsumer />
+        <Toaster />
+      </ToastProvider>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create hook toast' }))
+
+    expect(await screen.findByText('Hook toast')).toBeTruthy()
   })
 })
