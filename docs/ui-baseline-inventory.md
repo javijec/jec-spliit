@@ -338,8 +338,9 @@ involving `currentActiveParticipantId` receive a visual and textual “You pay�
 “You receive” cue, while all transfers remain visible. Individual balances are
 secondary behind a Base UI Collapsible and retain their per-currency detail.
 
-“Mark as paid” continues to use the existing reimbursement-expense mutation; no
-`Settlement` model or new persistence contract was introduced. The dialog stays
+“Mark as paid” uses the specialized reimbursement mutation over the existing
+reimbursement-expense source of truth; no `Settlement` model or new persistence
+contract was introduced. The dialog stays
 open while the mutation is pending or fails, prevents duplicate submits, closes
 on success, invalidates related queries, and reports success/error through the
 existing toast manager. Authenticated browser verification at 390x844 and
@@ -377,6 +378,36 @@ negative, settled and absent participant states, recent expenses, empty state,
 real expense/balance links, and latest activity ordering. Authenticated browser
 verification of `/summary` at desktop and 390px remains **UNKNOWN / NEEDS LIVE
 VERIFICATION** because this checkout has no reproducible authenticated fixture.
+
+## 14.3 Phase 6 settlement payment contract
+
+`Expense` with `isReimbursement = true` remains the sole settlement source of
+truth. No Prisma `Settlement` model, table, or migration was added. Assisted
+payments use `groups.reimbursements.create`, which reuses `createExpense` after
+server-side membership, participant, currency, positive minor-unit amount, and
+current suggested-debt validation. Amounts above the current debt are rejected;
+the client never silently clamps them. Generic expense creation remains
+available for backward-compatible manual or historical reimbursements.
+
+The existing transaction creates the Expense, its `paidFor` rows, and the
+`CREATE_EXPENSE` Activity atomically. Balances, expenses, stats, activities, and
+reimbursement history are invalidated after success, so Summary refreshes when
+revisited.
+
+Balances now includes a lightweight “Registered payments” section backed by
+`groups.reimbursements.list`, filtered to `isReimbursement = true` and ordered
+newest first. Each row keeps its own currency and displays payer, payee, amount,
+and date. Existing expense deletion/editing remains the reversal path; editing
+a reimbursement preserves its reimbursement flag and recalculates balances.
+
+Focused coverage includes full and partial server validation, participant and
+currency rejection, zero/negative/non-finite amounts, overpayment rejection,
+minor-unit recalculation, comma-decimal UI input, partial over-max feedback,
+success/error/pending payment UI, and the existing Phase 5 balance tests.
+Authenticated browser verification of full/partial payment, history, settled
+state, multi-currency, delete/reverse, network error, and double-click behavior
+remains **UNKNOWN / NEEDS LIVE VERIFICATION** because this checkout has no
+reproducible authenticated fixtures.
 
 ## 15. New smoke coverage
 

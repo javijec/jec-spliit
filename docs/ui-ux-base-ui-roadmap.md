@@ -657,13 +657,13 @@ de éxito/error.
 
 ---
 
-# 10. Fase 6 — Settlements / “Marcar como pagado”
+# 10. Fase 6 — Settlements / “Marcar como pagado” ✅
 
 ## Objetivo
 
 Cerrar el ciclo de vida de una deuda dentro de JEC Spliit.
 
-## UX propuesta
+## Implementación
 
 En cada pago sugerido:
 
@@ -674,54 +674,40 @@ $15.400
 [Marcar como pagado]
 ```
 
-Al pulsar:
-
-1. Abrir Base UI Dialog en desktop o Drawer en mobile.
-2. Mostrar pagador, receptor, monto y moneda.
-3. Confirmar.
-4. Registrar settlement.
-5. Actualizar balances optimísticamente.
-6. Mostrar toast con Undo si la arquitectura permite reversión segura.
+Al pulsar, el Dialog muestra pagador, receptor, monto y moneda. La mutation
+especializada valida en servidor y reutiliza el gasto de reembolso existente.
+Los pagos parciales aceptan unidades menores positivas y rechazan el sobrepago
+sin recortarlo silenciosamente. El estado pendiente evita doble submit, y las
+queries relacionadas se invalidan tras el éxito.
 
 ## Backend / datos
 
-Antes de implementar, decidir explícitamente entre:
+`Expense` con `isReimbursement = true` es la fuente de verdad. No se creó un
+modelo Prisma `Settlement`, tabla ni migración. `groups.reimbursements.create`
+reutiliza `createExpense` después de validar membresía, participantes, moneda,
+importe entero positivo y deuda sugerida actual. `groups.reimbursements.list`
+expone un historial ligero de reimbursements, ordenado por fecha, dentro de
+Balances.
 
-### Opción A — Settlement como entidad propia
-
-Preferida a largo plazo.
-
-Campos orientativos:
-
-- id;
-- groupId;
-- payerParticipantId;
-- receiverParticipantId;
-- amount;
-- currency;
-- createdAt;
-- createdBy;
-- optional note.
-
-### Opción B — Settlement como gasto especial
-
-Más simple si el modelo actual ya permite transferencias, pero hay que evitar contaminar reportes de gasto.
+La transacción existente crea Expense, `paidFor` y Activity de forma atómica.
+La eliminación/edición normal de Expense continúa siendo la vía de reversión;
+editar un reimbursement conserva `isReimbursement` y recalcula los balances.
+No se agregó un botón Undo ni lógica duplicada de settlements.
 
 ## Tareas
 
-- [ ] Diseñar schema.
-- [ ] Migración Prisma si corresponde.
-- [ ] Crear mutation.
-- [ ] Actualizar algoritmo de balances.
-- [ ] Actualizar exportación.
-- [ ] Añadir actividad del settlement.
-- [ ] Añadir rollback/reverse.
-- [ ] Tests de multi-moneda.
-- [ ] Tests de concurrencia básica.
+- [x] Mutation especializada y validación server-side.
+- [x] Protección contra sobrepago y doble submit en UI.
+- [x] Historial de reimbursements dentro de Balances.
+- [x] Recálculo y aislamiento por moneda.
+- [x] Tests de validación, precisión UI y recálculo.
+- [x] Documentación de reversión y ausencia de modelo Settlement.
 
 ## Criterio de aceptación
 
-El flujo de JEC Spliit termina efectivamente cuando las cuentas quedan saldadas.
+El flujo de JEC Spliit permite registrar pagos totales y parciales, recalcula la
+deuda restante y conserva un historial consultable sin duplicar la lógica de
+balances ni crear un modelo `Settlement`.
 
 ---
 
