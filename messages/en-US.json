@@ -162,7 +162,16 @@
     "NotFound": {
       "text": "This group does not exist.",
       "link": "Go to recently visited groups"
-    }
+    },
+    "groupLabel": "Group",
+    "participantCount": "{count} participants",
+    "lastActivity": "Last activity",
+    "totalSpent": "Total spent",
+    "youAreOwed": "You are owed",
+    "youOwe": "You owe",
+    "settled": "All even",
+    "summaryUnavailable": "Financial summary unavailable",
+    "moreOptions": "More options"
   },
   "GroupForm": {
     "title": "Group information",
@@ -414,7 +423,7 @@
     "emptyDescription": "All participants are up to date across every currency.",
     "Reimbursements": {
       "settlementsTitle": "Smart settlement",
-      "description": "The app figures out who owes whom and suggests the minimum payments to bring the group to zero.",
+      "description": "Here are suggestions for optimized reimbursements between participants.",
       "noPendingDebtsDescription": "No money needs to move here: the group is already settled.",
       "paymentRegistered": {
         "title": "Payment recorded",
@@ -438,7 +447,6 @@
         "remaining": "Remaining"
       },
       "title": "Suggested settlements",
-      "description": "Here are suggestions for optimized reimbursements between participants.",
       "noImbursements": "There is nothing left to settle yet 😁",
       "owes": "<strong>{from}</strong> owes <strong>{to}</strong>",
       "markAsPaid": "Mark as paid"

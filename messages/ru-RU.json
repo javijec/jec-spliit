@@ -85,7 +85,16 @@
     "NotFound": {
       "text": "Этой группы не существует",
       "link": "Перейти к списку недавних групп"
-    }
+    },
+    "groupLabel": "Группа",
+    "participantCount": "{count} участников",
+    "lastActivity": "Последняя активность",
+    "totalSpent": "Всего потрачено",
+    "youAreOwed": "Вам должны",
+    "youOwe": "Вы должны",
+    "settled": "Расчёт завершён",
+    "summaryUnavailable": "Финансовая сводка недоступна",
+    "moreOptions": "Другие варианты"
   },
   "GroupForm": {
     "title": "Сведения о группе",

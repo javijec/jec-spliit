@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "Diese Gruppe existiert nicht.",
       "link": "Gehe zu zuletzt besuchten Gruppen"
-    }
+    },
+    "groupLabel": "Gruppe",
+    "participantCount": "{count} Teilnehmer",
+    "lastActivity": "Letzte Aktivität",
+    "totalSpent": "Insgesamt ausgegeben",
+    "youAreOwed": "Sie bekommen",
+    "youOwe": "Sie schulden",
+    "settled": "Ausgeglichen",
+    "summaryUnavailable": "Finanzübersicht nicht verfügbar",
+    "moreOptions": "Weitere Optionen"
   },
   "GroupForm": {
     "title": "Gruppeninformationen",

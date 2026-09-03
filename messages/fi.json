@@ -84,7 +84,16 @@
     "NotFound": {
       "text": "Tätä ryhmää ei löydy.",
       "link": "Siirry äskettäisiin ryhmiin"
-    }
+    },
+    "groupLabel": "Ryhmä",
+    "participantCount": "{count} osallistujaa",
+    "lastActivity": "Viimeisin toiminta",
+    "totalSpent": "Kulut yhteensä",
+    "youAreOwed": "Sinulle ollaan velkaa",
+    "youOwe": "Olet velkaa",
+    "settled": "Tasattu",
+    "summaryUnavailable": "Taloudellinen yhteenveto ei ole saatavilla",
+    "moreOptions": "Lisää vaihtoehtoja"
   },
   "GroupForm": {
     "title": "Ryhmän tiedot",

@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "Aquest grup no existeix.",
       "link": "Anar als darrers grups visitats."
-    }
+    },
+    "groupLabel": "Grup",
+    "participantCount": "{count} participants",
+    "lastActivity": "Darrera activitat",
+    "totalSpent": "Total gastat",
+    "youAreOwed": "Et deuen",
+    "youOwe": "Deus",
+    "settled": "Tot quadrat",
+    "summaryUnavailable": "Resum financer no disponible",
+    "moreOptions": "Més opcions"
   },
   "GroupForm": {
     "title": "Informació del grup",

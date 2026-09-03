@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "该群组不存在。",
       "link": "跳转到最近访问过的群组"
-    }
+    },
+    "groupLabel": "群组",
+    "participantCount": "{count} 位参与者",
+    "lastActivity": "最近活动",
+    "totalSpent": "总支出",
+    "youAreOwed": "应收金额",
+    "youOwe": "应付金额",
+    "settled": "已结清",
+    "summaryUnavailable": "财务摘要不可用",
+    "moreOptions": "更多选项"
   },
   "GroupForm": {
     "title": "群组信息",

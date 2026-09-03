@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "このグループは存在しません。",
       "link": "最近訪れたグループへ移動"
-    }
+    },
+    "groupLabel": "グループ",
+    "participantCount": "{count}人の参加者",
+    "lastActivity": "最終アクティビティ",
+    "totalSpent": "支出合計",
+    "youAreOwed": "受け取る金額",
+    "youOwe": "支払う金額",
+    "settled": "精算済み",
+    "summaryUnavailable": "財務概要は利用できません",
+    "moreOptions": "その他のオプション"
   },
   "GroupForm": {
     "title": "グループ情報",

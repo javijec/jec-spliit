@@ -84,7 +84,16 @@
     "NotFound": {
       "text": "該群組不存在。",
       "link": "前往最近訪問的群組"
-    }
+    },
+    "groupLabel": "群組",
+    "participantCount": "{count} 位參與者",
+    "lastActivity": "最近活動",
+    "totalSpent": "總支出",
+    "youAreOwed": "應收金額",
+    "youOwe": "應付金額",
+    "settled": "已結清",
+    "summaryUnavailable": "財務摘要無法使用",
+    "moreOptions": "更多選項"
   },
   "GroupForm": {
     "title": "群組資訊",

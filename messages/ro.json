@@ -84,7 +84,16 @@
     "NotFound": {
       "text": "Acest grup nu există.",
       "link": "Mergi la ultimele grupuri vizitate"
-    }
+    },
+    "groupLabel": "Grup",
+    "participantCount": "{count} participanți",
+    "lastActivity": "Ultima activitate",
+    "totalSpent": "Total cheltuit",
+    "youAreOwed": "Ai de primit",
+    "youOwe": "Ai de plătit",
+    "settled": "Echilibrat",
+    "summaryUnavailable": "Rezumatul financiar nu este disponibil",
+    "moreOptions": "Mai multe opțiuni"
   },
   "GroupForm": {
     "title": "Informații despre grup",

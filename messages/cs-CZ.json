@@ -85,7 +85,16 @@
     "NotFound": {
       "text": "Tato skupina neexistuje.",
       "link": "Přejít na nedávno navštívené skupiny"
-    }
+    },
+    "groupLabel": "Skupina",
+    "participantCount": "{count} účastníků",
+    "lastActivity": "Poslední aktivita",
+    "totalSpent": "Celkem utraceno",
+    "youAreOwed": "Dluží vám",
+    "youOwe": "Dlužíte",
+    "settled": "Vyrovnáno",
+    "summaryUnavailable": "Finanční přehled není k dispozici",
+    "moreOptions": "Další možnosti"
   },
   "GroupForm": {
     "title": "Informace o skupině",

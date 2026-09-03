@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "Talde hori ez da existitzen.",
       "link": "Joan bisitatutako azken taldeetara"
-    }
+    },
+    "groupLabel": "Taldea",
+    "participantCount": "{count} parte-hartzaile",
+    "lastActivity": "Azken jarduera",
+    "totalSpent": "Guztira gastatuta",
+    "youAreOwed": "Zuri zor dizute",
+    "youOwe": "Zuk zor duzu",
+    "settled": "Parean",
+    "summaryUnavailable": "Finantza-laburpena ez dago erabilgarri",
+    "moreOptions": "Aukera gehiago"
   },
   "GroupForm": {
     "title": "Taldeko informazioa",

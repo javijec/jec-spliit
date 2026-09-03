@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "Grup ini tidak dapat ditemukan.",
       "link": "Buka grup yang baru saja dikunjungi"
-    }
+    },
+    "groupLabel": "Grup",
+    "participantCount": "{count} peserta",
+    "lastActivity": "Aktivitas terakhir",
+    "totalSpent": "Total pengeluaran",
+    "youAreOwed": "Anda akan menerima",
+    "youOwe": "Anda berutang",
+    "settled": "Seimbang",
+    "summaryUnavailable": "Ringkasan keuangan tidak tersedia",
+    "moreOptions": "Opsi lainnya"
   },
   "GroupForm": {
     "title": "Informasi grup",

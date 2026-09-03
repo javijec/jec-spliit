@@ -63,7 +63,16 @@
       "link": "최근에 방문한 그룹 보기"
     },
     "unarchive": "그룹 다시 불러오기",
-    "removeRecent": "최근 그룹 목록에서 삭제하기"
+    "removeRecent": "최근 그룹 목록에서 삭제하기",
+    "groupLabel": "그룹",
+    "participantCount": "참여자 {count}명",
+    "lastActivity": "최근 활동",
+    "totalSpent": "총 지출",
+    "youAreOwed": "받을 금액",
+    "youOwe": "지불할 금액",
+    "settled": "정산 완료",
+    "summaryUnavailable": "재무 요약을 사용할 수 없습니다",
+    "moreOptions": "더 많은 옵션"
   },
   "GroupForm": {
     "title": "그룹 정보",

@@ -84,7 +84,16 @@
     "NotFound": {
       "text": "Bu grup mevcut değil.",
       "link": "Son ziyaret ettiğiniz gruplara dön"
-    }
+    },
+    "groupLabel": "Grup",
+    "participantCount": "{count} katılımcı",
+    "lastActivity": "Son etkinlik",
+    "totalSpent": "Toplam harcama",
+    "youAreOwed": "Alacağınız var",
+    "youOwe": "Borçlusunuz",
+    "settled": "Denk",
+    "summaryUnavailable": "Finansal özet kullanılamıyor",
+    "moreOptions": "Diğer seçenekler"
   },
   "GroupForm": {
     "title": "Grup bilgileri",

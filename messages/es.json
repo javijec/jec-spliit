@@ -162,7 +162,16 @@
     "NotFound": {
       "text": "Este grupo no existe.",
       "link": "Ir a los grupos visitados recientemente"
-    }
+    },
+    "groupLabel": "Grupo",
+    "participantCount": "{count} participantes",
+    "lastActivity": "Última actividad",
+    "totalSpent": "Total gastado",
+    "youAreOwed": "Te deben",
+    "youOwe": "Debés",
+    "settled": "A mano",
+    "summaryUnavailable": "Resumen financiero no disponible",
+    "moreOptions": "Más opciones"
   },
   "GroupForm": {
     "title": "Información del grupo",
@@ -414,7 +423,7 @@
     "emptyDescription": "Todos los participantes están al día en todas las monedas.",
     "Reimbursements": {
       "settlementsTitle": "Liquidación inteligente",
-      "description": "La app calcula quién le debe a quién y te propone los pagos mínimos para dejar el grupo en cero.",
+      "description": "He aquí algunas sugerencias para optimizar los reembolsos entre los participantes.",
       "noPendingDebtsDescription": "No hace falta mover dinero: el grupo ya quedó saldado.",
       "paymentRegistered": {
         "title": "Pago registrado",
@@ -438,7 +447,6 @@
         "remaining": "Restante"
       },
       "title": "Liquidaciones sugeridas",
-      "description": "He aquí algunas sugerencias para optimizar los reembolsos entre los participantes.",
       "noImbursements": "No hace falta liquidar nada todavía 😁",
       "owes": "<strong>{from}</strong> debe a <strong>{to}</strong>",
       "markAsPaid": "Marcar como pagado"

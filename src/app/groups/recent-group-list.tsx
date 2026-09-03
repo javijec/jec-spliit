@@ -604,11 +604,15 @@ function GroupCardSkeleton() {
   return (
     <div className="finance-shell p-4">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-3">
-          <Skeleton className="h-5 w-40 rounded-sm" />
-          <div className="flex flex-wrap gap-3">
-            <Skeleton className="h-4 w-12 rounded-sm" />
-            <Skeleton className="h-4 w-28 rounded-sm" />
+        <div className="flex min-w-0 flex-1 gap-3">
+          <Skeleton className="h-11 w-11 shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1 space-y-3">
+            <Skeleton className="h-5 w-40 rounded-sm" />
+            <div className="flex flex-wrap gap-3">
+              <Skeleton className="h-4 w-24 rounded-sm" />
+              <Skeleton className="h-4 w-32 rounded-sm" />
+            </div>
+            <Skeleton className="h-4 w-44 rounded-sm" />
           </div>
         </div>
         <Skeleton className="h-9 w-9 rounded-sm" />

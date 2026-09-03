@@ -84,7 +84,16 @@
     "NotFound": {
       "text": "Цієї групи не існує",
       "link": "Перейти до нещодавно відвіданих груп"
-    }
+    },
+    "groupLabel": "Група",
+    "participantCount": "{count} учасників",
+    "lastActivity": "Остання активність",
+    "totalSpent": "Усього витрачено",
+    "youAreOwed": "Вам винні",
+    "youOwe": "Ви винні",
+    "settled": "Усе порівну",
+    "summaryUnavailable": "Фінансовий підсумок недоступний",
+    "moreOptions": "Інші параметри"
   },
   "GroupForm": {
     "title": "Інформація про групу",

@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "Deze groep bestaat niet.",
       "link": "Ga naar je recente groepen"
-    }
+    },
+    "groupLabel": "Groep",
+    "participantCount": "{count} deelnemers",
+    "lastActivity": "Laatste activiteit",
+    "totalSpent": "Totaal uitgegeven",
+    "youAreOwed": "Je krijgt",
+    "youOwe": "Je bent verschuldigd",
+    "settled": "In balans",
+    "summaryUnavailable": "Financieel overzicht niet beschikbaar",
+    "moreOptions": "Meer opties"
   },
   "GroupForm": {
     "title": "Groepsinformatie",

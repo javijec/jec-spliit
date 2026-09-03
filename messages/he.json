@@ -87,7 +87,16 @@
     "NotFound": {
       "text": "קבוצה זו אינה קיימת.",
       "link": "עבור לקבוצות שביקרת בהן לאחרונה"
-    }
+    },
+    "groupLabel": "קבוצה",
+    "participantCount": "{count} משתתפים",
+    "lastActivity": "פעילות אחרונה",
+    "totalSpent": "סה״כ הוצאות",
+    "youAreOwed": "חייבים לך",
+    "youOwe": "אתה חייב",
+    "settled": "מאוזן",
+    "summaryUnavailable": "הסיכום הפיננסי לא זמין",
+    "moreOptions": "אפשרויות נוספות"
   },
   "GroupForm": {
     "title": "מידע על הקבוצה",
