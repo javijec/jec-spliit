@@ -472,15 +472,29 @@ O:
 
 ## Tareas
 
-- [ ] Reemplazar el icono genérico idéntico por avatar de grupo.
-- [ ] Generar iniciales y color determinístico por `group.id`.
-- [ ] Mostrar cantidad de participantes de forma secundaria.
-- [ ] Mostrar último movimiento en vez de fecha de creación.
-- [ ] Mostrar monto total del grupo cuando sea razonable.
-- [ ] Mostrar saldo personal si el usuario tiene participante asociado.
-- [ ] Mantener información simple para guest/legacy groups.
-- [ ] Evitar consultas N+1; ampliar `groups.mine` para devolver el resumen necesario.
-- [ ] Mantener optimistic update de pin/archive/remove.
+- [x] Reemplazar el icono genérico idéntico por avatar de grupo.
+- [x] Generar iniciales y color determinístico por `group.id`.
+- [x] Mostrar cantidad de participantes de forma secundaria.
+- [x] Mostrar último movimiento en vez de fecha de creación.
+- [x] Mostrar monto total del grupo cuando sea razonable.
+- [x] Mostrar saldo personal si el usuario tiene participante asociado.
+- [x] Mantener información simple para guest/legacy groups.
+- [x] Evitar consultas N+1; ampliar `groups.mine` para devolver el resumen necesario.
+- [x] Mantener optimistic update de pin/archive/remove.
+
+## Contrato implementado
+
+`groups.mine` mantiene el contrato de membresía existente y agrega, mediante una
+agregación batch en backend:
+
+- `totalSpentByCurrency`: total gastado por moneda, sin sumar monedas distintas y excluyendo reembolsos;
+- `personalBalanceByCurrency`: saldo del `activeParticipantId` persistido en la membresía, o un objeto vacío si todavía no existe una asociación fiable;
+- `lastActivityAt`: última actividad registrada del grupo, no la fecha de creación.
+
+La consulta usa una lectura de membresías y una consulta SQL agregada para todos
+los grupos del usuario. No se ejecutan consultas por card ni se hidratan los
+campos completos de cada gasto. Los grupos locales/legacy que no tienen resumen
+financiero muestran un fallback neutro.
 
 ## Simplificación conceptual
 
@@ -498,6 +512,11 @@ Desde `/groups`, un usuario puede identificar sin abrir cada grupo:
 - cuál está activo;
 - cuál tuvo actividad reciente;
 - si debe dinero o le deben.
+
+**Fase 3 completada:** cards financieras, estados por moneda, avatar determinista,
+actividad localizada, estados archived/favorite preservados, cobertura de backend
+y UI, y documentación actualizada. La semántica `archived` sigue siendo la
+existente; no se introdujo un lifecycle `settled` o `finalized`.
 
 ---
 

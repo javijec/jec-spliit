@@ -38,7 +38,7 @@ The following App Router routes exist in `src/app`. Dynamic segments are shown w
 | Route | Current implementation | Critical data/actions | Overlay or navigation surface |
 |---|---|---|---|
 | `/` | `src/app/page.tsx` landing | Reads current auth session; links to groups or Google login | Global fixed header; no local overlay |
-| `/groups` | `recent-group-list.tsx` and `recent-group-list-card.tsx` | `viewer.getCurrent`, `groups.mine`, legacy local-group sync; star/archive/remove membership mutations | Context menu per group card; links to create and group |
+| `/groups` | `recent-group-list.tsx` and `recent-group-list-card.tsx` | `viewer.getCurrent`, aggregated `groups.mine` financial summaries, legacy local-group sync; star/archive/remove membership mutations | Financial group cards with deterministic avatar, localized activity, currency-separated balance, and context menu |
 | `/groups/create` | `create/create-group.tsx` | Auth gate when enabled; creates a group and owner/active participant | Group form Select and participant Hover Card |
 | `/groups/<groupId>` | `page.tsx` redirect | Redirects to `/summary` | None |
 | `/groups/<groupId>/summary` | `summary/page.client.tsx` inside group layout | Group context, group details, participant/link status; links to Expenses, Balances, Settings | Global active-user Dialog/Drawer; mobile FAB and bottom navigation |
@@ -290,7 +290,26 @@ No stacking root, token, overlay, or CSS change was made in this phase.
 
 No incompatible fixtures were invented. Authenticated flows are deliberately marked as requiring real environment data.
 
-## 13. Existing test coverage
+## 13. `/groups` financial card contract
+
+The authenticated `groups.mine` response keeps membership ordering and adds a
+single backend batch aggregation for the list:
+
+- `totalSpentByCurrency` contains non-reimbursement totals keyed by effective
+  currency;
+- `personalBalanceByCurrency` uses the persisted active participant and never
+  combines incompatible currencies;
+- `lastActivityAt` comes from the latest recorded group activity;
+- participant count remains the existing Prisma `_count` aggregate;
+- missing active-participant linkage produces an explicit unavailable-summary
+  fallback rather than an invented balance.
+
+The list renders these fields without per-card queries. Legacy/local cards keep
+their existing lightweight fallback, while favorite, archive, remove, and
+optimistic membership behavior remain unchanged. The card avatar is derived
+deterministically from the group name and id.
+
+## 14. Existing test coverage
 
 The repository uses Jest through `jest.config.ts` and Next Jest with JSDOM. Existing tests cover:
 
@@ -303,7 +322,7 @@ The repository uses Jest through `jest.config.ts` and Next Jest with JSDOM. Exis
 
 There is no Jest setup file, no `jest-axe`, no accessibility matcher setup, no Playwright configuration, and no E2E script in `package.json`. `.playwright-cli/` contains prior captured logs/pages, but it is not a reproducible test harness in this checkout.
 
-## 14. New smoke coverage
+## 15. New smoke coverage
 
 Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-menu.test.tsx`, `src/components/ui/dialog.test.tsx`, and `src/components/ui/select-combobox.test.tsx` using the existing Jest + Testing Library stack. The tests target migration-stable behavior rather than Radix markup snapshots:
 
@@ -314,7 +333,7 @@ Added `src/components/ui/overlay-smoke.test.tsx`, `src/components/ui/dropdown-me
 
 La suite enfocada de Dropdown Menu pasa en Jest con JSDOM. La suite completa de Jest conserva seis fallos no relacionados y `bun test` directo no configura JSDOM ni las APIs de Jest; no se modificó la infraestructura de tests en esta fase. No se introdujo un framework nuevo ni una suite de snapshots.
 
-## 15. Base UI migration matrix
+## 16. Base UI migration matrix
 
 The target names below are verified against the current Base UI documentation; exact APIs and package version must be rechecked at the start of each migration commit.
 
