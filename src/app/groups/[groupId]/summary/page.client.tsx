@@ -1,207 +1,376 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
-import { ParticipantAvatar } from '@/components/participant-avatar'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import {
   GroupSectionCard,
   GroupSectionContent,
+  GroupSectionDescription,
+  GroupSectionHeader,
+  GroupSectionTitle,
 } from '@/components/ui/group-section-card'
+import type { Locale } from '@/i18n/request'
+import { getCurrency } from '@/lib/currency'
+import {
+  formatCurrency,
+  formatDateOnly,
+  getCurrencyFromGroup,
+} from '@/lib/utils'
+import { trpc } from '@/trpc/client'
+import { AppRouterOutput } from '@/trpc/routers/_app'
 import {
   ArrowRight,
+  CircleCheck,
   HandCoins,
   Plus,
   ReceiptText,
-  Settings,
-  ShieldCheck,
   UserRound,
 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
 
+type RecentExpense =
+  AppRouterOutput['groups']['expenses']['list']['expenses'][number]
+
+type PositionCardsProps = {
+  balances: Record<string, number>
+  groupCurrencyCode: string | null
+  locale: string
+  t: ReturnType<typeof useTranslations>
+}
+
+function SummaryLoading() {
+  return (
+    <div className="space-y-3" aria-busy="true" aria-label="Loading summary">
+      <div className="grid gap-3 lg:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <GroupSectionCard key={index}>
+            <GroupSectionContent className="space-y-3">
+              <div className="h-5 w-36 animate-pulse rounded bg-muted" />
+              <div className="h-10 w-48 animate-pulse rounded bg-muted" />
+              <div className="h-4 w-64 animate-pulse rounded bg-muted" />
+            </GroupSectionContent>
+          </GroupSectionCard>
+        ))}
+      </div>
+      <GroupSectionCard>
+        <GroupSectionContent className="space-y-3">
+          <div className="h-5 w-40 animate-pulse rounded bg-muted" />
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-14 animate-pulse rounded bg-muted" />
+          ))}
+        </GroupSectionContent>
+      </GroupSectionCard>
+    </div>
+  )
+}
+
+function PositionCards({
+  balances,
+  groupCurrencyCode,
+  locale,
+  t,
+}: PositionCardsProps) {
+  const entries = Object.entries(balances)
+  const currencyCodes = entries.length
+    ? entries.map(([currencyCode]) => currencyCode)
+    : groupCurrencyCode
+      ? [groupCurrencyCode]
+      : []
+
+  return (
+    <div className="grid gap-2 sm:grid-cols-3">
+      {currencyCodes.map((currencyCode) => {
+        const balance = balances[currencyCode] ?? 0
+        const currency = getCurrency(currencyCode, locale as Locale)
+        const state = balance > 0 ? 'owed' : balance < 0 ? 'owes' : 'even'
+        const label =
+          state === 'owed'
+            ? t('youAreOwed')
+            : state === 'owes'
+              ? t('youOwe')
+              : t('allEven')
+
+        return (
+          <div
+            key={currencyCode}
+            data-position={state}
+            className="rounded-md border border-border/70 bg-background px-3 py-3"
+          >
+            <p className="text-xs font-medium text-muted-foreground">
+              {currencyCode}
+            </p>
+            <p className="mt-1 text-sm font-semibold">{label}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums">
+              {formatCurrency(currency, Math.abs(balance), locale)}
+            </p>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function RecentExpenseRow({
+  expense,
+  groupCurrency,
+  locale,
+  t,
+}: {
+  expense: RecentExpense
+  groupCurrency: ReturnType<typeof getCurrencyFromGroup>
+  locale: string
+  t: ReturnType<typeof useTranslations>
+}) {
+  const currencyCode = expense.originalCurrency ?? groupCurrency.code
+  const currency = getCurrency(currencyCode, locale as Locale)
+  const amount = expense.originalAmount ?? expense.amount
+
+  return (
+    <li className="flex items-center justify-between gap-3 border-b border-border/60 py-3 last:border-b-0">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium">
+          {expense.isReimbursement ? t('reimbursement') : expense.title}
+        </p>
+        <p className="truncate text-xs text-muted-foreground">
+          {t('recentExpensePaidBy', { participant: expense.paidBy.name })}
+          {' · '}
+          {formatDateOnly(new Date(expense.expenseDate), locale)}
+        </p>
+      </div>
+      <p className="shrink-0 text-sm font-semibold tabular-nums">
+        {formatCurrency(currency, amount, locale)}
+      </p>
+    </li>
+  )
+}
+
 export function SummaryPageClient() {
-  const tSummary = useTranslations('Summary')
-  const tTabs = useTranslations('GroupTabs')
-  const tExpenseFlow = useTranslations('ExpenseFlow')
-  const { group, groupDetails, groupSnapshot, viewer, groupId } =
-    useCurrentGroup()
+  const locale = useLocale()
+  const t = useTranslations('Summary')
+  const {
+    group,
+    groupSnapshot,
+    groupId,
+    currentActiveParticipantId,
+    openActiveUserModal,
+  } = useCurrentGroup()
   const resolvedGroup = group ?? groupSnapshot?.group ?? null
-  const resolvedGroupDetails =
-    groupDetails ?? groupSnapshot?.groupDetails ?? null
-  const participantCount = resolvedGroup?.participants.length ?? 0
-  const linkedParticipants =
-    resolvedGroup?.participants.filter(
-      (participant) => participant.appUserId,
-    ) ?? []
-  const unlinkedParticipants =
-    resolvedGroup?.participants.filter(
-      (participant) => !participant.appUserId,
-    ) ?? []
-  const linkedParticipantIds = new Set(
-    linkedParticipants.map((participant) => participant.id),
+  const groupCurrency = resolvedGroup
+    ? getCurrencyFromGroup(resolvedGroup)
+    : null
+  const statsQuery = trpc.groups.stats.get.useQuery(
+    {
+      groupId,
+      participantId: currentActiveParticipantId ?? undefined,
+    },
+    { staleTime: 300_000, refetchOnMount: false },
   )
-  const linkedMembers = (resolvedGroupDetails?.members ?? []).filter(
-    (member) =>
-      member.activeParticipant &&
-      linkedParticipantIds.has(member.activeParticipant.id),
+  const expensesQuery = trpc.groups.expenses.list.useInfiniteQuery(
+    { groupId, limit: 5, filter: '' },
+    {
+      getNextPageParam: (page) => (page.hasMore ? page.nextCursor : undefined),
+      staleTime: 300_000,
+      refetchOnMount: false,
+    },
   )
-  const quickActions = [
-    {
-      href: `/groups/${groupId}/expenses/create`,
-      label: tExpenseFlow('createTitle'),
-      icon: Plus,
-    },
-    {
-      href: `/groups/${groupId}/expenses`,
-      label: tTabs('expenses'),
-      icon: ReceiptText,
-    },
-    {
-      href: `/groups/${groupId}/balances`,
-      label: tTabs('balances'),
-      icon: HandCoins,
-    },
-    {
-      href: `/groups/${groupId}/settings`,
-      label: tTabs('settings'),
-      icon: Settings,
-    },
-  ]
+  const recentExpenses = useMemo(
+    () => expensesQuery.data?.pages.flatMap((page) => page.expenses) ?? [],
+    [expensesQuery.data],
+  )
+
+  if (!resolvedGroup || statsQuery.isLoading || expensesQuery.isLoading) {
+    return <SummaryLoading />
+  }
+
+  const totalsByCurrency = statsQuery.data?.totalSpentByCurrency ?? {}
+  const personalBalanceByCurrency =
+    statsQuery.data?.personalBalanceByCurrency ?? {}
+  const currencyEntries = Object.entries(totalsByCurrency).sort(([a], [b]) =>
+    a.localeCompare(b),
+  )
+  const hasExpenses = recentExpenses.length > 0
+  const hasActiveParticipant = !!currentActiveParticipantId
 
   return (
     <div className="space-y-3">
-      <GroupSectionCard>
-        <GroupSectionContent>
-          <div className="mb-4 grid gap-2 sm:grid-cols-3">
-            <span className="rounded-md border border-border/70 bg-background px-3 py-2 text-xs text-muted-foreground">
-              {tSummary('participantsBadge', {
-                count: participantCount,
-              })}
-            </span>
-            {resolvedGroup?.currencyCode ? (
-              <span className="rounded-md border border-border/70 bg-background px-3 py-2 text-xs text-muted-foreground">
-                {tSummary('defaultCurrencyBadge', {
-                  currencyCode: resolvedGroup.currencyCode,
-                })}
-              </span>
-            ) : null}
-            <span className="rounded-md border border-border/70 bg-background px-3 py-2 text-xs text-muted-foreground">
-              {tSummary('linkedCountBadge', {
-                count: linkedParticipants.length,
-              })}
-            </span>
-          </div>
-
-          <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {quickActions.map((action) => {
-              const Icon = action.icon
-              return (
-                <Link
-                  key={action.href}
-                  href={action.href}
-                  className="flex min-h-20 flex-col justify-between rounded-lg border border-border/70 bg-background px-3 py-3 text-sm font-medium transition-colors hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                  <span className="leading-snug">{action.label}</span>
-                </Link>
-              )
-            })}
-          </div>
-
-          <div className="mb-4">
-            <h2 className="text-base font-semibold tracking-tight">
-              {tSummary('accessTitle')}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {tSummary('accessDescription')}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            {linkedMembers.map((member) => {
-              const activeParticipant = member.activeParticipant
-              const isCurrentViewer = member.userId === viewer?.id
-
-              return (
-                <div
-                  key={`${member.userId}-${activeParticipant?.id ?? 'none'}`}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border/70 bg-background px-3.5 py-3 text-sm shadow-sm shadow-black/5"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate font-medium tracking-tight">
-                      {member.user.displayName ||
-                        member.user.email ||
-                        activeParticipant?.name ||
-                        tSummary('accessFallback')}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {member.user.email || tSummary('accessNoEmail')}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {tSummary('accessParticipant', {
-                        participant:
-                          activeParticipant?.name ?? tSummary('accessFallback'),
-                      })}
-                    </p>
-                  </div>
-                  <div className="shrink-0">
-                    {isCurrentViewer ? (
-                      <Badge
-                        variant="outline"
-                        className="text-foreground"
-                        title={tSummary('linkedYouBadge')}
-                        aria-label={tSummary('linkedYouBadge')}
-                      >
-                        <UserRound className="h-3.5 w-3.5" />
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant="outline"
-                        className="text-muted-foreground"
-                        title={tSummary('linkedBadge')}
-                        aria-label={tSummary('linkedBadge')}
-                      >
-                        <ShieldCheck className="h-3.5 w-3.5" />
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {unlinkedParticipants.length > 0 && (
-            <div className="mt-4 rounded-lg border border-dashed border-border/70 bg-background px-3.5 py-3">
-              <p className="text-sm font-medium">
-                {tSummary('pendingAccessTitle')}
+      <div className="grid gap-3 lg:grid-cols-2">
+        <GroupSectionCard>
+          <GroupSectionHeader>
+            <GroupSectionTitle>{t('overviewTitle')}</GroupSectionTitle>
+            <GroupSectionDescription>
+              {t('overviewDescription')}
+            </GroupSectionDescription>
+          </GroupSectionHeader>
+          <GroupSectionContent>
+            {statsQuery.isError ? (
+              <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                {t('financialError')}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {tSummary('pendingAccessDescription')}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {unlinkedParticipants.map((participant) => (
-                  <Badge
-                    key={participant.id}
-                    variant="outline"
-                    className="gap-2 pr-3"
+            ) : currencyEntries.length ? (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {currencyEntries.map(([currencyCode, amount]) => (
+                  <div
+                    key={currencyCode}
+                    className="rounded-md border border-border/70 bg-background px-3 py-3"
                   >
-                    <ParticipantAvatar name={participant.name} size="sm" />
-                    <span>{participant.name}</span>
-                  </Badge>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      {currencyCode}
+                    </p>
+                    <p className="mt-1 text-2xl font-semibold tabular-nums">
+                      {formatCurrency(
+                        getCurrency(currencyCode, locale as Locale),
+                        amount,
+                        locale,
+                      )}
+                    </p>
+                  </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t('noExpensesYet')}
+              </p>
+            )}
+            <p className="mt-3 text-xs text-muted-foreground">
+              {t('participantCount', {
+                count: resolvedGroup.participants.length,
+              })}
+            </p>
+            {statsQuery.data?.lastActivityAt ? (
+              <p className="mt-3 text-xs text-muted-foreground">
+                {t('lastActivity')}:{' '}
+                {formatDateOnly(
+                  new Date(statsQuery.data.lastActivityAt),
+                  locale,
+                )}
+              </p>
+            ) : null}
+          </GroupSectionContent>
+        </GroupSectionCard>
 
-          <div className="mt-4">
-            <Button asChild variant="outline" className="w-full sm:w-auto">
-              <Link href={`/groups/${groupId}/settings`}>
-                {tSummary('manageAccessAction')}
-                <ArrowRight className="ml-2 h-4 w-4" />
+        <GroupSectionCard>
+          <GroupSectionHeader>
+            <GroupSectionTitle>{t('positionTitle')}</GroupSectionTitle>
+            <GroupSectionDescription>
+              {t('positionDescription')}
+            </GroupSectionDescription>
+          </GroupSectionHeader>
+          <GroupSectionContent>
+            {hasActiveParticipant && !statsQuery.isError ? (
+              <PositionCards
+                balances={personalBalanceByCurrency}
+                groupCurrencyCode={resolvedGroup.currencyCode}
+                locale={locale}
+                t={t}
+              />
+            ) : hasActiveParticipant ? (
+              <p className="text-sm text-muted-foreground">
+                {t('financialError')}
+              </p>
+            ) : (
+              <div className="rounded-md border border-dashed border-border/70 bg-background px-3 py-3">
+                <div className="flex items-start gap-3">
+                  <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {t('chooseParticipant')}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t('chooseParticipantDescription')}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="mt-3"
+                      onClick={() => openActiveUserModal?.()}
+                    >
+                      {t('chooseParticipant')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </GroupSectionContent>
+        </GroupSectionCard>
+      </div>
+
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <GroupSectionTitle>{t('nextActionTitle')}</GroupSectionTitle>
+        </GroupSectionHeader>
+        <GroupSectionContent className="flex flex-wrap gap-2">
+          {hasActiveParticipant ? (
+            <Button asChild>
+              <Link href={`/groups/${groupId}/expenses/create`}>
+                <Plus className="mr-2 h-4 w-4" />
+                {hasExpenses ? t('addExpense') : t('addFirstExpense')}
               </Link>
             </Button>
-          </div>
+          ) : (
+            <Button type="button" onClick={() => openActiveUserModal?.()}>
+              <UserRound className="mr-2 h-4 w-4" />
+              {t('chooseParticipant')}
+            </Button>
+          )}
+          <Button asChild variant="outline">
+            <Link href={`/groups/${groupId}/balances`}>
+              <HandCoins className="mr-2 h-4 w-4" />
+              {t('viewSuggestedPayments')}
+            </Link>
+          </Button>
+        </GroupSectionContent>
+      </GroupSectionCard>
+
+      <GroupSectionCard>
+        <GroupSectionHeader>
+          <GroupSectionTitle>{t('recentExpensesTitle')}</GroupSectionTitle>
+          <GroupSectionDescription>
+            {t('recentExpensesDescription')}
+          </GroupSectionDescription>
+        </GroupSectionHeader>
+        <GroupSectionContent>
+          {expensesQuery.isError ? (
+            <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              {t('recentExpensesError')}
+            </p>
+          ) : hasExpenses && groupCurrency ? (
+            <>
+              <ol>
+                {recentExpenses.map((expense) => (
+                  <RecentExpenseRow
+                    key={expense.id}
+                    expense={expense}
+                    groupCurrency={groupCurrency}
+                    locale={locale}
+                    t={t}
+                  />
+                ))}
+              </ol>
+              <Button asChild variant="outline" className="mt-4">
+                <Link href={`/groups/${groupId}/expenses`}>
+                  {t('viewAllExpenses')}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <EmptyState
+              icon={recentExpenses.length ? ReceiptText : CircleCheck}
+              title={t('noExpensesYet')}
+              description={t('noExpensesYetDescription')}
+              action={
+                <Button asChild>
+                  <Link href={`/groups/${groupId}/expenses/create`}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    {t('addExpense')}
+                  </Link>
+                </Button>
+              }
+            />
+          )}
         </GroupSectionContent>
       </GroupSectionCard>
     </div>

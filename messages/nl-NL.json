@@ -505,5 +505,33 @@
       "heading": "Andere valuta"
     },
     "search": "Valuta zoeken..."
+  },
+  "Summary": {
+    "participantCount": "{count} participants",
+    "title": "Summary",
+    "description": "Operational overview for this group.",
+    "overviewTitle": "Financial overview",
+    "overviewDescription": "See how much the group spent, without mixing currencies.",
+    "positionTitle": "Your position",
+    "positionDescription": "Your current balance in each currency.",
+    "youAreOwed": "You are owed",
+    "youOwe": "You owe",
+    "allEven": "All even",
+    "chooseParticipant": "Choose your participant",
+    "chooseParticipantDescription": "Select your participant to see your position in this group.",
+    "nextActionTitle": "Next action",
+    "addExpense": "Add expense",
+    "addFirstExpense": "Add the first expense",
+    "viewSuggestedPayments": "View suggested payments",
+    "recentExpensesTitle": "Recent expenses",
+    "recentExpensesDescription": "The latest movements in this group.",
+    "viewAllExpenses": "View all expenses",
+    "noExpensesYet": "No expenses yet",
+    "noExpensesYetDescription": "Add the first expense to start splitting.",
+    "recentExpensePaidBy": "Paid by {participant}",
+    "reimbursement": "Reimbursement",
+    "lastActivity": "Last activity",
+    "financialError": "We couldn't load the group's financial overview.",
+    "recentExpensesError": "We couldn't load recent expenses."
   }
 }
