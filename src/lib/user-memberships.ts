@@ -100,7 +100,10 @@ async function getGroupFinancialSummaries(
   const groupIds = Prisma.join(
     memberships.map((membership) => membership.groupId),
   )
-  const rows = await prisma.$queryRaw<GroupFinancialSummaryRow[]>(Prisma.sql`
+  let rows: GroupFinancialSummaryRow[]
+
+  try {
+    rows = await prisma.$queryRaw<GroupFinancialSummaryRow[]>(Prisma.sql`
     WITH membership_groups AS (
       SELECT
         m."groupId",
@@ -222,7 +225,21 @@ async function getGroupFinancialSummaries(
       AND bt."participantId" = mg."activeParticipantId"
     LEFT JOIN activity_totals at ON at."groupId" = c."groupId"
     ORDER BY c."groupId", c."currencyCode"
-  `)
+    `)
+  } catch (error) {
+    console.error('[groups.mine] financial summary aggregation failed', error)
+
+    return new Map(
+      memberships.map(({ groupId }) => [
+        groupId,
+        {
+          totalSpentByCurrency: {},
+          personalBalanceByCurrency: {},
+          lastActivityAt: null,
+        },
+      ]),
+    )
+  }
 
   return mergeGroupFinancialSummaryRows(rows)
 }
