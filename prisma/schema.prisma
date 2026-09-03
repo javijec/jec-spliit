@@ -99,6 +99,7 @@ model session {
 
 model account {
   id                    String    @id
+  issuer                String
   accountId             String
   providerId            String
   userId                String
@@ -113,6 +114,7 @@ model account {
   updatedAt             DateTime  @updatedAt
   user                  user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([issuer, accountId])
   @@index([userId])
 }
 
