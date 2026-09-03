@@ -180,7 +180,7 @@ function ExpenseCardComponent({ expense, currency, groupId }: Props) {
     payee: settlementTo,
   })
   const personalShareLabel =
-    personalShare === undefined
+    expense.isReimbursement || personalShare === undefined
       ? null
       : personalShare === null
         ? t('notInvolved')
