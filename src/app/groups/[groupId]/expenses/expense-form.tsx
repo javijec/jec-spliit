@@ -63,6 +63,10 @@ import { useForm, useWatch } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import { DeletePopup } from '../../../../components/delete-popup'
 import { useCurrentGroup } from '../current-group-context'
+import {
+  getDefaultSplittingOptions,
+  prepareExpenseFormValuesForPersistence,
+} from './expense-defaults'
 
 const enforceCurrencyPattern = (value: string) =>
   value
@@ -182,80 +186,6 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 }
 
 type FlowStepId = 'details' | 'split' | 'attachments'
-
-const getDefaultSplittingOptions = (
-  group: NonNullable<AppRouterOutput['groups']['get']['group']>,
-) => {
-  const splitMode = group.defaultSplitMode ?? 'EVENLY'
-  const configuredShares = Array.isArray(group.defaultSplitShares)
-    ? (group.defaultSplitShares as Array<{
-        participantId?: string
-        shares?: number
-      }>)
-    : []
-  const configuredSharesByParticipant = new Map(
-    configuredShares
-      .filter(
-        (item): item is { participantId: string; shares: number } =>
-          typeof item.participantId === 'string' &&
-          typeof item.shares === 'number',
-      )
-      .map((item) => [item.participantId, item.shares]),
-  )
-  const defaultShares = match(splitMode)
-    .with('BY_PERCENTAGE', () => {
-      const share =
-        group.participants.length > 0 ? 100 / group.participants.length : 0
-      return group.participants.map(({ id }) => ({
-        participant: id,
-        shares: (
-          configuredSharesByParticipant.get(id) ?? share
-        ).toString() as any,
-      }))
-    })
-    .otherwise(() =>
-      group.participants.map(({ id }) => ({
-        participant: id,
-        shares: (configuredSharesByParticipant.get(id) ?? 1).toString() as any, // Use string to ensure consistent schema handling
-      })),
-    )
-  const defaultValue = {
-    splitMode,
-    paidFor: defaultShares,
-  }
-
-  if (typeof localStorage === 'undefined') return defaultValue
-  const defaultSplitMode = localStorage.getItem(
-    `${group.id}-defaultSplittingOptions`,
-  )
-  if (defaultSplitMode === null) return defaultValue
-  const parsedDefaultSplitMode = JSON.parse(
-    defaultSplitMode,
-  ) as SplittingOptions
-
-  if (parsedDefaultSplitMode.paidFor === null) {
-    parsedDefaultSplitMode.paidFor = defaultValue.paidFor
-  }
-
-  // if there is a participant in the default options that does not exist anymore,
-  // remove the stale default splitting options
-  for (const parsedPaidFor of parsedDefaultSplitMode.paidFor) {
-    if (
-      !group.participants.some(({ id }) => id === parsedPaidFor.participant)
-    ) {
-      localStorage.removeItem(`${group.id}-defaultSplittingOptions`)
-      return defaultValue
-    }
-  }
-
-  return {
-    splitMode: parsedDefaultSplitMode.splitMode,
-    paidFor: parsedDefaultSplitMode.paidFor.map((paidFor) => ({
-      participant: paidFor.participant,
-      shares: (paidFor.shares / 100).toString() as any, // Convert to string for consistent schema handling
-    })),
-  }
-}
 
 async function persistDefaultSplittingOptions(
   groupId: string,
@@ -426,34 +356,10 @@ export function ExpenseForm({
     values.isReimbursement = expense?.isReimbursement ?? false
     values.recurrenceRule = RecurrenceRule.NONE
     await persistDefaultSplittingOptions(group.id, values)
-    const valuesCurrency = resolveExpenseCurrency(values.originalCurrency)
-    const valuesUseOriginalCurrency =
-      group.currencyCode &&
-      group.currencyCode.length &&
-      values.originalCurrency &&
-      values.originalCurrency.length &&
-      values.originalCurrency !== group.currencyCode
-
-    // Store monetary amounts in minor units (cents)
-    values.amount = amountAsMinorUnits(values.amount, valuesCurrency)
-    values.paidFor = values.paidFor.map(({ participant, shares }) => ({
-      participant,
-      shares:
-        values.splitMode === 'BY_AMOUNT'
-          ? amountAsMinorUnits(shares, valuesCurrency)
-          : shares,
-    }))
-
-    // If it is the group currency, do not persist original currency fields.
-    if (!valuesUseOriginalCurrency) {
-      delete values.originalAmount
-      delete values.originalCurrency
-    } else {
-      // No currency conversion: keep the original amount as entered.
-      values.originalAmount = values.originalAmount ?? values.amount
-      values.conversionRate = undefined
-    }
-    return onSubmit(values, activeUserId ?? undefined)
+    return onSubmit(
+      prepareExpenseFormValuesForPersistence(values, group, locale),
+      activeUserId ?? undefined,
+    )
   }
 
   const [isIncome, setIsIncome] = useState(Number(form.getValues().amount) < 0)

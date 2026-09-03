@@ -2,7 +2,6 @@
 
 import { ExpenseCard } from '@/app/groups/[groupId]/expenses/expense-card'
 import { getGroupExpensesAction } from '@/app/groups/[groupId]/expenses/expense-list-fetch-action'
-import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getCurrencyFromGroup } from '@/lib/utils'
@@ -11,10 +10,10 @@ import type { AppRouterOutput } from '@/trpc/routers/_app'
 import dayjs, { type Dayjs } from 'dayjs'
 import { Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import { forwardRef, useEffect, useMemo } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useCurrentGroup } from '../current-group-context'
+import { QuickExpenseTrigger } from '../quick-expense-drawer'
 
 const PAGE_SIZE = 20
 const EXPENSE_GROUP_ORDER = [
@@ -57,7 +56,7 @@ function groupExpensesByDate(expenses: ExpensesType): GroupedExpenses {
   )
 }
 
-function EmptyExpenses({ groupId }: { groupId: string }) {
+function EmptyExpenses() {
   const t = useTranslations('Expenses')
 
   return (
@@ -67,13 +66,7 @@ function EmptyExpenses({ groupId }: { groupId: string }) {
         title={t('noExpenses')}
         description={t('noEntriesYet')}
         className="rounded-lg border-border/70 bg-card p-6 shadow-[0_14px_34px_hsl(var(--foreground)/0.05)]"
-        action={
-          <Button asChild>
-            <Link href={`/groups/${groupId}/expenses/create`}>
-              {t('createFirst')}
-            </Link>
-          </Button>
-        }
+        action={<QuickExpenseTrigger>{t('createFirst')}</QuickExpenseTrigger>}
       />
     </div>
   )
@@ -197,7 +190,7 @@ function ExpenseListContent({ groupId }: { groupId: string }) {
   )
 
   if (isLoading) return <ExpensesLoading />
-  if (expenses.length === 0) return <EmptyExpenses groupId={groupId} />
+  if (expenses.length === 0) return <EmptyExpenses />
 
   return (
     <div className="space-y-3 px-0 pb-1">

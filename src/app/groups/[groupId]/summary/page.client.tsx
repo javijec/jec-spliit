@@ -30,6 +30,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useMemo } from 'react'
 import { useCurrentGroup } from '../current-group-context'
+import { QuickExpenseTrigger } from '../quick-expense-drawer'
 
 type RecentExpense =
   AppRouterOutput['groups']['expenses']['list']['expenses'][number]
@@ -303,12 +304,10 @@ export function SummaryPageClient() {
         </GroupSectionHeader>
         <GroupSectionContent className="flex flex-wrap gap-2">
           {hasActiveParticipant ? (
-            <Button asChild>
-              <Link href={`/groups/${groupId}/expenses/create`}>
-                <Plus className="mr-2 h-4 w-4" />
-                {hasExpenses ? t('addExpense') : t('addFirstExpense')}
-              </Link>
-            </Button>
+            <QuickExpenseTrigger>
+              <Plus className="mr-2 h-4 w-4" />
+              {hasExpenses ? t('addExpense') : t('addFirstExpense')}
+            </QuickExpenseTrigger>
           ) : (
             <Button type="button" onClick={() => openActiveUserModal?.()}>
               <UserRound className="mr-2 h-4 w-4" />
@@ -362,12 +361,10 @@ export function SummaryPageClient() {
               title={t('noExpensesYet')}
               description={t('noExpensesYetDescription')}
               action={
-                <Button asChild>
-                  <Link href={`/groups/${groupId}/expenses/create`}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t('addExpense')}
-                  </Link>
-                </Button>
+                <QuickExpenseTrigger>
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t('addExpense')}
+                </QuickExpenseTrigger>
               }
             />
           )}

@@ -52,6 +52,12 @@ jest.mock('@/trpc/client', () => ({
   },
 }))
 
+jest.mock('../quick-expense-drawer', () => ({
+  QuickExpenseTrigger: ({ children }: { children: React.ReactNode }) => (
+    <button type="button">{children}</button>
+  ),
+}))
+
 jest.mock('next-intl', () => ({
   useLocale: () => 'en-US',
   useTranslations:
@@ -193,8 +199,6 @@ describe('SummaryPageClient', () => {
     renderSummary()
 
     expect(screen.getByText(messages.Summary.noExpensesYet)).toBeTruthy()
-    expect(
-      screen.getByRole('link', { name: /add expense/i }).getAttribute('href'),
-    ).toBe('/groups/group-1/expenses/create')
+    expect(screen.getByRole('button', { name: /add expense/i })).toBeTruthy()
   })
 })

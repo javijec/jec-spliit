@@ -19,6 +19,10 @@ import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { CurrentGroupProvider } from './current-group-context'
 import { GroupHeader } from './group-header'
 import { loadGroupSnapshot, saveGroupSnapshot } from './group-snapshot'
+import {
+  QuickExpenseProvider,
+  QuickExpenseTrigger,
+} from './quick-expense-drawer'
 import { SaveGroupLocally } from './save-recent-group'
 
 type Group = NonNullable<AppRouterOutput['groups']['get']['group']>
@@ -266,86 +270,85 @@ export function GroupLayoutClient({
   if (isLoading) {
     return (
       <CurrentGroupProvider {...props}>
-        {!hideGroupHeaderCompletely && (
-          <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
-            <GroupHeader />
-          </div>
-        )}
-        <div className="pb-24 sm:pb-0">{children}</div>
-        <ActiveUserModal
-          groupId={groupId}
-          isAuthResolved={isAuthResolved}
-          open={activeUserModalOpen}
-          onOpenChange={setActiveUserModalOpen}
-        />
+        <QuickExpenseProvider>
+          {!hideGroupHeaderCompletely && (
+            <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
+              <GroupHeader />
+            </div>
+          )}
+          <div className="pb-24 sm:pb-0">{children}</div>
+          <ActiveUserModal
+            groupId={groupId}
+            isAuthResolved={isAuthResolved}
+            open={activeUserModalOpen}
+            onOpenChange={setActiveUserModalOpen}
+          />
+        </QuickExpenseProvider>
       </CurrentGroupProvider>
     )
   }
 
   return (
     <CurrentGroupProvider {...props}>
-      {!hideGroupHeaderCompletely && (
-        <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
-          <GroupHeader />
-        </div>
-      )}
-      <div className="pb-24 sm:pb-0">{children}</div>
-      {showMobileChrome && (
-        <>
-          {(pathname.startsWith(`/groups/${groupId}/summary`) ||
-            pathname.startsWith(`/groups/${groupId}/expenses`)) && (
-            <Button
-              asChild
-              size="icon"
-              className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] right-4 z-40 h-12 w-12 rounded-lg border border-primary/15 shadow-lg shadow-primary/20 sm:hidden"
-              onPointerEnter={prefetchCreateExpenseIntent}
-              onFocus={prefetchCreateExpenseIntent}
-              onTouchStart={prefetchCreateExpenseIntent}
-            >
-              <Link
-                href={`/groups/${groupId}/expenses/create`}
+      <QuickExpenseProvider>
+        {!hideGroupHeaderCompletely && (
+          <div className={hideGroupHeaderOnMobile ? 'hidden sm:block' : ''}>
+            <GroupHeader />
+          </div>
+        )}
+        <div className="pb-24 sm:pb-0">{children}</div>
+        {showMobileChrome && (
+          <>
+            {(pathname.startsWith(`/groups/${groupId}/summary`) ||
+              pathname.startsWith(`/groups/${groupId}/expenses`)) && (
+              <QuickExpenseTrigger
+                size="icon"
+                className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] right-4 z-40 h-12 w-12 rounded-lg border border-primary/15 shadow-lg shadow-primary/20 sm:hidden"
+                onPointerEnter={prefetchCreateExpenseIntent}
+                onFocus={prefetchCreateExpenseIntent}
                 title={tFlow('createTitle')}
+                aria-label={tFlow('createTitle')}
               >
                 <Plus className="h-5 w-5" />
-              </Link>
-            </Button>
-          )}
-          <nav className="fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-40 border-t border-border/80 bg-card/95 px-2 py-2 shadow-[0_-8px_20px_hsl(var(--foreground)/0.08)] backdrop-blur sm:hidden">
-            <div className="mx-auto grid max-w-md grid-cols-4 items-center gap-1">
-              {tabs.map((tab) => (
-                <Button
-                  key={tab.key}
-                  asChild
-                  variant={tab.active ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className={`h-11 flex-col gap-1 rounded-md ${
-                    tab.active
-                      ? 'border border-border/70 bg-secondary text-foreground shadow-sm'
-                      : 'text-muted-foreground'
-                  }`}
-                  onPointerEnter={() => prefetchTabIntent(tab.key)}
-                  onFocus={() => prefetchTabIntent(tab.key)}
-                  onTouchStart={() => prefetchTabIntent(tab.key)}
-                >
-                  <Link href={tab.href}>
-                    <tab.icon className="h-4 w-4" />
-                    <span className="text-[10px] leading-none">
-                      {tTabs(tab.key)}
-                    </span>
-                  </Link>
-                </Button>
-              ))}
-            </div>
-          </nav>
-        </>
-      )}
-      <SaveGroupLocally />
-      <ActiveUserModal
-        groupId={groupId}
-        isAuthResolved={isAuthResolved}
-        open={activeUserModalOpen}
-        onOpenChange={setActiveUserModalOpen}
-      />
+              </QuickExpenseTrigger>
+            )}
+            <nav className="fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-40 border-t border-border/80 bg-card/95 px-2 py-2 shadow-[0_-8px_20px_hsl(var(--foreground)/0.08)] backdrop-blur sm:hidden">
+              <div className="mx-auto grid max-w-md grid-cols-4 items-center gap-1">
+                {tabs.map((tab) => (
+                  <Button
+                    key={tab.key}
+                    asChild
+                    variant={tab.active ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className={`h-11 flex-col gap-1 rounded-md ${
+                      tab.active
+                        ? 'border border-border/70 bg-secondary text-foreground shadow-sm'
+                        : 'text-muted-foreground'
+                    }`}
+                    onPointerEnter={() => prefetchTabIntent(tab.key)}
+                    onFocus={() => prefetchTabIntent(tab.key)}
+                    onTouchStart={() => prefetchTabIntent(tab.key)}
+                  >
+                    <Link href={tab.href}>
+                      <tab.icon className="h-4 w-4" />
+                      <span className="text-[10px] leading-none">
+                        {tTabs(tab.key)}
+                      </span>
+                    </Link>
+                  </Button>
+                ))}
+              </div>
+            </nav>
+          </>
+        )}
+        <SaveGroupLocally />
+        <ActiveUserModal
+          groupId={groupId}
+          isAuthResolved={isAuthResolved}
+          open={activeUserModalOpen}
+          onOpenChange={setActiveUserModalOpen}
+        />
+      </QuickExpenseProvider>
     </CurrentGroupProvider>
   )
 }

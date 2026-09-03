@@ -9,19 +9,7 @@ import { ReceiptText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCurrentGroup } from '../current-group-context'
 import { ExpenseForm } from './expense-form'
-
-async function invalidateExpenseData(
-  utils: ReturnType<typeof trpc.useUtils>,
-  groupId: string,
-) {
-  await Promise.all([
-    utils.groups.expenses.list.invalidate({ groupId }),
-    utils.groups.reimbursements.list.invalidate({ groupId }),
-    utils.groups.balances.list.invalidate({ groupId }),
-    utils.groups.stats.get.invalidate({ groupId }),
-    utils.groups.activities.list.invalidate({ groupId }),
-  ])
-}
+import { invalidateCreatedExpenseData } from './expense-invalidation'
 
 export function CreateExpenseForm({
   groupId,
@@ -62,7 +50,7 @@ export function CreateExpenseForm({
             title: 'Gasto creado',
             description: 'El gasto se guardó correctamente.',
           })
-          await invalidateExpenseData(utils, groupId)
+          await invalidateCreatedExpenseData(utils, groupId)
           router.push(`/groups/${group.id}/expenses`)
         } catch (error) {
           toast({
