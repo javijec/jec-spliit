@@ -201,6 +201,7 @@ export function GroupLayoutClient({
           groupSnapshot,
           viewer,
           currentActiveParticipantId: data?.currentActiveParticipantId ?? null,
+          openActiveUserModal: () => setActiveUserModalOpen(true),
         }
       : {
           isLoading: false as const,
@@ -210,6 +211,7 @@ export function GroupLayoutClient({
           groupSnapshot,
           viewer,
           currentActiveParticipantId: data.currentActiveParticipantId ?? null,
+          openActiveUserModal: () => setActiveUserModalOpen(true),
         }
   const showMobileChrome =
     !isLoading &&

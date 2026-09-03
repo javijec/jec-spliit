@@ -1,9 +1,15 @@
 import { getGroup } from '@/lib/groups'
 import {
+  getGroupSpendingExpenses,
   getGroupStatsExpenses,
-  syncRecurringExpensesForGroupIfDue,
   getTotalGroupSpendingAmount,
+  syncRecurringExpensesForGroupIfDue,
 } from '@/lib/expenses'
+import {
+  getSummaryLastActivityAt,
+  getSummaryPersonalBalanceByCurrency,
+  getSummaryTotalsByCurrency,
+} from '@/lib/summary'
 import {
   getTotalActiveUserPaidFor,
   getTotalActiveUserShare,
@@ -54,14 +60,30 @@ export const getGroupStatsProcedure = protectedProcedure
       ]),
     )
 
-    const [totalGroupSpendings, monthlyExpenses, participantExpenses] =
-      await Promise.all([
-        getTotalGroupSpendingAmount(groupId),
-        getGroupStatsExpenses(groupId, { since: firstMonthDate }),
-        participantId
-          ? getGroupStatsExpenses(groupId, { participantId })
-          : Promise.resolve([]),
-      ])
+    const [
+      totalGroupSpendings,
+      monthlyExpenses,
+      participantExpenses,
+      summaryExpenses,
+    ] = await Promise.all([
+      getTotalGroupSpendingAmount(groupId),
+      getGroupStatsExpenses(groupId, { since: firstMonthDate }),
+      participantId
+        ? getGroupStatsExpenses(groupId, { participantId })
+        : Promise.resolve([]),
+      getGroupSpendingExpenses(groupId),
+    ])
+
+    const totalSpentByCurrency = getSummaryTotalsByCurrency(
+      summaryExpenses,
+      group.currencyCode,
+    )
+    const personalBalanceByCurrency = getSummaryPersonalBalanceByCurrency(
+      participantExpenses,
+      group.currencyCode,
+      participantId,
+    )
+    const lastActivityAt = getSummaryLastActivityAt(summaryExpenses)
 
     const totalsByCurrency = new Map<string, number[]>()
 
@@ -103,6 +125,9 @@ export const getGroupStatsProcedure = protectedProcedure
 
     return {
       totalGroupSpendings,
+      totalSpentByCurrency,
+      personalBalanceByCurrency,
+      lastActivityAt: lastActivityAt?.toISOString() ?? null,
       totalParticipantSpendings,
       totalParticipantShare,
       monthlySpendingsLastSixMonthsByCurrency,

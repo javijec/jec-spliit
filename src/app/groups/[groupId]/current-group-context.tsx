@@ -18,6 +18,7 @@ type GroupContext =
       groupSnapshot: GroupSnapshot
       viewer: Viewer | null
       currentActiveParticipantId: string | null
+      openActiveUserModal?: () => void
     }
   | {
       isLoading: true
@@ -27,6 +28,7 @@ type GroupContext =
       groupSnapshot: GroupSnapshot
       viewer: Viewer | null
       currentActiveParticipantId: string | null
+      openActiveUserModal?: () => void
     }
 
 const CurrentGroupContext = createContext<GroupContext | null>(null)

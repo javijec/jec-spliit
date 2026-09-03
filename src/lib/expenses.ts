@@ -11,6 +11,8 @@ import {
 
 const balanceExpenseSelect = {
   amount: true,
+  expenseDate: true,
+  isReimbursement: true,
   originalAmount: true,
   originalCurrency: true,
   paidBy: { select: { id: true } },
@@ -39,12 +41,24 @@ const statsExpenseSelect = {
   splitMode: true,
 } satisfies Prisma.ExpenseSelect
 
+const summaryTotalExpenseSelect = {
+  amount: true,
+  expenseDate: true,
+  isReimbursement: true,
+  originalAmount: true,
+  originalCurrency: true,
+} satisfies Prisma.ExpenseSelect
+
 export type BalanceExpense = Prisma.ExpenseGetPayload<{
   select: typeof balanceExpenseSelect
 }>
 
 export type StatsExpense = Prisma.ExpenseGetPayload<{
   select: typeof statsExpenseSelect
+}>
+
+export type SummaryTotalExpense = Prisma.ExpenseGetPayload<{
+  select: typeof summaryTotalExpenseSelect
 }>
 
 async function getGroupParticipants(groupId: string) {
@@ -382,6 +396,16 @@ export async function getGroupBalanceExpenses(groupId: string) {
     select: balanceExpenseSelect,
     where: {
       groupId,
+    },
+  })
+}
+
+export async function getGroupSpendingExpenses(groupId: string) {
+  return prisma.expense.findMany({
+    select: summaryTotalExpenseSelect,
+    where: {
+      groupId,
+      amount: { gt: 0 },
     },
   })
 }
