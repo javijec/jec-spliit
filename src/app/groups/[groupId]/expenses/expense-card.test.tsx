@@ -92,6 +92,7 @@ describe('ExpenseCard', () => {
 
     expect(screen.getByText('Dinner with the whole group')).toBeTruthy()
     expect(screen.getByText(/Paid by/)).toBeTruthy()
+    expect(screen.getByText('Food and Drink.Dining Out')).toBeTruthy()
     expect(screen.getByText(/Your share.*60/)).toBeTruthy()
     expect(screen.getByText(/Sep 2, 2026/)).toBeTruthy()
   })
@@ -130,6 +131,7 @@ describe('ExpenseCard', () => {
     )
 
     expect(screen.getByText('Payment')).toBeTruthy()
+    expect(screen.queryByText('Food and Drink.Dining Out')).toBeNull()
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('Registered payment')).toBeTruthy()
     expect(screen.getByText('Alice Example paid Bob Example')).toBeTruthy()

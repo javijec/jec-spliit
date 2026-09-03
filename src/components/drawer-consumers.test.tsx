@@ -78,7 +78,7 @@ describe('mobile Drawer consumers', () => {
     await waitFor(() => expect(screen.getByRole('dialog')).toBeTruthy())
     expect(screen.getByPlaceholderText('search')).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('option', { name: 'travel.transport' }))
+    fireEvent.click(screen.getByRole('option', { name: 'transport' }))
 
     await waitFor(() => expect(onValueChange).toHaveBeenLastCalledWith(2))
     expect(screen.queryByRole('dialog')).toBeNull()
